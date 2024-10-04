@@ -22,69 +22,69 @@ namespace GlobalAPINFe.Controllers
         }
 
         [HttpPost("upload")]
-        public async Task<IActionResult> UploadFoto(
-           [FromForm] int id,
-           [FromForm] int idEmpresa,
-           [FromForm] int cdProduto,
-           [FromForm] string descricaoFoto,
-           [FromForm] IFormFile foto)
+        [Consumes("multipart/form-data")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UploadFoto([FromForm] UploadFotoDto dto)
         {
             try
             {
-                if (foto == null || foto.Length == 0)
+                if (dto.Foto == null || dto.Foto.Length == 0)
                     return BadRequest("Foto não enviada.");
 
-                string fileName = Guid.NewGuid().ToString() + System.IO.Path.GetExtension(foto.FileName);
+                string fileName = Guid.NewGuid().ToString() + System.IO.Path.GetExtension(dto.Foto.FileName);
 
-                string folderPath = System.IO.Path.Combine(_environment.WebRootPath, "imagens", idEmpresa.ToString(), cdProduto.ToString());
+                string folderPath = System.IO.Path.Combine(_environment.WebRootPath, "imagens", dto.IdEmpresa.ToString(), dto.CdProduto.ToString());
                 Directory.CreateDirectory(folderPath);
 
                 string filePath = System.IO.Path.Combine(folderPath, fileName);
 
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    await foto.CopyToAsync(stream);
+                    await dto.Foto.CopyToAsync(stream);
                 }
 
-                string relativePath = System.IO.Path.Combine("imagens", idEmpresa.ToString(), cdProduto.ToString(), fileName);
+                string relativePath = System.IO.Path.Combine("imagens", dto.IdEmpresa.ToString(), dto.CdProduto.ToString(), fileName);
 
-                var existingFoto = await repo.RetrieveAsync(idEmpresa, id);
+                var existingFoto = await repo.RetrieveAsync(dto.IdEmpresa, dto.Id);
 
                 if (existingFoto != null)
                 {
-                    if (System.IO.File.Exists(System.IO.Path.Combine(_environment.WebRootPath, existingFoto.CaminhoFoto)))
+                    string existingFilePath = System.IO.Path.Combine(_environment.WebRootPath, existingFoto.CaminhoFoto);
+                    if (System.IO.File.Exists(existingFilePath))
                     {
-                        System.IO.File.Delete(System.IO.Path.Combine(_environment.WebRootPath, existingFoto.CaminhoFoto));
+                        System.IO.File.Delete(existingFilePath);
                     }
 
                     existingFoto.CaminhoFoto = relativePath;
-                    existingFoto.DescricaoFoto = descricaoFoto;
+                    existingFoto.DescricaoFoto = dto.DescricaoFoto;
                     existingFoto.Excluiu = false;
 
-                    FotosProdutoDto fotoProdutoDto = new FotosProdutoDto
+                    FotosProdutoDto fotosProdutoDto = new FotosProdutoDto()
                     {
                         Id = existingFoto.Id,
                         IdEmpresa = existingFoto.IdEmpresa,
                         CdProduto = existingFoto.CdProduto,
                         CaminhoFoto = existingFoto.CaminhoFoto,
-                        Excluiu = existingFoto.Excluiu,
-                        DescricaoFoto = existingFoto.DescricaoFoto
+                        DescricaoFoto = existingFoto.DescricaoFoto,
+                        Excluiu = existingFoto.Excluiu
                     };
-                    await repo.UpdateAsync(idEmpresa, id, fotoProdutoDto);
+
+                    await repo.UpdateAsync(dto.IdEmpresa, dto.Id, fotosProdutoDto);
                 }
                 else
                 {
-                    // Criar uma nova foto
-                    FotosProdutoDto fotoProdutoDto = new FotosProdutoDto
+                    FotosProdutoDto novaFoto = new FotosProdutoDto
                     {
-                        Id = id,
-                        IdEmpresa = idEmpresa,
-                        CdProduto = cdProduto,
+                        Id = dto.Id,
+                        IdEmpresa = dto.IdEmpresa,
+                        CdProduto = dto.CdProduto,
                         CaminhoFoto = relativePath,
-                        DescricaoFoto = descricaoFoto,
+                        DescricaoFoto = dto.DescricaoFoto,
                         Excluiu = false
                     };
-                    await repo.CreateAsync(fotoProdutoDto);
+                    await repo.CreateAsync(novaFoto);
                 }
 
                 return Ok("Foto enviada com sucesso.");
@@ -95,6 +95,7 @@ namespace GlobalAPINFe.Controllers
                 return StatusCode(500, "Erro interno do servidor.");
             }
         }
+
 
         [HttpDelete("delete")]
         public async Task<IActionResult> DeleteFoto([FromBody] DeleteFotoDto dto)

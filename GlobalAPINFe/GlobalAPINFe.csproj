@@ -42,6 +42,10 @@
 		<ProjectReference Include="..\GlobalLib\GlobalLib.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="wwwroot\" />
+	</ItemGroup>
+
 	  
 
 </Project>

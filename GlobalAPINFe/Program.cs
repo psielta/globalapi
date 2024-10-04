@@ -17,6 +17,7 @@ using GlobalErpData.Repository.Repositories;
 using GlobalErpData.Repository.PagedRepositories;
 using GlobalErpData.Repository.PagedRepositoriesMultiKey;
 using System.Globalization;
+using GlobalAPINFe.SwaggerUtils;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -118,7 +119,11 @@ builder.Services.AddControllers()/*
         }); */;
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    // Importante: Adicionar essa configuração
+    c.OperationFilter<FileUploadOperationFilter>();
+});
 
 var app = builder.Build();
 
@@ -139,6 +144,7 @@ app.UseCors("AllowSpecificOrigin");
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseStaticFiles();
 
 // Mapear controladores e endpoints GraphQL dentro do middleware de endpoints
 app.UseEndpoints(endpoints =>
