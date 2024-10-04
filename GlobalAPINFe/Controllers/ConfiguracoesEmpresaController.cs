@@ -1,0 +1,64 @@
+﻿using GlobalErpData.Dto;
+using GlobalErpData.GenericControllers;
+using GlobalErpData.Models;
+using GlobalErpData.Repository;
+using GlobalErpData.Repository.PagedRepositoriesMultiKey;
+using GlobalLib.Strings;
+using Microsoft.AspNetCore.Mvc;
+using X.PagedList.Extensions;
+
+namespace GlobalAPINFe.Controllers
+{
+    public class ConfiguracoesEmpresaController : GenericPagedControllerMultiKey<ConfiguracoesEmpresa, int, string, ConfiguracoesEmpresaDto>
+    {
+        public ConfiguracoesEmpresaController(IQueryRepositoryMultiKey<ConfiguracoesEmpresa, int, string, ConfiguracoesEmpresaDto> repo, ILogger<GenericPagedControllerMultiKey<ConfiguracoesEmpresa, int, string, ConfiguracoesEmpresaDto>> logger) : base(repo, logger)
+        {
+        }
+
+        [HttpGet("GetConfiguracoesEmpresaPorEmpresa", Name = nameof(GetConfiguracoesEmpresaPorEmpresa))]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> GetConfiguracoesEmpresaPorEmpresa(
+            int idEmpresa,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? chave = null)
+        {
+            try
+            {
+                var query = await ((ConfiguracoesEmpresaRepository)repo).GetConfiguracoesEmpresaPorEmpresa(idEmpresa);
+
+                if (query == null)
+                {
+                    return NotFound("Entities not found.");
+                }
+
+                var filteredQuery = query.AsQueryable().AsEnumerable();
+
+                if (!string.IsNullOrEmpty(chave))
+                {
+                    var normalizedChaveConf = UtlStrings.RemoveDiacritics(chave.ToLower());
+                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.Chave == null) ? "" : p.Chave.ToLower()).Contains(normalizedChaveConf));
+                }
+
+                filteredQuery = filteredQuery.OrderBy(p => p.Chave);
+
+                var pagedList = filteredQuery.ToPagedList(pageNumber, pageSize);
+                var response = new PagedResponse<ConfiguracoesEmpresa>(pagedList);
+
+                if (response.Items == null || response.Items.Count == 0)
+                {
+                    return NotFound("Entities not found.");
+                }
+
+                return Ok(response); // 200 OK
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while retrieving paged entities.");
+                return StatusCode(500, "An error occurred while retrieving entities. Please try again later.");
+            }
+        }
+
+    }
+}
