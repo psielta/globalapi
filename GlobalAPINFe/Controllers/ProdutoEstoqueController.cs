@@ -1,10 +1,14 @@
-﻿using GlobalErpData.Dto;
+﻿using GlobalErpData.Data;
+using GlobalErpData.Dto;
 using GlobalErpData.GenericControllers;
 using GlobalErpData.Models;
 using GlobalErpData.Repository;
 using GlobalErpData.Repository.PagedRepositoriesMultiKey;
 using GlobalLib.Strings;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
+using X.PagedList;
 using X.PagedList.EF;
 using X.PagedList.Extensions;
 
@@ -12,38 +16,13 @@ namespace GlobalAPINFe.Controllers
 {
     public class ProdutoEstoqueController : GenericPagedControllerMultiKey<ProdutoEstoque, int, int, ProdutoEstoqueDto>
     {
-        public ProdutoEstoqueController(IQueryRepositoryMultiKey<ProdutoEstoque, int, int, ProdutoEstoqueDto> repo, ILogger<GenericPagedControllerMultiKey<ProdutoEstoque, int, int, ProdutoEstoqueDto>> logger) : base(repo, logger)
+        private readonly IDbContextFactory<GlobalErpFiscalBaseContext> dbContextFactory;
+
+        public ProdutoEstoqueController(IQueryRepositoryMultiKey<ProdutoEstoque, int, int, ProdutoEstoqueDto> repo, ILogger<GenericPagedControllerMultiKey<ProdutoEstoque, int, int, ProdutoEstoqueDto>> logger, IDbContextFactory<GlobalErpFiscalBaseContext> context) : base(repo, logger)
         {
+            dbContextFactory = context;
         }
 
-        //[HttpGet("GetProdutoEstoquePorEmpresa", Name = nameof(GetProdutoEstoquePorEmpresa))]
-        //[ProducesResponseType(200)]
-        //[ProducesResponseType(404)]
-        //public async Task<IActionResult> GetProdutoEstoquePorEmpresa(int idEmpresa, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
-        //{
-        //    try
-        //    {
-        //        var query = ((ProdutoEstoquePagedRepositoryMultiKey)repo).GetProdutoEstoqueAsyncPorEmpresa(idEmpresa).Result.AsQueryable();
-        //        if (query == null)
-        //        {
-        //            return NotFound("Entities not found."); // 404 Resource not found
-        //        }
-        //        query = query.OrderBy(p => p.CdProduto);
-        //        var pagedList = await query.ToPagedListAsync(pageNumber, pageSize);
-        //        var response = new PagedResponse<ProdutoEstoque>(pagedList);
-
-        //        if (response.Items == null || response.Items.Count == 0)
-        //        {
-        //            return NotFound("Entities not found."); // 404 Resource not found
-        //        }
-        //        return Ok(response); // 200 OK
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        logger.LogError(ex, "Error occurred while retrieving paged entities.");
-        //        return StatusCode(500, "An error occurred while retrieving entities. Please try again later.");
-        //    }
-        //}
         [HttpGet("GetProdutoEstoquePorEmpresa", Name = nameof(GetProdutoEstoquePorEmpresa))]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
@@ -123,5 +102,105 @@ namespace GlobalAPINFe.Controllers
             }
         }
 
+
+
+        [HttpGet("GetProdutosComDetalhes", Name = nameof(GetProdutosComDetalhes))]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> GetProdutosComDetalhes(
+            int idEmpresa,
+            [FromQuery] int? cdGrupo = null,
+            [FromQuery] int? cdRef = null,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10)
+        {
+            try
+            {
+                await using var _context = dbContextFactory.CreateDbContext();
+
+                var query = _context.ProdutoEstoques
+                    .Include(p => p.FotosProdutos) // Inclui fotos
+                    .Include(p => p.CdGrupoNavigation) // Inclui grupo de estoque
+                    .Include(p => p.CdRefNavigation) // Inclui referência
+                    .Where(p => p.IdEmpresa == idEmpresa && p.FotosProdutos.Any());
+
+                // Filtros opcionais
+                if (cdGrupo.HasValue)
+                {
+                    query = query.Where(p => p.CdGrupo == cdGrupo.Value);
+                }
+
+                if (cdRef.HasValue)
+                {
+                    query = query.Where(p => p.CdRef == cdRef.Value);
+                }
+
+                // Ordenar por código de produto
+                query = query.OrderBy(p => p.CdProduto);
+
+                // Paginação usando X.PagedList
+                var pagedList = await query.ToPagedListAsync(pageNumber, pageSize);
+
+                if (pagedList == null || pagedList.Count == 0)
+                {
+                    return NotFound("Nenhum produto encontrado.");
+                }
+
+                var dtoList = pagedList.Select(p => new ProductDetails
+                {
+                    id = p.CdProduto,
+                    name = p.NmProduto,
+                    color = string.Empty, // Definir cor como string vazia
+                    href = "#", // Link genérico
+                    imageSrc = GetImageUrl(p.FotosProdutos.FirstOrDefault()?.CaminhoFoto) ?? string.Empty,
+                    imageAlt = p.FotosProdutos.FirstOrDefault()?.DescricaoFoto ?? "Imagem do produto",
+                    price = p.VlAVista?.ToString("C2") ?? "R$0,00", // Converte para formato de preço
+                    priceNumber = p.VlAVista ?? 0,
+                    rating = 5, // Rating fixo
+                    images = p.FotosProdutos.Select(f => new ProductImage
+                    {
+                        id = f.Id,
+                        name = f.DescricaoFoto ?? "Imagem do produto",
+                        src = GetImageUrl(f.CaminhoFoto) ?? string.Empty,
+                        alt = f.DescricaoFoto ?? "Imagem do produto"
+                    }).ToList(),
+                    colors = new List<ProductColor>
+                    {
+                        new ProductColor
+                        {
+                            name = string.Empty, // Cor definida como string vazia
+                            bgColor = string.Empty,
+                            selectedColor = string.Empty
+                        }
+                    },
+                    description = p.DescricaoProduto ?? "Descrição não disponível",
+                    details = new List<ProductDetail>
+                    {
+                        new ProductDetail
+                        {
+                            name = "Detalhes",
+                            items = new List<string> { p.CdInterno ?? "Código interno não disponível" }
+                        }
+                    }
+                }).ToList();
+
+                return Ok(new StaticPagedList<ProductDetails>(dtoList, pagedList.GetMetaData()));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro ao recuperar os produtos: {ex.Message}");
+            }
+        }
+        private string GetImageUrl(string? imagePath)
+        {
+            if (imagePath is null)
+            {
+                return string.Empty;
+            }
+
+            var baseUrl = $"{Request.Scheme}://{Request.Host.Value}";
+            var imageUrl = imagePath.Replace("\\", "/");
+            return $"{baseUrl}/{imageUrl}";
+        }
     }
 }
