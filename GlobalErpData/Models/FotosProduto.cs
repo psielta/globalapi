@@ -3,17 +3,20 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using GlobalLib.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace GlobalErpData.Models;
 
+[PrimaryKey("Id", "IdEmpresa")]
 [Table("fotos_produto")]
-public partial class FotosProduto
+public partial class FotosProduto : IIdentifiableMultiKey<int, int>
 {
     [Key]
     [Column("id")]
     public int Id { get; set; }
 
+    [Key]
     [Column("id_empresa")]
     public int IdEmpresa { get; set; }
 
@@ -39,4 +42,19 @@ public partial class FotosProduto
     [ForeignKey("CdProduto, IdEmpresa")]
     [InverseProperty("FotosProdutos")]
     public virtual ProdutoEstoque ProdutoEstoque { get; set; } = null!;
+
+    public (int, int) GetId()
+    {
+        return (IdEmpresa, Id);
+    }
+
+    public string GetKeyName1()
+    {
+        return "IdEmpresa";
+    }
+
+    public string GetKeyName2()
+    {
+        return "Id";
+    }
 }

@@ -609,8 +609,9 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
         modelBuilder.Entity<FotosProduto>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("fotos_produto_pkey");
+            entity.HasKey(e => new { e.Id, e.IdEmpresa }).HasName("fotos_produto_pkey");
 
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
             entity.Property(e => e.Excluiu).HasDefaultValue(false);
 
             entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.FotosProdutos)
