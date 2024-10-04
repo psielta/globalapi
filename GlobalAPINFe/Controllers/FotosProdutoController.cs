@@ -23,11 +23,11 @@ namespace GlobalAPINFe.Controllers
 
         [HttpPost("upload")]
         public async Task<IActionResult> UploadFoto(
-            [FromForm] int id,
-            [FromForm] int idEmpresa,
-            [FromForm] int cdProduto,
-            [FromForm] string descricaoFoto,
-            [FromForm] IFormFile foto)
+           [FromForm] int id,
+           [FromForm] int idEmpresa,
+           [FromForm] int cdProduto,
+           [FromForm] string descricaoFoto,
+           [FromForm] IFormFile foto)
         {
             try
             {
@@ -59,7 +59,7 @@ namespace GlobalAPINFe.Controllers
 
                     existingFoto.CaminhoFoto = relativePath;
                     existingFoto.DescricaoFoto = descricaoFoto;
-                    existingFoto.Excluiu = false; 
+                    existingFoto.Excluiu = false;
 
                     FotosProdutoDto fotoProdutoDto = new FotosProdutoDto
                     {
@@ -86,12 +86,58 @@ namespace GlobalAPINFe.Controllers
                     };
                     await repo.CreateAsync(fotoProdutoDto);
                 }
-                
+
                 return Ok("Foto enviada com sucesso.");
             }
             catch (Exception ex)
             {
                 logger.LogError(ex, "Erro ao fazer upload da foto.");
+                return StatusCode(500, "Erro interno do servidor.");
+            }
+        }
+
+        [HttpDelete("delete")]
+        public async Task<IActionResult> DeleteFoto([FromBody] DeleteFotoDto dto)
+        {
+            try
+            {
+                if (dto == null || dto.Id <= 0 || dto.IdEmpresa <= 0)
+                    return BadRequest("Dados inválidos.");
+
+                var existingFoto = await repo.RetrieveAsync(dto.IdEmpresa, dto.Id);
+
+                if (existingFoto == null)
+                {
+                    return NotFound("Foto não encontrada.");
+                }
+
+                string fullPath = System.IO.Path.Combine(_environment.WebRootPath, existingFoto.CaminhoFoto);
+                if (System.IO.File.Exists(fullPath))
+                {
+                    try
+                    {
+                        System.IO.File.Delete(fullPath);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, "Erro ao excluir o arquivo físico da foto.");
+                    }
+                }
+
+                bool? deleted = await repo.DeleteAsync(dto.IdEmpresa, dto.Id);
+
+                if (deleted.HasValue && deleted.Value)
+                {
+                    return Ok("Foto excluída com sucesso.");
+                }
+                else
+                {
+                    return StatusCode(500, "Erro ao excluir a foto do banco de dados.");
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Erro ao excluir a foto.");
                 return StatusCode(500, "Erro interno do servidor.");
             }
         }
