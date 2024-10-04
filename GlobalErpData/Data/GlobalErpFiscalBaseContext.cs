@@ -15,6 +15,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         : base(options)
     {
     }
+    public virtual DbSet<FotosProduto> FotosProdutos { get; set; }
 
     public virtual DbSet<Certificado> Certificados { get; set; }
     public virtual DbSet<ConfiguracoesEmpresa> ConfiguracoesEmpresas { get; set; }
@@ -604,6 +605,21 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.Fornecedors)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fornecedor_fk");
+        });
+
+        modelBuilder.Entity<FotosProduto>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("fotos_produto_pkey");
+
+            entity.Property(e => e.Excluiu).HasDefaultValue(false);
+
+            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.FotosProdutos)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_empresa");
+
+            entity.HasOne(d => d.ProdutoEstoque).WithMany(p => p.FotosProdutos)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_produto");
         });
 
         modelBuilder.Entity<GrupoEstoque>(entity =>

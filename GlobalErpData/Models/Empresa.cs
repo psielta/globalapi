@@ -247,4 +247,8 @@ public partial class Empresa : IIdentifiable<int>
     {
         return "CdEmpresa";
     }
+
+    [JsonIgnore]
+    [InverseProperty("IdEmpresaNavigation")]
+    public virtual ICollection<FotosProduto> FotosProdutos { get; set; } = new List<FotosProduto>();
 }
