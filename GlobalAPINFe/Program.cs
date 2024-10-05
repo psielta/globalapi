@@ -110,6 +110,9 @@ builder.Services.AddScoped<IQueryRepository<ProdutoEntradum, int, ProdutoEntrada
 builder.Services.AddScoped<IQueryRepositoryMultiKey<Entrada, int, int, EntradaDto>, EntradaPagedRepository>();
 builder.Services.AddScoped<IQueryRepositoryMultiKey<Transportadora, int, int, TransportadoraDto>, TransportadoraPagedRepository>();
 builder.Services.AddScoped<IQueryRepositoryMultiKey<FotosProduto, int,int, FotosProdutoDto>,  FotosProdutoRepository>();
+builder.Services.AddScoped<IRepositoryDto<Featured, int, FeaturedDto>, FeaturedRepository>();
+builder.Services.AddScoped<IRepositoryDto<Section, int, SectionDto>, SectionRepository>();
+builder.Services.AddScoped<IRepositoryDto<SectionItem, int, SectionItemDto>, SectionItemRepository>();
 
 builder.Services.AddControllers()/*
         .AddJsonOptions(options =>

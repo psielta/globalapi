@@ -50,6 +50,9 @@ namespace GlobalErpData.Repository
             CreateMap<TransportadoraDto, Transportadora>();
             CreateMap<ProdutoEntradaDto, ProdutoEntradum>();
             CreateMap<FotosProdutoDto, FotosProduto>();
+            CreateMap<FeaturedDto, Featured>();
+            CreateMap<SectionDto, Section>();
+            CreateMap<SectionItemDto, SectionItem>();
         }
     }
 }
