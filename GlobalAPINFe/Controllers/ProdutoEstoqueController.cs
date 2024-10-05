@@ -18,7 +18,10 @@ namespace GlobalAPINFe.Controllers
     {
         private readonly IDbContextFactory<GlobalErpFiscalBaseContext> dbContextFactory;
 
-        public ProdutoEstoqueController(IQueryRepositoryMultiKey<ProdutoEstoque, int, int, ProdutoEstoqueDto> repo, ILogger<GenericPagedControllerMultiKey<ProdutoEstoque, int, int, ProdutoEstoqueDto>> logger, IDbContextFactory<GlobalErpFiscalBaseContext> context) : base(repo, logger)
+        public ProdutoEstoqueController(
+            IQueryRepositoryMultiKey<ProdutoEstoque, int, int, ProdutoEstoqueDto> repo,
+            ILogger<GenericPagedControllerMultiKey<ProdutoEstoque, int, int, ProdutoEstoqueDto>> logger,
+            IDbContextFactory<GlobalErpFiscalBaseContext> context) : base(repo, logger)
         {
             dbContextFactory = context;
         }
@@ -90,10 +93,10 @@ namespace GlobalAPINFe.Controllers
 
                 if (response.Items == null || response.Items.Count == 0)
                 {
-                    return NotFound("Entities not found."); // 404 Resource not found
+                    return NotFound("Entities not found.");
                 }
 
-                return Ok(response); // 200 OK
+                return Ok(response);
             }
             catch (Exception ex)
             {
@@ -101,8 +104,6 @@ namespace GlobalAPINFe.Controllers
                 return StatusCode(500, "An error occurred while retrieving entities. Please try again later.");
             }
         }
-
-
 
         [HttpGet("GetProdutosComDetalhes", Name = nameof(GetProdutosComDetalhes))]
         [ProducesResponseType(200)]
@@ -119,12 +120,11 @@ namespace GlobalAPINFe.Controllers
                 await using var _context = dbContextFactory.CreateDbContext();
 
                 var query = _context.ProdutoEstoques
-                    .Include(p => p.FotosProdutos) // Inclui fotos
-                    .Include(p => p.CdGrupoNavigation) // Inclui grupo de estoque
-                    .Include(p => p.CdRefNavigation) // Inclui referência
+                    .Include(p => p.FotosProdutos)
+                    .Include(p => p.CdGrupoNavigation)
+                    .Include(p => p.CdRefNavigation)
                     .Where(p => p.IdEmpresa == idEmpresa && p.FotosProdutos.Any());
 
-                // Filtros opcionais
                 if (cdGrupo.HasValue)
                 {
                     query = query.Where(p => p.CdGrupo == cdGrupo.Value);
@@ -135,10 +135,8 @@ namespace GlobalAPINFe.Controllers
                     query = query.Where(p => p.CdRef == cdRef.Value);
                 }
 
-                // Ordenar por código de produto
                 query = query.OrderBy(p => p.CdProduto);
 
-                // Paginação usando X.PagedList
                 var pagedList = await query.ToPagedListAsync(pageNumber, pageSize);
 
                 if (pagedList == null || pagedList.Count == 0)
@@ -150,13 +148,13 @@ namespace GlobalAPINFe.Controllers
                 {
                     id = p.CdProduto,
                     name = p.NmProduto,
-                    color = string.Empty, // Definir cor como string vazia
-                    href = "#", // Link genérico
+                    color = string.Empty,
+                    href = "#",
                     imageSrc = GetImageUrl(p.FotosProdutos.FirstOrDefault()?.CaminhoFoto) ?? string.Empty,
                     imageAlt = p.FotosProdutos.FirstOrDefault()?.DescricaoFoto ?? "Imagem do produto",
-                    price = p.VlAVista?.ToString("C2") ?? "R$0,00", // Converte para formato de preço
+                    price = p.VlAVista?.ToString("C2") ?? "R$0,00",
                     priceNumber = p.VlAVista ?? 0,
-                    rating = 5, // Rating fixo
+                    rating = 5,
                     images = p.FotosProdutos.Select(f => new ProductImage
                     {
                         id = f.Id,
@@ -168,7 +166,7 @@ namespace GlobalAPINFe.Controllers
                     {
                         new ProductColor
                         {
-                            name = string.Empty, // Cor definida como string vazia
+                            name = string.Empty,
                             bgColor = string.Empty,
                             selectedColor = string.Empty
                         }
@@ -184,13 +182,25 @@ namespace GlobalAPINFe.Controllers
                     }
                 }).ToList();
 
-                return Ok(new StaticPagedList<ProductDetails>(dtoList, pagedList.GetMetaData()));
+                var response = new GlobalErpData.Dto.PagedList.PagedResponse<ProductDetails>
+                {
+                    Items = dtoList,
+                    PageNumber = pagedList.PageNumber,
+                    PageSize = pagedList.PageSize,
+                    TotalItemCount = pagedList.TotalItemCount,
+                    PageCount = pagedList.PageCount,
+                    HasNextPage = pagedList.HasNextPage,
+                    HasPreviousPage = pagedList.HasPreviousPage
+                };
+
+                return Ok(response);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, $"Erro ao recuperar os produtos: {ex.Message}");
             }
         }
+
         private string GetImageUrl(string? imagePath)
         {
             if (imagePath is null)
