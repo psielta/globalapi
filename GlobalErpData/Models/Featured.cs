@@ -52,6 +52,10 @@ public partial class Featured : IIdentifiableMultiKey<int, int>
     [InverseProperty("Featureds")]
     public virtual Empresa IdEmpresaNavigation { get; set; } = null!;
 
+    [JsonIgnore]
+    [InverseProperty("Featured")]
+    public virtual ICollection<ProdutoEstoque> ProdutoEstoques { get; set; } = new List<ProdutoEstoque>();
+
     [GraphQLIgnore]
     public (int, int) GetId()
     {

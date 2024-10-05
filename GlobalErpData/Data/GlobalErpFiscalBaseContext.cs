@@ -986,6 +986,10 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.SectionItem).WithMany(p => p.ProdutoEstoques)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("fk_section_item_id");
+
+            entity.HasOne(d => d.Featured).WithMany(p => p.ProdutoEstoques)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("fk_featured_id");
         });
 
         modelBuilder.Entity<ProdutosForn>(entity =>

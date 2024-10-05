@@ -269,5 +269,11 @@ namespace GlobalErpData.Dto
         public decimal? PercentualLucroLiquidoFiscal { get; set; }
 
         public decimal? IndiceMarkupFiscal { get; set; }
+
+        public int? SectionId { get; set; }
+
+        public int? SectionItemId { get; set; }
+
+        public int? FeaturedId { get; set; }
     }
 }

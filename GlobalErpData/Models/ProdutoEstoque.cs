@@ -543,6 +543,9 @@ public partial class ProdutoEstoque : IIdentifiable<int>, IIdentifiableMultiKey<
     [Column("section_item_id")]
     public int? SectionItemId { get; set; }
 
+    [Column("featured_id")]
+    public int? FeaturedId { get; set; }
+
     [JsonIgnore]
     [ForeignKey("CdGrupo")]
     [InverseProperty("ProdutoEstoques")]
@@ -579,6 +582,11 @@ public partial class ProdutoEstoque : IIdentifiable<int>, IIdentifiableMultiKey<
     [ForeignKey("SectionItemId")]
     [InverseProperty("ProdutoEstoques")]
     public virtual SectionItem? SectionItem { get; set; }
+
+    [JsonIgnore]
+    [ForeignKey("FeaturedId, IdEmpresa")]
+    [InverseProperty("ProdutoEstoques")]
+    public virtual Featured? Featured { get; set; }
 
     [GraphQLIgnore]
     public int GetId()
