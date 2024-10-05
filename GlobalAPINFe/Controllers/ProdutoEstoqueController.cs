@@ -112,6 +112,7 @@ namespace GlobalAPINFe.Controllers
             int idEmpresa,
             [FromQuery] int? cdGrupo = null,
             [FromQuery] int? cdRef = null,
+            [FromQuery] int? cdProduto = null,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10)
         {
@@ -133,6 +134,11 @@ namespace GlobalAPINFe.Controllers
                 if (cdRef.HasValue)
                 {
                     query = query.Where(p => p.CdRef == cdRef.Value);
+                }
+
+                if (cdProduto.HasValue)
+                {
+                    query = query.Where(p => p.CdProduto == cdProduto.Value);
                 }
 
                 query = query.OrderBy(p => p.CdProduto);
