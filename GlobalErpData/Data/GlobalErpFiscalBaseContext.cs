@@ -16,7 +16,9 @@ public partial class GlobalErpFiscalBaseContext : DbContext
     {
     }
     public virtual DbSet<FotosProduto> FotosProdutos { get; set; }
-
+    public virtual DbSet<Featured> Featureds { get; set; }
+    public virtual DbSet<Section> Sections { get; set; }
+    public virtual DbSet<SectionItem> SectionItems { get; set; }
     public virtual DbSet<Certificado> Certificados { get; set; }
     public virtual DbSet<ConfiguracoesEmpresa> ConfiguracoesEmpresas { get; set; }
     public virtual DbSet<ConfiguracoesUsuario> ConfiguracoesUsuarios { get; set; }
@@ -576,6 +578,15 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.HrLanc).HasDefaultValueSql("(now())::time without time zone");
         });
 
+        modelBuilder.Entity<Featured>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("featured_pkey");
+
+            entity.HasOne(d => d.Category).WithMany(p => p.Featureds).HasConstraintName("featured_category_id_fkey");
+
+            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.Featureds).HasConstraintName("featured_id_empresa_fkey");
+        });
+
         modelBuilder.Entity<Fornecedor>(entity =>
         {
             entity.HasKey(e => new { e.CdForn, e.IdEmpresa }).HasName("fornecedor_idx");
@@ -1010,6 +1021,28 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .HasConstraintName("saldo_estoque_fk1");
         });
 
+        modelBuilder.Entity<Section>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("sections_pkey");
+
+            entity.HasOne(d => d.Category).WithMany(p => p.Sections)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("sections_category_id_fkey");
+
+            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.Sections).HasConstraintName("sections_id_empresa_fkey");
+        });
+
+        modelBuilder.Entity<SectionItem>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("section_items_pkey");
+
+            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.SectionItems).HasConstraintName("section_items_id_empresa_fkey");
+
+            entity.HasOne(d => d.Section).WithMany(p => p.SectionItems)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("section_items_section_id_fkey");
+        });
+
         modelBuilder.Entity<Transportadora>(entity =>
         {
             entity.HasKey(e => new { e.CdTransportadora, e.IdEmpresa }).HasName("transportadora_idx1");
@@ -1066,6 +1099,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         modelBuilder.HasSequence("seq_entrada_geral_1");
         modelBuilder.HasSequence("seq_fornecedor_geral_1");
         modelBuilder.HasSequence("seq_fornecedor_geral_2");
+        modelBuilder.HasSequence("seq_fotos_geral_1");
         modelBuilder.HasSequence("seq_produto_geral_1").StartsAt(832L);
         modelBuilder.HasSequence("seq_produto_geral_2");
         modelBuilder.HasSequence("seq_transportadora_geral_1");

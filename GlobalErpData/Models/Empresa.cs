@@ -236,6 +236,18 @@ public partial class Empresa : IIdentifiable<int>
     [InverseProperty("CdEmpresaNavigation")]
     public virtual ICollection<ProdutoEntradum> ProdutoEntrada { get; set; } = new List<ProdutoEntradum>();
 
+    [JsonIgnore]
+    [InverseProperty("IdEmpresaNavigation")]
+    public virtual ICollection<SectionItem> SectionItems { get; set; } = new List<SectionItem>();
+
+    [JsonIgnore]
+    [InverseProperty("IdEmpresaNavigation")]
+    public virtual ICollection<Section> Sections { get; set; } = new List<Section>();
+
+    [JsonIgnore]
+    [InverseProperty("IdEmpresaNavigation")]
+    public virtual ICollection<Featured> Featureds { get; set; } = new List<Featured>();
+
     [GraphQLIgnore]
     public int GetId()
     {

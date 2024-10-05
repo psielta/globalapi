@@ -31,6 +31,14 @@ public partial class GrupoEstoque : IIdentifiable<int>
     [InverseProperty("CdGrupoNavigation")]
     public virtual ICollection<ProdutoEstoque> ProdutoEstoques { get; set; } = new List<ProdutoEstoque>();
 
+    [JsonIgnore]
+    [InverseProperty("Category")]
+    public virtual ICollection<Section> Sections { get; set; } = new List<Section>();
+
+    [JsonIgnore]
+    [InverseProperty("Category")]
+    public virtual ICollection<Featured> Featureds { get; set; } = new List<Featured>();
+
     public int GetId()
     {
         return this.CdGrupo;
