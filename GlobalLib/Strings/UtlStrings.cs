@@ -78,5 +78,14 @@ namespace GlobalLib.Strings
 
             return accents;
         }
+
+        public static string FormatProductName(string nmProduto)
+        {
+            if (string.IsNullOrEmpty(nmProduto))
+                return nmProduto;
+
+            string formattedName = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(nmProduto.ToLower());
+            return formattedName;
+        }
     }
 }

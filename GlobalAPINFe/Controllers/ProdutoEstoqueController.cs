@@ -154,7 +154,7 @@ namespace GlobalAPINFe.Controllers
                 var dtoList = pagedList.Select(p => new ProductDetails
                 {
                     id = p.CdProduto,
-                    name = p.NmProduto,
+                    name = UtlStrings.FormatProductName(p.NmProduto),
                     color = string.Empty,
                     href = "#",
                     imageSrc = GetImageUrl(p.FotosProdutos.FirstOrDefault()?.CaminhoFoto) ?? string.Empty,
