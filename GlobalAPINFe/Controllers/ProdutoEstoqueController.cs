@@ -8,6 +8,7 @@ using GlobalLib.Strings;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
+using System.Globalization;
 using X.PagedList;
 using X.PagedList.EF;
 using X.PagedList.Extensions;
@@ -158,7 +159,7 @@ namespace GlobalAPINFe.Controllers
                     href = "#",
                     imageSrc = GetImageUrl(p.FotosProdutos.FirstOrDefault()?.CaminhoFoto) ?? string.Empty,
                     imageAlt = p.FotosProdutos.FirstOrDefault()?.DescricaoFoto ?? "Imagem do produto",
-                    price = p.VlAVista?.ToString("C2") ?? "R$0,00",
+                    price = p.VlAVista?.ToString("C2", new CultureInfo("pt-BR")) ?? "R$0,00",
                     priceNumber = p.VlAVista ?? 0,
                     rating = 5,
                     images = p.FotosProdutos.Select(f => new ProductImage
