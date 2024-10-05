@@ -537,6 +537,12 @@ public partial class ProdutoEstoque : IIdentifiable<int>, IIdentifiableMultiKey<
     [Column("dt_alt_preco", TypeName = "timestamp(0) without time zone")]
     public DateTime? DtAltPreco { get; set; }
 
+    [Column("section_id")]
+    public int? SectionId { get; set; }
+
+    [Column("section_item_id")]
+    public int? SectionItemId { get; set; }
+
     [JsonIgnore]
     [ForeignKey("CdGrupo")]
     [InverseProperty("ProdutoEstoques")]
@@ -563,6 +569,16 @@ public partial class ProdutoEstoque : IIdentifiable<int>, IIdentifiableMultiKey<
     [JsonIgnore]
     [InverseProperty("ProdutoEstoque")]
     public virtual ICollection<ProdutoEntradum> ProdutoEntrada { get; set; } = new List<ProdutoEntradum>();
+
+    [JsonIgnore]
+    [ForeignKey("SectionId")]
+    [InverseProperty("ProdutoEstoques")]
+    public virtual Section? Section { get; set; }
+
+    [JsonIgnore]
+    [ForeignKey("SectionItemId")]
+    [InverseProperty("ProdutoEstoques")]
+    public virtual SectionItem? SectionItem { get; set; }
 
     [GraphQLIgnore]
     public int GetId()
