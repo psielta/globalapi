@@ -8,8 +8,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GlobalErpData.Models;
 
+[PrimaryKey("Id", "IdEmpresa")]
 [Table("featured")]
-public partial class Featured : IIdentifiable<int>
+public partial class Featured : IIdentifiableMultiKey<int, int>
 {
     [Key]
     [Column("id")]
@@ -34,8 +35,12 @@ public partial class Featured : IIdentifiable<int>
     [StringLength(255)]
     public string? ImageAlt { get; set; }
 
+    [Key]
     [Column("id_empresa")]
     public int IdEmpresa { get; set; }
+
+    [Column("excluiu")]
+    public bool? Excluiu { get; set; }
 
     [JsonIgnore]
     [ForeignKey("CategoryId")]
@@ -48,13 +53,19 @@ public partial class Featured : IIdentifiable<int>
     public virtual Empresa IdEmpresaNavigation { get; set; } = null!;
 
     [GraphQLIgnore]
-    public int GetId()
+    public (int, int) GetId()
     {
-        return Id;
+        return (IdEmpresa, Id);
     }
 
     [GraphQLIgnore]
-    public string GetKeyName()
+    public string GetKeyName1()
+    {
+        return "IdEmpresa";
+    }
+
+    [GraphQLIgnore]
+    public string GetKeyName2()
     {
         return "Id";
     }

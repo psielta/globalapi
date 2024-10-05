@@ -10,11 +10,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GlobalErpData.Repository.Repositories
+namespace GlobalErpData.Repository.PagedRepositoriesMultiKey
 {
-    public class FeaturedRepository : GenericRepositoryDto<Featured, GlobalErpFiscalBaseContext, int, FeaturedDto>
+    public class FeaturedRepository : GenericPagedRepositoryMultiKey<Featured, GlobalErpFiscalBaseContext, int, int, FeaturedDto>
     {
-        public FeaturedRepository(GlobalErpFiscalBaseContext injectedContext, IMapper mapper, ILogger<GenericRepositoryDto<Featured, GlobalErpFiscalBaseContext, int, FeaturedDto>> logger) : base(injectedContext, mapper, logger)
+        public FeaturedRepository(GlobalErpFiscalBaseContext injectedContext, IMapper mapper, ILogger<GenericPagedRepositoryMultiKey<Featured, GlobalErpFiscalBaseContext, int, int, FeaturedDto>> logger) : base(injectedContext, mapper, logger)
         {
         }
 

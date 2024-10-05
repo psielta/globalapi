@@ -2,15 +2,19 @@
 using GlobalErpData.GenericControllers;
 using GlobalErpData.Models;
 using GlobalErpData.Repository;
-using GlobalErpData.Repository.Repositories;
+using GlobalErpData.Repository.PagedRepositoriesMultiKey;
 using Microsoft.AspNetCore.Mvc;
+using System;
 
 namespace GlobalAPINFe.Controllers
 {
-    public class FeaturedController : GenericDtoController<Featured, int, FeaturedDto>
+    public class FeaturedController : GenericPagedControllerMultiKey<Featured, int,int, FeaturedDto>
     {
-        public FeaturedController(IRepositoryDto<Featured, int, FeaturedDto> repo, ILogger<GenericDtoController<Featured, int, FeaturedDto>> logger) : base(repo, logger)
+        private readonly IWebHostEnvironment _environment;
+        
+        public FeaturedController(IQueryRepositoryMultiKey<Featured, int, int, FeaturedDto> repo, ILogger<GenericPagedControllerMultiKey<Featured, int, int, FeaturedDto>> logger, IWebHostEnvironment environment) : base(repo, logger)
         {
+            _environment = environment;
         }
 
         [HttpGet("/api/FeaturedsPorEmpresa/{id}", Name = nameof(GetFeaturedsPorEmpresa))]
@@ -24,6 +28,141 @@ namespace GlobalAPINFe.Controllers
                 return NotFound(); // 404 Resource not found
             }
             return Ok(entities); // 200 OK
+        }
+        
+        [HttpPost("upload")]
+        [Consumes("multipart/form-data")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UploadFeaturedFoto([FromForm] UploadFeaturedDto dto)
+        {
+            try
+            {
+                if (dto.Foto == null || dto.Foto.Length == 0)
+                    return BadRequest("Foto não enviada.");
+
+                string fileName = Guid.NewGuid().ToString() + System.IO.Path.GetExtension(dto.Foto.FileName);
+
+                string folderPath = System.IO.Path.Combine(_environment.WebRootPath, "featured", dto.IdEmpresa.ToString(), dto.CategoryId.ToString());
+                Directory.CreateDirectory(folderPath);
+
+                string filePath = System.IO.Path.Combine(folderPath, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await dto.Foto.CopyToAsync(stream);
+                }
+
+                string relativePath = System.IO.Path.Combine("featured", dto.IdEmpresa.ToString(), dto.CategoryId.ToString(), fileName);
+
+                var existingFoto = await repo.RetrieveAsync(dto.IdEmpresa, dto.Id);
+
+                if (existingFoto != null)
+                {
+                    if (string.IsNullOrEmpty(existingFoto.ImageSrc))
+                    { 
+                        return BadRequest("Foto não encontrada.");
+                    }
+                    string existingFilePath = System.IO.Path.Combine(_environment.WebRootPath, existingFoto.ImageSrc);
+                    if (System.IO.File.Exists(existingFilePath))
+                    {
+                        System.IO.File.Delete(existingFilePath);
+                    }
+
+                    existingFoto.ImageSrc = relativePath;
+                    existingFoto.ImageAlt = dto.ImageAlt;
+                    existingFoto.Excluiu = false;
+
+                    FeaturedDto uploadedFeaturedDto = new FeaturedDto()
+                    {
+                        Id = existingFoto.Id,
+                        IdEmpresa = existingFoto.IdEmpresa,
+                        CategoryId = existingFoto.CategoryId,
+                        ImageSrc = existingFoto.ImageSrc,
+                        ImageAlt = existingFoto.ImageAlt,
+                        Excluiu = existingFoto.Excluiu,
+                        Name = existingFoto.Name,
+                        Href = string.Empty
+                    };
+
+                    await repo.UpdateAsync(dto.IdEmpresa, dto.Id, uploadedFeaturedDto);
+                }
+                else
+                {
+                    FeaturedDto uploadedFeaturedDto = new FeaturedDto()
+                    {
+                        Id = dto.Id,
+                        IdEmpresa = dto.IdEmpresa,
+                        ImageSrc = relativePath,
+                        ImageAlt = dto.ImageAlt,
+                        Excluiu = false,
+                        Name = dto.Name,
+                        Href = string.Empty,
+                        CategoryId = dto.CategoryId
+                    };
+                    await repo.CreateAsync(uploadedFeaturedDto);
+                }
+
+                return Ok("Foto enviada com sucesso.");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Erro ao fazer upload da foto.");
+                return StatusCode(500, "Erro interno do servidor.");
+            }
+        }
+
+        [HttpDelete("delete")]
+        public async Task<IActionResult> DeleteFoto([FromBody] DeleteFotoDto dto)
+        {
+            try
+            {
+                if (dto == null || dto.Id <= 0 || dto.IdEmpresa <= 0)
+                    return BadRequest("Dados inválidos.");
+
+                var existingFoto = await repo.RetrieveAsync(dto.IdEmpresa, dto.Id);
+
+                if (existingFoto == null)
+                {
+                    return NotFound("Foto não encontrada.");
+                }
+                //if (string.IsNullOrEmpty(existingFoto.ImageSrc))
+                //{
+                //return BadRequest("Foto não encontrada.");
+                //}
+                if (! string.IsNullOrEmpty(existingFoto.ImageSrc))
+                {
+                    string fullPath = System.IO.Path.Combine(_environment.WebRootPath, existingFoto.ImageSrc);
+                    if (System.IO.File.Exists(fullPath))
+                    {
+                        try
+                        {
+                            System.IO.File.Delete(fullPath);
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.LogError(ex, "Erro ao excluir o arquivo físico da foto.");
+                        }
+                    }
+                }
+
+                bool? deleted = await repo.DeleteAsync(dto.IdEmpresa, dto.Id);
+
+                if (deleted.HasValue && deleted.Value)
+                {
+                    return Ok("Foto excluída com sucesso.");
+                }
+                else
+                {
+                    return StatusCode(500, "Erro ao excluir a foto do banco de dados.");
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Erro ao excluir a foto.");
+                return StatusCode(500, "Erro interno do servidor.");
+            }
         }
 
     }
