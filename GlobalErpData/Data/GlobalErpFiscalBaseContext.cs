@@ -15,6 +15,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         : base(options)
     {
     }
+    public virtual DbSet<PerfilLoja> PerfilLojas { get; set; }
     public virtual DbSet<ItemDetail> ItemDetails { get; set; }
     public virtual DbSet<ProductDetail> ProductDetails { get; set; }
     public virtual DbSet<FotosProduto> FotosProdutos { get; set; }
@@ -784,6 +785,15 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.Id).ValueGeneratedOnAdd();
 
             entity.HasOne(d => d.IdEmpresaNavigation).WithMany().HasConstraintName("mdfe_seguro_fk");
+        });
+
+        modelBuilder.Entity<PerfilLoja>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("perfil_loja_pkey");
+
+            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.PerfilLojas)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("perfil_loja_fk");
         });
 
         modelBuilder.Entity<Permissao>(entity =>

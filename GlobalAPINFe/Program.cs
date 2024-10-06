@@ -115,6 +115,7 @@ builder.Services.AddScoped<IRepositoryDto<Section, int, SectionDto>, SectionRepo
 builder.Services.AddScoped<IRepositoryDto<SectionItem, int, SectionItemDto>, SectionItemRepository>();
 builder.Services.AddScoped<IRepositoryDto<ProductDetail, int, ProductDetailDto>, ProductDetailRepository>();
 builder.Services.AddScoped<IRepositoryDto<ItemDetail, int, ItemDetailDto>, ItemDetailRepository>();
+builder.Services.AddScoped<IRepositoryDto<PerfilLoja, int, PerfilLojaDto>, PerfilLojaRepository>();
 
 builder.Services.AddControllers()/*
         .AddJsonOptions(options =>

@@ -262,6 +262,11 @@ public partial class Empresa : IIdentifiable<int>
         return this.CdEmpresa;
     }
 
+    [JsonIgnore]
+    [InverseProperty("IdEmpresaNavigation")]
+    public virtual ICollection<PerfilLoja> PerfilLojas { get; set; } = new List<PerfilLoja>();
+
+
     [GraphQLIgnore]
     public string GetKeyName()
     {
