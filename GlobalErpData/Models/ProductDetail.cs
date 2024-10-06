@@ -30,9 +30,9 @@ public partial class ProductDetail : IIdentifiable<int>
     [InverseProperty("ProductDetails")]
     public virtual Empresa IdEmpresaNavigation { get; set; } = null!;
 
-    /*[JsonIgnore]
+    [JsonIgnore]
     [ForeignKey("IdEmpresa, IdProduto")]
-    public virtual ProdutoEstoque ProdutoEstoque { get; set; } = null!;*/
+    public virtual ProdutoEstoque ProdutoEstoque { get; set; } = null!;
 
     [JsonIgnore]
     [InverseProperty("IdProductDetailsNavigation")]

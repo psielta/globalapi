@@ -112,115 +112,115 @@ namespace GlobalAPINFe.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         public async Task<IActionResult> GetProdutosComDetalhes(
-            int idEmpresa,
-            [FromQuery] int? cdGrupo = null,
-            [FromQuery] int? cdRef = null,
-            [FromQuery] int? sectionId = null,
-            [FromQuery] int? sectionItemId = null,
-            [FromQuery] int? featuredId = null,
-            [FromQuery] int? cdProduto = null,
-            [FromQuery] string? nmProduto = null,
-            [FromQuery] int pageNumber = 1,
-            [FromQuery] int pageSize = 10)
-                {
-                    try
-                    {
-                        await using var _context = dbContextFactory.CreateDbContext();
-                //JOIN fotos_produto fp ON fp.cd_produto = pe.cd_produto AND fp.id_empresa = pe.id_empresa
-                // AND (fp.excluiu = false or fp.excluiu is NULL)
-                // Parte do filtro que deve ser feita em SQL bruto para o nome do produto, caso informado
+    int idEmpresa,
+    [FromQuery] int? cdGrupo = null,
+    [FromQuery] int? cdRef = null,
+    [FromQuery] int? sectionId = null,
+    [FromQuery] int? sectionItemId = null,
+    [FromQuery] int? featuredId = null,
+    [FromQuery] int? cdProduto = null,
+    [FromQuery] string? nmProduto = null,
+    [FromQuery] int pageNumber = 1,
+    [FromQuery] int pageSize = 10)
+        {
+            try
+            {
+                await using var _context = dbContextFactory.CreateDbContext();
+
                 string sqlQuery = @"
-                    SELECT pe.* FROM produto_estoque pe
-                    WHERE pe.id_empresa = @idEmpresa
-                    {0}";
+            SELECT pe.* FROM produto_estoque pe
+            WHERE pe.id_empresa = @idEmpresa
+            {0}";
 
-                        var parametros = new List<NpgsqlParameter>
+                var parametros = new List<NpgsqlParameter>
+        {
+            new NpgsqlParameter("idEmpresa", idEmpresa)
+        };
+
+                string filtroNomeProduto = "";
+                if (!string.IsNullOrEmpty(nmProduto))
                 {
-                    new NpgsqlParameter("idEmpresa", idEmpresa)
-                };
+                    var termos = nmProduto.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                                          .Select(t => $"%{t}%")
+                                          .ToList();
 
-                        string filtroNomeProduto = "";
-                        if (!string.IsNullOrEmpty(nmProduto))
-                        {
-                            var termos = nmProduto.Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                                                  .Select(t => $"%{t}%")
-                                                  .ToList();
+                    for (int i = 0; i < termos.Count; i++)
+                    {
+                        string paramName = $"@termo{i}";
+                        filtroNomeProduto += $" AND unaccent(LOWER(pe.nm_produto)) LIKE CONCAT('%',unaccent(LOWER({paramName})),'%')";
+                        parametros.Add(new NpgsqlParameter(paramName, termos[i]));
+                    }
+                }
 
-                            for (int i = 0; i < termos.Count; i++)
-                            {
-                                string paramName = $"@termo{i}";
-                                filtroNomeProduto += $" AND unaccent(LOWER(pe.nm_produto)) LIKE CONCAT('%',unaccent(LOWER({paramName})),'%')";
-                                parametros.Add(new NpgsqlParameter(paramName, termos[i]));
-                            }
-                        }
+                sqlQuery = string.Format(sqlQuery, filtroNomeProduto);
 
-                        sqlQuery = string.Format(sqlQuery, filtroNomeProduto);
+                var query = _context.ProdutoEstoques.FromSqlRaw(sqlQuery, parametros.ToArray())
+                    .Include(p => p.FotosProdutos)
+                    .Include(p => p.CdGrupoNavigation)
+                    .Include(p => p.CdRefNavigation)
+                    .Where(p => p.IdEmpresa == idEmpresa && p.FotosProdutos.Any());
 
-                        var query = _context.ProdutoEstoques.FromSqlRaw(sqlQuery, parametros.ToArray()).Include(p => p.FotosProdutos)
-            .Include(p => p.CdGrupoNavigation)
-            .Include(p => p.CdRefNavigation)
-            .Where(p => p.IdEmpresa == idEmpresa && p.FotosProdutos.Any());
-
-                // Aplicar os filtros adicionais via LINQ
+                // Aplicar filtros adicionais via LINQ
                 if (cdGrupo.HasValue)
-                        {
-                            query = query.Where(p => p.CdGrupo == cdGrupo.Value);
-                        }
+                {
+                    query = query.Where(p => p.CdGrupo == cdGrupo.Value);
+                }
 
-                        if (cdRef.HasValue)
-                        {
-                            query = query.Where(p => p.CdRef == cdRef.Value);
-                        }
+                if (cdRef.HasValue)
+                {
+                    query = query.Where(p => p.CdRef == cdRef.Value);
+                }
 
-                        if (cdProduto.HasValue)
-                        {
-                            query = query.Where(p => p.CdProduto == cdProduto.Value);
-                        }
+                if (cdProduto.HasValue)
+                {
+                    query = query.Where(p => p.CdProduto == cdProduto.Value);
+                }
 
-                        if (sectionId.HasValue)
-                        {
-                            query = query.Where(p => p.SectionId == sectionId.Value);
-                        }
+                if (sectionId.HasValue)
+                {
+                    query = query.Where(p => p.SectionId == sectionId.Value);
+                }
 
-                        if (sectionItemId.HasValue)
-                        {
-                            query = query.Where(p => p.SectionItemId == sectionItemId.Value);
-                        }
+                if (sectionItemId.HasValue)
+                {
+                    query = query.Where(p => p.SectionItemId == sectionItemId.Value);
+                }
 
-                        if (featuredId.HasValue)
-                        {
-                            query = query.Where(p => p.FeaturedId == featuredId.Value);
-                        }
+                if (featuredId.HasValue)
+                {
+                    query = query.Where(p => p.FeaturedId == featuredId.Value);
+                }
 
-                        // Ordenar e paginar
-                        query = query.OrderBy(p => p.CdProduto);
+                // Ordenar e paginar
+                query = query.OrderBy(p => p.CdProduto);
 
-                        var pagedList = await query.ToPagedListAsync(pageNumber, pageSize);
+                var pagedList = await query.ToPagedListAsync(pageNumber, pageSize);
 
-                        if (pagedList == null || pagedList.Count == 0)
-                        {
-                            return NotFound("Nenhum produto encontrado.");
-                        }
+                if (pagedList == null || pagedList.Count == 0)
+                {
+                    return NotFound("Nenhum produto encontrado.");
+                }
 
-                        var dtoList = pagedList.Select(p => new ProductDetails
-                        {
-                            id = p.CdProduto,
-                            name = UtlStrings.FormatProductName(p.NmProduto),
-                            color = string.Empty,
-                            href = "#",
-                            imageSrc = GetImageUrl(p.FotosProdutos.FirstOrDefault()?.CaminhoFoto) ?? string.Empty,
-                            imageAlt = p.FotosProdutos.FirstOrDefault()?.DescricaoFoto ?? "Imagem do produto",
-                            price = p.VlAVista?.ToString("C2", new CultureInfo("pt-BR")) ?? "R$0,00",
-                            priceNumber = p.VlAVista ?? 0,
-                            rating = 5,
-                            images = p.FotosProdutos.Select(f => new ProductImage
-                            {
-                                id = f.Id,
-                                name = f.DescricaoFoto ?? "Imagem do produto",
-                                src = GetImageUrl(f.CaminhoFoto) ?? string.Empty,
-                                alt = f.DescricaoFoto ?? "Imagem do produto"
-                            }).ToList(),
-                            colors = new List<ProductColor>
+                // Montar os DTOs para os produtos
+                var dtoList = pagedList.Select(p => new ProductDetails
+                {
+                    id = p.CdProduto,
+                    name = UtlStrings.FormatProductName(p.NmProduto),
+                    color = string.Empty,
+                    href = "#",
+                    imageSrc = GetImageUrl(p.FotosProdutos.FirstOrDefault()?.CaminhoFoto) ?? string.Empty,
+                    imageAlt = p.FotosProdutos.FirstOrDefault()?.DescricaoFoto ?? "Imagem do produto",
+                    price = p.VlAVista?.ToString("C2", new CultureInfo("pt-BR")) ?? "R$0,00",
+                    priceNumber = p.VlAVista ?? 0,
+                    rating = 5,
+                    images = p.FotosProdutos.Select(f => new ProductImage
+                    {
+                        id = f.Id,
+                        name = f.DescricaoFoto ?? "Imagem do produto",
+                        src = GetImageUrl(f.CaminhoFoto) ?? string.Empty,
+                        alt = f.DescricaoFoto ?? "Imagem do produto"
+                    }).ToList(),
+                    colors = new List<ProductColor>
                     {
                         new ProductColor
                         {
@@ -230,34 +230,58 @@ namespace GlobalAPINFe.Controllers
                         }
                     },
                             description = p.DescricaoProduto ?? "Descrição não disponível",
-                            details = new List<ProductDetailv2>
-                    {
-                        new ProductDetailv2
-                        {
-                            name = "Detalhes",
-                            items = new List<string> { p.CdInterno ?? "Código interno não disponível" }
-                        }
-                    }
-                        }).ToList();
+                            details = new List<ProductDetailv2>() // Vamos preencher isso depois
+                }).ToList();
 
-                        var response = new GlobalErpData.Dto.PagedList.PagedResponse<ProductDetails>
+                // Carregar os ProductDetails e ItemDetails de forma separada
+                var produtoIds = pagedList.Select(p => p.CdProduto).ToList();
+                var productDetails = await _context.ProductDetails
+                    .Where(pd => produtoIds.Contains(pd.IdProduto) && pd.IdEmpresa == idEmpresa)
+                    .ToListAsync();
+                var idOfProductDetails = productDetails.Select(pd => pd.Id).ToList();
+
+                var itemDetails = await _context.ItemDetails
+                    .Where(id => idOfProductDetails.Contains(id.IdProductDetails) && id.IdEmpresa == idEmpresa)
+                    .ToListAsync();
+
+                // Atribuir os detalhes aos produtos correspondentes
+                foreach (var dto in dtoList)
+                {
+                    var productDetail = productDetails.Where(pd => pd.IdProduto == dto.id && pd.IdEmpresa == idEmpresa).ToList();
+                    foreach (var pd in productDetail)
+                    {
+                        var details = new ProductDetailv2
                         {
-                            Items = dtoList,
-                            PageNumber = pagedList.PageNumber,
-                            PageSize = pagedList.PageSize,
-                            TotalItemCount = pagedList.TotalItemCount,
-                            PageCount = pagedList.PageCount,
-                            HasNextPage = pagedList.HasNextPage,
-                            HasPreviousPage = pagedList.HasPreviousPage
+                            name = pd.Name,
+                            items = itemDetails.Where(id => id.IdProductDetails == pd.Id)
+                                               .Select(id => id.Value)
+                                               .ToList()
                         };
 
-                        return Ok(response);
-                    }
-                    catch (Exception ex)
-                    {
-                        return StatusCode(500, $"Erro ao recuperar os produtos: {ex.Message}");
+                        dto.details.Add(details);
                     }
                 }
+
+                var response = new GlobalErpData.Dto.PagedList.PagedResponse<ProductDetails>
+                {
+                    Items = dtoList,
+                    PageNumber = pagedList.PageNumber,
+                    PageSize = pagedList.PageSize,
+                    TotalItemCount = pagedList.TotalItemCount,
+                    PageCount = pagedList.PageCount,
+                    HasNextPage = pagedList.HasNextPage,
+                    HasPreviousPage = pagedList.HasPreviousPage
+                };
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro ao recuperar os produtos: {ex.Message}");
+            }
+        }
+
+
 
 
 
