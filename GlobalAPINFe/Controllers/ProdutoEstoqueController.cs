@@ -230,7 +230,7 @@ namespace GlobalAPINFe.Controllers
                         }
                     },
                             description = p.DescricaoProduto ?? "Descrição não disponível",
-                            details = new List<ProductDetailv2>() // Vamos preencher isso depois
+                            details = new List<ProductDetailv2>() { new ProductDetailv2() { name="Código", items = [p.CdProduto.ToString()] } } 
                 }).ToList();
 
                 // Carregar os ProductDetails e ItemDetails de forma separada
