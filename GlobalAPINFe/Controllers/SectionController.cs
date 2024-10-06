@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GlobalAPINFe.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class SectionController : GenericDtoController<Section, int, SectionDto>
     {
         public SectionController(IRepositoryDto<Section, int, SectionDto> repo, ILogger<GenericDtoController<Section, int, SectionDto>> logger) : base(repo, logger)

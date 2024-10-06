@@ -8,6 +8,8 @@ using System;
 
 namespace GlobalAPINFe.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class FeaturedController : GenericPagedControllerMultiKey<Featured, int,int, FeaturedDto>
     {
         private readonly IWebHostEnvironment _environment;

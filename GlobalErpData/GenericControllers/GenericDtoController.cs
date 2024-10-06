@@ -1,6 +1,5 @@
 ﻿using GlobalErpData.Repository;
 using GlobalLib.Database;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
@@ -8,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace GlobalErpData.GenericControllers
 {
-    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public abstract class GenericDtoController<TEntity, TKey, TDto> : Controller where TEntity : class, IIdentifiable<TKey>
