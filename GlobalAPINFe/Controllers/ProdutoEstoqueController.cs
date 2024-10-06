@@ -230,9 +230,9 @@ namespace GlobalAPINFe.Controllers
                         }
                     },
                             description = p.DescricaoProduto ?? "Descrição não disponível",
-                            details = new List<ProductDetail>
+                            details = new List<ProductDetailv2>
                     {
-                        new ProductDetail
+                        new ProductDetailv2
                         {
                             name = "Detalhes",
                             items = new List<string> { p.CdInterno ?? "Código interno não disponível" }

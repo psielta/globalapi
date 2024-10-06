@@ -15,6 +15,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         : base(options)
     {
     }
+    public virtual DbSet<ItemDetail> ItemDetails { get; set; }
+    public virtual DbSet<ProductDetail> ProductDetails { get; set; }
     public virtual DbSet<FotosProduto> FotosProdutos { get; set; }
     public virtual DbSet<Featured> Featureds { get; set; }
     public virtual DbSet<Section> Sections { get; set; }
@@ -132,6 +134,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.HasPostgresExtension("unaccent");
+
         modelBuilder.Entity<Certificado>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("certificados_pkey");
@@ -666,6 +670,19 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasKey(e => e.ChNfe).HasName("pkimptotalnfe");
         });
 
+        modelBuilder.Entity<ItemDetail>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("item_details_pkey");
+
+            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.ItemDetails)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("item_details_fk");
+
+            entity.HasOne(d => d.IdProductDetailsNavigation).WithMany(p => p.ItemDetails)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("item_details_fk1");
+        });
+
         modelBuilder.Entity<Mdfe>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("mdfe_pkey");
@@ -785,6 +802,15 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.PlanoEstoques)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("plano_estoque_fk");
+        });
+
+        modelBuilder.Entity<ProductDetail>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("product_details_pkey");
+
+            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.ProductDetails)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("product_details_fk1");
         });
 
         modelBuilder.Entity<ProdutoEntradum>(entity =>

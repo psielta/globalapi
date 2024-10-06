@@ -33,7 +33,7 @@ namespace GlobalErpData.Dto
         public string selectedColor { get; set; }
     }
 
-    public class ProductDetail
+    public class ProductDetailv2
     {
         public string name { get; set; }
         public List<string> items { get; set; }
@@ -45,7 +45,7 @@ namespace GlobalErpData.Dto
         public List<ProductImage> images { get; set; }
         public List<ProductColor> colors { get; set; }
         public string description { get; set; }
-        public List<ProductDetail> details { get; set; }
+        public List<ProductDetailv2> details { get; set; }
     }
 
     // PagedResponse class

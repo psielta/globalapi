@@ -53,6 +53,8 @@ namespace GlobalErpData.Repository
             CreateMap<FeaturedDto, Featured>();
             CreateMap<SectionDto, Section>();
             CreateMap<SectionItemDto, SectionItem>();
+            CreateMap<ProductDetailDto, ProductDetail>();
+            CreateMap<ItemDetailDto, ItemDetail>();
         }
     }
 }
