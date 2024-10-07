@@ -1,9 +1,13 @@
-﻿using GlobalErpData.Dto;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using GlobalErpData.Dto;
 using GlobalErpData.GenericControllers;
 using GlobalErpData.Models;
 using GlobalErpData.Repository;
 using GlobalErpData.Repository.PagedRepositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using X.PagedList.EF;
 using X.PagedList.Extensions;
 
 namespace GlobalAPINFe.Controllers
@@ -12,42 +16,47 @@ namespace GlobalAPINFe.Controllers
     [ApiController]
     public class OlderController : GenericPagedController<Older, Guid, OlderDto>
     {
-        public OlderController(IQueryRepository<Older, Guid, OlderDto> repo, ILogger<GenericPagedController<Older, Guid, OlderDto>> logger) : base(repo, logger)
+        private readonly IMapper _mapper;
+        public OlderController(IQueryRepository<Older, Guid, OlderDto> repo, ILogger<GenericPagedController<Older, Guid, OlderDto>> logger, IMapper mapper) : base(repo, logger)
         {
+            this._mapper = mapper;
         }
 
         [HttpGet("GetOlderPorEmpresa", Name = nameof(GetOlderPorEmpresa))]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         public async Task<IActionResult> GetOlderPorEmpresa(
-            int idEmpresa,
-            [FromQuery] int pageNumber = 1,
-            [FromQuery] int pageSize = 10)
+    int idEmpresa,
+    [FromQuery] int pageNumber = 1,
+    [FromQuery] int pageSize = 10)
         {
             try
             {
-                var query = ((OlderRepository)repo).GetOlderPorEmpresa(idEmpresa).Result.AsQueryable();
+                var query = await ((OlderRepository)repo).GetOlderPorEmpresa(idEmpresa);
 
                 if (query == null)
                 {
                     return NotFound("Entities not found.");
                 }
 
-                var filteredQuery = query.AsEnumerable();
+                // Inclua os OlderItems na consulta
+                query = query.Include(o => o.OlderItems);
 
+                // Projete a consulta para GetOldersDto usando AutoMapper
+                var mappedQuery = query
+                    .OrderByDescending(p => p.Id)
+                    .ProjectTo<GetOldersDto>(_mapper.ConfigurationProvider);
 
+                var pagedList = await mappedQuery.ToPagedListAsync(pageNumber, pageSize);
 
-                filteredQuery = filteredQuery.OrderByDescending(p => p.Id);
-
-                var pagedList = filteredQuery.ToPagedList(pageNumber, pageSize);
-                var response = new PagedResponse<Older>(pagedList);
-
-                if (response.Items == null || response.Items.Count == 0)
+                if (pagedList == null)
                 {
-                    return NotFound("Entities not found."); // 404 Resource not found
+                    return NotFound("Entities not found.");
                 }
 
-                return Ok(response); // 200 OK
+                var response = new PagedResponse<GetOldersDto>(pagedList);
+
+                return Ok(response);
             }
             catch (Exception ex)
             {
@@ -55,5 +64,6 @@ namespace GlobalAPINFe.Controllers
                 return StatusCode(500, "An error occurred while retrieving entities. Please try again later.");
             }
         }
+
     }
 }

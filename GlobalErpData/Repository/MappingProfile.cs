@@ -58,6 +58,10 @@ namespace GlobalErpData.Repository
             CreateMap<PerfilLojaDto, PerfilLoja>();
             CreateMap<OlderDto,  Older>();
             CreateMap<OlderItemDto, OlderItem>();
+            CreateMap<OlderItem, GetOlderItemDto>();
+            CreateMap<Older, GetOldersDto>()
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OlderItems));
+
         }
     }
 }
