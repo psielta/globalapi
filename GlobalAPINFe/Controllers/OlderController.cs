@@ -120,6 +120,37 @@ namespace GlobalAPINFe.Controllers
             }
         }
 
+        [HttpPatch("UpdateOlderStatus/{idEmpresa}/{id}", Name = nameof(UpdateOlderStatus))]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> UpdateOlderStatus(
+            int idEmpresa,
+            Guid id,
+            [FromBody] StatusUpdateDto statusUpdateDto)
+        {
+            try
+            {
+                await using var _context = dbContextFactory.CreateDbContext();
+                var order = await _context.Olders.FirstOrDefaultAsync(o => o.Id == id);
+
+                if (order == null)
+                {
+                    return NotFound("Pedido não encontrado.");
+                }
+
+                order.Status = statusUpdateDto.Status;
+
+                await _context.SaveChangesAsync();
+
+                return Ok("Status do pedido atualizado com sucesso.");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Ocorreu um erro ao atualizar o status do pedido.");
+                return StatusCode(500, "Ocorreu um erro ao atualizar o status do pedido. Por favor, tente novamente mais tarde.");
+            }
+        }
+
 
     }
 }

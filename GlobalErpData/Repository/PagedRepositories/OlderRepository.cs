@@ -17,17 +17,18 @@ namespace GlobalErpData.Repository.PagedRepositories
         {
         }
 
-        public Task<IQueryable<Older>> GetOlderPorEmpresa(int idEmpresa)
+        public IQueryable<Older> GetOlderPorEmpresa(int idEmpresa)
         {
             try
             {
-                return Task.FromResult(db.Set<Older>().Where(e => e.IdEmpresa == idEmpresa).AsQueryable());
+                return db.Set<Older>().Where(e => e.IdEmpresa == idEmpresa).AsQueryable();
             }
             catch (Exception ex)
             {
                 logger.LogError(ex, "Error occurred while retrieving all entities.");
-                return Task.FromResult(Enumerable.Empty<Older>().AsQueryable());
+                return Enumerable.Empty<Older>().AsQueryable();
             }
         }
+
     }
 }
