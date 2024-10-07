@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using GlobalErpData.Data;
 using GlobalErpData.Dto;
 using GlobalErpData.GenericControllers;
 using GlobalErpData.Models;
@@ -7,6 +8,8 @@ using GlobalErpData.Repository;
 using GlobalErpData.Repository.PagedRepositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
+using Npgsql;
 using X.PagedList.EF;
 using X.PagedList.Extensions;
 
@@ -16,40 +19,92 @@ namespace GlobalAPINFe.Controllers
     [ApiController]
     public class OlderController : GenericPagedController<Older, Guid, OlderDto>
     {
+        private readonly IDbContextFactory<GlobalErpFiscalBaseContext> dbContextFactory;
         private readonly IMapper _mapper;
-        public OlderController(IQueryRepository<Older, Guid, OlderDto> repo, ILogger<GenericPagedController<Older, Guid, OlderDto>> logger, IMapper mapper) : base(repo, logger)
+        public OlderController(IQueryRepository<Older, Guid, OlderDto> repo, 
+            ILogger<GenericPagedController<Older, Guid, OlderDto>> logger, IMapper mapper,
+            IDbContextFactory<GlobalErpFiscalBaseContext> context) : base(repo, logger)
         {
             this._mapper = mapper;
+            dbContextFactory = context;
         }
 
         [HttpGet("GetOlderPorEmpresa", Name = nameof(GetOlderPorEmpresa))]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         public async Task<IActionResult> GetOlderPorEmpresa(
-    int idEmpresa,
-    [FromQuery] int pageNumber = 1,
-    [FromQuery] int pageSize = 10)
+            int idEmpresa,
+            [FromQuery] Guid? id = null,
+            [FromQuery] string? customerName = null,
+            [FromQuery] StatusOlder? status = null,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10)
         {
             try
             {
-                var query = await ((OlderRepository)repo).GetOlderPorEmpresa(idEmpresa);
+                await using var _context = dbContextFactory.CreateDbContext();
+                string sqlQuery = @"
+                    SELECT o.* FROM older o
+                    WHERE o.id_empresa = @idEmpresa
+                    {0}";
+
+                var parametros = new List<NpgsqlParameter>
+                {
+                    new NpgsqlParameter("idEmpresa", idEmpresa)
+                };
+
+                string filterCustomerName = "";
+
+                if (!string.IsNullOrEmpty(customerName))
+                {
+                    var termos = customerName.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                                          .Select(t => $"%{t}%")
+                                          .ToList();
+
+                    for (int i = 0; i < termos.Count; i++)
+                    {
+                        string paramName = $"@termo{i}";
+                        filterCustomerName += $" AND unaccent(LOWER(o.customer_name)) LIKE CONCAT('%',unaccent(LOWER({paramName})),'%')";
+                        parametros.Add(new NpgsqlParameter(paramName, termos[i]));
+                    }
+                }
+
+                sqlQuery = string.Format(sqlQuery, filterCustomerName);
+
+                var query = _context.Olders.FromSqlRaw(sqlQuery, parametros.ToArray())
+                    .Where(p => p.IdEmpresa == idEmpresa);
+
+                //var query = await ((OlderRepository)repo).GetOlderPorEmpresa(idEmpresa);
 
                 if (query == null)
                 {
                     return NotFound("Entities not found.");
                 }
 
-                // Inclua os OlderItems na consulta
+                if (id.HasValue)
+                {
+                    query = query.Where(o => o.Id == id.Value);
+                }
+
+                /*if (!string.IsNullOrEmpty(customerName))
+                {
+                    query = query.Where(o => o.CustomerName.Contains(customerName));
+                }*/
+
+                if (status.HasValue)
+                {
+                    query = query.Where(o => o.Status == status.Value);
+                }
+
                 query = query.Include(o => o.OlderItems);
 
-                // Projete a consulta para GetOldersDto usando AutoMapper
                 var mappedQuery = query
                     .OrderByDescending(p => p.Id)
                     .ProjectTo<GetOldersDto>(_mapper.ConfigurationProvider);
 
                 var pagedList = await mappedQuery.ToPagedListAsync(pageNumber, pageSize);
 
-                if (pagedList == null)
+                if (pagedList == null || !pagedList.Any())
                 {
                     return NotFound("Entities not found.");
                 }
@@ -64,6 +119,7 @@ namespace GlobalAPINFe.Controllers
                 return StatusCode(500, "An error occurred while retrieving entities. Please try again later.");
             }
         }
+
 
     }
 }

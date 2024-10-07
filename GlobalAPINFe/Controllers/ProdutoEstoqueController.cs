@@ -114,30 +114,30 @@ namespace GlobalAPINFe.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         public async Task<IActionResult> GetProdutosComDetalhes(
-    int idEmpresa,
-    [FromQuery] int? cdGrupo = null,
-    [FromQuery] int? cdRef = null,
-    [FromQuery] int? sectionId = null,
-    [FromQuery] int? sectionItemId = null,
-    [FromQuery] int? featuredId = null,
-    [FromQuery] int? cdProduto = null,
-    [FromQuery] string? nmProduto = null,
-    [FromQuery] int pageNumber = 1,
-    [FromQuery] int pageSize = 10)
+            int idEmpresa,
+            [FromQuery] int? cdGrupo = null,
+            [FromQuery] int? cdRef = null,
+            [FromQuery] int? sectionId = null,
+            [FromQuery] int? sectionItemId = null,
+            [FromQuery] int? featuredId = null,
+            [FromQuery] int? cdProduto = null,
+            [FromQuery] string? nmProduto = null,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10)
         {
             try
             {
                 await using var _context = dbContextFactory.CreateDbContext();
 
                 string sqlQuery = @"
-            SELECT pe.* FROM produto_estoque pe
-            WHERE pe.id_empresa = @idEmpresa
-            {0}";
+                    SELECT pe.* FROM produto_estoque pe
+                    WHERE pe.id_empresa = @idEmpresa
+                    {0}";
 
                 var parametros = new List<NpgsqlParameter>
-        {
-            new NpgsqlParameter("idEmpresa", idEmpresa)
-        };
+                {
+                    new NpgsqlParameter("idEmpresa", idEmpresa)
+                };
 
                 string filtroNomeProduto = "";
                 if (!string.IsNullOrEmpty(nmProduto))
