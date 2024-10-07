@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GlobalAPINFe.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class UsuarioPermissaoController : GenericDtoController<UsuarioPermissao, int, UsuarioPermissaoDto>
     {
         private readonly IRepositoryDto<Usuario, string, UsuarioDto> repositoryUsuario;

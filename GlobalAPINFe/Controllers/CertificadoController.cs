@@ -10,6 +10,8 @@ using X.PagedList.Extensions;
 
 namespace GlobalAPINFe.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class CertificadoController : GenericPagedController<Certificado, int, CertificadoDto>
     {
         public CertificadoController(IQueryRepository<Certificado, int, CertificadoDto> repo, ILogger<GenericPagedController<Certificado, int, CertificadoDto>> logger) : base(repo, logger)

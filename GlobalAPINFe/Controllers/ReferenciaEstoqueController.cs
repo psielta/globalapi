@@ -9,6 +9,8 @@ using X.PagedList.EF;
 
 namespace GlobalAPINFe.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class ReferenciaEstoqueController : GenericPagedController<ReferenciaEstoque, int, ReferenciaEstoqueDto>
     {
         public ReferenciaEstoqueController(IQueryRepository<ReferenciaEstoque, int, ReferenciaEstoqueDto> repo, ILogger<GenericPagedController<ReferenciaEstoque, int, ReferenciaEstoqueDto>> logger) : base(repo, logger)

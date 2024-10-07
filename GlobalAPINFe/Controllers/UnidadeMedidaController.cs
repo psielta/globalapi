@@ -9,6 +9,8 @@ using X.PagedList.EF;
 
 namespace GlobalAPINFe.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class UnidadeMedidaController : GenericPagedController<UnidadeMedida, int, UnidadeMedidaDto>
     {
         public UnidadeMedidaController(IQueryRepository<UnidadeMedida, int, UnidadeMedidaDto> repo, ILogger<GenericPagedController<UnidadeMedida, int, UnidadeMedidaDto>> logger) : base(repo, logger)

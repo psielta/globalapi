@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GlobalAPINFe.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class ImpcabnfeController : GenericDtoController<Impcabnfe, string, ImpcabnfeDto>
     {
         public ImpcabnfeController(IRepositoryDto<Impcabnfe, string, ImpcabnfeDto> repo, ILogger<GenericDtoController<Impcabnfe, string, ImpcabnfeDto>> logger) : base(repo, logger)

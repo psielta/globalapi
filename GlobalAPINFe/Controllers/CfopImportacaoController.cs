@@ -9,6 +9,8 @@ using X.PagedList.Extensions;
 
 namespace GlobalAPINFe.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class CfopImportacaoController : GenericPagedController<CfopImportacao, int, CfopImportacaoDto>
     {
         public CfopImportacaoController(IQueryRepository<CfopImportacao, int, CfopImportacaoDto> repo, ILogger<GenericPagedController<CfopImportacao, int, CfopImportacaoDto>> logger) : base(repo, logger)

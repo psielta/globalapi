@@ -12,6 +12,8 @@ using X.PagedList.Extensions;
 
 namespace GlobalAPINFe.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class ClienteController : GenericPagedController<Cliente, int, ClienteDto>
     {
         protected IMapper mapper;

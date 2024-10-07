@@ -9,6 +9,8 @@ using X.PagedList.Extensions;
 
 namespace GlobalAPINFe.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class ConfiguracoesEmpresaController : GenericPagedControllerMultiKey<ConfiguracoesEmpresa, int, string, ConfiguracoesEmpresaDto>
     {
         public ConfiguracoesEmpresaController(IQueryRepositoryMultiKey<ConfiguracoesEmpresa, int, string, ConfiguracoesEmpresaDto> repo, ILogger<GenericPagedControllerMultiKey<ConfiguracoesEmpresa, int, string, ConfiguracoesEmpresaDto>> logger) : base(repo, logger)

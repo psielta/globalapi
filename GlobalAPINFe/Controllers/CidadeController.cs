@@ -11,6 +11,8 @@ using GlobalErpData.Repository.Repositories;
 
 namespace GlobalAPINFe.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class CidadeController : GenericDtoController<Cidade, string, CidadeDto>
     {
         public CidadeController(IRepositoryDto<Cidade, string, CidadeDto> repo, ILogger<GenericDtoController<Cidade, string, CidadeDto>> logger) : base(repo, logger)

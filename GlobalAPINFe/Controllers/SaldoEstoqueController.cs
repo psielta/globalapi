@@ -9,6 +9,8 @@ using X.PagedList.Extensions;
 
 namespace GlobalAPINFe.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class SaldoEstoqueController : GenericPagedController<SaldoEstoque, int, SaldoEstoqueDto>
     {
         public SaldoEstoqueController(IQueryRepository<SaldoEstoque, int, SaldoEstoqueDto> repo, ILogger<GenericPagedController<SaldoEstoque, int, SaldoEstoqueDto>> logger) : base(repo, logger)

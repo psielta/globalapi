@@ -8,6 +8,8 @@ using X.PagedList.Extensions;
 
 namespace GlobalAPINFe.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class OlderController : GenericPagedController<Older, Guid, OlderDto>
     {
         public OlderController(IQueryRepository<Older, Guid, OlderDto> repo, ILogger<GenericPagedController<Older, Guid, OlderDto>> logger) : base(repo, logger)

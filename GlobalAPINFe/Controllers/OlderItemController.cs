@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GlobalAPINFe.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class OlderItemController : GenericDtoController<OlderItem, Guid, OlderItemDto>
     {
         public OlderItemController(IRepositoryDto<OlderItem, Guid, OlderItemDto> repo, ILogger<GenericDtoController<OlderItem, Guid, OlderItemDto>> logger) : base(repo, logger)

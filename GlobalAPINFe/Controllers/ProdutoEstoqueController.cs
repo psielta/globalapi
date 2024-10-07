@@ -17,6 +17,8 @@ using X.PagedList.Extensions;
 
 namespace GlobalAPINFe.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class ProdutoEstoqueController : GenericPagedControllerMultiKey<ProdutoEstoque, int, int, ProdutoEstoqueDto>
     {
         private readonly IDbContextFactory<GlobalErpFiscalBaseContext> dbContextFactory;
