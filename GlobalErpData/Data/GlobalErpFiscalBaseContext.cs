@@ -123,6 +123,10 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
     public virtual DbSet<UnidadeMedida> UnidadeMedidas { get; set; }
 
+    public virtual DbSet<Older> Olders { get; set; }
+
+    public virtual DbSet<OlderItem> OlderItems { get; set; }
+
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -135,7 +139,9 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.HasPostgresExtension("unaccent");
+        modelBuilder
+            .HasPostgresExtension("unaccent")
+            .HasPostgresExtension("uuid-ossp");
 
         modelBuilder.Entity<Certificado>(entity =>
         {
@@ -787,6 +793,33 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.IdEmpresaNavigation).WithMany().HasConstraintName("mdfe_seguro_fk");
         });
 
+        modelBuilder.Entity<Older>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("older_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("uuid_generate_v4()");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.Olders)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("older_fk");
+        });
+
+        modelBuilder.Entity<OlderItem>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("older_items_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("uuid_generate_v4()");
+
+            entity.HasOne(d => d.Older).WithMany(p => p.OlderItems)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("older_items_older_id_fkey");
+
+            entity.HasOne(d => d.ProdutoEstoque).WithMany(p => p.OlderItems)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("older_items_fk");
+        });
+
         modelBuilder.Entity<PerfilLoja>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("perfil_loja_pkey");
@@ -821,6 +854,10 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.ProductDetails)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("product_details_fk1");
+
+            entity.HasOne(d => d.ProdutoEstoque).WithMany(p => p.ProductDetails)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("product_details_fk");
         });
 
         modelBuilder.Entity<ProdutoEntradum>(entity =>

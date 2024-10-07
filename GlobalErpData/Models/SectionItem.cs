@@ -35,13 +35,13 @@ public partial class SectionItem : IIdentifiable<int>
     public virtual Empresa IdEmpresaNavigation { get; set; } = null!;
 
     [JsonIgnore]
+    [InverseProperty("SectionItem")]
+    public virtual ICollection<ProdutoEstoque> ProdutoEstoques { get; set; } = new List<ProdutoEstoque>();
+
+    [JsonIgnore]
     [ForeignKey("SectionId")]
     [InverseProperty("SectionItems")]
     public virtual Section? Section { get; set; }
-
-    [JsonIgnore]
-    [InverseProperty("SectionItem")]
-    public virtual ICollection<ProdutoEstoque> ProdutoEstoques { get; set; } = new List<ProdutoEstoque>();
 
     [GraphQLIgnore]
     public int GetId()

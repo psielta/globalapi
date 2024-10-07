@@ -56,6 +56,8 @@ namespace GlobalErpData.Repository
             CreateMap<ProductDetailDto, ProductDetail>();
             CreateMap<ItemDetailDto, ItemDetail>();
             CreateMap<PerfilLojaDto, PerfilLoja>();
+            CreateMap<OlderDto,  Older>();
+            CreateMap<OlderItemDto, OlderItem>();
         }
     }
 }

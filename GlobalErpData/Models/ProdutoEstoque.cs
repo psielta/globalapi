@@ -588,6 +588,10 @@ public partial class ProdutoEstoque : IIdentifiable<int>, IIdentifiableMultiKey<
     [InverseProperty("ProdutoEstoques")]
     public virtual Featured? Featured { get; set; }
 
+    [JsonIgnore]
+    [InverseProperty("ProdutoEstoque")]
+    public virtual ICollection<OlderItem> OlderItems { get; set; } = new List<OlderItem>();
+
     [GraphQLIgnore]
     public int GetId()
     {

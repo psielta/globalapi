@@ -41,11 +41,11 @@ public partial class Section : IIdentifiable<int>
 
     [JsonIgnore]
     [InverseProperty("Section")]
-    public virtual ICollection<SectionItem> SectionItems { get; set; } = new List<SectionItem>();
+    public virtual ICollection<ProdutoEstoque> ProdutoEstoques { get; set; } = new List<ProdutoEstoque>();
 
     [JsonIgnore]
     [InverseProperty("Section")]
-    public virtual ICollection<ProdutoEstoque> ProdutoEstoques { get; set; } = new List<ProdutoEstoque>();
+    public virtual ICollection<SectionItem> SectionItems { get; set; } = new List<SectionItem>();
 
     [GraphQLIgnore]
     public int GetId()
