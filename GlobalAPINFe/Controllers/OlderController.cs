@@ -384,20 +384,38 @@ namespace GlobalAPINFe.Controllers
                     Items = new List<Top05ProductsItemDto>()
                 };
 
-                var allOlders = ((OlderRepository)repo).GetOlderPorEmpresa(idEmpresa);
+                using var _context = dbContextFactory.CreateDbContext();
+
+                // Obter todos os pedidos da empresa e incluir OlderItems
+                var allOlders = _context.Olders
+                    .Where(o => o.IdEmpresa == idEmpresa)
+                    .Include(o => o.OlderItems) // Certifique-se de incluir os OlderItems
+                    .ToList();
+
+                // Filtrar pedidos aprovados
                 var allOldersApproved = allOlders.Where(o => o.Status == StatusOlder.Aprovado).ToList();
 
+                // Obter mês e ano atuais
                 var currentMonth = DateTime.Now.Month;
                 var currentYear = DateTime.Now.Year;
 
+                // Filtrar pedidos do mês e ano atuais
                 var approvedOldersCurrentMonth = allOldersApproved
                     .Where(o => o.CreatedAt.Month == currentMonth && o.CreatedAt.Year == currentYear)
                     .ToList();
 
+                // Obter todos os itens dos pedidos filtrados
                 var orderItems = approvedOldersCurrentMonth
                     .SelectMany(o => o.OlderItems)
                     .ToList();
 
+                // Verifique se há itens
+                if (orderItems == null || !orderItems.Any())
+                {
+                    return Ok(result); // Retorna lista vazia se não houver itens
+                }
+
+                // Agrupar por nome do produto e calcular quantidade total e subtotal
                 var groupedItems = orderItems
                     .GroupBy(i => i.Name)
                     .Select(g => new Top05ProductsItemDto
@@ -420,5 +438,6 @@ namespace GlobalAPINFe.Controllers
                 return StatusCode(500, "Ocorreu um erro ao obter os produtos mais vendidos.");
             }
         }
+
     }
 }
