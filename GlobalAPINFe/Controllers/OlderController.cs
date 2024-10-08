@@ -21,7 +21,7 @@ namespace GlobalAPINFe.Controllers
     {
         private readonly IDbContextFactory<GlobalErpFiscalBaseContext> dbContextFactory;
         private readonly IMapper _mapper;
-        public OlderController(IQueryRepository<Older, Guid, OlderDto> repo, 
+        public OlderController(IQueryRepository<Older, Guid, OlderDto> repo,
             ILogger<GenericPagedController<Older, Guid, OlderDto>> logger, IMapper mapper,
             IDbContextFactory<GlobalErpFiscalBaseContext> context) : base(repo, logger)
         {
@@ -151,6 +151,274 @@ namespace GlobalAPINFe.Controllers
             }
         }
 
+        [HttpGet("GetOldersCanceledByMonth/{idEmpresa}", Name = nameof(GetOldersCanceledByMonth))]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        public IActionResult GetOldersCanceledByMonth(int idEmpresa)
+        {
+            try
+            {
+                OldersCanceledDto oldersCanceledDto = new OldersCanceledDto();
 
+                var allOlders = ((OlderRepository)repo).GetOlderPorEmpresa(idEmpresa);
+                var allOldersCanceled = allOlders.Where(o => o.Status == StatusOlder.Cancelado).ToList();
+
+                var currentMonth = DateTime.Now.Month;
+                var previousMonth = DateTime.Now.AddMonths(-1).Month;
+
+                var canceledOrdersCurrentMonth = allOldersCanceled
+                    .Where(o => o.CreatedAt.Month == currentMonth)
+                    .ToList();
+
+                var canceledOrdersPreviousMonth = allOldersCanceled
+                    .Where(o => o.CreatedAt.Month == previousMonth)
+                    .ToList();
+
+                oldersCanceledDto.QuantityOfCancellations = canceledOrdersCurrentMonth.Count;
+
+                if (canceledOrdersPreviousMonth.Count > 0)
+                {
+                    oldersCanceledDto.PercentageComparedToPreviousMonth = ((double)(canceledOrdersCurrentMonth.Count - canceledOrdersPreviousMonth.Count) / canceledOrdersPreviousMonth.Count) * 100;
+                }
+                else
+                {
+                    oldersCanceledDto.PercentageComparedToPreviousMonth = 100;
+                }
+
+                return Ok(oldersCanceledDto);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Ocorreu um erro ao atualizar o status do pedido.");
+                return StatusCode(500, "Ocorreu um erro ao atualizar o status do pedido. Por favor, tente novamente mais tarde.");
+            }
+        }
+
+
+        [HttpGet("GetOldersApprovedByMonth/{idEmpresa}", Name = nameof(GetOldersApprovedByMonth))]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        public IActionResult GetOldersApprovedByMonth(
+            int idEmpresa)
+        {
+            try
+            {
+                OldersQuantityDto OldersApprovedByMonthDto = new OldersQuantityDto();
+                OldersApprovedByMonthDto.PercentageComparedToPrevious = 0;
+                OldersApprovedByMonthDto.QuantityOfCategory = 0;
+
+                var allOlders = ((OlderRepository)repo).GetOlderPorEmpresa(idEmpresa);
+                var allOldersApproved = allOlders.Where(o => o.Status == StatusOlder.Aprovado).ToList();
+                var currentMonth = DateTime.Now.Month;
+                var previousMonth = DateTime.Now.AddMonths(-1).Month;
+
+                var approvedOldersCurrentMonth = allOldersApproved
+                    .Where(o => o.CreatedAt.Month == currentMonth)
+                    .ToList();
+
+                var approvedOldersPreviousMonth = allOldersApproved
+                    .Where(o => o.CreatedAt.Month == previousMonth)
+                    .ToList();
+
+                OldersApprovedByMonthDto.QuantityOfCategory = approvedOldersCurrentMonth.Count;
+
+                if (approvedOldersPreviousMonth.Count > 0)
+                {
+                    OldersApprovedByMonthDto.PercentageComparedToPrevious = ((double)(approvedOldersCurrentMonth.Count - approvedOldersPreviousMonth.Count) / approvedOldersPreviousMonth.Count) * 100;
+                }
+                else
+                {
+                    OldersApprovedByMonthDto.PercentageComparedToPrevious = 100;
+                }
+
+
+                return Ok(OldersApprovedByMonthDto);
+
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Ocorreu um erro ao obter dados.");
+                return StatusCode(500, "Ocorreu um erro ao obter dados.");
+            }
+        }
+
+        [HttpGet("GetOldersApprovedByDay/{idEmpresa}", Name = nameof(GetOldersApprovedByDay))]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        public IActionResult GetOldersApprovedByDay(
+            int idEmpresa)
+        {
+            try
+            {
+                OldersQuantityDto OldersByDay = new OldersQuantityDto();
+                OldersByDay.PercentageComparedToPrevious = 0;
+                OldersByDay.QuantityOfCategory = 0;
+
+                var allOlders = ((OlderRepository)repo).GetOlderPorEmpresa(idEmpresa);
+                var allOldersApproved = allOlders.Where(o => o.Status == StatusOlder.Aprovado).ToList();
+                var approvedOldersToday = allOldersApproved
+                    .Where(o => o.CreatedAt.Date == DateTime.Today)
+                    .ToList();
+                var approvedOldersFromPreviousDay = allOldersApproved
+                    .Where(o => o.CreatedAt.Date == DateTime.Today.AddDays(-1))
+                    .ToList();
+                OldersByDay.QuantityOfCategory = approvedOldersToday.Count;
+
+                if (approvedOldersFromPreviousDay.Count > 0)
+                {
+                    OldersByDay.PercentageComparedToPrevious = ((double)(approvedOldersToday.Count - approvedOldersFromPreviousDay.Count) / approvedOldersFromPreviousDay.Count) * 100;
+                }
+                else
+                {
+                    OldersByDay.PercentageComparedToPrevious = 100;
+                }
+
+
+                return Ok(OldersByDay);
+
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Ocorreu um erro ao obter dados.");
+                return StatusCode(500, "Ocorreu um erro ao obter dados.");
+            }
+        }
+
+        [HttpGet("GetOldersMoneyByMonth/{idEmpresa}", Name = nameof(GetOldersMoneyByMonth))]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        public IActionResult GetOldersMoneyByMonth(
+            int idEmpresa)
+        {
+            try
+            {
+                OldersMoneyByMonthDto OldersApprovedByMonthDto = new OldersMoneyByMonthDto();
+                OldersApprovedByMonthDto.PercentageComparedToPrevious = 0;
+                OldersApprovedByMonthDto.totalMonth = 0;
+
+                var allOlders = ((OlderRepository)repo).GetOlderPorEmpresa(idEmpresa);
+                var allOldersApproved = allOlders.Where(o => o.Status == StatusOlder.Aprovado).ToList();
+                var currentMonth = DateTime.Now.Month;
+                var previousMonth = DateTime.Now.AddMonths(-1).Month;
+
+                var approvedOldersCurrentMonth = allOldersApproved
+                    .Where(o => o.CreatedAt.Month == currentMonth)
+                    .ToList();
+
+                var approvedOldersPreviousMonth = allOldersApproved
+                    .Where(o => o.CreatedAt.Month == previousMonth)
+                    .ToList();
+
+                var totalCurrentMonth = approvedOldersCurrentMonth.Sum(o => o.Total);
+                var totalPreviousMonth = approvedOldersPreviousMonth.Sum(o => o.Total);
+
+                OldersApprovedByMonthDto.totalMonth = (double)totalCurrentMonth;
+
+                if (totalPreviousMonth > 0)
+                {
+                    OldersApprovedByMonthDto.PercentageComparedToPrevious = ((double)((totalCurrentMonth - totalPreviousMonth) / totalPreviousMonth) * 100);
+                }
+                else
+                {
+                    OldersApprovedByMonthDto.PercentageComparedToPrevious = 100;
+                }
+
+                return Ok(OldersApprovedByMonthDto);
+
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Ocorreu um erro ao obter dados.");
+                return StatusCode(500, "Ocorreu um erro ao obter dados.");
+            }
+        }
+
+        [HttpGet("GetOldersMoneyByLast7Days/{idEmpresa}", Name = nameof(GetOldersMoneyByLast7Days))]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        public IActionResult GetOldersMoneyByLast7Days(int idEmpresa)
+        {
+            try
+            {
+                OldersMoneyByDayLast7DaysDto result = new OldersMoneyByDayLast7DaysDto
+                {
+                    Items = new List<MoneyByDayLast7DaysDto>()
+                };
+
+                var allOlders = ((OlderRepository)repo).GetOlderPorEmpresa(idEmpresa);
+                var allOldersApproved = allOlders.Where(o => o.Status == StatusOlder.Aprovado).ToList();
+
+                for (int i = 6; i >= 0; i--)
+                {
+                    var date = DateTime.Today.AddDays(-i);
+
+                    var totalDay = allOldersApproved
+                        .Where(o => o.CreatedAt.Date == date)
+                        .Sum(o => o.Total);
+
+                    result.Items.Add(new MoneyByDayLast7DaysDto
+                    {
+                        DateTime = date,
+                        totalDay = (double) totalDay
+                    });
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Ocorreu um erro ao obter dados.");
+                return StatusCode(500, "Ocorreu um erro ao obter dados.");
+            }
+        }
+
+        [HttpGet("GetTop5Products/{idEmpresa}", Name = nameof(GetTop5Products))]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        public IActionResult GetTop5Products(int idEmpresa)
+        {
+            try
+            {
+                Top05ProductsDto result = new Top05ProductsDto
+                {
+                    Items = new List<Top05ProductsItemDto>()
+                };
+
+                var allOlders = ((OlderRepository)repo).GetOlderPorEmpresa(idEmpresa);
+                var allOldersApproved = allOlders.Where(o => o.Status == StatusOlder.Aprovado).ToList();
+
+                var currentMonth = DateTime.Now.Month;
+                var currentYear = DateTime.Now.Year;
+
+                var approvedOldersCurrentMonth = allOldersApproved
+                    .Where(o => o.CreatedAt.Month == currentMonth && o.CreatedAt.Year == currentYear)
+                    .ToList();
+
+                var orderItems = approvedOldersCurrentMonth
+                    .SelectMany(o => o.OlderItems)
+                    .ToList();
+
+                var groupedItems = orderItems
+                    .GroupBy(i => i.Name)
+                    .Select(g => new Top05ProductsItemDto
+                    {
+                        Name = g.Key,
+                        Quantity = g.Sum(i => i.Quantity),
+                        Total = (double)g.Sum(i => i.Subtotal)
+                    })
+                    .OrderByDescending(i => i.Quantity)
+                    .Take(5)
+                    .ToList();
+
+                result.Items = groupedItems;
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Ocorreu um erro ao obter os produtos mais vendidos.");
+                return StatusCode(500, "Ocorreu um erro ao obter os produtos mais vendidos.");
+            }
+        }
     }
 }
