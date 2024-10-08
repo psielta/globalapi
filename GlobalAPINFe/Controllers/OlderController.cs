@@ -99,7 +99,7 @@ namespace GlobalAPINFe.Controllers
                 query = query.Include(o => o.OlderItems);
 
                 var mappedQuery = query
-                    .OrderByDescending(p => p.Id)
+                    .OrderByDescending(p => p.CreatedAt)
                     .ProjectTo<GetOldersDto>(_mapper.ConfigurationProvider);
 
                 var pagedList = await mappedQuery.ToPagedListAsync(pageNumber, pageSize);
