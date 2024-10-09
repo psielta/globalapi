@@ -31,12 +31,13 @@ public partial class ProductDetail : IIdentifiable<int>
     public virtual Empresa IdEmpresaNavigation { get; set; } = null!;
 
     [JsonIgnore]
-    [ForeignKey("IdEmpresa, IdProduto")]
-    public virtual ProdutoEstoque ProdutoEstoque { get; set; } = null!;
-
-    [JsonIgnore]
     [InverseProperty("IdProductDetailsNavigation")]
     public virtual ICollection<ItemDetail> ItemDetails { get; set; } = new List<ItemDetail>();
+
+    [JsonIgnore]
+    [ForeignKey("IdProduto, IdEmpresa")]
+    [InverseProperty("ProductDetails")]
+    public virtual ProdutoEstoque ProdutoEstoque { get; set; } = null!;
 
     public int GetId()
     {

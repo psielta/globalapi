@@ -21,6 +21,7 @@ namespace GlobalErpData.Dto
         public Guid CustomerId { get; set; }
 
         public string CustomerName { get; set; } = null!;
+        public string CustomerAddress { get; set; } = null!;
 
         public string? CustomerPhone { get; set; }
 
@@ -35,5 +36,17 @@ namespace GlobalErpData.Dto
         public decimal Taxes { get; set; }
 
         public decimal Total { get; set; }
+
+        public string CustomerCity { get; set; } = null!;
+
+        public string CustomerNeighborhood { get; set; } = null!;
+
+        public string CustomerNumber { get; set; } = null!;
+
+        public string CustomerZip { get; set; } = null!;
+
+        public string? CustomerComplement { get; set; }
+
+        public string? CustomerReference { get; set; }
     }
 }
