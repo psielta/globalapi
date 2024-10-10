@@ -199,6 +199,7 @@ namespace GlobalAPINFe.Controllers
                 var dtoList = pagedList.Select(p => new ProductDetails
                 {
                     id = p.CdProduto,
+                    idGlobal = p.CdProdutoErp,
                     name = UtlStrings.FormatProductName(p.NmProduto),
                     color = string.Empty,
                     href = "#",

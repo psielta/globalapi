@@ -16,6 +16,7 @@ namespace GlobalErpData.Dto
         public string imageAlt { get; set; }
         public string price { get; set; }
         public decimal priceNumber { get; set; }
+        public int? idGlobal { get; set; }
     }
 
     public class ProductImage
