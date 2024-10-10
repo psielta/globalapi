@@ -61,6 +61,7 @@ namespace GlobalErpData.Repository
             CreateMap<OlderItem, GetOlderItemDto>();
             CreateMap<Older, GetOldersDto>()
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OlderItems));
+            CreateMap<CategoryDto, Category>();
 
         }
     }

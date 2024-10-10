@@ -15,6 +15,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         : base(options)
     {
     }
+    public virtual DbSet<Category> Categories { get; set; }
     public virtual DbSet<PerfilLoja> PerfilLojas { get; set; }
     public virtual DbSet<ItemDetail> ItemDetails { get; set; }
     public virtual DbSet<ProductDetail> ProductDetails { get; set; }
@@ -142,6 +143,15 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         modelBuilder
             .HasPostgresExtension("unaccent")
             .HasPostgresExtension("uuid-ossp");
+
+        modelBuilder.Entity<Category>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("category_pkey");
+
+            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.Categories)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("category_fk");
+        });
 
         modelBuilder.Entity<Certificado>(entity =>
         {
@@ -1039,6 +1049,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.VlPequena).HasDefaultValueSql("0");
             entity.Property(e => e.VlPrazo).HasDefaultValueSql("0");
             entity.Property(e => e.VlTabelaGov).HasDefaultValueSql("0");
+
+            entity.HasOne(d => d.CategoryNavigation).WithMany(p => p.ProdutoEstoques).HasConstraintName("produto_estoque_fk3");
 
             entity.HasOne(d => d.CdGrupoNavigation).WithMany(p => p.ProdutoEstoques)
                 .OnDelete(DeleteBehavior.ClientSetNull)

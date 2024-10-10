@@ -546,6 +546,17 @@ public partial class ProdutoEstoque : IIdentifiable<int>, IIdentifiableMultiKey<
     [Column("featured_id")]
     public int? FeaturedId { get; set; }
 
+    [Column("category")]
+    public int? Category { get; set; }
+
+    [Column("cd_produto_erp")]
+    public int? CdProdutoErp { get; set; }
+
+    [JsonIgnore]
+    [ForeignKey("Category")]
+    [InverseProperty("ProdutoEstoques")]
+    public virtual Category CategoryNavigation { get; set; } = null!;
+
     [JsonIgnore]
     [ForeignKey("CdGrupo")]
     [InverseProperty("ProdutoEstoques")]

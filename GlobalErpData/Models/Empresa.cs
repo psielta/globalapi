@@ -280,4 +280,8 @@ public partial class Empresa : IIdentifiable<int>
     [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<FotosProduto> FotosProdutos { get; set; } = new List<FotosProduto>();
+
+    [JsonIgnore]
+    [InverseProperty("IdEmpresaNavigation")]
+    public virtual ICollection<Category> Categories { get; set; } = new List<Category>();
 }

@@ -275,5 +275,9 @@ namespace GlobalErpData.Dto
         public int? SectionItemId { get; set; }
 
         public int? FeaturedId { get; set; }
+
+        public int? Category { get; set; }
+
+        public int? CdProdutoErp { get; set; }
     }
 }

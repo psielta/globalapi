@@ -115,8 +115,7 @@ namespace GlobalAPINFe.Controllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> GetProdutosComDetalhes(
             int idEmpresa,
-            [FromQuery] int? cdGrupo = null,
-            [FromQuery] int? cdRef = null,
+            [FromQuery] int? categoryId = null,
             [FromQuery] int? sectionId = null,
             [FromQuery] int? sectionItemId = null,
             [FromQuery] int? featuredId = null,
@@ -158,19 +157,13 @@ namespace GlobalAPINFe.Controllers
 
                 var query = _context.ProdutoEstoques.FromSqlRaw(sqlQuery, parametros.ToArray())
                     .Include(p => p.FotosProdutos)
-                    .Include(p => p.CdGrupoNavigation)
-                    .Include(p => p.CdRefNavigation)
-                    .Where(p => p.IdEmpresa == idEmpresa && p.FotosProdutos.Any());
+                    .Include(p => p.CategoryNavigation)
+                    .Where(p => p.IdEmpresa == idEmpresa && p.FotosProdutos.Any() && p.CategoryNavigation != null);
 
                 // Aplicar filtros adicionais via LINQ
-                if (cdGrupo.HasValue)
+                if (categoryId.HasValue)
                 {
-                    query = query.Where(p => p.CdGrupo == cdGrupo.Value);
-                }
-
-                if (cdRef.HasValue)
-                {
-                    query = query.Where(p => p.CdRef == cdRef.Value);
+                    query = query.Where(p => p.Category == categoryId.Value);
                 }
 
                 if (cdProduto.HasValue)

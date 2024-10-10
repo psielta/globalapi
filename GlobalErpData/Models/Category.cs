@@ -8,44 +8,36 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GlobalErpData.Models;
 
-[Table("sections")]
-public partial class Section : IIdentifiable<int>
+[Table("category")]
+public partial class Category : IIdentifiable<int>
 {
     [Key]
     [Column("id")]
     public int Id { get; set; }
 
-    [Column("category_id")]
-    public int? CategoryId { get; set; }
-
-    [Column("section_id")]
-    [StringLength(50)]
-    public string? SectionId { get; set; }
-
-    [Column("name")]
-    [StringLength(100)]
-    public string? Name { get; set; }
-
     [Column("id_empresa")]
     public int IdEmpresa { get; set; }
 
+    [Column("name")]
+    [StringLength(255)]
+    public string Name { get; set; } = null!;
+
     [JsonIgnore]
-    [ForeignKey("CategoryId")]
-    [InverseProperty("Sections")]
-    public virtual Category? Category { get; set; }
+    [InverseProperty("Category")]
+    public virtual ICollection<Featured> Featureds { get; set; } = new List<Featured>();
 
     [JsonIgnore]
     [ForeignKey("IdEmpresa")]
-    [InverseProperty("Sections")]
+    [InverseProperty("Categories")]
     public virtual Empresa IdEmpresaNavigation { get; set; } = null!;
 
     [JsonIgnore]
-    [InverseProperty("Section")]
+    [InverseProperty("CategoryNavigation")]
     public virtual ICollection<ProdutoEstoque> ProdutoEstoques { get; set; } = new List<ProdutoEstoque>();
 
     [JsonIgnore]
-    [InverseProperty("Section")]
-    public virtual ICollection<SectionItem> SectionItems { get; set; } = new List<SectionItem>();
+    [InverseProperty("Category")]
+    public virtual ICollection<Section> Sections { get; set; } = new List<Section>();
 
     [GraphQLIgnore]
     public int GetId()

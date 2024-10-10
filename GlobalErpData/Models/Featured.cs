@@ -45,7 +45,7 @@ public partial class Featured : IIdentifiableMultiKey<int, int>
     [JsonIgnore]
     [ForeignKey("CategoryId")]
     [InverseProperty("Featureds")]
-    public virtual GrupoEstoque Category { get; set; } = null!;
+    public virtual Category Category { get; set; } = null!;
 
     [JsonIgnore]
     [ForeignKey("IdEmpresa")]
