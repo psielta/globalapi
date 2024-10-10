@@ -157,8 +157,7 @@ namespace GlobalAPINFe.Controllers
 
                 var query = _context.ProdutoEstoques.FromSqlRaw(sqlQuery, parametros.ToArray())
                     .Include(p => p.FotosProdutos)
-                    .Include(p => p.CategoryNavigation)
-                    .Where(p => p.IdEmpresa == idEmpresa && p.FotosProdutos.Any() && p.CategoryNavigation != null);
+                    .Where(p => p.IdEmpresa == idEmpresa && p.FotosProdutos.Any());
 
                 // Aplicar filtros adicionais via LINQ
                 if (categoryId.HasValue)
