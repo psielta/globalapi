@@ -43,5 +43,27 @@ namespace GlobalAPINFe.Controllers
             return Ok(filter);
         }
 
+        [HttpGet("GetCidadeByIBGE/{ibge}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> GetCidadeByIBGE(string ibge)
+        {
+            var cidades = await (repo as CidadeRepositoryDto).RetrieveAllAsync();
+            if (cidades == null)
+            {
+                return NotFound("Cidade não encontrada.");
+            }
+
+            var filter = cidades.Where(c => c.CdCidade.Equals(ibge))
+                                .OrderBy(c => c.CdCidade)
+                                .ToList();
+
+            if (filter.Count == 0)
+            {
+                return NotFound("Cidade não encontrada.");
+            }
+            return Ok(filter);
+        }
+
     }
 }
