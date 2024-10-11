@@ -26,6 +26,22 @@ public partial class PerfilLoja : IIdentifiable<int>
     [StringLength(255)]
     public string Descricao { get; set; } = null!;
 
+    [Column("whatsapp")]
+    [StringLength(15)]
+    public string? Whatsapp { get; set; }
+
+    [Column("link_instagram")]
+    [StringLength(512)]
+    public string? LinkInstagram { get; set; }
+
+    [Column("link_facebook")]
+    [StringLength(512)]
+    public string? LinkFacebook { get; set; }
+
+    [Column("link_whatsapp")]
+    [StringLength(512)]
+    public string? LinkWhatsapp { get; set; }
+
     [JsonIgnore]
     [ForeignKey("IdEmpresa")]
     [InverseProperty("PerfilLojas")]

@@ -16,5 +16,13 @@ public    class PerfilLojaDto
 
         public string Descricao { get; set; } = null!;
 
+        public string? Whatsapp { get; set; }
+
+        public string? LinkInstagram { get; set; }
+
+        public string? LinkFacebook { get; set; }
+
+        public string? LinkWhatsapp { get; set; }
+
     }
 }
