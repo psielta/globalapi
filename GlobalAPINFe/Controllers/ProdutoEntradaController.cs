@@ -16,10 +16,10 @@ namespace GlobalAPINFe.Controllers
         {
         }
 
-        [HttpGet("GetProdutoEntradaPorEmpresa", Name = nameof(GetProdutoEntradaPorEmpresa))]
+        [HttpGet("GetProdutoEntradaPorEntrada", Name = nameof(GetProdutoEntradaPorEntrada))]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> GetProdutoEntradaPorEmpresa(
+        public async Task<IActionResult> GetProdutoEntradaPorEntrada(
             int idEmpresa,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
