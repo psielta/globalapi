@@ -44,6 +44,7 @@ namespace GlobalErpData.Repository.PagedRepositories
                         && e.Nr == entity.GetId()
                         && e.NrEntrada == entity.NrEntrada)
                     .Include(e => e.ProdutoEstoque)
+                    .OrderBy(e => e.Nr)
                     .LastOrDefaultAsync();
             }
             else

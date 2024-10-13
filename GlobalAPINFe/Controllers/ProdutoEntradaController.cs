@@ -1,9 +1,12 @@
-﻿using GlobalErpData.Dto;
+﻿using GlobalErpData.Data;
+using GlobalErpData.Dto;
 using GlobalErpData.GenericControllers;
 using GlobalErpData.Models;
 using GlobalErpData.Repository;
 using GlobalErpData.Repository.PagedRepositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using X.PagedList.Extensions;
 
 namespace GlobalAPINFe.Controllers
@@ -12,8 +15,10 @@ namespace GlobalAPINFe.Controllers
     [ApiController]
     public class ProdutoEntradaController : GenericPagedController<ProdutoEntradum, int, ProdutoEntradaDto>
     {
-        public ProdutoEntradaController(IQueryRepository<ProdutoEntradum, int, ProdutoEntradaDto> repo, ILogger<GenericPagedController<ProdutoEntradum, int, ProdutoEntradaDto>> logger) : base(repo, logger)
+        private readonly IDbContextFactory<GlobalErpFiscalBaseContext> dbContextFactory;
+        public ProdutoEntradaController(IQueryRepository<ProdutoEntradum, int, ProdutoEntradaDto> repo, ILogger<GenericPagedController<ProdutoEntradum, int, ProdutoEntradaDto>> logger, IDbContextFactory<GlobalErpFiscalBaseContext> dbContextFactory) : base(repo, logger)
         {
+            this.dbContextFactory = dbContextFactory;
         }
 
         [HttpGet("GetProdutoEntradaPorEntrada", Name = nameof(GetProdutoEntradaPorEntrada))]
@@ -41,27 +46,6 @@ namespace GlobalAPINFe.Controllers
                 {
                     filteredQuery = filteredQuery.Where(p => p.NrEntrada == numeroEntrada.Value);
                 }
-                /*
-                // Filtro por período (datas)
-                if (dataInicio.HasValue && dataFim.HasValue)
-                {
-                    filteredQuery = filteredQuery.Where(p => p.DataEntrada >= dataInicio.Value && p.DataEntrada <= dataFim.Value);
-                }
-                else if (dataInicio.HasValue)
-                {
-                    filteredQuery = filteredQuery.Where(p => p.DataEntrada >= dataInicio.Value);
-                }
-                else if (dataFim.HasValue)
-                {
-                    filteredQuery = filteredQuery.Where(p => p.DataEntrada <= dataFim.Value);
-                }
-                
-                // Filtro por nome do fornecedor
-                if (!string.IsNullOrEmpty(nomeFornecedor))
-                {
-                    var normalizedNomeFornecedor = UtlStrings.RemoveDiacritics(nomeFornecedor.ToLower());
-                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.NomeFornecedor == null) ? "" : p.NomeFornecedor.ToLower()).Contains(normalizedNomeFornecedor));
-                }*/
 
                 filteredQuery = filteredQuery.OrderBy(p => p.Nr);
 
@@ -79,6 +63,102 @@ namespace GlobalAPINFe.Controllers
             {
                 logger.LogError(ex, "Ocorreu um erro ao recuperar as entidades paginadas.");
                 return StatusCode(500, "Ocorreu um erro ao recuperar as entidades. Por favor, tente novamente mais tarde.");
+            }
+        }
+
+        [HttpPost("InserirProdutoEntrada", Name = nameof(InserirProdutoEntrada))]
+        [ProducesResponseType(201)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> InserirProdutoEntrada([FromBody] InsercaoEntradaDto dto)
+        {
+            try
+            {
+                await using var _context = dbContextFactory.CreateDbContext();
+
+                try
+                {
+                    ProdutoEstoque produto = await _context.ProdutoEstoques.FirstOrDefaultAsync(obj =>
+                    obj.IdEmpresa == dto.CdEmpresa && obj.CdProduto == dto.CdProduto);
+                    if (produto == null)
+                    {
+                        throw new Exception("Produto não encontrado.");
+                    }
+                    ProdutoEntradaDto produtoEntradaDto = new ProdutoEntradaDto();
+                    produtoEntradaDto.NrEntrada = dto.NrEntrada;
+                    produtoEntradaDto.CdEmpresa = dto.CdEmpresa;
+                    produtoEntradaDto.CdProduto = dto.CdProduto;
+                    produtoEntradaDto.Quant = dto.Quant;
+                    produtoEntradaDto.CdPlano = dto.CdPlano;
+                    produtoEntradaDto.VlUnitario = produto.VlCusto ?? 0;
+
+                    var response = await repo.CreateAsync(produtoEntradaDto);
+                    if (response == null)
+                    {
+                        return BadRequest("Falha ao criar a entidade.");
+                    }
+                    return CreatedAtAction(nameof(InserirProdutoEntrada), new { id = response.Nr }, response);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Produto não encontrado.");
+                    return BadRequest("Produto não encontrado.");
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Ocorreu um erro ao inserir a entidade.");
+                return StatusCode(500, "Ocorreu um erro ao inserir a entidade. Por favor, tente novamente mais tarde.");
+            }
+        }
+
+        [HttpPost("InserirProdutoEntradaEan", Name = nameof(InserirProdutoEntradaEan))]
+        [ProducesResponseType(201)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> InserirProdutoEntradaEan([FromBody] InsercaoEntradaEanDto dto)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(dto.Ean))
+                {
+                    return BadRequest("EAN não pode ser nulo ou vazio.");
+                }
+                await using var _context = dbContextFactory.CreateDbContext();
+
+                try
+                {
+                    ProdutoEstoque produto = await _context.ProdutoEstoques.FirstOrDefaultAsync(obj =>
+                    obj.IdEmpresa == dto.CdEmpresa && obj.CdBarra.Equals(dto.Ean));
+                    if (produto == null)
+                    {
+                        throw new Exception("Produto não encontrado.");
+                    }
+                    ProdutoEntradaDto produtoEntradaDto = new ProdutoEntradaDto();
+                    produtoEntradaDto.NrEntrada = dto.NrEntrada;
+                    produtoEntradaDto.CdEmpresa = dto.CdEmpresa;
+                    produtoEntradaDto.CdProduto = produto.CdProduto;
+                    produtoEntradaDto.Quant = dto.Quant;
+                    produtoEntradaDto.CdPlano = dto.CdPlano;
+                    produtoEntradaDto.VlUnitario = produto.VlCusto ?? 0;
+
+                    var response = await repo.CreateAsync(produtoEntradaDto);
+                    if (response == null)
+                    {
+                        return BadRequest("Falha ao criar a entidade.");
+                    }
+                    return CreatedAtAction(nameof(InserirProdutoEntradaEan), new { id = response.Nr }, response);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Produto não encontrado.");
+                    return BadRequest("Produto não encontrado.");
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Ocorreu um erro ao inserir a entidade.");
+                return StatusCode(500, "Ocorreu um erro ao inserir a entidade. Por favor, tente novamente mais tarde.");
             }
         }
     }
