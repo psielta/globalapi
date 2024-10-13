@@ -46,10 +46,8 @@ namespace GlobalErpData.Repository.PagedRepositoriesMultiKey
 
                 return await db.Set<Entrada>()
                     .Where(e =>
-                        e.CdEmpresa == entity.CdEmpresa
-                        && e.CdForn == entity.CdForn
-                        && e.CdGrupoEstoque == entity.CdGrupoEstoque
-                        && e.Data == entity.Data)
+                        e.Nr == entity.Nr
+                        && e.CdEmpresa == entity.CdEmpresa)
                     .OrderByDescending(e => e.Data) // Adiciona uma ordenação
                     .Include(e => e.Fornecedor)
                     .Include(e => e.CdGrupoEstoqueNavigation)
