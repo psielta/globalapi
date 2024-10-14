@@ -63,6 +63,7 @@ namespace GlobalErpData.Repository
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OlderItems));
             CreateMap<CategoryDto, Category>();
             CreateMap<ContaCaixaDto, ContaDoCaixa>();
+            CreateMap<PlanoCaixaDto, PlanoDeCaixa>();
 
         }
     }

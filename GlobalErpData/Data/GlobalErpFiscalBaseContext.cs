@@ -865,6 +865,15 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.Descricao).HasDefaultValueSql("''::character varying");
         });
 
+        modelBuilder.Entity<PlanoDeCaixa>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("plano_de_caixa_pkey");
+
+            entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.PlanoDeCaixas)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("plano_de_caixa_fk");
+        });
+
         modelBuilder.Entity<PlanoEstoque>(entity =>
         {
             entity.HasKey(e => e.CdPlano).HasName("plano_estoque_pkey");

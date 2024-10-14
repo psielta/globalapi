@@ -120,6 +120,8 @@ builder.Services.AddScoped<IRepositoryDto<OlderItem, Guid, OlderItemDto>, OlderI
 builder.Services.AddScoped<IQueryRepository<Older, Guid, OlderDto>, OlderRepository>();
 builder.Services.AddScoped<IRepositoryDto<Category, int, CategoryDto>, CategoryRep>();
 builder.Services.AddScoped<IQueryRepository<ContaDoCaixa,int,ContaCaixaDto>, ContaCaixaRepository>();
+builder.Services.AddScoped<IQueryRepository<PlanoDeCaixa,int,PlanoCaixaDto>, PlanoCaixaRepository>();
+
 
 builder.Services.AddControllers()/*
         .AddJsonOptions(options =>
