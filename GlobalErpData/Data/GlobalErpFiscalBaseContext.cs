@@ -23,6 +23,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
     public virtual DbSet<Featured> Featureds { get; set; }
     public virtual DbSet<Section> Sections { get; set; }
     public virtual DbSet<SectionItem> SectionItems { get; set; }
+    public virtual DbSet<ContaDoCaixa> ContaDoCaixas { get; set; }
     public virtual DbSet<Certificado> Certificados { get; set; }
     public virtual DbSet<ConfiguracoesEmpresa> ConfiguracoesEmpresas { get; set; }
     public virtual DbSet<ConfiguracoesUsuario> ConfiguracoesUsuarios { get; set; }
@@ -253,6 +254,24 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .HasPrincipalKey(p => p.Id)
                 .HasForeignKey(d => d.IdUsuario)
                 .HasConstraintName("configuracoes_usuario_fk");
+        });
+
+        modelBuilder.Entity<ContaDoCaixa>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("conta_do_caixa_pkey");
+
+            entity.Property(e => e.LimiteEspecial).HasDefaultValueSql("0");
+            entity.Property(e => e.MostrarDadosImpressao).HasDefaultValueSql("'N'::character varying");
+            entity.Property(e => e.NmBanco).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.NrAgencia).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.NrChequeInicial).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.NrContaBanco).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.NrDigitoAg).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.NrDigitoConta).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.SaldoAtual).HasDefaultValueSql("0");
+            entity.Property(e => e.SaldoInicial).HasDefaultValueSql("0");
+
+            entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.ContaDoCaixas).HasConstraintName("conta_do_caixa_fk");
         });
 
         modelBuilder.Entity<Cte>(entity =>
