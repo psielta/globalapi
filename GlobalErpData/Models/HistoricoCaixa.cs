@@ -8,9 +8,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GlobalErpData.Models;
 
-[Table("plano_de_caixa")]
-[Index("CdClassificacao", "CdEmpresa", Name = "plano_de_caixa_idx", IsUnique = true)]
-public partial class PlanoDeCaixa : IIdentifiable<int>
+[Table("historico_caixa")]
+[Index("CdEmpresa", "CdSubPlano", "CdPlano", Name = "historico_caixa_idx1", IsUnique = true)]
+public partial class HistoricoCaixa : IIdentifiable<int>
 {
     [Key]
     [Column("id")]
@@ -19,9 +19,17 @@ public partial class PlanoDeCaixa : IIdentifiable<int>
     [Column("cd_empresa")]
     public int CdEmpresa { get; set; }
 
-    [Column("cd_classificacao")]
+    [Column("cd_sub_plano")]
     [StringLength(25)]
-    public string CdClassificacao { get; set; } = null!;
+    public string CdSubPlano { get; set; } = null!;
+
+    [Column("cd_plano")]
+    [StringLength(25)]
+    public string CdPlano { get; set; } = null!;
+
+    [Column("tipo")]
+    [StringLength(1)]
+    public string Tipo { get; set; } = null!;
 
     [Column("descricao")]
     [StringLength(62)]
@@ -29,12 +37,17 @@ public partial class PlanoDeCaixa : IIdentifiable<int>
 
     [JsonIgnore]
     [ForeignKey("CdEmpresa")]
-    [InverseProperty("PlanoDeCaixas")]
+    [InverseProperty("HistoricoCaixas")]
     public virtual Empresa CdEmpresaNavigation { get; set; } = null!;
 
     [JsonIgnore]
-    [InverseProperty("PlanoDeCaixa")]
-    public virtual ICollection<HistoricoCaixa> HistoricoCaixas { get; set; } = new List<HistoricoCaixa>();
+    [ForeignKey("CdPlano, CdEmpresa")]
+    [InverseProperty("HistoricoCaixas")]
+    public virtual PlanoDeCaixa PlanoDeCaixa { get; set; } = null!;
+
+    [JsonPropertyName("nmPlanoCaixa")]
+    [NotMapped]
+    public string NmPlanoCaixa => PlanoDeCaixa?.Descricao ?? string.Empty;
 
     [GraphQLIgnore]
     public int GetId()

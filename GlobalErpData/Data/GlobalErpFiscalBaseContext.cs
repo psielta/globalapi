@@ -15,6 +15,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         : base(options)
     {
     }
+    public virtual DbSet<HistoricoCaixa> HistoricoCaixas { get; set; }
     public virtual DbSet<Category> Categories { get; set; }
     public virtual DbSet<PerfilLoja> PerfilLojas { get; set; }
     public virtual DbSet<ItemDetail> ItemDetails { get; set; }
@@ -684,6 +685,21 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.GrupoEstoques)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("grupo_estoque_fk");
+        });
+
+        modelBuilder.Entity<HistoricoCaixa>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("historico_caixa_pkey");
+
+            entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.HistoricoCaixas)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("historico_caixa_fk1");
+
+            entity.HasOne(d => d.PlanoDeCaixa).WithMany(p => p.HistoricoCaixas)
+                .HasPrincipalKey(p => new { p.CdClassificacao, p.CdEmpresa })
+                .HasForeignKey(d => new { d.CdPlano, d.CdEmpresa })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("historico_caixa_fk");
         });
 
         modelBuilder.Entity<Impcabnfe>(entity =>

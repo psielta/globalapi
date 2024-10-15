@@ -67,11 +67,13 @@ public partial class ContaDoCaixa : IIdentifiable<int>
     [InverseProperty("ContaDoCaixas")]
     public virtual Empresa CdEmpresaNavigation { get; set; } = null!;
 
+    [GraphQLIgnore]
     public int GetId()
     {
         return Id;
     }
 
+    [GraphQLIgnore]
     public string GetKeyName()
     {
         return "Id";
