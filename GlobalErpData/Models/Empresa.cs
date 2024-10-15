@@ -178,6 +178,10 @@ public partial class Empresa : IIdentifiable<int>
     public virtual ICollection<MdfeReboque> MdfeReboques { get; set; } = new List<MdfeReboque>();
 
     [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<ContasAPagar> ContasAPagars { get; set; } = new List<ContasAPagar>();
+
+    [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<MdfeRodoviario> MdfeRodoviarios { get; set; } = new List<MdfeRodoviario>();
 

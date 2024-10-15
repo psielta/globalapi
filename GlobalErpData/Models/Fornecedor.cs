@@ -116,6 +116,10 @@ public partial class Fornecedor : IIdentifiableMultiKey<int, int>
     [InverseProperty("Fornecedor")]
     public virtual ICollection<Entrada> Entrada { get; set; } = new List<Entrada>();
 
+    [JsonIgnore]
+    [InverseProperty("Fornecedor")]
+    public virtual ICollection<ContasAPagar> ContasAPagars { get; set; } = new List<ContasAPagar>();
+
 
     [GraphQLIgnore]
     public (int, int) GetId()

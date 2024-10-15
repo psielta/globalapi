@@ -16,6 +16,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
     {
     }
     public virtual DbSet<FormaPagt> FormaPagts { get; set; }
+    public virtual DbSet<ContasAPagar> ContasAPagars { get; set; }
     public virtual DbSet<HistoricoCaixa> HistoricoCaixas { get; set; }
     public virtual DbSet<Category> Categories { get; set; }
     public virtual DbSet<PerfilLoja> PerfilLojas { get; set; }
@@ -274,6 +275,35 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.SaldoInicial).HasDefaultValueSql("0");
 
             entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.ContaDoCaixas).HasConstraintName("conta_do_caixa_fk");
+        });
+
+        modelBuilder.Entity<ContasAPagar>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("contas_a_pagar_pkey");
+
+            entity.Property(e => e.DtLancamento).HasDefaultValueSql("('now'::text)::date");
+            entity.Property(e => e.IdLancPrinc).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.NrEntradaOutraDesp).HasDefaultValueSql("'-1'::integer");
+            entity.Property(e => e.Pagou).HasDefaultValueSql("'N'::character varying");
+            entity.Property(e => e.TxtObs).HasDefaultValueSql("''::text");
+            entity.Property(e => e.VlAcrescimo).HasDefaultValueSql("0");
+            entity.Property(e => e.VlCheque).HasDefaultValueSql("0");
+            entity.Property(e => e.VlDinheiro).HasDefaultValueSql("0");
+            entity.Property(e => e.VlPagoFinal).HasDefaultValueSql("0");
+
+            entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.ContasAPagars)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("contas_a_pagar_fk2");
+
+            entity.HasOne(d => d.Fornecedor).WithMany(p => p.ContasAPagars)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("contas_a_pagar_fk1");
+
+            entity.HasOne(d => d.HistoricoCaixa).WithMany(p => p.ContasAPagars)
+                .HasPrincipalKey(p => new { p.CdEmpresa, p.CdSubPlano, p.CdPlano })
+                .HasForeignKey(d => new { d.CdEmpresa, d.CdHistoricoCaixa, d.CdPlanoCaixa })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("contas_a_pagar_fk");
         });
 
         modelBuilder.Entity<Cte>(entity =>

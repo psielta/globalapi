@@ -49,6 +49,10 @@ public partial class HistoricoCaixa : IIdentifiable<int>
     [NotMapped]
     public string NmPlanoCaixa => PlanoDeCaixa?.Descricao ?? string.Empty;
 
+    [JsonIgnore]
+    [InverseProperty("HistoricoCaixa")]
+    public virtual ICollection<ContasAPagar> ContasAPagars { get; set; } = new List<ContasAPagar>();
+
     [GraphQLIgnore]
     public int GetId()
     {
