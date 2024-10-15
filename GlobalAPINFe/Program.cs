@@ -122,6 +122,8 @@ builder.Services.AddScoped<IRepositoryDto<Category, int, CategoryDto>, CategoryR
 builder.Services.AddScoped<IQueryRepository<ContaDoCaixa,int,ContaCaixaDto>, ContaCaixaRepository>();
 builder.Services.AddScoped<IQueryRepository<PlanoDeCaixa,int,PlanoCaixaDto>, PlanoCaixaRepository>();
 builder.Services.AddScoped<IQueryRepository<HistoricoCaixa,int,HistoricoCaixaDto>, HistoricoCaixaRepository>();
+builder.Services.AddScoped<IQueryRepository<FormaPagt,int,FormaPagtDto>, FormaPagtRepository>();
+
 
 
 builder.Services.AddControllers()/*

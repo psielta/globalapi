@@ -41,6 +41,14 @@ public partial class HistoricoCaixa : IIdentifiable<int>
     public virtual Empresa CdEmpresaNavigation { get; set; } = null!;
 
     [JsonIgnore]
+    [InverseProperty("HistoricoCaixaNavigation")]
+    public virtual ICollection<FormaPagt> FormaPagtHistoricoCaixaNavigations { get; set; } = new List<FormaPagt>();
+
+    [JsonIgnore]
+    [InverseProperty("HistoricoCaixa")]
+    public virtual ICollection<FormaPagt> FormaPagtHistoricoCaixas { get; set; } = new List<FormaPagt>();
+
+    [JsonIgnore]
     [ForeignKey("CdPlano, CdEmpresa")]
     [InverseProperty("HistoricoCaixas")]
     public virtual PlanoDeCaixa PlanoDeCaixa { get; set; } = null!;

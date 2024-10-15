@@ -65,6 +65,7 @@ namespace GlobalErpData.Repository
             CreateMap<ContaCaixaDto, ContaDoCaixa>();
             CreateMap<PlanoCaixaDto, PlanoDeCaixa>();
             CreateMap<HistoricoCaixaDto, HistoricoCaixa>();
+            CreateMap<FormaPagtDto, FormaPagt>();
 
         }
     }

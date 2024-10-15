@@ -15,6 +15,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         : base(options)
     {
     }
+    public virtual DbSet<FormaPagt> FormaPagts { get; set; }
     public virtual DbSet<HistoricoCaixa> HistoricoCaixas { get; set; }
     public virtual DbSet<Category> Categories { get; set; }
     public virtual DbSet<PerfilLoja> PerfilLojas { get; set; }
@@ -629,6 +630,52 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.Category).WithMany(p => p.Featureds).HasConstraintName("featured_category_id_fkey");
 
             entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.Featureds).HasConstraintName("featured_id_empresa_fkey");
+        });
+
+        modelBuilder.Entity<FormaPagt>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("forma_pagt_pkey");
+
+            entity.Property(e => e.CdHistoricoCaixa).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.CdHistoricoCaixaD).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.CdPlanoCaixa).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.CdPlanoCaixaD).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.Integrado).HasDefaultValueSql("'N'::character varying");
+            entity.Property(e => e.Prz02).HasDefaultValue((short)0);
+            entity.Property(e => e.Prz03).HasDefaultValue((short)0);
+            entity.Property(e => e.Prz04).HasDefaultValue((short)0);
+            entity.Property(e => e.Prz05).HasDefaultValue((short)0);
+            entity.Property(e => e.Prz06).HasDefaultValue((short)0);
+            entity.Property(e => e.Prz07).HasDefaultValue((short)0);
+            entity.Property(e => e.Prz08).HasDefaultValue((short)0);
+            entity.Property(e => e.Prz09).HasDefaultValue((short)0);
+            entity.Property(e => e.Prz10).HasDefaultValue((short)0);
+            entity.Property(e => e.TipoPrazo).HasDefaultValueSql("'D'::character varying");
+            entity.Property(e => e.TxtObs).HasDefaultValueSql("''::text");
+
+            entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.FormaPagts)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("forma_pagt_fk");
+
+            entity.HasOne(d => d.PlanoDeCaixa).WithMany(p => p.FormaPagtPlanoDeCaixas)
+                .HasPrincipalKey(p => new { p.CdClassificacao, p.CdEmpresa })
+                .HasForeignKey(d => new { d.CdPlanoCaixa, d.CdEmpresa })
+                .HasConstraintName("forma_pagt_fk1");
+
+            entity.HasOne(d => d.PlanoDeCaixaNavigation).WithMany(p => p.FormaPagtPlanoDeCaixaNavigations)
+                .HasPrincipalKey(p => new { p.CdClassificacao, p.CdEmpresa })
+                .HasForeignKey(d => new { d.CdPlanoCaixaD, d.CdEmpresa })
+                .HasConstraintName("forma_pagt_fk2");
+
+            entity.HasOne(d => d.HistoricoCaixa).WithMany(p => p.FormaPagtHistoricoCaixas)
+                .HasPrincipalKey(p => new { p.CdEmpresa, p.CdSubPlano, p.CdPlano })
+                .HasForeignKey(d => new { d.CdEmpresa, d.CdHistoricoCaixa, d.CdPlanoCaixa })
+                .HasConstraintName("forma_pagt_fk3");
+
+            entity.HasOne(d => d.HistoricoCaixaNavigation).WithMany(p => p.FormaPagtHistoricoCaixaNavigations)
+                .HasPrincipalKey(p => new { p.CdEmpresa, p.CdSubPlano, p.CdPlano })
+                .HasForeignKey(d => new { d.CdEmpresa, d.CdHistoricoCaixaD, d.CdPlanoCaixaD })
+                .HasConstraintName("forma_pagt_fk4");
         });
 
         modelBuilder.Entity<Fornecedor>(entity =>
