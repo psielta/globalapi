@@ -36,14 +36,7 @@ public partial class PlanoDeCaixa : IIdentifiable<int>
     [InverseProperty("PlanoDeCaixa")]
     public virtual ICollection<HistoricoCaixa> HistoricoCaixas { get; set; } = new List<HistoricoCaixa>();
 
-    [JsonIgnore]
-    [InverseProperty("PlanoDeCaixaNavigation")]
-    public virtual ICollection<FormaPagt> FormaPagtPlanoDeCaixaNavigations { get; set; } = new List<FormaPagt>();
-
-    [JsonIgnore]
-    [InverseProperty("PlanoDeCaixa")]
-    public virtual ICollection<FormaPagt> FormaPagtPlanoDeCaixas { get; set; } = new List<FormaPagt>();
-
+    
     [GraphQLIgnore]
     public int GetId()
     {

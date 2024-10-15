@@ -85,26 +85,6 @@ public partial class FormaPagt : IIdentifiable<int>
     [InverseProperty("FormaPagts")]
     public virtual Empresa CdEmpresaNavigation { get; set; } = null!;
 
-    [JsonIgnore]
-    [ForeignKey("CdEmpresa, CdHistoricoCaixa, CdPlanoCaixa")]
-    [InverseProperty("FormaPagtHistoricoCaixas")]
-    public virtual HistoricoCaixa? HistoricoCaixa { get; set; }
-
-    [JsonIgnore]
-    [ForeignKey("CdEmpresa, CdHistoricoCaixaD, CdPlanoCaixaD")]
-    [InverseProperty("FormaPagtHistoricoCaixaNavigations")]
-    public virtual HistoricoCaixa? HistoricoCaixaNavigation { get; set; }
-    
-    [JsonIgnore]
-    [ForeignKey("CdPlanoCaixa, CdEmpresa")]
-    [InverseProperty("FormaPagtPlanoDeCaixas")]
-    public virtual PlanoDeCaixa? PlanoDeCaixa { get; set; }
-
-    [JsonIgnore]
-    [ForeignKey("CdPlanoCaixaD, CdEmpresa")]
-    [InverseProperty("FormaPagtPlanoDeCaixaNavigations")]
-    public virtual PlanoDeCaixa? PlanoDeCaixaNavigation { get; set; }
-
     [GraphQLIgnore]
     public int GetId()
     {

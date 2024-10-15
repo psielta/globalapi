@@ -656,26 +656,6 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.FormaPagts)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("forma_pagt_fk");
-
-            entity.HasOne(d => d.PlanoDeCaixa).WithMany(p => p.FormaPagtPlanoDeCaixas)
-                .HasPrincipalKey(p => new { p.CdClassificacao, p.CdEmpresa })
-                .HasForeignKey(d => new { d.CdPlanoCaixa, d.CdEmpresa })
-                .HasConstraintName("forma_pagt_fk1");
-
-            entity.HasOne(d => d.PlanoDeCaixaNavigation).WithMany(p => p.FormaPagtPlanoDeCaixaNavigations)
-                .HasPrincipalKey(p => new { p.CdClassificacao, p.CdEmpresa })
-                .HasForeignKey(d => new { d.CdPlanoCaixaD, d.CdEmpresa })
-                .HasConstraintName("forma_pagt_fk2");
-
-            entity.HasOne(d => d.HistoricoCaixa).WithMany(p => p.FormaPagtHistoricoCaixas)
-                .HasPrincipalKey(p => new { p.CdEmpresa, p.CdSubPlano, p.CdPlano })
-                .HasForeignKey(d => new { d.CdEmpresa, d.CdHistoricoCaixa, d.CdPlanoCaixa })
-                .HasConstraintName("forma_pagt_fk3");
-
-            entity.HasOne(d => d.HistoricoCaixaNavigation).WithMany(p => p.FormaPagtHistoricoCaixaNavigations)
-                .HasPrincipalKey(p => new { p.CdEmpresa, p.CdSubPlano, p.CdPlano })
-                .HasForeignKey(d => new { d.CdEmpresa, d.CdHistoricoCaixaD, d.CdPlanoCaixaD })
-                .HasConstraintName("forma_pagt_fk4");
         });
 
         modelBuilder.Entity<Fornecedor>(entity =>
