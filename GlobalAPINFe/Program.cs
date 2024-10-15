@@ -123,6 +123,7 @@ builder.Services.AddScoped<IQueryRepository<ContaDoCaixa,int,ContaCaixaDto>, Con
 builder.Services.AddScoped<IQueryRepository<PlanoDeCaixa,int,PlanoCaixaDto>, PlanoCaixaRepository>();
 builder.Services.AddScoped<IQueryRepository<HistoricoCaixa,int,HistoricoCaixaDto>, HistoricoCaixaRepository>();
 builder.Services.AddScoped<IQueryRepository<FormaPagt,int,FormaPagtDto>, FormaPagtRepository>();
+builder.Services.AddScoped<IQueryRepository<ContasAPagar,int,ContasAPagarDto>, ContasAPagarRepository>();
 
 
 

@@ -128,10 +128,22 @@ public partial class ContasAPagar : IIdentifiable<int>
     [InverseProperty("ContasAPagars")]
     public virtual Fornecedor Fornecedor { get; set; } = null!;
 
+    [JsonPropertyName("nmForn")]
+    [NotMapped]
+    public string NmForn => Fornecedor?.NmForn ?? "";
+
     [JsonIgnore]
     [ForeignKey("CdEmpresa, CdHistoricoCaixa, CdPlanoCaixa")]
     [InverseProperty("ContasAPagars")]
     public virtual HistoricoCaixa HistoricoCaixa { get; set; } = null!;
+
+    [JsonPropertyName("nmPlanoCaixa")]
+    [NotMapped]
+    public string NmPlanoCaixa => HistoricoCaixa?.PlanoDeCaixa?.Descricao ?? "";
+
+    [JsonPropertyName("nmHistoricoCaixa")]
+    [NotMapped]
+    public string NmHistoricoCaixa => HistoricoCaixa?.Descricao ?? "";
 
     [GraphQLIgnore]
     public int GetId()
