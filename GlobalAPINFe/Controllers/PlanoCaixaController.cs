@@ -55,7 +55,7 @@ namespace GlobalAPINFe.Controllers
                 {
                     return NotFound("Entities not found."); // 404 Resource not found
                 }
-                var list = await query.ToListAsync();
+                var list = await query.AsNoTracking().ToListAsync();
 
                 if (list  == null || list.Count == 0)
                 {
