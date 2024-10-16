@@ -43,7 +43,7 @@ namespace GlobalAPINFe.Controllers
             }
         }
 
-        [HttpGet("GetFormaPagtPorEmpresa", Name = nameof(GetFormaPagtPorEmpresa))]
+        [HttpGet("GetFormaPagtPorEmpresa_ALL", Name = nameof(GetFormaPagtPorEmpresa_ALL))]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         public async Task<IActionResult> GetFormaPagtPorEmpresa_ALL(int idEmpresa, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
