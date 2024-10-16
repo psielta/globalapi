@@ -5,6 +5,7 @@ using GlobalErpData.Repository;
 using GlobalErpData.Repository.PagedRepositories;
 using GlobalLib.Strings;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 using X.PagedList.Extensions;
 
 namespace GlobalAPINFe.Controllers
@@ -17,6 +18,21 @@ namespace GlobalAPINFe.Controllers
         {
         }
 
+        public enum TipoPeriodoCAP
+        {
+            TPC_Geral = 0,
+            TPC_Periodo = 1,
+            TPC_Ate_Data = 2,
+        }
+
+        public enum TipoDataCap
+        {
+            TDC_Lancamento = 0,
+            TDC_Vencimento = 1,
+            TDC_Pagamento = 2,
+        }
+
+
         [HttpGet("GetContasAPagarPorEmpresa", Name = nameof(GetContasAPagarPorEmpresa))]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
@@ -24,17 +40,35 @@ namespace GlobalAPINFe.Controllers
             int idEmpresa,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
+            [FromQuery] int tipoPeriodoCAP = 0,
+            [FromQuery] int tipoDataCap = 0,
+            [FromQuery] string? periodoInicial = null,
+            [FromQuery] string? periodoFinal = null,
+            [FromQuery] string pagou = "N",
             [FromQuery] string? nmForn = null,
             [FromQuery] int? nrEntrada = null,
             [FromQuery] string? nrDuplicata = null,
-            [FromQuery] string? dtVencimentoInicio = null,
-            [FromQuery] string? dtVencimentoFim = null,
             [FromQuery] string? cdHistoricoCaixa = null,
             [FromQuery] string? cdPlanoCaixa = null
         )
         {
             try
             {
+                TipoDataCap ENUM_tipoDataCap = TipoDataCap.TDC_Lancamento;
+                TipoPeriodoCAP ENUM_tipoPeriodoCAP = TipoPeriodoCAP.TPC_Geral;
+                try
+                {
+                    if (tipoDataCap < 0 || tipoDataCap > 2 || tipoPeriodoCAP < 0 || tipoPeriodoCAP > 2)
+                    {
+                        return BadRequest("Invalid parameters.");
+                    }
+                    ENUM_tipoDataCap = (TipoDataCap)tipoDataCap;
+                    ENUM_tipoPeriodoCAP = (TipoPeriodoCAP)tipoPeriodoCAP;
+                }
+                catch
+                {
+                    return BadRequest("Invalid parameters.");
+                }
                 var query = await ((ContasAPagarRepository)repo).GetContasAPagarAsyncPorEmpresa(idEmpresa);
 
                 if (query == null)
@@ -61,14 +95,57 @@ namespace GlobalAPINFe.Controllers
                     filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.NrDuplicata == null) ? "" : p.NrDuplicata.ToLower()) == normalizedNrDuplicata);
                 }
 
-                if (!string.IsNullOrEmpty(dtVencimentoInicio))
+                if (!string.IsNullOrEmpty(pagou))
                 {
-                    filteredQuery = filteredQuery.Where(p => p.DtVencimento >= DateOnly.Parse(dtVencimentoInicio));
+                    filteredQuery = filteredQuery.Where(p => p.Pagou == pagou);
                 }
 
-                if (!string.IsNullOrEmpty(dtVencimentoFim))
+                switch ((int)ENUM_tipoPeriodoCAP)
                 {
-                    filteredQuery = filteredQuery.Where(p => p.DtVencimento <= DateOnly.Parse(dtVencimentoFim));
+                    case (int)TipoPeriodoCAP.TPC_Periodo:
+                        if (!string.IsNullOrEmpty(periodoInicial) && !string.IsNullOrEmpty(periodoFinal))
+                        {
+                            DateOnly dtInicial = DateOnly.ParseExact(periodoInicial, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                            DateOnly dtFinal = DateOnly.ParseExact(periodoFinal, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                            switch ((int)ENUM_tipoDataCap)
+                            {
+                                case (int)TipoDataCap.TDC_Lancamento:
+                                    filteredQuery = filteredQuery.Where(p => p.DtLancamento >= dtInicial && p.DtLancamento <= dtFinal);
+                                    break;
+                                case (int)TipoDataCap.TDC_Vencimento:
+                                    filteredQuery = filteredQuery.Where(p => p.DtVencimento >= dtInicial && p.DtVencimento <= dtFinal);
+                                    break;
+                                case (int)TipoDataCap.TDC_Pagamento:
+                                    filteredQuery = filteredQuery.Where(p => p.DtPagou >= dtInicial && p.DtPagou <= dtFinal);
+                                    break;
+                                default:
+                                    break;
+                            }
+                            filteredQuery = filteredQuery.Where(p => p.DtVencimento >= dtInicial && p.DtVencimento <= dtFinal);
+                        }
+                        break;
+                    case (int)TipoPeriodoCAP.TPC_Ate_Data:
+                        if (!string.IsNullOrEmpty(periodoFinal))
+                        {
+                            DateOnly dtFinal = DateOnly.ParseExact(periodoFinal, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                            switch ((int)ENUM_tipoDataCap)
+                            {
+                                case (int)TipoDataCap.TDC_Lancamento:
+                                    filteredQuery = filteredQuery.Where(p => p.DtLancamento <= dtFinal);
+                                    break;
+                                case (int)TipoDataCap.TDC_Vencimento:
+                                    filteredQuery = filteredQuery.Where(p => p.DtVencimento <= dtFinal);
+                                    break;
+                                case (int)TipoDataCap.TDC_Pagamento:
+                                    filteredQuery = filteredQuery.Where(p => p.DtPagou <= dtFinal);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                        break;
+                    default:
+                        break;
                 }
 
                 if (!string.IsNullOrEmpty(cdHistoricoCaixa))
