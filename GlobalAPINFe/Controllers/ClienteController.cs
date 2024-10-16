@@ -88,8 +88,7 @@ namespace GlobalAPINFe.Controllers
             }
         }
 
-        [HttpGet]
-        [Route("CreateReport")]
+        [HttpGet("CreateReport", Name =nameof(CreateReport))]
         public async Task<IActionResult> CreateReport()
         {
             var projectRootPath = Environment.CurrentDirectory;
@@ -116,8 +115,7 @@ namespace GlobalAPINFe.Controllers
             return Ok($" Relatorio gerado : {reportFilePath}");
         }
 
-        [HttpGet]
-        [Route("ClienteReport")]
+        [HttpGet("ClienteReport", Name = nameof(ClienteReport))]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         public IActionResult ClienteReport(
