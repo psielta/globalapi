@@ -21,9 +21,7 @@ namespace GlobalErpData.GenericControllers
         }
 
         [HttpGet]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(404)]
-        public async Task<IActionResult> GetEntities()
+        public virtual async Task<ActionResult<IEnumerable<TEntity>>> GetEntities()
         {
             try
             {
@@ -42,9 +40,7 @@ namespace GlobalErpData.GenericControllers
         }
 
         [HttpGet("{id}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(404)]
-        public async Task<IActionResult> GetEntity(TKey id)
+        public virtual async Task<ActionResult<TEntity>> GetEntity(TKey id)
         {
             try
             {
@@ -63,9 +59,7 @@ namespace GlobalErpData.GenericControllers
         }
 
         [HttpPost]
-        [ProducesResponseType(201)]
-        [ProducesResponseType(400)]
-        public async Task<IActionResult> Create([FromBody] TDto dto)
+        public virtual async Task<ActionResult<TEntity>> Create([FromBody] TDto dto)
         {
             try
             {
@@ -94,10 +88,7 @@ namespace GlobalErpData.GenericControllers
         }
 
         [HttpPut("{id}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(404)]
-        public async Task<IActionResult> Update(TKey id, [FromBody] TDto dto)
+        public virtual async Task<ActionResult<TEntity>> Update(TKey id, [FromBody] TDto dto)
         {
             try
             {
@@ -124,10 +115,7 @@ namespace GlobalErpData.GenericControllers
         }
 
         [HttpDelete("{id}")]
-        [ProducesResponseType(204)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(404)]
-        public async Task<IActionResult> Delete(TKey id)
+        public virtual async Task<IActionResult> Delete(TKey id)
         {
             try
             {
@@ -139,7 +127,7 @@ namespace GlobalErpData.GenericControllers
                 bool? deleted = await repo.DeleteAsync(id);
                 if (deleted.HasValue && deleted.Value) // short circuit AND
                 {
-                    return new NoContentResult(); // 204 No content
+                    return NoContent(); // 204 No content
                 }
                 else
                 {

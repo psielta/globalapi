@@ -2,12 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
-using X.PagedList;
 using System;
 using System.Linq;
-using X.PagedList.EF;
 using GlobalErpData.Repository;
 using GlobalErpData.Dto;
+using X.PagedList.EF;
 
 namespace GlobalErpData.GenericControllers
 {
@@ -26,9 +25,7 @@ namespace GlobalErpData.GenericControllers
         }
 
         [HttpGet]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(404)]
-        public async Task<IActionResult> GetEntities([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        public virtual async Task<ActionResult<PagedResponse<TEntity>>> GetEntities([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
@@ -50,9 +47,7 @@ namespace GlobalErpData.GenericControllers
         }
 
         [HttpGet("{idEmpresa}/{idCadastro}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(404)]
-        public async Task<IActionResult> GetEntity(TKey1 idEmpresa, TKey2 idCadastro)
+        public virtual async Task<ActionResult<TEntity>> GetEntity(TKey1 idEmpresa, TKey2 idCadastro)
         {
             try
             {
@@ -71,9 +66,7 @@ namespace GlobalErpData.GenericControllers
         }
 
         [HttpPost]
-        [ProducesResponseType(201)]
-        [ProducesResponseType(400)]
-        public async Task<IActionResult> Create([FromBody] TDto dto)
+        public virtual async Task<ActionResult<TEntity>> Create([FromBody] TDto dto)
         {
             try
             {
@@ -102,10 +95,7 @@ namespace GlobalErpData.GenericControllers
         }
 
         [HttpPut("{idEmpresa}/{idCadastro}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(404)]
-        public async Task<IActionResult> Update(TKey1 idEmpresa, TKey2 idCadastro, [FromBody] TDto dto)
+        public virtual async Task<ActionResult<TEntity>> Update(TKey1 idEmpresa, TKey2 idCadastro, [FromBody] TDto dto)
         {
             try
             {
@@ -132,10 +122,7 @@ namespace GlobalErpData.GenericControllers
         }
 
         [HttpDelete("{idEmpresa}/{idCadastro}")]
-        [ProducesResponseType(204)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(404)]
-        public async Task<IActionResult> Delete(TKey1 idEmpresa, TKey2 idCadastro)
+        public virtual async Task<IActionResult> Delete(TKey1 idEmpresa, TKey2 idCadastro)
         {
             try
             {
@@ -147,7 +134,7 @@ namespace GlobalErpData.GenericControllers
                 bool? deleted = await repo.DeleteAsync(idEmpresa, idCadastro);
                 if (deleted.HasValue && deleted.Value) // short circuit AND
                 {
-                    return new NoContentResult(); // 204 No content
+                    return NoContent(); // 204 No content
                 }
                 else
                 {

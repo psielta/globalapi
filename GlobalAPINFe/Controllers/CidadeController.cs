@@ -1,13 +1,13 @@
 ﻿using GlobalErpData.Dto;
 using GlobalErpData.Models;
-using GlobalLib.Database;
-using Microsoft.AspNetCore.Mvc;
-using System.Globalization;
-using System.Text;
-using GlobalLib.Strings;
 using GlobalErpData.GenericControllers;
 using GlobalErpData.Repository;
 using GlobalErpData.Repository.Repositories;
+using GlobalLib.Strings;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace GlobalAPINFe.Controllers
 {
@@ -19,10 +19,52 @@ namespace GlobalAPINFe.Controllers
         {
         }
 
-        [HttpGet("GetCidadeByName/{nome}")]
-        [ProducesResponseType(200)]
+        [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<Cidade>), 200)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> GetCidadeByName(string nome)
+        public override async Task<ActionResult<IEnumerable<Cidade>>> GetEntities()
+        {
+            return await base.GetEntities();
+        }
+
+        [HttpGet("{id}")]
+        [ProducesResponseType(typeof(Cidade), 200)]
+        [ProducesResponseType(404)]
+        public override async Task<ActionResult<Cidade>> GetEntity(string id)
+        {
+            return await base.GetEntity(id);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(typeof(Cidade), 201)]
+        [ProducesResponseType(400)]
+        public override async Task<ActionResult<Cidade>> Create([FromBody] CidadeDto dto)
+        {
+            return await base.Create(dto);
+        }
+
+        [HttpPut("{id}")]
+        [ProducesResponseType(typeof(Cidade), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public override async Task<ActionResult<Cidade>> Update(string id, [FromBody] CidadeDto dto)
+        {
+            return await base.Update(id, dto);
+        }
+
+        [HttpDelete("{id}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public override async Task<IActionResult> Delete(string id)
+        {
+            return await base.Delete(id);
+        }
+
+        [HttpGet("GetCidadeByName/{nome}")]
+        [ProducesResponseType(typeof(IEnumerable<Cidade>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<IEnumerable<Cidade>>> GetCidadeByName(string nome)
         {
             var cidades = await (repo as CidadeRepositoryDto).RetrieveAllAsync();
             if (cidades == null)
@@ -44,9 +86,9 @@ namespace GlobalAPINFe.Controllers
         }
 
         [HttpGet("GetCidadeByIBGE/{ibge}")]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(IEnumerable<Cidade>), 200)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> GetCidadeByIBGE(string ibge)
+        public async Task<ActionResult<IEnumerable<Cidade>>> GetCidadeByIBGE(string ibge)
         {
             var cidades = await (repo as CidadeRepositoryDto).RetrieveAllAsync();
             if (cidades == null)
@@ -64,6 +106,5 @@ namespace GlobalAPINFe.Controllers
             }
             return Ok(filter);
         }
-
     }
 }

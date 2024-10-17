@@ -1,5 +1,4 @@
 ﻿using GlobalLib.Database;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -19,9 +18,7 @@ namespace GlobalErpData.GenericControllers
         }
 
         [HttpGet]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(404)]
-        public async Task<IActionResult> GetEntities()
+        public virtual async Task<ActionResult<IEnumerable<TEntity>>> GetEntities()
         {
             IEnumerable<TEntity>? entities = await repo.RetrieveAllAsync();
             if (entities == null)
@@ -32,9 +29,7 @@ namespace GlobalErpData.GenericControllers
         }
 
         [HttpGet("{id}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(404)]
-        public async Task<IActionResult> GetEntity(TKey id)
+        public virtual async Task<ActionResult<TEntity>> GetEntity(TKey id)
         {
             TEntity? entity = await repo.RetrieveAsync(id);
             if (entity == null)
@@ -45,9 +40,7 @@ namespace GlobalErpData.GenericControllers
         }
 
         [HttpPost]
-        [ProducesResponseType(201)]
-        [ProducesResponseType(400)]
-        public async Task<IActionResult> Create([FromBody] TEntity entity)
+        public virtual async Task<ActionResult<TEntity>> Create([FromBody] TEntity entity)
         {
             if (entity == null)
             {
@@ -68,10 +61,7 @@ namespace GlobalErpData.GenericControllers
         }
 
         [HttpPut("{id}")]
-        [ProducesResponseType(204)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(404)]
-        public async Task<IActionResult> Update(TKey id, [FromBody] TEntity entity)
+        public virtual async Task<IActionResult> Update(TKey id, [FromBody] TEntity entity)
         {
             if (entity == null || !entity.GetId()!.Equals(id))
             {
@@ -83,14 +73,11 @@ namespace GlobalErpData.GenericControllers
                 return NotFound(); // 404 Resource not found
             }
             await repo.UpdateAsync(id, entity);
-            return new NoContentResult(); // 204 No content
+            return NoContent(); // 204 No content
         }
 
         [HttpDelete("{id}")]
-        [ProducesResponseType(204)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(404)]
-        public async Task<IActionResult> Delete(TKey id)
+        public virtual async Task<IActionResult> Delete(TKey id)
         {
             TEntity? existing = await repo.RetrieveAsync(id);
             if (existing == null)
@@ -100,7 +87,7 @@ namespace GlobalErpData.GenericControllers
             bool? deleted = await repo.DeleteAsync(id);
             if (deleted.HasValue && deleted.Value) // short circuit AND
             {
-                return new NoContentResult(); // 204 No content
+                return NoContent(); // 204 No content
             }
             else
             {

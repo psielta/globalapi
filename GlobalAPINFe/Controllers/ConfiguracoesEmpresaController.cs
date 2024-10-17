@@ -5,6 +5,9 @@ using GlobalErpData.Repository;
 using GlobalErpData.Repository.PagedRepositoriesMultiKey;
 using GlobalLib.Strings;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System.Linq;
+using System.Threading.Tasks;
 using X.PagedList.Extensions;
 
 namespace GlobalAPINFe.Controllers
@@ -17,10 +20,52 @@ namespace GlobalAPINFe.Controllers
         {
         }
 
-        [HttpGet("GetConfiguracoesEmpresaPorEmpresa", Name = nameof(GetConfiguracoesEmpresaPorEmpresa))]
-        [ProducesResponseType(200)]
+        [HttpGet]
+        [ProducesResponseType(typeof(PagedResponse<ConfiguracoesEmpresa>), 200)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> GetConfiguracoesEmpresaPorEmpresa(
+        public override async Task<ActionResult<PagedResponse<ConfiguracoesEmpresa>>> GetEntities([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        {
+            return await base.GetEntities(pageNumber, pageSize);
+        }
+
+        [HttpGet("{idEmpresa}/{idCadastro}")]
+        [ProducesResponseType(typeof(ConfiguracoesEmpresa), 200)]
+        [ProducesResponseType(404)]
+        public override async Task<ActionResult<ConfiguracoesEmpresa>> GetEntity(int idEmpresa, string idCadastro)
+        {
+            return await base.GetEntity(idEmpresa, idCadastro);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(typeof(ConfiguracoesEmpresa), 201)]
+        [ProducesResponseType(400)]
+        public override async Task<ActionResult<ConfiguracoesEmpresa>> Create([FromBody] ConfiguracoesEmpresaDto dto)
+        {
+            return await base.Create(dto);
+        }
+
+        [HttpPut("{idEmpresa}/{idCadastro}")]
+        [ProducesResponseType(typeof(ConfiguracoesEmpresa), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public override async Task<ActionResult<ConfiguracoesEmpresa>> Update(int idEmpresa, string idCadastro, [FromBody] ConfiguracoesEmpresaDto dto)
+        {
+            return await base.Update(idEmpresa, idCadastro, dto);
+        }
+
+        [HttpDelete("{idEmpresa}/{idCadastro}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public override async Task<IActionResult> Delete(int idEmpresa, string idCadastro)
+        {
+            return await base.Delete(idEmpresa, idCadastro);
+        }
+
+        [HttpGet("GetConfiguracoesEmpresaPorEmpresa", Name = nameof(GetConfiguracoesEmpresaPorEmpresa))]
+        [ProducesResponseType(typeof(PagedResponse<ConfiguracoesEmpresa>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<PagedResponse<ConfiguracoesEmpresa>>> GetConfiguracoesEmpresaPorEmpresa(
             int idEmpresa,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
@@ -35,7 +80,7 @@ namespace GlobalAPINFe.Controllers
                     return NotFound("Entities not found.");
                 }
 
-                var filteredQuery = query.AsQueryable().AsEnumerable();
+                var filteredQuery = query.AsEnumerable();
 
                 if (!string.IsNullOrEmpty(chave))
                 {
@@ -61,6 +106,5 @@ namespace GlobalAPINFe.Controllers
                 return StatusCode(500, "An error occurred while retrieving entities. Please try again later.");
             }
         }
-
     }
 }

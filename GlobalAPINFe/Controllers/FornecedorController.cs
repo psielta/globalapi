@@ -4,10 +4,13 @@ using GlobalErpData.Dto;
 using GlobalErpData.GenericControllers;
 using GlobalErpData.Models;
 using GlobalErpData.Repository;
-using GlobalErpData.Repository.PagedRepositories;
 using GlobalErpData.Repository.PagedRepositoriesMultiKey;
 using GlobalLib.Strings;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using X.PagedList.Extensions;
 
 namespace GlobalAPINFe.Controllers
@@ -19,10 +22,53 @@ namespace GlobalAPINFe.Controllers
         public FornecedorController(IQueryRepositoryMultiKey<Fornecedor, int, int, FornecedorDto> repo, ILogger<GenericPagedControllerMultiKey<Fornecedor, int, int, FornecedorDto>> logger) : base(repo, logger)
         {
         }
-        [HttpGet("GetFornecedorPorEmpresa", Name = nameof(GetFornecedorPorEmpresa))]
-        [ProducesResponseType(200)]
+
+        [HttpGet]
+        [ProducesResponseType(typeof(PagedResponse<Fornecedor>), 200)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> GetFornecedorPorEmpresa(
+        public override async Task<ActionResult<PagedResponse<Fornecedor>>> GetEntities([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        {
+            return await base.GetEntities(pageNumber, pageSize);
+        }
+
+        [HttpGet("{idEmpresa}/{idCadastro}")]
+        [ProducesResponseType(typeof(Fornecedor), 200)]
+        [ProducesResponseType(404)]
+        public override async Task<ActionResult<Fornecedor>> GetEntity(int idEmpresa, int idCadastro)
+        {
+            return await base.GetEntity(idEmpresa, idCadastro);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(typeof(Fornecedor), 201)]
+        [ProducesResponseType(400)]
+        public override async Task<ActionResult<Fornecedor>> Create([FromBody] FornecedorDto dto)
+        {
+            return await base.Create(dto);
+        }
+
+        [HttpPut("{idEmpresa}/{idCadastro}")]
+        [ProducesResponseType(typeof(Fornecedor), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public override async Task<ActionResult<Fornecedor>> Update(int idEmpresa, int idCadastro, [FromBody] FornecedorDto dto)
+        {
+            return await base.Update(idEmpresa, idCadastro, dto);
+        }
+
+        [HttpDelete("{idEmpresa}/{idCadastro}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public override async Task<IActionResult> Delete(int idEmpresa, int idCadastro)
+        {
+            return await base.Delete(idEmpresa, idCadastro);
+        }
+
+        [HttpGet("GetFornecedorPorEmpresa", Name = nameof(GetFornecedorPorEmpresa))]
+        [ProducesResponseType(typeof(PagedResponse<Fornecedor>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<PagedResponse<Fornecedor>>> GetFornecedorPorEmpresa(
             int idEmpresa,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
@@ -34,7 +80,7 @@ namespace GlobalAPINFe.Controllers
         {
             try
             {
-                var query = ((FornecedorPagedRepositoryMultiKey)repo).GetFornecedorPorEmpresa(idEmpresa).Result.AsQueryable();
+                var query = await ((FornecedorPagedRepositoryMultiKey)repo).GetFornecedorPorEmpresa(idEmpresa);
 
                 if (query == null)
                 {
@@ -92,22 +138,21 @@ namespace GlobalAPINFe.Controllers
         }
 
         [HttpGet("GetFornecedorByName/{idEmpresa}/{nome}")]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(IEnumerable<Fornecedor>), 200)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> GetFornecedorByName(int idEmpresa, string nome)
+        public async Task<ActionResult<IEnumerable<Fornecedor>>> GetFornecedorByName(int idEmpresa, string nome)
         {
-            var Fornecedors = await (repo as FornecedorPagedRepositoryMultiKey).GetFornecedorPorEmpresa(idEmpresa);
-            IEnumerable<Fornecedor> _Fr = Fornecedors.ToList();
-            if (_Fr == null)
+            var fornecedors = await ((FornecedorPagedRepositoryMultiKey)repo).GetFornecedorPorEmpresa(idEmpresa);
+            if (fornecedors == null)
             {
                 return NotFound("Fornecedor não encontrada.");
             }
 
             var stringNormalizada = UtlStrings.RemoveDiacritics(nome.ToLower());
 
-            var filter = _Fr.Where(c => UtlStrings.RemoveDiacritics(c.NmForn.ToLower()).StartsWith(stringNormalizada))
-                                .OrderBy(c => c.NmForn)
-                                .ToList();
+            var filter = fornecedors.Where(c => UtlStrings.RemoveDiacritics(c.NmForn.ToLower()).StartsWith(stringNormalizada))
+                                    .OrderBy(c => c.NmForn)
+                                    .ToList();
 
             if (filter.Count == 0)
             {
