@@ -97,15 +97,15 @@ namespace GlobalAPINFe.Controllers
         }
 
 
-        [HttpDelete("delete")]
-        public async Task<IActionResult> DeleteFoto([FromBody] DeleteFotoDto dto)
+        [HttpDelete("delete/{idEmpresa}/{id}")]
+        public async Task<IActionResult> DeleteFoto(int idEmpresa, int id)
         {
             try
             {
                 if (dto == null || dto.Id <= 0 || dto.IdEmpresa <= 0)
                     return BadRequest("Dados inválidos.");
 
-                var existingFoto = await repo.RetrieveAsync(dto.IdEmpresa, dto.Id);
+                var existingFoto = await repo.RetrieveAsync(idEmpresa, id);
 
                 if (existingFoto == null)
                 {
@@ -125,7 +125,7 @@ namespace GlobalAPINFe.Controllers
                     }
                 }
 
-                bool? deleted = await repo.DeleteAsync(dto.IdEmpresa, dto.Id);
+                bool? deleted = await repo.DeleteAsync(idEmpresa, id);
 
                 if (deleted.HasValue && deleted.Value)
                 {
