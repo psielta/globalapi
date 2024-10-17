@@ -27,15 +27,21 @@ namespace GlobalErpData.GenericControllers
             this.logger = logger;
         }
 
+        /// <summary>
+        /// Retrieves a paginated list of entities.
+        /// </summary>
+        /// <param name="pageNumber">The page number (default is 1).</param>
+        /// <param name="pageSize">The page size (default is 10).</param>
+        /// <returns>A paginated list of entities.</returns>
         [HttpGet]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> GetEntities([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        public virtual async Task<ActionResult<PagedResponse<TEntity>>> GetEntities([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                var query = repo.RetrieveAllAsync().Result.AsQueryable();
-                var pagedList = await query.ToPagedListAsync(pageNumber, pageSize);
+                var query = await repo.RetrieveAllAsync();
+                var pagedList = await query.AsQueryable().ToPagedListAsync(pageNumber, pageSize);
                 var response = new PagedResponse<TEntity>(pagedList);
 
                 if (response.Items == null || response.Items.Count == 0)
@@ -51,10 +57,15 @@ namespace GlobalErpData.GenericControllers
             }
         }
 
+        /// <summary>
+        /// Retrieves a single entity by its ID.
+        /// </summary>
+        /// <param name="id">The ID of the entity.</param>
+        /// <returns>The requested entity.</returns>
         [HttpGet("{id}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> GetEntity(TKey id)
+        public virtual async Task<ActionResult<TEntity>> GetEntity(TKey id)
         {
             try
             {
@@ -72,10 +83,15 @@ namespace GlobalErpData.GenericControllers
             }
         }
 
+        /// <summary>
+        /// Creates a new entity.
+        /// </summary>
+        /// <param name="dto">The data transfer object representing the new entity.</param>
+        /// <returns>The created entity.</returns>
         [HttpPost]
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> Create([FromBody] TDto dto)
+        public virtual async Task<ActionResult<TEntity>> Create([FromBody] TDto dto)
         {
             try
             {
@@ -103,11 +119,17 @@ namespace GlobalErpData.GenericControllers
             }
         }
 
+        /// <summary>
+        /// Updates an existing entity.
+        /// </summary>
+        /// <param name="id">The ID of the entity to update.</param>
+        /// <param name="dto">The data transfer object containing updated data.</param>
+        /// <returns>The updated entity.</returns>
         [HttpPut("{id}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> Update(TKey id, [FromBody] TDto dto)
+        public virtual async Task<ActionResult<TEntity>> Update(TKey id, [FromBody] TDto dto)
         {
             try
             {
@@ -133,11 +155,16 @@ namespace GlobalErpData.GenericControllers
             }
         }
 
+        /// <summary>
+        /// Deletes an entity by its ID.
+        /// </summary>
+        /// <param name="id">The ID of the entity to delete.</param>
+        /// <returns>No content.</returns>
         [HttpDelete("{id}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> Delete(TKey id)
+        public virtual async Task<IActionResult> Delete(TKey id)
         {
             try
             {
@@ -149,7 +176,7 @@ namespace GlobalErpData.GenericControllers
                 bool? deleted = await repo.DeleteAsync(id);
                 if (deleted.HasValue && deleted.Value) // short circuit AND
                 {
-                    return new NoContentResult(); // 204 No content
+                    return NoContent(); // 204 No content
                 }
                 else
                 {
@@ -160,7 +187,7 @@ namespace GlobalErpData.GenericControllers
             catch (Exception ex)
             {
                 logger.LogError(ex, "Error occurred while deleting the entity with ID {Id}.", id);
-                return StatusCode(500,$"Error occurred while deleting the entity with ID {id}: {ex.GetType().Name} - {ex.Message} - {ex.InnerException}" );
+                return StatusCode(500, $"Error occurred while deleting the entity with ID {id}: {ex.GetType().Name} - {ex.Message} - {ex.InnerException}");
             }
         }
     }

@@ -18,6 +18,52 @@ namespace GlobalAPINFe.Controllers
         {
         }
 
+
+        // Adicione os atributos [ProducesResponseType] nos métodos específicos aqui, se necessário.
+
+        [HttpGet]
+        [ProducesResponseType(typeof(PagedResponse<ContasAPagar>), 200)]
+        [ProducesResponseType(404)]
+        public override async Task<ActionResult<PagedResponse<ContasAPagar>>> GetEntities([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        {
+            return await base.GetEntities(pageNumber, pageSize);
+        }
+
+        [HttpGet("{id}")]
+        [ProducesResponseType(typeof(ContasAPagar), 200)]
+        [ProducesResponseType(404)]
+        public override async Task<ActionResult<ContasAPagar>> GetEntity(int id)
+        {
+            return await base.GetEntity(id);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(typeof(ContasAPagar), 201)]
+        [ProducesResponseType(400)]
+        public override async Task<ActionResult<ContasAPagar>> Create([FromBody] ContasAPagarDto dto)
+        {
+            return await base.Create(dto);
+        }
+
+        [HttpPut("{id}")]
+        [ProducesResponseType(typeof(ContasAPagar), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public override async Task<ActionResult<ContasAPagar>> Update(int id, [FromBody] ContasAPagarDto dto)
+        {
+            return await base.Update(id, dto);
+        }
+
+        [HttpDelete("{id}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public override async Task<IActionResult> Delete(int id)
+        {
+            return await base.Delete(id);
+        }
+
+
         public enum TipoPeriodoCAP
         {
             TPC_Geral = 0,
