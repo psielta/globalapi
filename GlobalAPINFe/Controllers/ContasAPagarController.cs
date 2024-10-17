@@ -34,9 +34,9 @@ namespace GlobalAPINFe.Controllers
 
 
         [HttpGet("GetContasAPagarPorEmpresa", Name = nameof(GetContasAPagarPorEmpresa))]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(PagedResponse<ContasAPagar>), 200)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> GetContasAPagarPorEmpresa(
+        public async Task<ActionResult<PagedResponse<ContasAPagar>>> GetContasAPagarPorEmpresa(
             int idEmpresa,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
