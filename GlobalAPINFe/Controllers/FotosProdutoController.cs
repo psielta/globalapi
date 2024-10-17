@@ -102,7 +102,7 @@ namespace GlobalAPINFe.Controllers
         {
             try
             {
-                if (dto == null || dto.Id <= 0 || dto.IdEmpresa <= 0)
+                if (idEmpresa <= 0 || id <= 0)
                     return BadRequest("Dados inválidos.");
 
                 var existingFoto = await repo.RetrieveAsync(idEmpresa, id);
