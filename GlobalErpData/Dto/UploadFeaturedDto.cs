@@ -28,8 +28,8 @@ namespace GlobalErpData.Dto
         [FromForm(Name = "idEmpresa")]
         public int IdEmpresa { get; set; }
 
-        [FromForm(Name = "excluiu")]
-        public bool? Excluiu { get; set; }
+        //[FromForm(Name = "excluiu")]
+        //public bool? Excluiu { get; set; }
 
         [FromForm(Name = "foto")]
         public IFormFile Foto { get; set; }
