@@ -87,7 +87,7 @@ namespace GlobalAPINFe.Controllers
         {
             try
             {
-                var query = await ((ClientePagedRepositoyDto)repo).GetClientePorEmpresa(idEmpresa);
+                var query = ((ClientePagedRepositoyDto)repo).GetClientePorEmpresa(idEmpresa).Result.AsQueryable();
 
                 if (query == null)
                 {
@@ -99,7 +99,7 @@ namespace GlobalAPINFe.Controllers
                 if (!string.IsNullOrEmpty(nmCliente))
                 {
                     var normalizedNmCliente = UtlStrings.RemoveDiacritics(nmCliente.ToLower());
-                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.NmCliente ?? "").ToLower()).Contains(normalizedNmCliente));
+                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.NmBairro == null) ? "" : p.NmCliente.ToLower()).Contains(normalizedNmCliente));
                 }
 
                 if (id.HasValue)
@@ -110,13 +110,13 @@ namespace GlobalAPINFe.Controllers
                 if (!string.IsNullOrEmpty(cpfCnpj))
                 {
                     var normalizeCpfCnpj = UtlStrings.RemoveSpecialCharacters(UtlStrings.RemoveDiacritics(cpfCnpj.ToLower().Trim()));
-                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveSpecialCharacters(UtlStrings.RemoveDiacritics((p.NrDoc ?? "").ToLower().Trim())) == normalizeCpfCnpj);
+                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveSpecialCharacters(UtlStrings.RemoveDiacritics((p.NrDoc == null) ? "" : p.NrDoc.ToLower().Trim())) == normalizeCpfCnpj);
                 }
 
                 if (!string.IsNullOrEmpty(ie))
                 {
                     var normalizedIe = UtlStrings.RemoveSpecialCharacters(UtlStrings.RemoveDiacritics(ie.ToLower().Trim()));
-                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveSpecialCharacters(UtlStrings.RemoveDiacritics((p.InscricaoEstadual ?? "").ToLower().Trim())) == normalizedIe);
+                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveSpecialCharacters(UtlStrings.RemoveDiacritics((p.InscricaoEstadual == null) ? "" : p.InscricaoEstadual.ToLower().Trim())) == normalizedIe);
                 }
 
                 filteredQuery = filteredQuery.OrderBy(p => p.Id);
@@ -143,24 +143,27 @@ namespace GlobalAPINFe.Controllers
         public async Task<IActionResult> CreateReport()
         {
             var projectRootPath = Environment.CurrentDirectory;
-            var reportsPath = System.IO.Path.Combine(projectRootPath, "reports");
-            var reportFilePath = System.IO.Path.Combine(reportsPath, "ReportMvc.frx");
-
-            if (!System.IO.Directory.Exists(reportsPath))
+            var reportFilePath = System.IO.Path.Combine(projectRootPath, "reports", "ReportMvc.frx");
+            if (!System.IO.Directory.Exists(System.IO.Path.Combine(projectRootPath, "reports")))
             {
-                System.IO.Directory.CreateDirectory(reportsPath);
+                System.IO.Directory.CreateDirectory(System.IO.Path.Combine(projectRootPath, "reports"));
             }
-
             var freport = new FastReport.Report();
-            var query = await repo.RetrieveAllAsync();
+            var query = await this.repo.RetrieveAllAsync();
+
             var lista = query.ToList();
 
-            var listaDto = lista.Select(mapper.Map<ClienteDto>).Take(10).ToList();
+            List<ClienteDto> listaDto = new List<ClienteDto>();
+            foreach (var item in lista)
+            {
+                listaDto.Add(this.mapper.Map<ClienteDto>(item));
+            }
+            var lll = listaDto.Slice(0, 10);
 
-            freport.Dictionary.RegisterBusinessObject(listaDto, "clientList", 10, true);
-            freport.Save(reportFilePath);
+            freport.Dictionary.RegisterBusinessObject(lll, "clientList", 10, true);
+            freport.Report.Save(reportFilePath);
 
-            return Ok($"Relatório gerado: {reportFilePath}");
+            return Ok($" Relatorio gerado : {reportFilePath}");
         }
 
         [HttpGet("ClienteReport", Name = nameof(ClienteReport))]
@@ -175,15 +178,9 @@ namespace GlobalAPINFe.Controllers
         {
             var reportFilePath = System.IO.Path.Combine(Environment.CurrentDirectory, "reports", "ReportMvc.frx");
             using var report = new FastReport.Report();
-
-            if (!System.IO.File.Exists(reportFilePath))
-            {
-                return NotFound("Report file not found.");
-            }
-
             report.Load(reportFilePath);
 
-            var query = await ((ClientePagedRepositoyDto)repo).GetClientePorEmpresa(idEmpresa);
+            var query = ((ClientePagedRepositoyDto)repo).GetClientePorEmpresa(idEmpresa).Result.AsQueryable();
 
             if (query == null)
             {
@@ -195,7 +192,7 @@ namespace GlobalAPINFe.Controllers
             if (!string.IsNullOrEmpty(nmCliente))
             {
                 var normalizedNmCliente = UtlStrings.RemoveDiacritics(nmCliente.ToLower());
-                filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.NmCliente ?? "").ToLower()).Contains(normalizedNmCliente));
+                filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.NmBairro == null) ? "" : p.NmCliente.ToLower()).Contains(normalizedNmCliente));
             }
 
             if (id.HasValue)
@@ -206,25 +203,26 @@ namespace GlobalAPINFe.Controllers
             if (!string.IsNullOrEmpty(cpfCnpj))
             {
                 var normalizeCpfCnpj = UtlStrings.RemoveSpecialCharacters(UtlStrings.RemoveDiacritics(cpfCnpj.ToLower().Trim()));
-                filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveSpecialCharacters(UtlStrings.RemoveDiacritics((p.NrDoc ?? "").ToLower().Trim())) == normalizeCpfCnpj);
+                filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveSpecialCharacters(UtlStrings.RemoveDiacritics((p.NrDoc == null) ? "" : p.NrDoc.ToLower().Trim())) == normalizeCpfCnpj);
             }
 
             if (!string.IsNullOrEmpty(ie))
             {
                 var normalizedIe = UtlStrings.RemoveSpecialCharacters(UtlStrings.RemoveDiacritics(ie.ToLower().Trim()));
-                filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveSpecialCharacters(UtlStrings.RemoveDiacritics((p.InscricaoEstadual ?? "").ToLower().Trim())) == normalizedIe);
+                filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveSpecialCharacters(UtlStrings.RemoveDiacritics((p.InscricaoEstadual == null) ? "" : p.InscricaoEstadual.ToLower().Trim())) == normalizedIe);
             }
 
             filteredQuery = filteredQuery.OrderBy(p => p.Id);
 
             var listaDto = filteredQuery.Select(mapper.Map<ClienteDto>).ToList();
-            report.RegisterData(listaDto, "clientList");
+            report.Dictionary.RegisterBusinessObject(listaDto, "clientList", 10, true);
 
             report.Prepare();
 
             using var pdfExport = new PDFSimpleExport();
             using var ms = new MemoryStream();
             pdfExport.Export(report, ms);
+            ms.Flush();
             ms.Position = 0;
 
             return File(ms.ToArray(), "application/pdf", "ClienteReport.pdf");
@@ -235,22 +233,23 @@ namespace GlobalAPINFe.Controllers
         [ProducesResponseType(404)]
         public async Task<ActionResult<IEnumerable<Cliente>>> GetClienteByName(int idEmpresa, string nome)
         {
-            var clientes = await ((ClientePagedRepositoyDto)repo).GetClientePorEmpresa(idEmpresa);
+            var clientes = await (repo as ClientePagedRepositoyDto).GetClientePorEmpresa(idEmpresa);
 
-            if (clientes == null)
+            var clientesList = clientes.ToList();
+            if (clientesList == null)
             {
-                return NotFound("Cliente não encontrado.");
+                return NotFound("Cliente não encontrada.");
             }
 
             var stringNormalizada = UtlStrings.RemoveDiacritics(nome.ToLower());
 
-            var filter = clientes.Where(c => UtlStrings.RemoveDiacritics(c.NmCliente.ToLower()).StartsWith(stringNormalizada))
-                                 .OrderBy(c => c.NmCliente)
-                                 .ToList();
+            var filter = clientesList.Where(c => UtlStrings.RemoveDiacritics(c.NmCliente.ToLower()).StartsWith(stringNormalizada))
+                                .OrderBy(c => c.NmCliente)
+                                .ToList();
 
             if (filter.Count == 0)
             {
-                return NotFound("Clientes não encontrados.");
+                return NotFound("clientes não encontrada.");
             }
             return Ok(filter);
         }

@@ -131,22 +131,23 @@ namespace GlobalAPINFe.Controllers
         [ProducesResponseType(404)]
         public async Task<ActionResult<IEnumerable<Transportadora>>> GetTransportadoraByName(int idEmpresa, string nome)
         {
-            var transportadoras = await ((TransportadoraPagedRepository)repo).GetTransportadoraPorEmpresa(idEmpresa);
+            var Transportadoras = await (repo as TransportadoraPagedRepository).GetTransportadoraPorEmpresa(idEmpresa);
 
-            if (transportadoras == null || !transportadoras.Any())
+            var TransportadorasList = Transportadoras.ToList();
+            if (TransportadorasList == null)
             {
                 return NotFound("Transportadora não encontrada.");
             }
 
             var stringNormalizada = UtlStrings.RemoveDiacritics(nome.ToLower());
 
-            var filter = transportadoras.Where(c => UtlStrings.RemoveDiacritics(c.NmTransportadora.ToLower()).StartsWith(stringNormalizada))
-                                    .OrderBy(c => c.NmTransportadora)
-                                    .ToList();
+            var filter = TransportadorasList.Where(c => UtlStrings.RemoveDiacritics(c.NmTransportadora.ToLower()).StartsWith(stringNormalizada))
+                                .OrderBy(c => c.NmTransportadora)
+                                .ToList();
 
             if (filter.Count == 0)
             {
-                return NotFound("Transportadora não encontrada.");
+                return NotFound("Transportadoras não encontrada.");
             }
             return Ok(filter);
         }

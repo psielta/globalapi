@@ -8,6 +8,8 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace GlobalAPINFe.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class CategoryController : GenericDtoController<Category, int, CategoryDto>
     {
         public CategoryController(IRepositoryDto<Category, int, CategoryDto> repo, ILogger<GenericDtoController<Category, int, CategoryDto>> logger) : base(repo, logger)

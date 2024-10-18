@@ -80,7 +80,7 @@ namespace GlobalAPINFe.Controllers
                     return NotFound("Entities not found.");
                 }
 
-                var filteredQuery = query.AsEnumerable();
+                var filteredQuery = query.AsQueryable().AsEnumerable();
 
                 if (!string.IsNullOrEmpty(chave))
                 {

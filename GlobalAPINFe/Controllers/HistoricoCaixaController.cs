@@ -74,14 +74,12 @@ namespace GlobalAPINFe.Controllers
         {
             try
             {
-                var query = await ((HistoricoCaixaRepository)repo).GetHistoricoCaixaPorEmpresa(idEmpresa);
-
+                var query = ((HistoricoCaixaRepository)repo).GetHistoricoCaixaPorEmpresa(idEmpresa).Result.AsQueryable();
                 if (query == null)
                 {
                     return NotFound("Entities not found."); // 404 Resource not found
                 }
-
-                var pagedList = await query.AsQueryable().ToPagedListAsync(pageNumber, pageSize);
+                var pagedList = await query.ToPagedListAsync(pageNumber, pageSize);
                 var response = new PagedResponse<HistoricoCaixa>(pagedList);
 
                 if (response.Items == null || response.Items.Count == 0)
@@ -104,8 +102,7 @@ namespace GlobalAPINFe.Controllers
         {
             try
             {
-                var query = await ((HistoricoCaixaRepository)repo).GetHistoricoCaixaPorEmpresa(idEmpresa);
-
+                var query = ((HistoricoCaixaRepository)repo).GetHistoricoCaixaPorEmpresa(idEmpresa).Result.AsQueryable();
                 if (query == null)
                 {
                     return NotFound("Entities not found."); // 404 Resource not found
@@ -121,7 +118,7 @@ namespace GlobalAPINFe.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error occurred while retrieving entities.");
+                logger.LogError(ex, "Error occurred while retrieving paged entities.");
                 return StatusCode(500, "An error occurred while retrieving entities. Please try again later.");
             }
         }

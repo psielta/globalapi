@@ -78,7 +78,7 @@ namespace GlobalAPINFe.Controllers
         {
             try
             {
-                var query = await ((CfopImportacaoPagedRepository)repo).GetCfopImportacaoPorEmpresa(idEmpresa);
+                var query = ((CfopImportacaoPagedRepository)repo).GetCfopImportacaoPorEmpresa(idEmpresa).Result.AsQueryable();
 
                 if (query == null)
                 {
@@ -90,13 +90,14 @@ namespace GlobalAPINFe.Controllers
                 if (!string.IsNullOrEmpty(cdCfopS))
                 {
                     var _cdCfopS = UtlStrings.RemoveDiacritics(cdCfopS.ToLower());
-                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.CdCfopS ?? "").ToLower()).Contains(_cdCfopS));
+                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.CdCfopS == null) ? "" : p.CdCfopS.ToLower()).Contains(_cdCfopS));
                 }
                 if (!string.IsNullOrEmpty(cdCfopE))
                 {
                     var _cdCfopE = UtlStrings.RemoveDiacritics(cdCfopE.ToLower());
-                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.CdCfopE ?? "").ToLower()).Contains(_cdCfopE));
+                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.CdCfopE == null) ? "" : p.CdCfopE.ToLower()).Contains(_cdCfopE));
                 }
+
 
                 filteredQuery = filteredQuery.OrderBy(p => p.Id);
 

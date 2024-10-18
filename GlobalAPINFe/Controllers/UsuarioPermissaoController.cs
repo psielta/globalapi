@@ -88,28 +88,38 @@ namespace GlobalAPINFe.Controllers
                 {
                     return NotFound("Usuário não encontrado.");
                 }
-
                 var allUsuarioPermissao = await repo.RetrieveAllAsync();
                 var allPermissao = await repositoryPermissao.RetrieveAllAsync();
                 var filterPermissaoModulo = allPermissao.Where(p => p.Modulo.Equals(Modulo));
-                if (!filterPermissaoModulo.Any())
+                if (filterPermissaoModulo.Count() == 0)
                 {
                     return NotFound("Módulo não encontrado.");
                 }
 
                 var filterUsuarioPermissao = allUsuarioPermissao.Where(p => p.IdUsuario.Equals(User));
 
-                var filterDto = filterPermissaoModulo.Select(p =>
-                {
-                    var _UsuarioPermissao = filterUsuarioPermissao.FirstOrDefault(up => up.IdPermissao.Equals(p.Id));
-                    return new UsuarioPermissaoGetDto
+                IEnumerable<UsuarioPermissaoGetDto> filterDto =
+                    filterPermissaoModulo.Select(p =>
                     {
-                        IdPermissao = p.Id,
-                        Descricao = p.Descricao ?? string.Empty,
-                        Possui = _UsuarioPermissao != null,
-                        IdUsuarioPermissao = _UsuarioPermissao?.Id ?? 0
-                    };
-                });
+                        var _UsuarioPermissao = filterUsuarioPermissao.FirstOrDefault(up => up.IdPermissao.Equals(p.Id));
+                        if (_UsuarioPermissao == null)
+                        {
+                            return new UsuarioPermissaoGetDto
+                            {
+                                IdPermissao = p.Id,
+                                Descricao = (p.Descricao == null) ? "" : p.Descricao,
+                                Possui = false,
+                                IdUsuarioPermissao = 0
+                            };
+                        }
+                        return new UsuarioPermissaoGetDto
+                        {
+                            IdPermissao = p.Id,
+                            Descricao = (p.Descricao == null) ? "" : p.Descricao,
+                            Possui = filterUsuarioPermissao.Any(up => up.IdPermissao.Equals(p.Id)),
+                            IdUsuarioPermissao = _UsuarioPermissao.Id
+                        };
+                    });
 
                 return Ok(filterDto);
             }
@@ -117,7 +127,9 @@ namespace GlobalAPINFe.Controllers
             {
                 logger.LogError(ex, "Ocorreu um erro ao recuperar as permissões.");
                 return StatusCode(500, "Ocorreu um erro ao recuperar as permissões. Por favor, tente novamente mais tarde.");
+
             }
+
         }
     }
 }

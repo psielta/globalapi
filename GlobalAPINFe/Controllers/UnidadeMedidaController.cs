@@ -102,17 +102,21 @@ namespace GlobalAPINFe.Controllers
         {
             try
             {
-                var entities = await ((UnidadeMedidaPagedRepository)repo).GetUnidadeMedidaPorEmpresa(idEmpresa);
+                var entitysFilterByEmpresa = await ((UnidadeMedidaPagedRepository)repo).GetUnidadeMedidaPorEmpresa(idEmpresa);
 
-                if (entities == null || !entities.Any())
+                if (entitysFilterByEmpresa == null)
                 {
                     return NotFound("Entities not found.");
                 }
-                return Ok(entities);
+                if (entitysFilterByEmpresa.Count() == 0)
+                {
+                    return NotFound("Entities not found.");
+                }
+                return Ok(entitysFilterByEmpresa);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error occurred while retrieving entities.");
+                logger.LogError(ex, "Error occurred while retrieving paged entities.");
                 return StatusCode(500, "An error occurred while retrieving entities. Please try again later.");
             }
         }
@@ -129,14 +133,14 @@ namespace GlobalAPINFe.Controllers
             }
             var unidadesFilteredByEmpresa = unidades.Where(u => u.IdEmpresa == idEmpresa);
 
-            if (!unidadesFilteredByEmpresa.Any())
+            if (unidadesFilteredByEmpresa == null)
             {
                 return NotFound("Unidade não encontrada para empresa especificada.");
             }
 
             var stringNormalizada = UtlStrings.RemoveDiacritics(nome.ToLower());
 
-            var filter = unidadesFilteredByEmpresa
+            var filter = unidadesFilteredByEmpresa.AsEnumerable()
                 .Where(c => UtlStrings.RemoveDiacritics(c.CdUnidade.ToLower()).StartsWith(stringNormalizada))
                 .OrderBy(c => c.CdUnidade.Length)
                 .ToList();

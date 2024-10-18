@@ -79,14 +79,15 @@ namespace GlobalAPINFe.Controllers
         {
             try
             {
-                var query = await ((ProdutosFornRepository)repo).GetProdutosFornAsyncPorEmpresa(idEmpresa);
+                var query = ((ProdutosFornRepository)repo).GetProdutosFornAsyncPorEmpresa(idEmpresa).Result.AsQueryable();
 
                 if (query == null)
                 {
                     return NotFound("Entities not found.");
                 }
 
-                var filteredQuery = query.AsQueryable();
+                var filteredQuery = query.AsEnumerable();
+
 
                 if (cdForn.HasValue)
                 {
@@ -100,7 +101,7 @@ namespace GlobalAPINFe.Controllers
 
                 filteredQuery = filteredQuery.OrderBy(p => p.Id);
 
-                var pagedList = await filteredQuery.ToPagedListAsync(pageNumber, pageSize);
+                var pagedList = filteredQuery.ToPagedList(pageNumber, pageSize);
                 var response = new PagedResponse<ProdutosForn>(pagedList);
 
                 if (response.Items == null || response.Items.Count == 0)

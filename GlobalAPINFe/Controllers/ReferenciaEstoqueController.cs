@@ -75,12 +75,12 @@ namespace GlobalAPINFe.Controllers
         {
             try
             {
-                var query = await ((ReferenciaEstoquePagedRepository)repo).GetReferenciaEstoqueAsyncPorEmpresa(idEmpresa);
+                var query = ((ReferenciaEstoquePagedRepository)repo).GetReferenciaEstoqueAsyncPorEmpresa(idEmpresa).Result.AsQueryable();
                 if (query == null)
                 {
                     return NotFound("Entities not found."); // 404 Resource not found
                 }
-                var pagedList = await query.AsQueryable().ToPagedListAsync(pageNumber, pageSize);
+                var pagedList = await query.ToPagedListAsync(pageNumber, pageSize);
                 var response = new PagedResponse<ReferenciaEstoque>(pagedList);
 
                 if (response.Items == null || response.Items.Count == 0)
@@ -105,7 +105,11 @@ namespace GlobalAPINFe.Controllers
             {
                 var entitysFilterByEmpresa = await ((ReferenciaEstoquePagedRepository)repo).GetReferenciaEstoqueAsyncPorEmpresa(idEmpresa);
 
-                if (entitysFilterByEmpresa == null || !entitysFilterByEmpresa.Any())
+                if (entitysFilterByEmpresa == null)
+                {
+                    return NotFound("Entities not found.");
+                }
+                if (entitysFilterByEmpresa.Count() == 0)
                 {
                     return NotFound("Entities not found.");
                 }
@@ -113,7 +117,7 @@ namespace GlobalAPINFe.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error occurred while retrieving entities.");
+                logger.LogError(ex, "Error occurred while retrieving paged entities.");
                 return StatusCode(500, "An error occurred while retrieving entities. Please try again later.");
             }
         }
@@ -123,27 +127,27 @@ namespace GlobalAPINFe.Controllers
         [ProducesResponseType(404)]
         public async Task<ActionResult<IEnumerable<ReferenciaEstoque>>> GetReferenciaEstoqueByName(string nome, int idEmpresa)
         {
-            var referencias = await ((ReferenciaEstoquePagedRepository)repo).RetrieveAllAsync();
+            var referencias = await (repo as ReferenciaEstoquePagedRepository).RetrieveAllAsync();
             if (referencias == null)
             {
                 return NotFound("Referência não encontrada.");
             }
-            var referenciasFilteredByEmpresa = referencias.Where(u => u.CdEmpresa == idEmpresa);
+            var referenciasFilteredByEmpresa = referencias.AsEnumerable().Where(u => u.CdEmpresa == idEmpresa);
 
-            if (!referenciasFilteredByEmpresa.Any())
+            if (referenciasFilteredByEmpresa == null)
             {
                 return NotFound("Referências não encontradas para empresa especificada.");
             }
 
             var stringNormalizada = UtlStrings.RemoveDiacritics(nome.ToLower());
 
-            var filter = referenciasFilteredByEmpresa.Where(c => UtlStrings.RemoveDiacritics(c.NmRef.ToLower()).StartsWith(stringNormalizada))
+            var filter = referenciasFilteredByEmpresa.AsEnumerable().Where(c => UtlStrings.RemoveDiacritics(c.NmRef.ToLower()).StartsWith(stringNormalizada))
                                 .OrderBy(c => c.NmRef)
                                 .ToList();
 
             if (filter.Count == 0)
             {
-                return NotFound("Referência não encontrada.");
+                return NotFound("Cidade não encontrada.");
             }
             return Ok(filter);
         }

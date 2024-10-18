@@ -83,14 +83,14 @@ namespace GlobalAPINFe.Controllers
         {
             try
             {
-                var query = await ((ProdutoEntradaRepository)repo).GetProdutoEntradaAsyncPorEmpresa(idEmpresa);
+                var query = ((ProdutoEntradaRepository)repo).GetProdutoEntradaAsyncPorEmpresa(idEmpresa).Result.AsQueryable();
 
                 if (query == null)
                 {
                     return NotFound("Entidades não encontradas.");
                 }
 
-                var filteredQuery = query.AsQueryable();
+                var filteredQuery = query.AsEnumerable();
 
                 // Filtro por número da entrada
                 if (numeroEntrada.HasValue)
@@ -100,7 +100,7 @@ namespace GlobalAPINFe.Controllers
 
                 filteredQuery = filteredQuery.OrderBy(p => p.Nr);
 
-                var pagedList = await filteredQuery.ToPagedListAsync(pageNumber, pageSize);
+                var pagedList = filteredQuery.ToPagedList(pageNumber, pageSize);
                 var response = new PagedResponse<ProdutoEntradum>(pagedList);
 
                 if (response.Items == null || response.Items.Count == 0)
@@ -127,30 +127,34 @@ namespace GlobalAPINFe.Controllers
             {
                 await using var _context = dbContextFactory.CreateDbContext();
 
-                ProdutoEstoque produto = await _context.ProdutoEstoques.FirstOrDefaultAsync(obj =>
-                    obj.IdEmpresa == dto.CdEmpresa && obj.CdProduto == dto.CdProduto);
-
-                if (produto == null)
+                try
                 {
+                    ProdutoEstoque produto = await _context.ProdutoEstoques.FirstOrDefaultAsync(obj =>
+                    obj.IdEmpresa == dto.CdEmpresa && obj.CdProduto == dto.CdProduto);
+                    if (produto == null)
+                    {
+                        throw new Exception("Produto não encontrado.");
+                    }
+                    ProdutoEntradaDto produtoEntradaDto = new ProdutoEntradaDto();
+                    produtoEntradaDto.NrEntrada = dto.NrEntrada;
+                    produtoEntradaDto.CdEmpresa = dto.CdEmpresa;
+                    produtoEntradaDto.CdProduto = dto.CdProduto;
+                    produtoEntradaDto.Quant = dto.Quant;
+                    produtoEntradaDto.CdPlano = dto.CdPlano;
+                    produtoEntradaDto.VlUnitario = produto.VlCusto ?? 0;
+
+                    var response = await repo.CreateAsync(produtoEntradaDto);
+                    if (response == null)
+                    {
+                        return BadRequest("Falha ao criar a entidade.");
+                    }
+                    return CreatedAtAction(nameof(InserirProdutoEntrada), new { id = response.Nr }, response);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Produto não encontrado.");
                     return BadRequest("Produto não encontrado.");
                 }
-
-                ProdutoEntradaDto produtoEntradaDto = new ProdutoEntradaDto
-                {
-                    NrEntrada = dto.NrEntrada,
-                    CdEmpresa = dto.CdEmpresa,
-                    CdProduto = dto.CdProduto,
-                    Quant = dto.Quant,
-                    CdPlano = dto.CdPlano,
-                    VlUnitario = produto.VlCusto ?? 0
-                };
-
-                var response = await repo.CreateAsync(produtoEntradaDto);
-                if (response == null)
-                {
-                    return BadRequest("Falha ao criar a entidade.");
-                }
-                return CreatedAtAction(nameof(InserirProdutoEntrada), new { id = response.Nr }, response);
             }
             catch (Exception ex)
             {
@@ -173,30 +177,34 @@ namespace GlobalAPINFe.Controllers
                 }
                 await using var _context = dbContextFactory.CreateDbContext();
 
-                ProdutoEstoque produto = await _context.ProdutoEstoques.FirstOrDefaultAsync(obj =>
-                    obj.IdEmpresa == dto.CdEmpresa && obj.CdBarra.Equals(dto.Ean));
-
-                if (produto == null)
+                try
                 {
+                    ProdutoEstoque produto = await _context.ProdutoEstoques.FirstOrDefaultAsync(obj =>
+                    obj.IdEmpresa == dto.CdEmpresa && obj.CdBarra.Equals(dto.Ean));
+                    if (produto == null)
+                    {
+                        throw new Exception("Produto não encontrado.");
+                    }
+                    ProdutoEntradaDto produtoEntradaDto = new ProdutoEntradaDto();
+                    produtoEntradaDto.NrEntrada = dto.NrEntrada;
+                    produtoEntradaDto.CdEmpresa = dto.CdEmpresa;
+                    produtoEntradaDto.CdProduto = produto.CdProduto;
+                    produtoEntradaDto.Quant = dto.Quant;
+                    produtoEntradaDto.CdPlano = dto.CdPlano;
+                    produtoEntradaDto.VlUnitario = produto.VlCusto ?? 0;
+
+                    var response = await repo.CreateAsync(produtoEntradaDto);
+                    if (response == null)
+                    {
+                        return BadRequest("Falha ao criar a entidade.");
+                    }
+                    return CreatedAtAction(nameof(InserirProdutoEntradaEan), new { id = response.Nr }, response);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Produto não encontrado.");
                     return BadRequest("Produto não encontrado.");
                 }
-
-                ProdutoEntradaDto produtoEntradaDto = new ProdutoEntradaDto
-                {
-                    NrEntrada = dto.NrEntrada,
-                    CdEmpresa = dto.CdEmpresa,
-                    CdProduto = produto.CdProduto,
-                    Quant = dto.Quant,
-                    CdPlano = dto.CdPlano,
-                    VlUnitario = produto.VlCusto ?? 0
-                };
-
-                var response = await repo.CreateAsync(produtoEntradaDto);
-                if (response == null)
-                {
-                    return BadRequest("Falha ao criar a entidade.");
-                }
-                return CreatedAtAction(nameof(InserirProdutoEntradaEan), new { id = response.Nr }, response);
             }
             catch (Exception ex)
             {

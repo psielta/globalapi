@@ -80,7 +80,7 @@ namespace GlobalAPINFe.Controllers
         {
             try
             {
-                var query = await ((FornecedorPagedRepositoryMultiKey)repo).GetFornecedorPorEmpresa(idEmpresa);
+                var query = ((FornecedorPagedRepositoryMultiKey)repo).GetFornecedorPorEmpresa(idEmpresa).Result.AsQueryable();
 
                 if (query == null)
                 {
@@ -142,17 +142,18 @@ namespace GlobalAPINFe.Controllers
         [ProducesResponseType(404)]
         public async Task<ActionResult<IEnumerable<Fornecedor>>> GetFornecedorByName(int idEmpresa, string nome)
         {
-            var fornecedors = await ((FornecedorPagedRepositoryMultiKey)repo).GetFornecedorPorEmpresa(idEmpresa);
-            if (fornecedors == null)
+            var Fornecedors = await (repo as FornecedorPagedRepositoryMultiKey).GetFornecedorPorEmpresa(idEmpresa);
+            IEnumerable<Fornecedor> _Fr = Fornecedors.ToList();
+            if (_Fr == null)
             {
                 return NotFound("Fornecedor não encontrada.");
             }
 
             var stringNormalizada = UtlStrings.RemoveDiacritics(nome.ToLower());
 
-            var filter = fornecedors.Where(c => UtlStrings.RemoveDiacritics(c.NmForn.ToLower()).StartsWith(stringNormalizada))
-                                    .OrderBy(c => c.NmForn)
-                                    .ToList();
+            var filter = _Fr.Where(c => UtlStrings.RemoveDiacritics(c.NmForn.ToLower()).StartsWith(stringNormalizada))
+                                .OrderBy(c => c.NmForn)
+                                .ToList();
 
             if (filter.Count == 0)
             {

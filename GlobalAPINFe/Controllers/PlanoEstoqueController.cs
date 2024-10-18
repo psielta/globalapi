@@ -77,16 +77,20 @@ namespace GlobalAPINFe.Controllers
         {
             try
             {
-                var query = await ((PlanoEstoquePagedRepository)repo).GetPlanoEstoquePorEmpresa(idEmpresa);
+                var query = ((PlanoEstoquePagedRepository)repo).GetPlanoEstoquePorEmpresa(idEmpresa).Result.AsQueryable();
 
                 if (query == null)
                 {
                     return NotFound("Entities not found.");
                 }
 
-                var filteredQuery = query.AsQueryable().OrderBy(p => p.CdPlano);
+                var filteredQuery = query.AsEnumerable();
 
-                var pagedList = await filteredQuery.ToPagedListAsync(pageNumber, pageSize);
+
+
+                filteredQuery = filteredQuery.OrderBy(p => p.CdPlano);
+
+                var pagedList = filteredQuery.ToPagedList(pageNumber, pageSize);
                 var response = new PagedResponse<PlanoEstoque>(pagedList);
 
                 if (response.Items == null || response.Items.Count == 0)

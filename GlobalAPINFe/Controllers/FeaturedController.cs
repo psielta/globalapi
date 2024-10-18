@@ -111,13 +111,14 @@ namespace GlobalAPINFe.Controllers
 
                 if (existingFoto != null)
                 {
-                    if (!string.IsNullOrEmpty(existingFoto.ImageSrc))
+                    if (string.IsNullOrEmpty(existingFoto.ImageSrc))
                     {
-                        string existingFilePath = System.IO.Path.Combine(_environment.WebRootPath, existingFoto.ImageSrc);
-                        if (System.IO.File.Exists(existingFilePath))
-                        {
-                            System.IO.File.Delete(existingFilePath);
-                        }
+                        return BadRequest("Foto não encontrada.");
+                    }
+                    string existingFilePath = System.IO.Path.Combine(_environment.WebRootPath, existingFoto.ImageSrc);
+                    if (System.IO.File.Exists(existingFilePath))
+                    {
+                        System.IO.File.Delete(existingFilePath);
                     }
 
                     existingFoto.ImageSrc = relativePath;
@@ -181,7 +182,10 @@ namespace GlobalAPINFe.Controllers
                 {
                     return NotFound("Foto não encontrada.");
                 }
-
+                //if (string.IsNullOrEmpty(existingFoto.ImageSrc))
+                //{
+                //return BadRequest("Foto não encontrada.");
+                //}
                 if (!string.IsNullOrEmpty(existingFoto.ImageSrc))
                 {
                     string fullPath = System.IO.Path.Combine(_environment.WebRootPath, existingFoto.ImageSrc);

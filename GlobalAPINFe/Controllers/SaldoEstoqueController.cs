@@ -79,14 +79,14 @@ namespace GlobalAPINFe.Controllers
         {
             try
             {
-                var query = await ((SaldoEstoquePagedRepository)repo).GetSaldoEstoquePorEmpresa(idEmpresa);
+                var query = ((SaldoEstoquePagedRepository)repo).GetSaldoEstoquePorEmpresa(idEmpresa).Result.AsQueryable();
 
                 if (query == null)
                 {
                     return NotFound("Entities not found.");
                 }
 
-                var filteredQuery = query.AsQueryable();
+                var filteredQuery = query.AsEnumerable();
 
                 if (cdProduto.HasValue)
                 {
@@ -100,7 +100,7 @@ namespace GlobalAPINFe.Controllers
 
                 filteredQuery = filteredQuery.OrderBy(p => p.Id);
 
-                var pagedList = await filteredQuery.ToPagedListAsync(pageNumber, pageSize);
+                var pagedList = filteredQuery.ToPagedList(pageNumber, pageSize);
                 var response = new PagedResponse<SaldoEstoque>(pagedList);
 
                 if (response.Items == null || response.Items.Count == 0)

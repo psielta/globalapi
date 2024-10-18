@@ -84,7 +84,7 @@ namespace GlobalAPINFe.Controllers
         {
             try
             {
-                var query = await ((EntradaPagedRepository)repo).GetEntradaAsyncPorEmpresa(idEmpresa);
+                var query = ((EntradaPagedRepository)repo).GetEntradaAsyncPorEmpresa(idEmpresa).Result.AsQueryable();
 
                 if (query == null)
                 {
@@ -96,7 +96,7 @@ namespace GlobalAPINFe.Controllers
                 if (!string.IsNullOrEmpty(nmForn))
                 {
                     var normalizedNmProduto = UtlStrings.RemoveDiacritics(nmForn.ToLower()).Trim();
-                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.NmForn ?? "").ToLower()).Contains(normalizedNmProduto));
+                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.NmForn == null) ? "" : p.NmForn.ToLower()).Contains(normalizedNmProduto));
                 }
 
                 if (nrNotaFiscal.HasValue)
@@ -112,29 +112,23 @@ namespace GlobalAPINFe.Controllers
                 if (!string.IsNullOrEmpty(chaveAcesso))
                 {
                     var normalizedChaveAcesso = UtlStrings.RemoveDiacritics(chaveAcesso.ToLower()).Trim();
-                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.CdChaveNfe ?? "").ToLower()) == normalizedChaveAcesso);
+                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.CdChaveNfe == null) ? "" : p.CdChaveNfe.ToLower()) == normalizedChaveAcesso);
                 }
 
                 if (!string.IsNullOrEmpty(tipoEntrada))
                 {
                     var normalizedTipoEntrada = UtlStrings.RemoveDiacritics(tipoEntrada.ToLower()).Trim();
-                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.TpEntrada ?? "").ToLower()) == normalizedTipoEntrada);
+                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.TpEntrada == null) ? "" : p.TpEntrada.ToLower()) == normalizedTipoEntrada);
                 }
 
                 if (!string.IsNullOrEmpty(dataInicio))
                 {
-                    if (DateOnly.TryParse(dataInicio, out DateOnly dtInicio))
-                    {
-                        filteredQuery = filteredQuery.Where(p => p.Data >= dtInicio);
-                    }
+                    filteredQuery = filteredQuery.Where(p => p.Data.ToDateTime(TimeOnly.MinValue) >= DateTime.Parse(dataInicio));
                 }
 
                 if (!string.IsNullOrEmpty(dataFim))
                 {
-                    if (DateOnly.TryParse(dataFim, out DateOnly dtFim))
-                    {
-                        filteredQuery = filteredQuery.Where(p => p.Data <= dtFim);
-                    }
+                    filteredQuery = filteredQuery.Where(p => p.Data.ToDateTime(TimeOnly.MaxValue) <= DateTime.Parse(dataFim));
                 }
 
                 filteredQuery = filteredQuery.OrderBy(p => p.Nr);

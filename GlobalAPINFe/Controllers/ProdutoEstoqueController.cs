@@ -96,19 +96,19 @@ namespace GlobalAPINFe.Controllers
         {
             try
             {
-                var query = await ((ProdutoEstoquePagedRepositoryMultiKey)repo).GetProdutoEstoqueAsyncPorEmpresa(idEmpresa);
+                var query = ((ProdutoEstoquePagedRepositoryMultiKey)repo).GetProdutoEstoqueAsyncPorEmpresa(idEmpresa).Result.AsQueryable();
 
                 if (query == null)
                 {
                     return NotFound("Entities not found.");
                 }
 
-                var filteredQuery = query.AsQueryable();
+                var filteredQuery = query.AsEnumerable();
 
                 if (!string.IsNullOrEmpty(nmProduto))
                 {
                     var normalizedNmProduto = UtlStrings.RemoveDiacritics(nmProduto.ToLower()).Trim();
-                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.NmProduto ?? "").ToLower()).Contains(normalizedNmProduto));
+                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.NmProduto == null) ? "" : p.NmProduto.ToLower()).Contains(normalizedNmProduto));
                 }
 
                 if (cdProduto.HasValue)
@@ -119,30 +119,30 @@ namespace GlobalAPINFe.Controllers
                 if (!string.IsNullOrEmpty(cdClassFiscal))
                 {
                     var normalizedCdClassFiscal = UtlStrings.RemoveDiacritics(cdClassFiscal.ToLower()).Trim();
-                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.CdClassFiscal ?? "").ToLower()) == normalizedCdClassFiscal);
+                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.CdClassFiscal == null) ? "" : p.CdClassFiscal.ToLower()) == normalizedCdClassFiscal);
                 }
 
                 if (!string.IsNullOrEmpty(cest))
                 {
                     var normalizedCest = UtlStrings.RemoveDiacritics(cest.ToLower()).Trim();
-                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.Cest ?? "").ToLower()) == normalizedCest);
+                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.Cest == null) ? "" : p.Cest.ToLower()) == normalizedCest);
                 }
 
                 if (!string.IsNullOrEmpty(cdInterno))
                 {
                     var normalizedCdInterno = UtlStrings.RemoveDiacritics(cdInterno.ToLower()).Trim();
-                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.CdInterno ?? "").ToLower()) == normalizedCdInterno);
+                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.CdInterno == null) ? "" : p.CdInterno.ToLower()) == normalizedCdInterno);
                 }
 
                 if (!string.IsNullOrEmpty(cdBarra))
                 {
                     var normalizedCdBarra = UtlStrings.RemoveDiacritics(cdBarra.ToLower()).Trim();
-                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.CdBarra ?? "").ToLower()) == normalizedCdBarra);
+                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.CdBarra == null) ? "" : p.CdBarra.ToLower()) == normalizedCdBarra);
                 }
 
                 filteredQuery = filteredQuery.OrderBy(p => p.CdProduto);
 
-                var pagedList = await filteredQuery.ToPagedListAsync(pageNumber, pageSize);
+                var pagedList = filteredQuery.ToPagedList(pageNumber, pageSize);
                 var response = new PagedResponse<ProdutoEstoque>(pagedList);
 
                 if (response.Items == null || response.Items.Count == 0)
@@ -274,14 +274,7 @@ namespace GlobalAPINFe.Controllers
                         }
                     },
                     description = p.DescricaoProduto ?? "Descrição não disponível",
-                    details = new List<ProductDetailv2>
-                    {
-                        new ProductDetailv2
-                        {
-                            name = "Código",
-                            items = new List<string> { p.CdProduto.ToString() }
-                        }
-                    }
+                    details = new List<ProductDetailv2>() { new ProductDetailv2() { name = "Código", items = [p.CdProduto.ToString()] } }
                 }).ToList();
 
                 // Carregar os ProductDetails e ItemDetails de forma separada
@@ -328,7 +321,6 @@ namespace GlobalAPINFe.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Erro ao recuperar os produtos.");
                 return StatusCode(500, $"Erro ao recuperar os produtos: {ex.Message}");
             }
         }

@@ -84,12 +84,12 @@ namespace GlobalAPINFe.Controllers
                     return NotFound("Entities not found.");
                 }
 
-                var filteredQuery = query.AsEnumerable();
+                var filteredQuery = query.AsQueryable().AsEnumerable();
 
                 if (!string.IsNullOrEmpty(chave))
                 {
                     var normalizedChaveConf = UtlStrings.RemoveDiacritics(chave.ToLower());
-                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.Chave ?? "").ToLower()).Contains(normalizedChaveConf));
+                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.Chave == null) ? "" : p.Chave.ToLower()).Contains(normalizedChaveConf));
                 }
 
                 filteredQuery = filteredQuery.OrderBy(p => p.Chave);
