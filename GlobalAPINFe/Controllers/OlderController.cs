@@ -60,6 +60,14 @@ namespace GlobalAPINFe.Controllers
             return await base.Create(dto);
         }
 
+        [HttpPost("bulk")]
+        [ProducesResponseType(typeof(IEnumerable<Older>), 201)]
+        [ProducesResponseType(400)]
+        public override async Task<ActionResult<IEnumerable<Older>>> CreateBulk([FromBody] IEnumerable<OlderDto> dtos)
+        {
+            return await base.CreateBulk(dtos);
+        }
+
         [HttpPut("{id}")]
         [ProducesResponseType(typeof(Older), 200)]
         [ProducesResponseType(400)]

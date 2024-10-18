@@ -46,6 +46,14 @@ namespace GlobalAPINFe.Controllers
             return await base.Create(dto);
         }
 
+        [HttpPost("bulk")]
+        [ProducesResponseType(typeof(IEnumerable<FormaPagt>), 201)]
+        [ProducesResponseType(400)]
+        public override async Task<ActionResult<IEnumerable<FormaPagt>>> CreateBulk([FromBody] IEnumerable<FormaPagtDto> dtos)
+        {
+            return await base.CreateBulk(dtos);
+        }
+
         [HttpPut("{id}")]
         [ProducesResponseType(typeof(FormaPagt), 200)]
         [ProducesResponseType(400)]

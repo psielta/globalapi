@@ -190,5 +190,34 @@ namespace GlobalErpData.GenericControllers
                 return StatusCode(500, $"Error occurred while deleting the entity with ID {id}: {ex.GetType().Name} - {ex.Message} - {ex.InnerException}");
             }
         }
+
+        [HttpPost("bulk")]
+        [ProducesResponseType(201)]
+        [ProducesResponseType(400)]
+        public virtual async Task<ActionResult<IEnumerable<TEntity>>> CreateBulk([FromBody] IEnumerable<TDto> dtos)
+        {
+            try
+            {
+                if (dtos == null || !dtos.Any())
+                {
+                    return BadRequest("Dados inválidos fornecidos."); // 400 Bad Request
+                }
+
+                var entities = await repo.CreateBulkAsync(dtos);
+
+                if (entities == null)
+                {
+                    return BadRequest("Falha ao criar as entidades.");
+                }
+
+                return StatusCode(201, entities); // 201 Created
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Erro ao criar entidades em lote.");
+                return StatusCode(500, "Ocorreu um erro ao criar as entidades.");
+            }
+        }
+
     }
 }

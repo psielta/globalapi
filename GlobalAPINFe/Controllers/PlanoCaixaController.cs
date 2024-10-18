@@ -47,6 +47,14 @@ namespace GlobalAPINFe.Controllers
             return await base.Create(dto);
         }
 
+        [HttpPost("bulk")]
+        [ProducesResponseType(typeof(IEnumerable<PlanoDeCaixa>), 201)]
+        [ProducesResponseType(400)]
+        public override async Task<ActionResult<IEnumerable<PlanoDeCaixa>>> CreateBulk([FromBody] IEnumerable<PlanoCaixaDto> dtos)
+        {
+            return await base.CreateBulk(dtos);
+        }
+
         [HttpPut("{id}")]
         [ProducesResponseType(typeof(PlanoDeCaixa), 200)]
         [ProducesResponseType(400)]

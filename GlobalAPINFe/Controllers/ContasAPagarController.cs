@@ -63,6 +63,15 @@ namespace GlobalAPINFe.Controllers
             return await base.Delete(id);
         }
 
+        [HttpPost("bulk")]
+        [ProducesResponseType(typeof(IEnumerable<ContasAPagar>), 201)]
+        [ProducesResponseType(400)]
+        public override async Task<ActionResult<IEnumerable<ContasAPagar>>> CreateBulk([FromBody] IEnumerable<ContasAPagarDto> dtos)
+        {
+            return await base.CreateBulk(dtos);
+        }
+
+
 
         public enum TipoPeriodoCAP
         {

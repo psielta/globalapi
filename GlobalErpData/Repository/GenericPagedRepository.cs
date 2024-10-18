@@ -163,5 +163,31 @@ namespace GlobalErpData.Repository
             //    return null;
             //}
         }
+
+        public virtual async Task<IEnumerable<TEntity>?> CreateBulkAsync(IEnumerable<TDto> dtos)
+        {
+            if (dtos == null || !dtos.Any())
+            {
+                return null;
+            }
+
+            var entities = dtos.Select(dto => mapper.Map<TEntity>(dto)).ToList();
+            await db.Set<TEntity>().AddRangeAsync(entities);
+            int affected = await db.SaveChangesAsync();
+
+            if (affected >= entities.Count)
+            {
+                foreach (var entity in entities)
+                {
+                    EntityCache?.AddOrUpdate(entity.GetId(), entity, UpdateCache);
+                }
+                return entities;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
     }
 }

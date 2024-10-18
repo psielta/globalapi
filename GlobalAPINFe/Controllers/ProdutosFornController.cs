@@ -56,6 +56,14 @@ namespace GlobalAPINFe.Controllers
             return await base.Update(id, dto);
         }
 
+        [HttpPost("bulk")]
+        [ProducesResponseType(typeof(IEnumerable<ProdutosForn>), 201)]
+        [ProducesResponseType(400)]
+        public override async Task<ActionResult<IEnumerable<ProdutosForn>>> CreateBulk([FromBody] IEnumerable<ProdutosFornDto> dtos)
+        {
+            return await base.CreateBulk(dtos);
+        }
+
         [HttpDelete("{id}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]

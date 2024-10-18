@@ -65,6 +65,15 @@ namespace GlobalAPINFe.Controllers
             return await base.Delete(id);
         }
 
+        [HttpPost("bulk")]
+        [ProducesResponseType(typeof(IEnumerable<Certificado>), 201)]
+        [ProducesResponseType(400)]
+        public override async Task<ActionResult<IEnumerable<Certificado>>> CreateBulk([FromBody] IEnumerable<CertificadoDto> dtos)
+        {
+            return await base.CreateBulk(dtos);
+        }
+
+
         // Método personalizado ajustado
         [HttpGet("GetCertificadoPorEmpresa", Name = nameof(GetCertificadoPorEmpresa))]
         [ProducesResponseType(typeof(PagedResponse<Certificado>), 200)]

@@ -18,7 +18,13 @@ namespace GlobalAPINFe.Controllers
         {
         }
 
-        // Sobrescrevendo os métodos herdados e adicionando os atributos [ProducesResponseType]
+        [HttpPost("bulk")]
+        [ProducesResponseType(typeof(IEnumerable<ContaDoCaixa>), 201)]
+        [ProducesResponseType(400)]
+        public override async Task<ActionResult<IEnumerable<ContaDoCaixa>>> CreateBulk([FromBody] IEnumerable<ContaCaixaDto> dtos)
+        {
+            return await base.CreateBulk(dtos);
+        }
 
         [HttpGet]
         [ProducesResponseType(typeof(PagedResponse<ContaDoCaixa>), 200)]

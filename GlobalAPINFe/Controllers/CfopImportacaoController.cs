@@ -65,6 +65,14 @@ namespace GlobalAPINFe.Controllers
             return await base.Delete(id);
         }
 
+        [HttpPost("bulk")]
+        [ProducesResponseType(typeof(IEnumerable<CfopImportacao>), 201)]
+        [ProducesResponseType(400)]
+        public override async Task<ActionResult<IEnumerable<CfopImportacao>>> CreateBulk([FromBody] IEnumerable<CfopImportacaoDto> dtos)
+        {
+            return await base.CreateBulk(dtos);
+        }
+
         // Método personalizado ajustado
         [HttpGet("GetCfopImportacaoPorEmpresa", Name = nameof(GetCfopImportacaoPorEmpresa))]
         [ProducesResponseType(typeof(PagedResponse<CfopImportacao>), 200)]
