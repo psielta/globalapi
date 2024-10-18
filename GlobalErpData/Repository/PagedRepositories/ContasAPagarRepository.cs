@@ -76,5 +76,34 @@ namespace GlobalErpData.Repository.PagedRepositories
                 return null;
             }
         }
+
+        public async override Task<IEnumerable<ContasAPagar>?> CreateBulkAsync(IEnumerable<ContasAPagarDto> dtos)
+        {
+            if (dtos == null || !dtos.Any())
+            {
+                return null;
+            }
+
+            var entities = dtos.Select(dto => mapper.Map<ContasAPagar>(dto)).ToList();
+            await db.Set<ContasAPagar>().AddRangeAsync(entities);
+            int affected = await db.SaveChangesAsync();
+
+            if (affected >= entities.Count)
+            {
+                foreach (var entity in entities)
+                {
+                    EntityCache?.AddOrUpdate(entity.GetId(), entity, UpdateCache);
+                }
+                //return entities;
+                return await db.Set<ContasAPagar>().Include(e => e.Fornecedor)
+                    .Include(e => e.HistoricoCaixa).ThenInclude(h => h.PlanoDeCaixa)
+                    .Where(e => entities.Select(x => x.Id).Contains(e.Id) && e.CdEmpresa == entities.First().CdEmpresa)
+                    .ToListAsync();
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 }
