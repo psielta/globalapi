@@ -80,7 +80,10 @@ namespace GlobalAPINFe.Controllers
 
                 if (!string.IsNullOrEmpty(dataFim))
                 {
-                    filteredQuery = filteredQuery.Where(p => p.Data.ToDateTime(TimeOnly.MaxValue) <= DateTime.Parse(dataFim));
+                    if (DateTime.TryParse(dataFim, out DateTime dtFim))
+                    {
+                        filteredQuery = filteredQuery.Where(p => p.Data <= dtFim);
+                    }
                 }
 
                 filteredQuery = filteredQuery.OrderBy(p => p.Nr);
