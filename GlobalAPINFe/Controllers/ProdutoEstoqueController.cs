@@ -47,9 +47,9 @@ namespace GlobalAPINFe.Controllers
         [HttpGet("{idEmpresa}/{idProduto}")]
         [ProducesResponseType(typeof(ProdutoEstoque), 200)]
         [ProducesResponseType(404)]
-        public override async Task<ActionResult<ProdutoEstoque>> GetEntity(int idEmpresa, int idProduto)
+        public override async Task<ActionResult<ProdutoEstoque>> GetEntity(int idEmpresa, int idCadastro)
         {
-            return await base.GetEntity(idEmpresa, idProduto);
+            return await base.GetEntity(idEmpresa, idCadastro);
         }
 
         [HttpPost]
@@ -64,18 +64,18 @@ namespace GlobalAPINFe.Controllers
         [ProducesResponseType(typeof(ProdutoEstoque), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public override async Task<ActionResult<ProdutoEstoque>> Update(int idEmpresa, int idProduto, [FromBody] ProdutoEstoqueDto dto)
+        public override async Task<ActionResult<ProdutoEstoque>> Update(int idEmpresa, int idCadastro, [FromBody] ProdutoEstoqueDto dto)
         {
-            return await base.Update(idEmpresa, idProduto, dto);
+            return await base.Update(idEmpresa, idCadastro, dto);
         }
 
         [HttpDelete("{idEmpresa}/{idProduto}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public override async Task<IActionResult> Delete(int idEmpresa, int idProduto)
+        public override async Task<IActionResult> Delete(int idEmpresa, int idCadastro)
         {
-            return await base.Delete(idEmpresa, idProduto);
+            return await base.Delete(idEmpresa, idCadastro);
         }
 
         // Método personalizado ajustado
