@@ -128,6 +128,9 @@ public partial class ContasAPagar : IIdentifiable<int>
     [Column("type")]
     public int Type { get; set; }
 
+    [Column("type_register")]
+    public int TypeRegister { get; set; }
+
     [JsonIgnore]
     [ForeignKey("CdEmpresa")]
     [InverseProperty("ContasAPagars")]

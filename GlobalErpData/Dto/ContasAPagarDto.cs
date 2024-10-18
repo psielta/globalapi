@@ -42,5 +42,6 @@ namespace GlobalErpData.Dto
         public decimal Rate { get; set; }
         public int NumberOfPayments { get; set; }
         public int Type { get; set; }
+        public int TypeRegister { get; set; }
     }
 }
