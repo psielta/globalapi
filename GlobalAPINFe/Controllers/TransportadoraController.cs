@@ -32,7 +32,7 @@ namespace GlobalAPINFe.Controllers
             return await base.GetEntities(pageNumber, pageSize);
         }
 
-        [HttpGet("{idEmpresa}/{idTransportadora}")]
+        [HttpGet("{idEmpresa}/{idCadastro}")]
         [ProducesResponseType(typeof(Transportadora), 200)]
         [ProducesResponseType(404)]
         public override async Task<ActionResult<Transportadora>> GetEntity(int idEmpresa, int idCadastro)
@@ -48,7 +48,7 @@ namespace GlobalAPINFe.Controllers
             return await base.Create(dto);
         }
 
-        [HttpPut("{idEmpresa}/{idTransportadora}")]
+        [HttpPut("{idEmpresa}/{idCadastro}")]
         [ProducesResponseType(typeof(Transportadora), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -57,7 +57,7 @@ namespace GlobalAPINFe.Controllers
             return await base.Update(idEmpresa, idCadastro, dto);
         }
 
-        [HttpDelete("{idEmpresa}/{idTransportadora}")]
+        [HttpDelete("{idEmpresa}/{idCadastro}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
