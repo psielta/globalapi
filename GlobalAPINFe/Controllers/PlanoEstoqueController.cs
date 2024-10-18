@@ -5,6 +5,10 @@ using GlobalErpData.Repository;
 using GlobalErpData.Repository.PagedRepositories;
 using GlobalLib.Strings;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System.Linq;
+using System.Threading.Tasks;
+using X.PagedList.EF;
 using X.PagedList.Extensions;
 
 namespace GlobalAPINFe.Controllers
@@ -17,30 +21,72 @@ namespace GlobalAPINFe.Controllers
         {
         }
 
-        [HttpGet("GetPlanoEstoquePorEmpresa", Name = nameof(GetPlanoEstoquePorEmpresa))]
-        [ProducesResponseType(200)]
+        // Sobrescrevendo os métodos herdados e adicionando os atributos [ProducesResponseType]
+
+        [HttpGet]
+        [ProducesResponseType(typeof(PagedResponse<PlanoEstoque>), 200)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> GetPlanoEstoquePorEmpresa(
+        public override async Task<ActionResult<PagedResponse<PlanoEstoque>>> GetEntities([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        {
+            return await base.GetEntities(pageNumber, pageSize);
+        }
+
+        [HttpGet("{id}")]
+        [ProducesResponseType(typeof(PlanoEstoque), 200)]
+        [ProducesResponseType(404)]
+        public override async Task<ActionResult<PlanoEstoque>> GetEntity(int id)
+        {
+            return await base.GetEntity(id);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(typeof(PlanoEstoque), 201)]
+        [ProducesResponseType(400)]
+        public override async Task<ActionResult<PlanoEstoque>> Create([FromBody] PlanoEstoqueDto dto)
+        {
+            return await base.Create(dto);
+        }
+
+        [HttpPut("{id}")]
+        [ProducesResponseType(typeof(PlanoEstoque), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public override async Task<ActionResult<PlanoEstoque>> Update(int id, [FromBody] PlanoEstoqueDto dto)
+        {
+            return await base.Update(id, dto);
+        }
+
+        [HttpDelete("{id}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public override async Task<IActionResult> Delete(int id)
+        {
+            return await base.Delete(id);
+        }
+
+        // Método personalizado ajustado
+
+        [HttpGet("GetPlanoEstoquePorEmpresa", Name = nameof(GetPlanoEstoquePorEmpresa))]
+        [ProducesResponseType(typeof(PagedResponse<PlanoEstoque>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<PagedResponse<PlanoEstoque>>> GetPlanoEstoquePorEmpresa(
             int idEmpresa,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10)
         {
             try
             {
-                var query = ((PlanoEstoquePagedRepository)repo).GetPlanoEstoquePorEmpresa(idEmpresa).Result.AsQueryable();
+                var query = await ((PlanoEstoquePagedRepository)repo).GetPlanoEstoquePorEmpresa(idEmpresa);
 
                 if (query == null)
                 {
                     return NotFound("Entities not found.");
                 }
 
-                var filteredQuery = query.AsEnumerable();
+                var filteredQuery = query.AsQueryable().OrderBy(p => p.CdPlano);
 
-                
-
-                filteredQuery = filteredQuery.OrderBy(p => p.CdPlano);
-
-                var pagedList = filteredQuery.ToPagedList(pageNumber, pageSize);
+                var pagedList = await filteredQuery.ToPagedListAsync(pageNumber, pageSize);
                 var response = new PagedResponse<PlanoEstoque>(pagedList);
 
                 if (response.Items == null || response.Items.Count == 0)

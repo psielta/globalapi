@@ -6,6 +6,10 @@ using GlobalErpData.Repository.PagedRepositories;
 using GlobalErpData.Repository.PagedRepositoriesMultiKey;
 using GlobalLib.Strings;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System.Linq;
+using System.Threading.Tasks;
+using X.PagedList.EF;
 using X.PagedList.Extensions;
 
 namespace GlobalAPINFe.Controllers
@@ -18,10 +22,56 @@ namespace GlobalAPINFe.Controllers
         {
         }
 
-        [HttpGet("GetTransportadoraPorEmpresa", Name = nameof(GetTransportadoraPorEmpresa))]
-        [ProducesResponseType(200)]
+        // Sobrescrevendo os métodos herdados e adicionando os atributos [ProducesResponseType]
+
+        [HttpGet]
+        [ProducesResponseType(typeof(PagedResponse<Transportadora>), 200)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> GetTransportadoraPorEmpresa(
+        public override async Task<ActionResult<PagedResponse<Transportadora>>> GetEntities([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        {
+            return await base.GetEntities(pageNumber, pageSize);
+        }
+
+        [HttpGet("{idEmpresa}/{idTransportadora}")]
+        [ProducesResponseType(typeof(Transportadora), 200)]
+        [ProducesResponseType(404)]
+        public override async Task<ActionResult<Transportadora>> GetEntity(int idEmpresa, int idTransportadora)
+        {
+            return await base.GetEntity(idEmpresa, idTransportadora);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(typeof(Transportadora), 201)]
+        [ProducesResponseType(400)]
+        public override async Task<ActionResult<Transportadora>> Create([FromBody] TransportadoraDto dto)
+        {
+            return await base.Create(dto);
+        }
+
+        [HttpPut("{idEmpresa}/{idTransportadora}")]
+        [ProducesResponseType(typeof(Transportadora), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public override async Task<ActionResult<Transportadora>> Update(int idEmpresa, int idTransportadora, [FromBody] TransportadoraDto dto)
+        {
+            return await base.Update(idEmpresa, idTransportadora, dto);
+        }
+
+        [HttpDelete("{idEmpresa}/{idTransportadora}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public override async Task<IActionResult> Delete(int idEmpresa, int idTransportadora)
+        {
+            return await base.Delete(idEmpresa, idTransportadora);
+        }
+
+        // Métodos personalizados ajustados
+
+        [HttpGet("GetTransportadoraPorEmpresa", Name = nameof(GetTransportadoraPorEmpresa))]
+        [ProducesResponseType(typeof(PagedResponse<Transportadora>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<PagedResponse<Transportadora>>> GetTransportadoraPorEmpresa(
             int idEmpresa,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
@@ -77,27 +127,26 @@ namespace GlobalAPINFe.Controllers
         }
 
         [HttpGet("GetTransportadoraByName/{idEmpresa}/{nome}")]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(IEnumerable<Transportadora>), 200)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> GetTransportadoraByName(int idEmpresa, string nome)
+        public async Task<ActionResult<IEnumerable<Transportadora>>> GetTransportadoraByName(int idEmpresa, string nome)
         {
-            var Transportadoras = await (repo as TransportadoraPagedRepository).GetTransportadoraPorEmpresa(idEmpresa);
+            var transportadoras = await ((TransportadoraPagedRepository)repo).GetTransportadoraPorEmpresa(idEmpresa);
 
-            var TransportadorasList = Transportadoras.ToList();
-            if (TransportadorasList == null)
+            if (transportadoras == null || !transportadoras.Any())
             {
                 return NotFound("Transportadora não encontrada.");
             }
 
             var stringNormalizada = UtlStrings.RemoveDiacritics(nome.ToLower());
 
-            var filter = TransportadorasList.Where(c => UtlStrings.RemoveDiacritics(c.NmTransportadora.ToLower()).StartsWith(stringNormalizada))
-                                .OrderBy(c => c.NmTransportadora)
-                                .ToList();
+            var filter = transportadoras.Where(c => UtlStrings.RemoveDiacritics(c.NmTransportadora.ToLower()).StartsWith(stringNormalizada))
+                                    .OrderBy(c => c.NmTransportadora)
+                                    .ToList();
 
             if (filter.Count == 0)
             {
-                return NotFound("Transportadoras não encontrada.");
+                return NotFound("Transportadora não encontrada.");
             }
             return Ok(filter);
         }

@@ -5,6 +5,10 @@ using GlobalErpData.Repository;
 using GlobalErpData.Repository.PagedRepositoriesMultiKey;
 using GlobalLib.Strings;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 using X.PagedList.Extensions;
 
 namespace GlobalAPINFe.Controllers
@@ -17,10 +21,55 @@ namespace GlobalAPINFe.Controllers
         {
         }
 
-        [HttpGet("GetConfiguracoesUsuarioPorEmpresa", Name = nameof(GetConfiguracoesUsuarioPorEmpresa))]
-        [ProducesResponseType(200)]
+        // Sobrescrevendo os métodos herdados e adicionando os atributos [ProducesResponseType]
+
+        [HttpGet]
+        [ProducesResponseType(typeof(PagedResponse<ConfiguracoesUsuario>), 200)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> GetConfiguracoesUsuarioPorEmpresa(
+        public override async Task<ActionResult<PagedResponse<ConfiguracoesUsuario>>> GetEntities([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        {
+            return await base.GetEntities(pageNumber, pageSize);
+        }
+
+        [HttpGet("{idEmpresa}/{idCadastro}")]
+        [ProducesResponseType(typeof(ConfiguracoesUsuario), 200)]
+        [ProducesResponseType(404)]
+        public override async Task<ActionResult<ConfiguracoesUsuario>> GetEntity(int idEmpresa, string idCadastro)
+        {
+            return await base.GetEntity(idEmpresa, idCadastro);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(typeof(ConfiguracoesUsuario), 201)]
+        [ProducesResponseType(400)]
+        public override async Task<ActionResult<ConfiguracoesUsuario>> Create([FromBody] ConfiguracoesUsuarioDto dto)
+        {
+            return await base.Create(dto);
+        }
+
+        [HttpPut("{idEmpresa}/{idCadastro}")]
+        [ProducesResponseType(typeof(ConfiguracoesUsuario), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public override async Task<ActionResult<ConfiguracoesUsuario>> Update(int idEmpresa, string idCadastro, [FromBody] ConfiguracoesUsuarioDto dto)
+        {
+            return await base.Update(idEmpresa, idCadastro, dto);
+        }
+
+        [HttpDelete("{idEmpresa}/{idCadastro}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public override async Task<IActionResult> Delete(int idEmpresa, string idCadastro)
+        {
+            return await base.Delete(idEmpresa, idCadastro);
+        }
+
+        // Método personalizado ajustado
+        [HttpGet("GetConfiguracoesUsuarioPorEmpresa", Name = nameof(GetConfiguracoesUsuarioPorEmpresa))]
+        [ProducesResponseType(typeof(PagedResponse<ConfiguracoesUsuario>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<PagedResponse<ConfiguracoesUsuario>>> GetConfiguracoesUsuarioPorEmpresa(
             int idUsuario,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
@@ -35,12 +84,12 @@ namespace GlobalAPINFe.Controllers
                     return NotFound("Entities not found.");
                 }
 
-                var filteredQuery = query.AsQueryable().AsEnumerable();
+                var filteredQuery = query.AsEnumerable();
 
                 if (!string.IsNullOrEmpty(chave))
                 {
                     var normalizedChaveConf = UtlStrings.RemoveDiacritics(chave.ToLower());
-                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.Chave == null) ? "" : p.Chave.ToLower()).Contains(normalizedChaveConf));
+                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.Chave ?? "").ToLower()).Contains(normalizedChaveConf));
                 }
 
                 filteredQuery = filteredQuery.OrderBy(p => p.Chave);

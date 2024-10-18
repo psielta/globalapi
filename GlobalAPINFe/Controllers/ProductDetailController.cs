@@ -4,6 +4,10 @@ using GlobalErpData.Models;
 using GlobalErpData.Repository;
 using GlobalErpData.Repository.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace GlobalAPINFe.Controllers
 {
@@ -15,13 +19,59 @@ namespace GlobalAPINFe.Controllers
         {
         }
 
-        [HttpGet("/api/ProductDetailsPorEmpresa/{id}", Name = nameof(GetProductDetailsPorEmpresa))]
-        [ProducesResponseType(200)]
+        // Sobrescrevendo os métodos herdados e adicionando os atributos [ProducesResponseType]
+
+        [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<ProductDetail>), 200)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> GetProductDetailsPorEmpresa(int id)
+        public override async Task<ActionResult<IEnumerable<ProductDetail>>> GetEntities()
+        {
+            return await base.GetEntities();
+        }
+
+        [HttpGet("{id}")]
+        [ProducesResponseType(typeof(ProductDetail), 200)]
+        [ProducesResponseType(404)]
+        public override async Task<ActionResult<ProductDetail>> GetEntity(int id)
+        {
+            return await base.GetEntity(id);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(typeof(ProductDetail), 201)]
+        [ProducesResponseType(400)]
+        public override async Task<ActionResult<ProductDetail>> Create([FromBody] ProductDetailDto dto)
+        {
+            return await base.Create(dto);
+        }
+
+        [HttpPut("{id}")]
+        [ProducesResponseType(typeof(ProductDetail), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public override async Task<ActionResult<ProductDetail>> Update(int id, [FromBody] ProductDetailDto dto)
+        {
+            return await base.Update(id, dto);
+        }
+
+        [HttpDelete("{id}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public override async Task<IActionResult> Delete(int id)
+        {
+            return await base.Delete(id);
+        }
+
+        // Método personalizado ajustado
+
+        [HttpGet("/api/ProductDetailsPorEmpresa/{id}", Name = nameof(GetProductDetailsPorEmpresa))]
+        [ProducesResponseType(typeof(IEnumerable<ProductDetail>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<IEnumerable<ProductDetail>>> GetProductDetailsPorEmpresa(int id)
         {
             IEnumerable<ProductDetail>? entities = await ((ProductDetailRepository)repo).GetProductDetailsAsyncPerEmpresa(id);
-            if (entities == null)
+            if (entities == null || !entities.Any())
             {
                 return NotFound(); // 404 Resource not found
             }

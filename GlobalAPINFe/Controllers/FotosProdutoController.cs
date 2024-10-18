@@ -4,6 +4,7 @@ using GlobalErpData.Models;
 using GlobalErpData.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Threading.Tasks;
 using System;
@@ -21,11 +22,57 @@ namespace GlobalAPINFe.Controllers
             _environment = environment;
         }
 
+        // Sobrescrevendo os métodos herdados e adicionando os atributos [ProducesResponseType]
+
+        [HttpGet]
+        [ProducesResponseType(typeof(PagedResponse<FotosProduto>), 200)]
+        [ProducesResponseType(404)]
+        public override async Task<ActionResult<PagedResponse<FotosProduto>>> GetEntities([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        {
+            return await base.GetEntities(pageNumber, pageSize);
+        }
+
+        [HttpGet("{idEmpresa}/{idCadastro}")]
+        [ProducesResponseType(typeof(FotosProduto), 200)]
+        [ProducesResponseType(404)]
+        public override async Task<ActionResult<FotosProduto>> GetEntity(int idEmpresa, int idCadastro)
+        {
+            return await base.GetEntity(idEmpresa, idCadastro);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(typeof(FotosProduto), 201)]
+        [ProducesResponseType(400)]
+        public override async Task<ActionResult<FotosProduto>> Create([FromBody] FotosProdutoDto dto)
+        {
+            return await base.Create(dto);
+        }
+
+        [HttpPut("{idEmpresa}/{idCadastro}")]
+        [ProducesResponseType(typeof(FotosProduto), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public override async Task<ActionResult<FotosProduto>> Update(int idEmpresa, int idCadastro, [FromBody] FotosProdutoDto dto)
+        {
+            return await base.Update(idEmpresa, idCadastro, dto);
+        }
+
+        [HttpDelete("{idEmpresa}/{idCadastro}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public override async Task<IActionResult> Delete(int idEmpresa, int idCadastro)
+        {
+            return await base.Delete(idEmpresa, idCadastro);
+        }
+
+        // Métodos personalizados ajustados
+
         [HttpPost("upload")]
         [Consumes("multipart/form-data")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> UploadFoto([FromForm] UploadFotoDto dto)
         {
             try
@@ -96,8 +143,11 @@ namespace GlobalAPINFe.Controllers
             }
         }
 
-
         [HttpDelete("delete/{idEmpresa}/{id}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> DeleteFoto(int idEmpresa, int id)
         {
             try
@@ -142,6 +192,5 @@ namespace GlobalAPINFe.Controllers
                 return StatusCode(500, "Erro interno do servidor.");
             }
         }
-
     }
 }

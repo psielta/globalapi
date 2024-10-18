@@ -5,6 +5,10 @@ using GlobalErpData.Repository;
 using GlobalErpData.Repository.PagedRepositories;
 using GlobalLib.Strings;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System.Linq;
+using System.Threading.Tasks;
+using X.PagedList.EF;
 using X.PagedList.Extensions;
 
 namespace GlobalAPINFe.Controllers
@@ -16,10 +20,57 @@ namespace GlobalAPINFe.Controllers
         public SaldoEstoqueController(IQueryRepository<SaldoEstoque, int, SaldoEstoqueDto> repo, ILogger<GenericPagedController<SaldoEstoque, int, SaldoEstoqueDto>> logger) : base(repo, logger)
         {
         }
-        [HttpGet("GetSaldoEstoquePorEmpresa", Name = nameof(GetSaldoEstoquePorEmpresa))]
-        [ProducesResponseType(200)]
+
+        // Sobrescrevendo os métodos herdados e adicionando os atributos [ProducesResponseType]
+
+        [HttpGet]
+        [ProducesResponseType(typeof(PagedResponse<SaldoEstoque>), 200)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> GetSaldoEstoquePorEmpresa(
+        public override async Task<ActionResult<PagedResponse<SaldoEstoque>>> GetEntities([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        {
+            return await base.GetEntities(pageNumber, pageSize);
+        }
+
+        [HttpGet("{id}")]
+        [ProducesResponseType(typeof(SaldoEstoque), 200)]
+        [ProducesResponseType(404)]
+        public override async Task<ActionResult<SaldoEstoque>> GetEntity(int id)
+        {
+            return await base.GetEntity(id);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(typeof(SaldoEstoque), 201)]
+        [ProducesResponseType(400)]
+        public override async Task<ActionResult<SaldoEstoque>> Create([FromBody] SaldoEstoqueDto dto)
+        {
+            return await base.Create(dto);
+        }
+
+        [HttpPut("{id}")]
+        [ProducesResponseType(typeof(SaldoEstoque), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public override async Task<ActionResult<SaldoEstoque>> Update(int id, [FromBody] SaldoEstoqueDto dto)
+        {
+            return await base.Update(id, dto);
+        }
+
+        [HttpDelete("{id}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public override async Task<IActionResult> Delete(int id)
+        {
+            return await base.Delete(id);
+        }
+
+        // Método personalizado ajustado
+
+        [HttpGet("GetSaldoEstoquePorEmpresa", Name = nameof(GetSaldoEstoquePorEmpresa))]
+        [ProducesResponseType(typeof(PagedResponse<SaldoEstoque>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<PagedResponse<SaldoEstoque>>> GetSaldoEstoquePorEmpresa(
             int idEmpresa,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
@@ -28,14 +79,14 @@ namespace GlobalAPINFe.Controllers
         {
             try
             {
-                var query = ((SaldoEstoquePagedRepository)repo).GetSaldoEstoquePorEmpresa(idEmpresa).Result.AsQueryable();
+                var query = await ((SaldoEstoquePagedRepository)repo).GetSaldoEstoquePorEmpresa(idEmpresa);
 
                 if (query == null)
                 {
                     return NotFound("Entities not found.");
                 }
 
-                var filteredQuery = query.AsEnumerable();
+                var filteredQuery = query.AsQueryable();
 
                 if (cdProduto.HasValue)
                 {
@@ -49,7 +100,7 @@ namespace GlobalAPINFe.Controllers
 
                 filteredQuery = filteredQuery.OrderBy(p => p.Id);
 
-                var pagedList = filteredQuery.ToPagedList(pageNumber, pageSize);
+                var pagedList = await filteredQuery.ToPagedListAsync(pageNumber, pageSize);
                 var response = new PagedResponse<SaldoEstoque>(pagedList);
 
                 if (response.Items == null || response.Items.Count == 0)

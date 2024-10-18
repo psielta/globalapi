@@ -5,7 +5,11 @@ using GlobalErpData.Repository;
 using GlobalErpData.Repository.PagedRepositories;
 using GlobalLib.Strings;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System.Linq;
+using System.Threading.Tasks;
 using X.PagedList.Extensions;
+using System.Collections.Generic;
 
 namespace GlobalAPINFe.Controllers
 {
@@ -16,10 +20,56 @@ namespace GlobalAPINFe.Controllers
         public CfopImportacaoController(IQueryRepository<CfopImportacao, int, CfopImportacaoDto> repo, ILogger<GenericPagedController<CfopImportacao, int, CfopImportacaoDto>> logger) : base(repo, logger)
         {
         }
-        [HttpGet("GetCfopImportacaoPorEmpresa", Name = nameof(GetCfopImportacaoPorEmpresa))]
-        [ProducesResponseType(200)]
+
+        // Sobrescrevendo os métodos herdados e adicionando os atributos [ProducesResponseType]
+
+        [HttpGet]
+        [ProducesResponseType(typeof(PagedResponse<CfopImportacao>), 200)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> GetCfopImportacaoPorEmpresa(
+        public override async Task<ActionResult<PagedResponse<CfopImportacao>>> GetEntities([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        {
+            return await base.GetEntities(pageNumber, pageSize);
+        }
+
+        [HttpGet("{id}")]
+        [ProducesResponseType(typeof(CfopImportacao), 200)]
+        [ProducesResponseType(404)]
+        public override async Task<ActionResult<CfopImportacao>> GetEntity(int id)
+        {
+            return await base.GetEntity(id);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(typeof(CfopImportacao), 201)]
+        [ProducesResponseType(400)]
+        public override async Task<ActionResult<CfopImportacao>> Create([FromBody] CfopImportacaoDto dto)
+        {
+            return await base.Create(dto);
+        }
+
+        [HttpPut("{id}")]
+        [ProducesResponseType(typeof(CfopImportacao), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public override async Task<ActionResult<CfopImportacao>> Update(int id, [FromBody] CfopImportacaoDto dto)
+        {
+            return await base.Update(id, dto);
+        }
+
+        [HttpDelete("{id}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public override async Task<IActionResult> Delete(int id)
+        {
+            return await base.Delete(id);
+        }
+
+        // Método personalizado ajustado
+        [HttpGet("GetCfopImportacaoPorEmpresa", Name = nameof(GetCfopImportacaoPorEmpresa))]
+        [ProducesResponseType(typeof(PagedResponse<CfopImportacao>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<PagedResponse<CfopImportacao>>> GetCfopImportacaoPorEmpresa(
             int idEmpresa,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
@@ -28,7 +78,7 @@ namespace GlobalAPINFe.Controllers
         {
             try
             {
-                var query = ((CfopImportacaoPagedRepository)repo).GetCfopImportacaoPorEmpresa(idEmpresa).Result.AsQueryable();
+                var query = await ((CfopImportacaoPagedRepository)repo).GetCfopImportacaoPorEmpresa(idEmpresa);
 
                 if (query == null)
                 {
@@ -40,14 +90,13 @@ namespace GlobalAPINFe.Controllers
                 if (!string.IsNullOrEmpty(cdCfopS))
                 {
                     var _cdCfopS = UtlStrings.RemoveDiacritics(cdCfopS.ToLower());
-                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.CdCfopS == null) ? "" : p.CdCfopS.ToLower()).Contains(_cdCfopS));
+                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.CdCfopS ?? "").ToLower()).Contains(_cdCfopS));
                 }
                 if (!string.IsNullOrEmpty(cdCfopE))
                 {
                     var _cdCfopE = UtlStrings.RemoveDiacritics(cdCfopE.ToLower());
-                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.CdCfopE == null) ? "" : p.CdCfopE.ToLower()).Contains(_cdCfopE));
+                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.CdCfopE ?? "").ToLower()).Contains(_cdCfopE));
                 }
-
 
                 filteredQuery = filteredQuery.OrderBy(p => p.Id);
 

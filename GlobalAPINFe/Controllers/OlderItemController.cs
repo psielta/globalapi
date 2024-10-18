@@ -4,6 +4,9 @@ using GlobalErpData.Models;
 using GlobalErpData.Repository;
 using GlobalErpData.Repository.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace GlobalAPINFe.Controllers
 {
@@ -15,18 +18,62 @@ namespace GlobalAPINFe.Controllers
         {
         }
 
-        [HttpGet("/api/OlderItemsPorPedido/{id}", Name = nameof(GetOlderItemsPorPedido))]
-        [ProducesResponseType(200)]
+        // Sobrescrevendo os métodos herdados e adicionando os atributos [ProducesResponseType]
+
+        [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<OlderItem>), 200)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> GetOlderItemsPorPedido(Guid id)
+        public override async Task<ActionResult<IEnumerable<OlderItem>>> GetEntities()
+        {
+            return await base.GetEntities();
+        }
+
+        [HttpGet("{id}")]
+        [ProducesResponseType(typeof(OlderItem), 200)]
+        [ProducesResponseType(404)]
+        public override async Task<ActionResult<OlderItem>> GetEntity(Guid id)
+        {
+            return await base.GetEntity(id);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(typeof(OlderItem), 201)]
+        [ProducesResponseType(400)]
+        public override async Task<ActionResult<OlderItem>> Create([FromBody] OlderItemDto dto)
+        {
+            return await base.Create(dto);
+        }
+
+        [HttpPut("{id}")]
+        [ProducesResponseType(typeof(OlderItem), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public override async Task<ActionResult<OlderItem>> Update(Guid id, [FromBody] OlderItemDto dto)
+        {
+            return await base.Update(id, dto);
+        }
+
+        [HttpDelete("{id}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public override async Task<IActionResult> Delete(Guid id)
+        {
+            return await base.Delete(id);
+        }
+
+        // Método personalizado ajustado
+        [HttpGet("/api/OlderItemsPorPedido/{id}", Name = nameof(GetOlderItemsPorPedido))]
+        [ProducesResponseType(typeof(IEnumerable<OlderItem>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<IEnumerable<OlderItem>>> GetOlderItemsPorPedido(Guid id)
         {
             IEnumerable<OlderItem>? entities = await ((OlderItemRepository)repo).GetOlderItemsByOlderAsync(id);
-            if (entities == null)
+            if (entities == null || !entities.Any())
             {
                 return NotFound(); // 404 Resource not found
             }
             return Ok(entities); // 200 OK
         }
-
     }
 }

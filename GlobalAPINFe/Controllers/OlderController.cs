@@ -8,8 +8,12 @@ using GlobalErpData.Repository;
 using GlobalErpData.Repository.PagedRepositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.Extensions.Logging;
 using Npgsql;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using X.PagedList.EF;
 using X.PagedList.Extensions;
 
@@ -21,16 +25,61 @@ namespace GlobalAPINFe.Controllers
     {
         private readonly IDbContextFactory<GlobalErpFiscalBaseContext> dbContextFactory;
         private readonly IMapper _mapper;
-        public OlderController(IQueryRepository<Older, Guid, OlderDto> repo,
-            ILogger<GenericPagedController<Older, Guid, OlderDto>> logger, IMapper mapper,
+
+        public OlderController(
+            IQueryRepository<Older, Guid, OlderDto> repo,
+            ILogger<GenericPagedController<Older, Guid, OlderDto>> logger,
+            IMapper mapper,
             IDbContextFactory<GlobalErpFiscalBaseContext> context) : base(repo, logger)
         {
             this._mapper = mapper;
             dbContextFactory = context;
         }
 
+        [HttpGet]
+        [ProducesResponseType(typeof(PagedResponse<Older>), 200)]
+        [ProducesResponseType(404)]
+        public override async Task<ActionResult<PagedResponse<Older>>> GetEntities([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        {
+            return await base.GetEntities(pageNumber, pageSize);
+        }
+
+        [HttpGet("{id}")]
+        [ProducesResponseType(typeof(Older), 200)]
+        [ProducesResponseType(404)]
+        public override async Task<ActionResult<Older>> GetEntity(Guid id)
+        {
+            return await base.GetEntity(id);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(typeof(Older), 201)]
+        [ProducesResponseType(400)]
+        public override async Task<ActionResult<Older>> Create([FromBody] OlderDto dto)
+        {
+            return await base.Create(dto);
+        }
+
+        [HttpPut("{id}")]
+        [ProducesResponseType(typeof(Older), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public override async Task<ActionResult<Older>> Update(Guid id, [FromBody] OlderDto dto)
+        {
+            return await base.Update(id, dto);
+        }
+
+        [HttpDelete("{id}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public override async Task<IActionResult> Delete(Guid id)
+        {
+            return await base.Delete(id);
+        }
+
         [HttpGet("GetOlderPorEmpresa", Name = nameof(GetOlderPorEmpresa))]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(PagedResponse<GetOldersDto>), 200)]
         [ProducesResponseType(404)]
         public async Task<IActionResult> GetOlderPorEmpresa(
             int idEmpresa,
@@ -58,8 +107,8 @@ namespace GlobalAPINFe.Controllers
                 if (!string.IsNullOrEmpty(customerName))
                 {
                     var termos = customerName.Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                                          .Select(t => $"%{t}%")
-                                          .ToList();
+                                              .Select(t => $"%{t}%")
+                                              .ToList();
 
                     for (int i = 0; i < termos.Count; i++)
                     {
@@ -74,8 +123,6 @@ namespace GlobalAPINFe.Controllers
                 var query = _context.Olders.FromSqlRaw(sqlQuery, parametros.ToArray())
                     .Where(p => p.IdEmpresa == idEmpresa);
 
-                //var query = await ((OlderRepository)repo).GetOlderPorEmpresa(idEmpresa);
-
                 if (query == null)
                 {
                     return NotFound("Entities not found.");
@@ -85,11 +132,6 @@ namespace GlobalAPINFe.Controllers
                 {
                     query = query.Where(o => o.Id == id.Value);
                 }
-
-                /*if (!string.IsNullOrEmpty(customerName))
-                {
-                    query = query.Where(o => o.CustomerName.Contains(customerName));
-                }*/
 
                 if (status.HasValue)
                 {
@@ -152,7 +194,7 @@ namespace GlobalAPINFe.Controllers
         }
 
         [HttpGet("GetOldersCanceledByMonth/{idEmpresa}", Name = nameof(GetOldersCanceledByMonth))]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(OldersCanceledDto), 200)]
         [ProducesResponseType(404)]
         public IActionResult GetOldersCanceledByMonth(int idEmpresa)
         {
@@ -194,9 +236,8 @@ namespace GlobalAPINFe.Controllers
             }
         }
 
-
         [HttpGet("GetOldersApprovedByMonth/{idEmpresa}", Name = nameof(GetOldersApprovedByMonth))]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(OldersQuantityDto), 200)]
         [ProducesResponseType(404)]
         public IActionResult GetOldersApprovedByMonth(
             int idEmpresa)
@@ -231,7 +272,6 @@ namespace GlobalAPINFe.Controllers
                     OldersApprovedByMonthDto.PercentageComparedToPrevious = 100;
                 }
 
-
                 return Ok(OldersApprovedByMonthDto);
 
             }
@@ -243,7 +283,7 @@ namespace GlobalAPINFe.Controllers
         }
 
         [HttpGet("GetOldersApprovedByDay/{idEmpresa}", Name = nameof(GetOldersApprovedByDay))]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(OldersQuantityDto), 200)]
         [ProducesResponseType(404)]
         public IActionResult GetOldersApprovedByDay(
             int idEmpresa)
@@ -273,7 +313,6 @@ namespace GlobalAPINFe.Controllers
                     OldersByDay.PercentageComparedToPrevious = 100;
                 }
 
-
                 return Ok(OldersByDay);
 
             }
@@ -285,7 +324,7 @@ namespace GlobalAPINFe.Controllers
         }
 
         [HttpGet("GetOldersMoneyByMonth/{idEmpresa}", Name = nameof(GetOldersMoneyByMonth))]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(OldersMoneyByMonthDto), 200)]
         [ProducesResponseType(404)]
         public IActionResult GetOldersMoneyByMonth(
             int idEmpresa)
@@ -334,7 +373,7 @@ namespace GlobalAPINFe.Controllers
         }
 
         [HttpGet("GetOldersMoneyByLast7Days/{idEmpresa}", Name = nameof(GetOldersMoneyByLast7Days))]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(OldersMoneyByDayLast7DaysDto), 200)]
         [ProducesResponseType(404)]
         public IActionResult GetOldersMoneyByLast7Days(int idEmpresa)
         {
@@ -359,7 +398,7 @@ namespace GlobalAPINFe.Controllers
                     result.Items.Add(new MoneyByDayLast7DaysDto
                     {
                         DateTime = date,
-                        totalDay = (double) totalDay
+                        totalDay = (double)totalDay
                     });
                 }
 
@@ -373,7 +412,7 @@ namespace GlobalAPINFe.Controllers
         }
 
         [HttpGet("GetTop5Products/{idEmpresa}", Name = nameof(GetTop5Products))]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(Top05ProductsDto), 200)]
         [ProducesResponseType(404)]
         public IActionResult GetTop5Products(int idEmpresa)
         {
@@ -386,36 +425,29 @@ namespace GlobalAPINFe.Controllers
 
                 using var _context = dbContextFactory.CreateDbContext();
 
-                // Obter todos os pedidos da empresa e incluir OlderItems
                 var allOlders = _context.Olders
                     .Where(o => o.IdEmpresa == idEmpresa)
-                    .Include(o => o.OlderItems) // Certifique-se de incluir os OlderItems
+                    .Include(o => o.OlderItems)
                     .ToList();
 
-                // Filtrar pedidos aprovados
                 var allOldersApproved = allOlders.Where(o => o.Status == StatusOlder.Aprovado).ToList();
 
-                // Obter mês e ano atuais
                 var currentMonth = DateTime.Now.Month;
                 var currentYear = DateTime.Now.Year;
 
-                // Filtrar pedidos do mês e ano atuais
                 var approvedOldersCurrentMonth = allOldersApproved
                     .Where(o => o.CreatedAt.Month == currentMonth && o.CreatedAt.Year == currentYear)
                     .ToList();
 
-                // Obter todos os itens dos pedidos filtrados
                 var orderItems = approvedOldersCurrentMonth
                     .SelectMany(o => o.OlderItems)
                     .ToList();
 
-                // Verifique se há itens
                 if (orderItems == null || !orderItems.Any())
                 {
-                    return Ok(result); // Retorna lista vazia se não houver itens
+                    return Ok(result);
                 }
 
-                // Agrupar por nome do produto e calcular quantidade total e subtotal
                 var groupedItems = orderItems
                     .GroupBy(i => i.Name)
                     .Select(g => new Top05ProductsItemDto

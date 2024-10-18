@@ -7,11 +7,14 @@ using GlobalErpData.Repository.PagedRepositoriesMultiKey;
 using GlobalLib.Strings;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.Extensions.Logging;
 using Npgsql;
+using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text.RegularExpressions;
-using X.PagedList;
+using System.Threading.Tasks;
 using X.PagedList.EF;
 using X.PagedList.Extensions;
 
@@ -31,10 +34,56 @@ namespace GlobalAPINFe.Controllers
             dbContextFactory = context;
         }
 
-        [HttpGet("GetProdutoEstoquePorEmpresa", Name = nameof(GetProdutoEstoquePorEmpresa))]
-        [ProducesResponseType(200)]
+        // Sobrescrevendo os métodos herdados e adicionando os atributos [ProducesResponseType]
+
+        [HttpGet]
+        [ProducesResponseType(typeof(PagedResponse<ProdutoEstoque>), 200)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> GetProdutoEstoquePorEmpresa(
+        public override async Task<ActionResult<PagedResponse<ProdutoEstoque>>> GetEntities([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        {
+            return await base.GetEntities(pageNumber, pageSize);
+        }
+
+        [HttpGet("{idEmpresa}/{idProduto}")]
+        [ProducesResponseType(typeof(ProdutoEstoque), 200)]
+        [ProducesResponseType(404)]
+        public override async Task<ActionResult<ProdutoEstoque>> GetEntity(int idEmpresa, int idProduto)
+        {
+            return await base.GetEntity(idEmpresa, idProduto);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(typeof(ProdutoEstoque), 201)]
+        [ProducesResponseType(400)]
+        public override async Task<ActionResult<ProdutoEstoque>> Create([FromBody] ProdutoEstoqueDto dto)
+        {
+            return await base.Create(dto);
+        }
+
+        [HttpPut("{idEmpresa}/{idProduto}")]
+        [ProducesResponseType(typeof(ProdutoEstoque), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public override async Task<ActionResult<ProdutoEstoque>> Update(int idEmpresa, int idProduto, [FromBody] ProdutoEstoqueDto dto)
+        {
+            return await base.Update(idEmpresa, idProduto, dto);
+        }
+
+        [HttpDelete("{idEmpresa}/{idProduto}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public override async Task<IActionResult> Delete(int idEmpresa, int idProduto)
+        {
+            return await base.Delete(idEmpresa, idProduto);
+        }
+
+        // Método personalizado ajustado
+
+        [HttpGet("GetProdutoEstoquePorEmpresa", Name = nameof(GetProdutoEstoquePorEmpresa))]
+        [ProducesResponseType(typeof(PagedResponse<ProdutoEstoque>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<PagedResponse<ProdutoEstoque>>> GetProdutoEstoquePorEmpresa(
             int idEmpresa,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
@@ -47,19 +96,19 @@ namespace GlobalAPINFe.Controllers
         {
             try
             {
-                var query = ((ProdutoEstoquePagedRepositoryMultiKey)repo).GetProdutoEstoqueAsyncPorEmpresa(idEmpresa).Result.AsQueryable();
+                var query = await ((ProdutoEstoquePagedRepositoryMultiKey)repo).GetProdutoEstoqueAsyncPorEmpresa(idEmpresa);
 
                 if (query == null)
                 {
                     return NotFound("Entities not found.");
                 }
 
-                var filteredQuery = query.AsEnumerable();
+                var filteredQuery = query.AsQueryable();
 
                 if (!string.IsNullOrEmpty(nmProduto))
                 {
                     var normalizedNmProduto = UtlStrings.RemoveDiacritics(nmProduto.ToLower()).Trim();
-                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.NmProduto == null) ? "" : p.NmProduto.ToLower()).Contains(normalizedNmProduto));
+                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.NmProduto ?? "").ToLower()).Contains(normalizedNmProduto));
                 }
 
                 if (cdProduto.HasValue)
@@ -70,30 +119,30 @@ namespace GlobalAPINFe.Controllers
                 if (!string.IsNullOrEmpty(cdClassFiscal))
                 {
                     var normalizedCdClassFiscal = UtlStrings.RemoveDiacritics(cdClassFiscal.ToLower()).Trim();
-                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.CdClassFiscal == null) ? "" : p.CdClassFiscal.ToLower()) == normalizedCdClassFiscal);
+                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.CdClassFiscal ?? "").ToLower()) == normalizedCdClassFiscal);
                 }
 
                 if (!string.IsNullOrEmpty(cest))
                 {
                     var normalizedCest = UtlStrings.RemoveDiacritics(cest.ToLower()).Trim();
-                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.Cest == null) ? "" : p.Cest.ToLower()) == normalizedCest);
+                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.Cest ?? "").ToLower()) == normalizedCest);
                 }
 
                 if (!string.IsNullOrEmpty(cdInterno))
                 {
                     var normalizedCdInterno = UtlStrings.RemoveDiacritics(cdInterno.ToLower()).Trim();
-                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.CdInterno == null) ? "" : p.CdInterno.ToLower()) == normalizedCdInterno);
+                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.CdInterno ?? "").ToLower()) == normalizedCdInterno);
                 }
 
                 if (!string.IsNullOrEmpty(cdBarra))
                 {
                     var normalizedCdBarra = UtlStrings.RemoveDiacritics(cdBarra.ToLower()).Trim();
-                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.CdBarra == null) ? "" : p.CdBarra.ToLower()) == normalizedCdBarra);
+                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.CdBarra ?? "").ToLower()) == normalizedCdBarra);
                 }
 
                 filteredQuery = filteredQuery.OrderBy(p => p.CdProduto);
 
-                var pagedList = filteredQuery.ToPagedList(pageNumber, pageSize);
+                var pagedList = await filteredQuery.ToPagedListAsync(pageNumber, pageSize);
                 var response = new PagedResponse<ProdutoEstoque>(pagedList);
 
                 if (response.Items == null || response.Items.Count == 0)
@@ -111,9 +160,9 @@ namespace GlobalAPINFe.Controllers
         }
 
         [HttpGet("GetProdutosComDetalhes", Name = nameof(GetProdutosComDetalhes))]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(GlobalErpData.Dto.PagedList.PagedResponse<ProductDetails>), 200)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> GetProdutosComDetalhes(
+        public async Task<ActionResult<GlobalErpData.Dto.PagedList.PagedResponse<ProductDetails>>> GetProdutosComDetalhes(
             int idEmpresa,
             [FromQuery] int? categoryId = null,
             [FromQuery] int? sectionId = null,
@@ -224,8 +273,15 @@ namespace GlobalAPINFe.Controllers
                             selectedColor = string.Empty
                         }
                     },
-                            description = p.DescricaoProduto ?? "Descrição não disponível",
-                            details = new List<ProductDetailv2>() { new ProductDetailv2() { name="Código", items = [p.CdProduto.ToString()] } } 
+                    description = p.DescricaoProduto ?? "Descrição não disponível",
+                    details = new List<ProductDetailv2>
+                    {
+                        new ProductDetailv2
+                        {
+                            name = "Código",
+                            items = new List<string> { p.CdProduto.ToString() }
+                        }
+                    }
                 }).ToList();
 
                 // Carregar os ProductDetails e ItemDetails de forma separada
@@ -272,13 +328,10 @@ namespace GlobalAPINFe.Controllers
             }
             catch (Exception ex)
             {
+                logger.LogError(ex, "Erro ao recuperar os produtos.");
                 return StatusCode(500, $"Erro ao recuperar os produtos: {ex.Message}");
             }
         }
-
-
-
-
 
         private string GetImageUrl(string? imagePath)
         {
@@ -291,6 +344,7 @@ namespace GlobalAPINFe.Controllers
             var imageUrl = imagePath.Replace("\\", "/");
             return $"{baseUrl}/{imageUrl}";
         }
+
         private static string NormalizeSearchTerm(string input)
         {
             if (string.IsNullOrEmpty(input))

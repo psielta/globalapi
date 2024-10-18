@@ -4,25 +4,74 @@ using GlobalErpData.Models;
 using GlobalErpData.Repository;
 using GlobalErpData.Repository.PagedRepositoriesMultiKey;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace GlobalAPINFe.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class FeaturedController : GenericPagedControllerMultiKey<Featured, int,int, FeaturedDto>
+    public class FeaturedController : GenericPagedControllerMultiKey<Featured, int, int, FeaturedDto>
     {
         private readonly IWebHostEnvironment _environment;
-        
+
         public FeaturedController(IQueryRepositoryMultiKey<Featured, int, int, FeaturedDto> repo, ILogger<GenericPagedControllerMultiKey<Featured, int, int, FeaturedDto>> logger, IWebHostEnvironment environment) : base(repo, logger)
         {
             _environment = environment;
         }
 
-        [HttpGet("/api/FeaturedsPorEmpresa/{id}", Name = nameof(GetFeaturedsPorEmpresa))]
-        [ProducesResponseType(200)]
+        // Sobrescrevendo os métodos herdados e adicionando os atributos [ProducesResponseType]
+
+        [HttpGet]
+        [ProducesResponseType(typeof(PagedResponse<Featured>), 200)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> GetFeaturedsPorEmpresa(int id)
+        public override async Task<ActionResult<PagedResponse<Featured>>> GetEntities([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        {
+            return await base.GetEntities(pageNumber, pageSize);
+        }
+
+        [HttpGet("{idEmpresa}/{idCadastro}")]
+        [ProducesResponseType(typeof(Featured), 200)]
+        [ProducesResponseType(404)]
+        public override async Task<ActionResult<Featured>> GetEntity(int idEmpresa, int idCadastro)
+        {
+            return await base.GetEntity(idEmpresa, idCadastro);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(typeof(Featured), 201)]
+        [ProducesResponseType(400)]
+        public override async Task<ActionResult<Featured>> Create([FromBody] FeaturedDto dto)
+        {
+            return await base.Create(dto);
+        }
+
+        [HttpPut("{idEmpresa}/{idCadastro}")]
+        [ProducesResponseType(typeof(Featured), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public override async Task<ActionResult<Featured>> Update(int idEmpresa, int idCadastro, [FromBody] FeaturedDto dto)
+        {
+            return await base.Update(idEmpresa, idCadastro, dto);
+        }
+
+        [HttpDelete("{idEmpresa}/{idCadastro}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public override async Task<IActionResult> Delete(int idEmpresa, int idCadastro)
+        {
+            return await base.Delete(idEmpresa, idCadastro);
+        }
+
+        // Método personalizado ajustado
+        [HttpGet("/api/FeaturedsPorEmpresa/{id}", Name = nameof(GetFeaturedsPorEmpresa))]
+        [ProducesResponseType(typeof(IEnumerable<Featured>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<IEnumerable<Featured>>> GetFeaturedsPorEmpresa(int id)
         {
             IEnumerable<Featured>? entities = await ((FeaturedRepository)repo).GetFeaturedByEmpresaAsync(id);
             if (entities == null)
@@ -31,12 +80,12 @@ namespace GlobalAPINFe.Controllers
             }
             return Ok(entities); // 200 OK
         }
-        
+
         [HttpPost("upload")]
         [Consumes("multipart/form-data")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> UploadFeaturedFoto([FromForm] UploadFeaturedDto dto)
         {
             try
@@ -62,14 +111,13 @@ namespace GlobalAPINFe.Controllers
 
                 if (existingFoto != null)
                 {
-                    if (string.IsNullOrEmpty(existingFoto.ImageSrc))
-                    { 
-                        return BadRequest("Foto não encontrada.");
-                    }
-                    string existingFilePath = System.IO.Path.Combine(_environment.WebRootPath, existingFoto.ImageSrc);
-                    if (System.IO.File.Exists(existingFilePath))
+                    if (!string.IsNullOrEmpty(existingFoto.ImageSrc))
                     {
-                        System.IO.File.Delete(existingFilePath);
+                        string existingFilePath = System.IO.Path.Combine(_environment.WebRootPath, existingFoto.ImageSrc);
+                        if (System.IO.File.Exists(existingFilePath))
+                        {
+                            System.IO.File.Delete(existingFilePath);
+                        }
                     }
 
                     existingFoto.ImageSrc = relativePath;
@@ -116,6 +164,10 @@ namespace GlobalAPINFe.Controllers
         }
 
         [HttpDelete("delete/{idEmpresa}/{id}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> DeleteFoto(int idEmpresa, int id)
         {
             try
@@ -129,11 +181,8 @@ namespace GlobalAPINFe.Controllers
                 {
                     return NotFound("Foto não encontrada.");
                 }
-                //if (string.IsNullOrEmpty(existingFoto.ImageSrc))
-                //{
-                //return BadRequest("Foto não encontrada.");
-                //}
-                if (! string.IsNullOrEmpty(existingFoto.ImageSrc))
+
+                if (!string.IsNullOrEmpty(existingFoto.ImageSrc))
                 {
                     string fullPath = System.IO.Path.Combine(_environment.WebRootPath, existingFoto.ImageSrc);
                     if (System.IO.File.Exists(fullPath))
@@ -166,6 +215,5 @@ namespace GlobalAPINFe.Controllers
                 return StatusCode(500, "Erro interno do servidor.");
             }
         }
-
     }
 }
