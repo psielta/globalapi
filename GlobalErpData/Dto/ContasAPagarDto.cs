@@ -39,5 +39,8 @@ namespace GlobalErpData.Dto
         public int? NrEntradaOutraDesp { get; set; }
         public decimal? RefQuantEntrega { get; set; }
         public string? IdExtrato { get; set; }
+        public decimal Rate { get; set; }
+        public int NumberOfPayments { get; set; }
+        public int Type { get; set; }
     }
 }

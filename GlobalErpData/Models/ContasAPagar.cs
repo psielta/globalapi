@@ -118,6 +118,16 @@ public partial class ContasAPagar : IIdentifiable<int>
     [StringLength(16384)]
     public string? IdExtrato { get; set; }
 
+    [Column("rate")]
+    [Precision(18, 4)]
+    public decimal Rate { get; set; }
+
+    [Column("number_of_payments")]
+    public int NumberOfPayments { get; set; }
+
+    [Column("type")]
+    public int Type { get; set; }
+
     [JsonIgnore]
     [ForeignKey("CdEmpresa")]
     [InverseProperty("ContasAPagars")]
