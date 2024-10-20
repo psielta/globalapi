@@ -115,20 +115,20 @@ namespace GlobalAPINFe.Controllers
                 {
                     if (tipoDataCap < 0 || tipoDataCap > 2 || tipoPeriodoCAP < 0 || tipoPeriodoCAP > 2)
                     {
-                        return BadRequest("Invalid parameters.");
+                        return BadRequest(new ErrorMessage(500, "Invalid parameters"));
                     }
                     ENUM_tipoDataCap = (TipoDataCap)tipoDataCap;
                     ENUM_tipoPeriodoCAP = (TipoPeriodoCAP)tipoPeriodoCAP;
                 }
                 catch
                 {
-                    return BadRequest("Invalid parameters.");
+                    return BadRequest(new ErrorMessage(500, "Invalid parameters"));
                 }
                 var query = await ((ContasAPagarRepository)repo).GetContasAPagarAsyncPorEmpresa(idEmpresa);
 
                 if (query == null)
                 {
-                    return NotFound("Entities not found.");
+                    return NotFound(new ErrorMessage(404, "Entities not found"));
                 }
 
                 var filteredQuery = query.AsEnumerable();
@@ -220,7 +220,7 @@ namespace GlobalAPINFe.Controllers
 
                 if (response.Items == null || response.Items.Count == 0)
                 {
-                    return NotFound("Entities not found.");
+                    return NotFound(new ErrorMessage(404, "Entities not found."));
                 }
 
                 return Ok(response);
@@ -228,7 +228,9 @@ namespace GlobalAPINFe.Controllers
             catch (Exception ex)
             {
                 logger.LogError(ex, "Error occurred while retrieving paged entities.");
-                return StatusCode(500, "An error occurred while retrieving entities. Please try again later.");
+                return StatusCode(500, new ErrorMessage(500,
+                    "An error occurred while retrieving entities. Please try again later."
+                    ));
             }
         }
     }
