@@ -34,6 +34,10 @@ namespace GlobalAPI_ACBrNFe.Controllers
             {
                 return BadRequest(new ErrorMessage(500, "Is missing body"));
             }
+            if (impNFeTemp.amarracoes == null)
+            {
+                return BadRequest(new ErrorMessage(500, "Is missing NFe"));
+            }
 
             throw new NotImplementedException();
         }
