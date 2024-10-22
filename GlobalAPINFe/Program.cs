@@ -76,12 +76,12 @@ builder.Services.AddDbContextFactory<GlobalErpFiscalBaseContext>(options =>
     options.UseNpgsql(IniFile.GetConnectionString()));
 
 
-builder.Services
-    .AddGraphQLServer()
-    .AddQueryType<Query>()
-    .AddProjections()
-    .AddFiltering()
-    .AddSorting();
+//builder.Services
+//    .AddGraphQLServer()
+//    .AddQueryType<Query>()
+//    .AddProjections()
+//    .AddFiltering()
+//    .AddSorting();
 
 builder.Services.AddScoped<IRepositoryDto<Empresa, int, EmpresaDto>, EmpresaRepositoryDto>();
 builder.Services.AddScoped<IRepositoryDto<Cidade, string, CidadeDto>, CidadeRepositoryDto>();
@@ -134,6 +134,7 @@ builder.Services.AddControllers()/*
             options.JsonSerializerOptions.MaxDepth = 64; 
         }); */;
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -163,10 +164,7 @@ app.UseAuthorization();
 app.UseStaticFiles();
 
 // Mapear controladores e endpoints GraphQL dentro do middleware de endpoints
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-    endpoints.MapGraphQL("/graphql");
-});
+app.MapControllers();
+//app.MapGraphQL("/graphql");
 
 app.Run();

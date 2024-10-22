@@ -1,42 +1,74 @@
 ﻿using GlobalLib.Files;
+using IniParser;
+using IniParser.Model;
 using System;
+using System.IO;
 using System.Runtime.InteropServices;
-using System.Text;
 
 public class IniFile
 {
     private string filePath;
-
-    [DllImport("kernel32", CharSet = CharSet.Unicode)]
-    private static extern long WritePrivateProfileString(string section, string key, string value, string filePath);
-
-    [DllImport("kernel32", CharSet = CharSet.Unicode)]
-    private static extern int GetPrivateProfileString(string section, string key, string defaultValue, StringBuilder value, int size, string filePath);
+    private IniData data;
+    private FileIniDataParser parser;
 
     public IniFile(string filePath)
     {
         this.filePath = filePath;
+        parser = new FileIniDataParser();
+        if (File.Exists(filePath))
+        {
+            data = parser.ReadFile(filePath);
+        }
+        else
+        {
+            throw new FileNotFoundException($"INI file not found: {filePath}");
+        }
     }
 
     public void Write(string section, string key, string value)
     {
-        WritePrivateProfileString(section, key, value, this.filePath);
+        if (data[section] == null)
+        {
+            data.Sections.AddSection(section);
+        }
+
+        data[section][key] = value;
+        parser.WriteFile(filePath, data);
     }
 
     public string Read(string section, string key, string defaultValue = "")
     {
-        StringBuilder value = new StringBuilder(1024);
-        GetPrivateProfileString(section, key, defaultValue, value, value.Capacity, this.filePath);
-        return value.ToString();
+        if (data[section] != null && data[section][key] != null)
+        {
+            return data[section][key];
+        }
+
+        return defaultValue;
     }
+
     public static string GetConnectionString()
     {
-        IniFile iniFile = new IniFile($@"{DiretoriosPadroes.DIRETORIO_PADRAO}\GlobalPostGre.ini");
+        // Verifica se está rodando em Linux ou Windows
+        string iniFilePath;
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            // Se estiver em Linux, usa o caminho do Linux
+            iniFilePath = @"/var/www/Api/GlobalPostGre.ini";
+        }
+        else
+        {
+            // Se estiver em Windows, usa o caminho do Windows
+            iniFilePath = $@"{DiretoriosPadroes.DIRETORIO_PADRAO}\GlobalPostGre.ini";
+        }
+
+        IniFile iniFile = new IniFile(iniFilePath);
+
         string hostname = iniFile.Read("Banco de Dados", "hostname");
         string database = iniFile.Read("Banco de Dados", "database");
         string port = iniFile.Read("Banco de Dados", "port");
         string user = iniFile.Read("Banco de Dados", "user");
         string password = iniFile.Read("Banco de Dados", "password");
+
         if (string.IsNullOrEmpty(hostname))
         {
             throw new Exception("Servidor não configurado.");
@@ -57,7 +89,7 @@ public class IniFile
         {
             throw new Exception("Senha não configurada.");
         }
-        //Obs.: Instalado banco na porta 5435 na versao 16.3, versao 9.2 não funciona no entity pois campos seriais não são suportados
+
         return $"Host={hostname};Port={port};Database={database};Username={user};Password={password}";
     }
 }
