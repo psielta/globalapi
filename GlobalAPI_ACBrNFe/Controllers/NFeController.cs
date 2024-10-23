@@ -14,29 +14,72 @@ namespace GlobalAPI_ACBrNFe.Controllers
     [Route("[controller]")]
     public class NFeController : ControllerBase
     {
+
+        private readonly ILogger<NFeController> _logger;
+
+        public NFeController(ILogger<NFeController> logger)
+        {
+            _logger = logger;
+        }
+
         [HttpPost]
         [Route("GerarPDF")]
         public async Task<IActionResult> GerarPdf([FromServices] ACBrNFe nfe, IFormFile xmlNFe)
         {
-            if (!xmlNFe.FileName.EndsWith(".xml")) return BadRequest();
+            _logger.LogInformation("Iniciando a geração do PDF.");
 
-            using var stream = new StreamReader(xmlNFe.OpenReadStream());
-            nfe.CarregarXML(await stream.ReadToEndAsync());
+            try
+            {
+                if (!xmlNFe.FileName.EndsWith(".xml"))
+                {
+                    _logger.LogWarning("Arquivo enviado não é XML.");
+                    return BadRequest();
+                }
 
-            var codigo = Guid.NewGuid();
-            var path = System.IO.Path.GetTempPath();
-            var nomeArquivo = $@"{codigo}.pdf";
-            nfe.Config.DANFe.MostraSetup = false;
-            nfe.Config.DANFe.MostraPreview = false;
-            nfe.Config.DANFe.MostraStatus = false;
-            nfe.Config.DANFe.PathPDF = path;
-            nfe.Config.DANFe.NomeDocumento = nomeArquivo;
+                _logger.LogInformation("Lendo o conteúdo do XML.");
+                using var stream = new StreamReader(xmlNFe.OpenReadStream());
+                var conteudoXML = await stream.ReadToEndAsync();
+                nfe.CarregarXML(conteudoXML);
 
-            nfe.ImprimirPDF();
+                var codigo = Guid.NewGuid();
 
-            var fs = new FileStream(System.IO.Path.Combine(path, nomeArquivo), FileMode.Open);
-            return File(fs, "application/pdf", nomeArquivo);
+                // Verifica se o sistema operacional é Linux
+                string path;
+                if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux))
+                {
+                    _logger.LogInformation("Sistema operacional Linux detectado. Usando /var/www/ApiNFe/tmp.");
+                    path = "/var/www/ApiNFe/tmp";
+                }
+                else
+                {
+                    _logger.LogInformation("Sistema operacional não é Linux. Usando diretório temporário padrão.");
+                    path = System.IO.Path.GetTempPath();
+                }
+
+                _logger.LogInformation($"Caminho para salvar o PDF: {path}");
+                var nomeArquivo = $"{codigo}.pdf";
+                nfe.Config.DANFe.MostraSetup = false;
+                nfe.Config.DANFe.MostraPreview = false;
+                nfe.Config.DANFe.MostraStatus = false;
+                nfe.Config.DANFe.PathPDF = path;
+                nfe.Config.DANFe.NomeDocumento = nomeArquivo;
+
+                _logger.LogInformation("Imprimindo o PDF com ACBrLib.");
+                nfe.ImprimirPDF();
+
+                _logger.LogInformation($"Arquivo PDF gerado: {nomeArquivo}");
+                var filePath = System.IO.Path.Combine(path, nomeArquivo);
+                var fs = new FileStream(filePath, FileMode.Open);
+                return File(fs, "application/pdf", nomeArquivo);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao gerar o PDF para NFe.");
+                return StatusCode(500, "Ocorreu um erro ao gerar o PDF.");
+            }
         }
+
+
 
         [HttpPost]
         [Route("EnviarNFe")]
