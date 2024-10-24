@@ -82,10 +82,10 @@ namespace GlobalAPI_ACBrNFe.Controllers
                             return NotFound("Encontrado cabeçalho, porém grupo itens não foi encontrado (tbl public.impitensnfe).");
                         }
                         impNFeTemp.impdupnfe = await db.Impdupnves.Where(imptotalnfe => imptotalnfe.ChNfe == novaImpcabnfe.ChNfe).ToListAsync();
-                        if (impNFeTemp.impdupnfe == null)
-                        {
-                            return NotFound("Encontrado cabeçalho, porém grupo duplicatas não foi encontrado (tbl public.impdupnfe).");
-                        }
+                        //if (impNFeTemp.impdupnfe == null)
+                        //{
+                        //    return NotFound("Encontrado cabeçalho, porém grupo duplicatas não foi encontrado (tbl public.impdupnfe).");
+                        //}
                         if (impNFeTemp.impdupnfe.Count == 0)
                         {
                             return NotFound("Encontrado cabeçalho, porém grupo duplicatas não foi encontrado (tbl public.impdupnfe).");
