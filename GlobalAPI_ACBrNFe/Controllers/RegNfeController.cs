@@ -393,7 +393,33 @@ namespace GlobalAPI_ACBrNFe.Controllers
 
                     db.ProdutoEntrada.Add(ppp);
                     await db.SaveChangesAsync();
+                    await GravarAmarracao(idEmpresa, ppp, item, amarracao, entrada);
                 }
+            }
+        }
+
+        private async Task GravarAmarracao(int idEmpresa, ProdutoEntradum ppp, Impitensnfe item, Amarracao amarracao, Entrada entrada)
+        {
+            string vsql = $@" 
+                        SELECT 
+                            *
+                        FROM 
+                            produtos_forn 
+                        WHERE 
+                            cd_produto = {ppp.CdProduto} 
+                            AND id_empresa = {idEmpresa} 
+                            AND cd_forn = {entrada.CdForn} 
+                            AND id_produto_externo = '{item.CProd}'";
+            ProdutosForn? produtosForn = await db.ProdutosForns.FromSqlRaw(vsql).FirstOrDefaultAsync();
+            if(produtosForn == null)
+            {
+                produtosForn = new ProdutosForn();
+                produtosForn.CdProduto = ppp.CdProduto;
+                produtosForn.IdEmpresa = idEmpresa;
+                produtosForn.CdForn = entrada.CdForn;
+                produtosForn.IdProdutoExterno = item.CProd;
+                db.ProdutosForns.Add(produtosForn);
+                await db.SaveChangesAsync();
             }
         }
 
