@@ -131,21 +131,125 @@ namespace GlobalAPI_ACBrNFe.Controllers
                       cd_produto = {amarracao.CdProduto} AND
                       nr_item = {item.NrItem}";
 
-                ProdutoEntradum? pte = await db.ProdutoEntrada.FromSqlRaw(SQLitem).FirstOrDefaultAsync();
-                if (pte == null)
+                ProdutoEntradum? ppp = await db.ProdutoEntrada.FromSqlRaw(SQLitem).FirstOrDefaultAsync();
+                if (ppp == null)
                 {
-                    pte = new ProdutoEntradum();
-                    pte.CdEmpresa = idEmpresa;
-                    pte.NrEntrada = entrada.Nr;
-                    pte.CdProduto = Convert.ToInt32(amarracao.CdProduto);
-                    pte.CdPlano = cdPlanoEstoque;
-                    pte.CdClassFiscal = item.Ncm;
-                    pte.Lote = item.Lote ?? "-1";
-                    pte.DtValidade = (item.DtValid != null) ? (DateUtils.DateTimeToDateOnly(item.DtValid ?? DateTime.Now)) : (
+                    ppp = new ProdutoEntradum();
+                    ppp.CdEmpresa = idEmpresa;
+                    ppp.NrEntrada = entrada.Nr;
+                    ppp.NrItem = Convert.ToInt16(item.NrItem);
+                    ppp.CdBarra = (string.IsNullOrEmpty(amarracao.CdBarra) ? "SEM GTIN" : amarracao.CdBarra);
+                    ppp.CdProduto = Convert.ToInt32(amarracao.CdProduto);
+                    ProdutoEstoque? produtoEstoque = await db.ProdutoEstoques.FromSqlRaw($"SELECT * from produto_estoque where cd_produto = {amarracao.CdProduto} and id_empresa = {idEmpresa}").FirstOrDefaultAsync();
+                    if (produtoEstoque == null)
+                    {
+                        throw new Exception($"Erro ao buscar produto ({amarracao.CdProduto})");
+                    }
+                    ppp.CdPlano = cdPlanoEstoque;
+                    ppp.CdClassFiscal = item.Ncm;
+                    ppp.Lote = item.Lote ?? "-1";
+                    ppp.DtValidade = (item.DtValid != null) ? (DateUtils.DateTimeToDateOnly(item.DtValid ?? DateTime.Now)) : (
                         new DateOnly(9999, 01, 01));
-                    pte.CdCfop = item.Cfop;
-
+                    ppp.Quant = Convert.ToDecimal(item.Qtrib);
+                    ppp.VlUnitario = Convert.ToDecimal(item.Vuntrib);
+                    await ImportarUnidadeMedida(item, amarracao, idEmpresa);
+                    ppp.Unidade = item.Utrib;
+                    await AtualizarDadosFiscais(item, ppp, amarracao, entrada, idEmpresa, produtoEstoque);
                 }
+            }
+        }
+
+        private async Task AtualizarDadosFiscais(Impitensnfe item, ProdutoEntradum ppp, Amarracao amarracao, Entrada entrada, int idEmpresa, ProdutoEstoque produtoEstoque)
+        {
+            CfopImportacao? cfopImportacao = await db.CfopImportacaos.FromSqlRaw(
+                $@"
+                SELECT 
+                  id,
+                  cd_cfop_s,
+                  cd_cfop_e,
+                  cfop_dentro,
+                  cfop_fora,
+                  csosn,
+                  id_empresa
+                FROM 
+                  public.cfop_importacao 
+                WHERE
+                  id = {idEmpresa}
+                AND cd_cfop_s = '{item.Cfop}'
+                 "
+                ).FirstOrDefaultAsync();
+            if (cfopImportacao != null)
+            {
+                
+                if (string.IsNullOrEmpty(cfopImportacao.CdCfopE) && cfopImportacao.CdCfopE.Length == 4)
+                {
+                    ppp.CdCfop = cfopImportacao.CdCfopE;
+                }
+                else
+                {
+                    string ret = string.Empty;
+                    string p = item.Cfop;
+                    if (p.Equals("6101") || p.Equals("6102"))
+                        ret = "2102";
+                    else if (p.Equals("5101") || p.Equals("5102"))
+                        ret = "1102";
+                    else if (p.Equals("5401") || p.Equals("5402") || p.Equals("5403") || p.Equals("5404") || p.Equals("5405"))
+                        ret = "1403";
+                    else if (p.Equals("6401") || p.Equals("6402") || p.Equals("6403") || p.Equals("6404") || p.Equals("6405"))
+                        ret = "2403";
+                    else if (p[0] == '6')
+                        ret = "2102";
+                    else if (p[0] == '5')
+                        ret = "1102";
+                    ppp.CdCfop = ret;
+                }
+                
+                if (!string.IsNullOrEmpty(cfopImportacao.CfopDentro) && cfopImportacao.CfopDentro.Length == 4)
+                {
+                    produtoEstoque.CfoDentro = cfopImportacao.CfopDentro;
+                }
+                if (!string.IsNullOrEmpty(cfopImportacao.CfopFora) && cfopImportacao.CfopFora.Length == 4)
+                {
+                    produtoEstoque.CfoFora = cfopImportacao.CfopFora;
+                }
+                if(!string.IsNullOrEmpty(cfopImportacao.Csosn) && cfopImportacao.Csosn.Length >= 3)
+                {
+                    produtoEstoque.CdCsosn = cfopImportacao.Csosn;
+                }
+            }
+            produtoEstoque.CdClassFiscal = item.Ncm;
+            if (!string.IsNullOrEmpty(item.Cest) && item.Cest.Length > 0)
+            {
+                produtoEstoque.Cest = item.Cest;
+            }
+            if (!(produtoEstoque.CdBarra.Length > 11 && item.Cean.Equals("SEM GTIN")))
+            {
+                produtoEstoque.CdBarra = item.Cean;
+            }
+            db.Update(produtoEstoque);
+            await db.SaveChangesAsync();
+        }
+
+        private async Task ImportarUnidadeMedida(Impitensnfe item, Amarracao amarracao, int idEmpresa)
+        {
+            string SQLunidade = $@"
+                SELECT 
+                  *
+                FROM 
+                  public.unidade_medida
+                WHERE 
+                  id_empresa = {idEmpresa} AND
+                  cd_unidade = '{item.Utrib}'";
+
+            UnidadeMedida? unidade = await db.UnidadeMedidas.FromSqlRaw(SQLunidade).FirstOrDefaultAsync();
+            if (unidade == null)
+            {
+                unidade = new UnidadeMedida();
+                unidade.IdEmpresa = idEmpresa;
+                unidade.CdUnidade = item.Utrib;
+                unidade.Descricao = item.Utrib;
+                db.UnidadeMedidas.Add(unidade);
+                await db.SaveChangesAsync();
             }
         }
 
@@ -173,6 +277,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     entrada.DtSaida = DateUtils.DateTimeToDateOnly(impNFeTemp.impcabnfe.DtSaida ?? DateTime.Now);
                 }
                 entrada.CdForn = idFornecedor;
+                entrada.CdCfop = await GetCfop(idEmpresa, impNFeTemp);
                 entrada.CdEmpresa = idEmpresa;
                 if (transportadora != null)
                 {
@@ -236,6 +341,30 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 await db.SaveChangesAsync();
             }
             return entrada;
+        }
+
+        private async Task<string?> GetCfop(int idEmpresa, ImpNFeTemp impNFeTemp)
+        {
+            string cfop = impNFeTemp.impitensnves.First().Cfop;
+            if (string.IsNullOrEmpty(cfop))
+            {
+                return string.Empty;
+            }
+            string SQLcfop = $@"
+                SELECT 
+                  *
+                FROM 
+                  public.cfop_importacao
+                WHERE 
+                  id = {idEmpresa} AND
+                  cd_cfop_s = '{cfop}'";
+
+            CfopImportacao? cfopImportacao = await db.CfopImportacaos.FromSqlRaw(SQLcfop).FirstOrDefaultAsync();
+            if (cfopImportacao == null)
+            {
+                return null;
+            }
+            return cfopImportacao.CdCfopE;
         }
 
         private async Task<Transportadora?> ImportarTransportadora(ImpNFeTemp impNFeTemp, int idEmpresa)
