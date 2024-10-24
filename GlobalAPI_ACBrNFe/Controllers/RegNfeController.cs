@@ -23,11 +23,11 @@ namespace GlobalAPI_ACBrNFe.Controllers
             ENDPOINT_POST_FORNECECOR = Constants.URL_API_NFE + "/api/Fornecedor";
         }
 
-        [HttpPost("Registrar/{idEmpresa}/{chaveAcesso}/{cdPlanoEstoque}", Name = nameof(Registrar))]
+        [HttpPost("Registrar/{idEmpresa}/{chaveAcesso}/{cdPlanoEstoque}/{cdHistorico}", Name = nameof(Registrar))]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
-        public async Task<ActionResult<Entrada>> Registrar([FromBody] ImpNFeTemp impNFeTemp, int idEmpresa, int cdPlanoEstoque, string chaveAcesso)
+        public async Task<ActionResult<Entrada>> Registrar([FromBody] ImpNFeTemp impNFeTemp, int idEmpresa, int cdPlanoEstoque, int cdHistorico, string chaveAcesso)
         {
             #region Validações
             if (idEmpresa == 0 || string.IsNullOrEmpty(chaveAcesso) || chaveAcesso.Length < 44)
@@ -78,9 +78,10 @@ namespace GlobalAPI_ACBrNFe.Controllers
             }
             #endregion
             #region Entrada
+            Entrada? entrada;
             try
             {
-                Entrada? entrada = await ImportarEntrada(IdFornecedor, transportadora, impNFeTemp, idEmpresa, cdPlanoEstoque);
+                entrada = await ImportarEntrada(IdFornecedor, transportadora, impNFeTemp, idEmpresa, cdPlanoEstoque);
                 if (entrada == null)
                 {
                     logger.LogError($"Erro ao importar entrada ({chaveAcesso}).");
@@ -93,8 +94,59 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 return BadRequest(new ErrorMessage(500, "Error importing Entrada"));
             }
             #endregion
+            #region Itens
+            try
+            {
+                await ImportarItens(impNFeTemp, entrada, idEmpresa, cdPlanoEstoque);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Erro ao importar itens ({chaveAcesso}).");
+                return BadRequest(new ErrorMessage(500, "Error importing items"));
+            }
+            #endregion
+            #region Duplicata
+            #endregion
 
             throw new NotImplementedException();
+        }
+
+        private async Task ImportarItens(ImpNFeTemp impNFeTemp, Entrada entrada, int idEmpresa, int cdPlanoEstoque)
+        {
+            foreach (var item in impNFeTemp.impitensnves)
+            {
+                Amarracao? amarracao = impNFeTemp.amarracoes.FirstOrDefault(x => x.NrItem == item.NrItem);
+                if (amarracao == null)
+                {
+                    throw new Exception($"Erro ao buscar amarração ({item.NrItem})");
+                }
+                string SQLitem = $@"
+                    SELECT 
+                      *
+                    FROM 
+                      public.produto_entrada
+                    WHERE 
+                      cd_empresa = {idEmpresa} AND
+                      nr_entrada = '{entrada.Nr}' AND
+                      cd_produto = {amarracao.CdProduto} AND
+                      nr_item = {item.NrItem}";
+
+                ProdutoEntradum? pte = await db.ProdutoEntrada.FromSqlRaw(SQLitem).FirstOrDefaultAsync();
+                if (pte == null)
+                {
+                    pte = new ProdutoEntradum();
+                    pte.CdEmpresa = idEmpresa;
+                    pte.NrEntrada = entrada.Nr;
+                    pte.CdProduto = Convert.ToInt32(amarracao.CdProduto);
+                    pte.CdPlano = cdPlanoEstoque;
+                    pte.CdClassFiscal = item.Ncm;
+                    pte.Lote = item.Lote ?? "-1";
+                    pte.DtValidade = (item.DtValid != null) ? (DateUtils.DateTimeToDateOnly(item.DtValid ?? DateTime.Now)) : (
+                        new DateOnly(9999, 01, 01));
+                    pte.CdCfop = item.Cfop;
+
+                }
+            }
         }
 
         private async Task<Entrada?> ImportarEntrada(int idFornecedor, Transportadora? transportadora, ImpNFeTemp impNFeTemp, int idEmpresa, int cdPlanoEstoque)
