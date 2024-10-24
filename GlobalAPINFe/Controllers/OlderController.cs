@@ -130,7 +130,7 @@ namespace GlobalAPINFe.Controllers
                 sqlQuery = string.Format(sqlQuery, filterCustomerName);
                 if (integrated == 0)
                 {
-                    sqlQuery += " AND o.integrated = false";
+                    sqlQuery += " AND (o.integrated = false OR o.integrated is null) ";
                 }
                 else if (integrated == 1)
                 {
