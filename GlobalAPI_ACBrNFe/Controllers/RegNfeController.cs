@@ -113,6 +113,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
 
         private async Task ImportarItens(ImpNFeTemp impNFeTemp, Entrada entrada, int idEmpresa, int cdPlanoEstoque)
         {
+            int cont = impNFeTemp.impitensnves.Count;
             foreach (var item in impNFeTemp.impitensnves)
             {
                 Amarracao? amarracao = impNFeTemp.amarracoes.FirstOrDefault(x => x.NrItem == item.NrItem);
@@ -155,6 +156,243 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     await ImportarUnidadeMedida(item, amarracao, idEmpresa);
                     ppp.Unidade = item.Utrib;
                     await AtualizarDadosFiscais(item, ppp, amarracao, entrada, idEmpresa, produtoEstoque);
+                    if ((!string.IsNullOrEmpty(item.Csosn)) && item.Csosn.Length > 0)
+                    {
+                        if (item.Csosn.Length >= 3)
+                        {
+                            ppp.Cst = item.ImpOrigem + item.Csosn;
+                        }
+                        else
+                        {
+                            ppp.Cst = item.ImpOrigem + item.Cst;
+                        }
+                    }
+                    else
+                    {
+                        ppp.Cst = item.ImpOrigem + item.Cst;
+                    }
+
+                    ppp.BIcms = Convert.ToDecimal(item.Vbc);
+                    ppp.PorcIcms = Convert.ToDecimal(item.Picms);
+                    ppp.VlIcms = Convert.ToDecimal(item.Vicms);
+                    ppp.VlIcmsSt = Convert.ToDecimal(item.Vicmsst);
+                    ppp.CstConfins = item.ImpOrigem + item.CofCst;
+                    ppp.CstPis = item.ImpOrigem + item.PisCst;
+                    ppp.FreteProduto = Convert.ToDecimal(item.FreteProduto);
+
+                    if (!string.IsNullOrEmpty(item.Ipivbc) && item.Ipivbc.Length > 0)
+                    {
+                        ppp.BaseIpi = Convert.ToDecimal(item.Ipivbc);
+                    }
+                    else
+                    {
+                        ppp.BaseIpi = 0;
+                    }
+                    if (!string.IsNullOrEmpty(item.Ipipipi) && item.Ipipipi.Length > 0)
+                    {
+                        ppp.PorcIpi = Convert.ToDecimal(item.Ipipipi);
+                    }
+                    else
+                    {
+                        ppp.PorcIpi = 0;
+                    }
+                    if (cont == 1)
+                    {
+                        if (!string.IsNullOrEmpty(item.Ipivipi) && item.Ipivipi.Length > 0)
+                        {
+                            ppp.VlIpi = Convert.ToDecimal(item.Ipivipi);
+                        }
+                        else
+                        {
+                            if (!string.IsNullOrEmpty(impNFeTemp.imptotalnfe.IcmsVipi) && impNFeTemp.imptotalnfe.IcmsVipi.Length > 0)
+                            {
+                                ppp.VlIpi = Convert.ToDecimal(impNFeTemp.imptotalnfe.IcmsVipi);
+                            }
+                            else
+                            {
+                                ppp.VlIpi = 0;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrEmpty(item.Ipivipi) && item.Ipivipi.Length > 0)
+                        {
+                            ppp.VlIpi = Convert.ToDecimal(item.Ipivipi);
+                        }
+                        else
+                        {
+                            ppp.VlIpi = 0;
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(item.Vldesc) && item.Vldesc.Length > 0)
+                    {
+                        ppp.VlOutras = Convert.ToDecimal(item.Vldesc);
+                    }
+                    else
+                    {
+                        ppp.VlOutras = 0;
+                    }
+                    if (!string.IsNullOrEmpty(item.Pisvpis) && item.Pisvpis.Length > 0)
+                    {
+                        ppp.VlPis = Convert.ToDecimal(item.Pisvpis);
+                    }
+                    else
+                    {
+                        ppp.VlPis = 0;
+                    }
+                    if (string.IsNullOrEmpty(item.CofVcofins) && item.CofVcofins.Length > 0)
+                    {
+                        ppp.VlConfins = Convert.ToDecimal(item.CofVcofins);
+                    }
+                    else
+                    {
+                        ppp.VlConfins = 0;
+                    }
+                    if (!string.IsNullOrEmpty(item.Vbcst) && item.Vbcst.Length > 0)
+                    {
+                        ppp.VlBaseSt = Convert.ToDecimal(item.Vbcst);
+                    }
+                    else
+                    {
+                        ppp.VlBaseSt = 0;
+                    }
+                    if (!string.IsNullOrEmpty(item.Pisvbc) && item.Pisvbc.Length > 0)
+                    {
+                        ppp.VlBasePis = Convert.ToDecimal(item.Pisvbc);
+                    }
+                    else
+                    {
+                        ppp.VlBasePis = 0;
+                    }
+                    if (!string.IsNullOrEmpty(item.CofVbc) && item.CofVbc.Length > 0)
+                    {
+                        ppp.VlBaseConfins = Convert.ToDecimal(item.CofVbc);
+                    }
+                    else
+                    {
+                        ppp.VlBaseConfins = 0;
+                    }
+                    if (!string.IsNullOrEmpty(item.Picmsst) && item.Picmsst.Length > 0)
+                    {
+                        ppp.PorcSt = Convert.ToDecimal(item.Picmsst);
+                    }
+                    else
+                    {
+                        ppp.PorcSt = 0;
+                    }
+                    if (string.IsNullOrEmpty(item.Pisppis) && item.Pisppis.Length > 0)
+                    {
+                        ppp.PorcPis = Convert.ToDecimal(item.Pisppis);
+                    }
+                    else
+                    {
+                        ppp.PorcPis = 0;
+                    }
+                    if (string.IsNullOrEmpty(item.CofPcofins) && item.CofPcofins.Length > 0)
+                    {
+                        ppp.PorcConfins = Convert.ToDecimal(item.CofPcofins);
+                    }
+                    else
+                    {
+                        ppp.PorcConfins = 0;
+                    }
+                    if (string.IsNullOrEmpty(item.CofstPcofins) && item.CofstPcofins.Length > 0)
+                    {
+                        ppp.PorcCofinsSt = Convert.ToDecimal(item.CofstPcofins);
+                    }
+                    else
+                    {
+                        ppp.PorcCofinsSt = 0;
+                    }
+                    if (string.IsNullOrEmpty(item.CofstVbc) && item.CofstVbc.Length > 0)
+                    {
+                        ppp.VlBaseCofinsSt = Convert.ToDecimal(item.CofstVbc);
+                    }
+                    else
+                    {
+                        ppp.VlBaseCofinsSt = 0;
+                    }
+                    if (!string.IsNullOrEmpty(item.CofstVcofins) && item.CofstVcofins.Length > 0)
+                    {
+                        ppp.VlCofinsSt = Convert.ToDecimal(item.CofstVcofins);
+                    }
+                    else
+                    {
+                        ppp.VlCofinsSt = 0;
+                    }
+                    if (!string.IsNullOrEmpty(item.Pisstppis) && item.Pisstppis.Length > 0)
+                    {
+                        ppp.PorcPisSt = Convert.ToDecimal(item.Pisstppis);
+                    }
+                    else
+                    {
+                        ppp.PorcPisSt = 0;
+                    }
+                    if (!string.IsNullOrEmpty(item.Pisstvbc) && item.Pisstvbc.Length > 0)
+                    {
+                        ppp.VlBasePisSt = Convert.ToDecimal(item.Pisstvbc);
+                    }
+                    else
+                    {
+                        ppp.VlBasePisSt = 0;
+                    }
+
+                    if (!string.IsNullOrEmpty(item.Pisstvpis) && item.Pisstvpis.Length > 0)
+                    {
+                        ppp.VlPisSt = Convert.ToDecimal(item.Pisstvpis);
+                    }
+                    else
+                    {
+                        ppp.VlPisSt = 0;
+                    }
+                    if (!string.IsNullOrEmpty(item.Vicmsdeson) && item.Vicmsdeson.Length > 0)
+                    {
+                        ppp.VIcmsDeson = Convert.ToDecimal(item.Vicmsdeson);
+                    }
+                    else
+                    {
+                        ppp.VIcmsDeson = 0;
+                    }
+                    ppp.VlDespAcess = Convert.ToDecimal(item.VlOutros);
+                    ppp.FcpBase = Convert.ToDecimal(item.FcpBase);
+                    ppp.FcpPorc = Convert.ToDecimal(item.FcpPorc);
+                    ppp.FcpValor = Convert.ToDecimal(item.FcpValor);
+                    ppp.ImpBaseIcmsStRet = Convert.ToDecimal(item.Vbcstret);
+                    ppp.ImpBaseIcmsStRet = Convert.ToDecimal(item.Vicmsstret);
+                    ppp.ImpPst = Convert.ToDecimal(item.Pst);
+                    ppp.QtTotal = Math.Round(Convert.ToDecimal(item.Qtrib) * (amarracao.FatorConversao ?? 1), 4);
+
+                    if (!string.IsNullOrEmpty(item.VeicChassi) && item.VeicChassi.Length > 0)
+                    {
+                        ppp.TpOperacaoVeic = Convert.ToInt32(item.VeicTpop);
+                        ppp.ChasiVeic = item.VeicChassi;
+                        ppp.CorVeic = item.VeicCcordenatran;
+                        ppp.DescCorVeic = item.VeicXcor;
+                        ppp.PotenciaMotorVeic = item.VeicPot;
+                        ppp.CilindradasVeic = item.VeicCilin;
+                        ppp.PesoLiquidoVeic = Convert.ToDecimal(item.VeicPesol);
+                        ppp.PesoBrutoVeic = Convert.ToDecimal(item.VeicPesob);
+                        ppp.SerialVeic = item.VeicNserie;
+                        ppp.TpCombustVeic = item.VeicTpcomb;
+                        ppp.NrMotorVeic = item.VeicNmotor;
+                        ppp.CapcMaxTracVeic = Convert.ToDecimal(item.VeicCmt);
+                        ppp.DistEixosVeic = item.VeicDist;
+                        ppp.AnoVeic = item.VeicAnomod;
+                        ppp.AnoFabVeic = item.VeicAnofab;
+                        ppp.TpPinturaVeic = item.VeicTppint;
+                        ppp.TpVeic = item.VeicTpveic;
+                        ppp.EspecVeic = item.VeicEspveic;
+                        ppp.IdVinVeic = item.VeicVin;
+                        ppp.CondVeic = item.VeicCondveic;
+                        ppp.IdMarcaVeic = item.VeicCmod;
+                        ppp.IdCorVeic = item.VeciCcor;
+                        ppp.CapcMaxLotVeic = item.VeicLota;
+                        ppp.RestricaoVeic = item.VeicTprest;
+                    }
+
+                    db.ProdutoEntrada.Add(ppp);
+                    await db.SaveChangesAsync();
                 }
             }
         }
@@ -180,7 +418,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 ).FirstOrDefaultAsync();
             if (cfopImportacao != null)
             {
-                
+
                 if (string.IsNullOrEmpty(cfopImportacao.CdCfopE) && cfopImportacao.CdCfopE.Length == 4)
                 {
                     ppp.CdCfop = cfopImportacao.CdCfopE;
@@ -203,7 +441,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                         ret = "1102";
                     ppp.CdCfop = ret;
                 }
-                
+
                 if (!string.IsNullOrEmpty(cfopImportacao.CfopDentro) && cfopImportacao.CfopDentro.Length == 4)
                 {
                     produtoEstoque.CfoDentro = cfopImportacao.CfopDentro;
@@ -212,7 +450,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 {
                     produtoEstoque.CfoFora = cfopImportacao.CfopFora;
                 }
-                if(!string.IsNullOrEmpty(cfopImportacao.Csosn) && cfopImportacao.Csosn.Length >= 3)
+                if (!string.IsNullOrEmpty(cfopImportacao.Csosn) && cfopImportacao.Csosn.Length >= 3)
                 {
                     produtoEstoque.CdCsosn = cfopImportacao.Csosn;
                 }
