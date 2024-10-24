@@ -95,7 +95,8 @@ namespace GlobalAPINFe.Controllers
             [FromQuery] string? customerName = null,
             [FromQuery] StatusOlder? status = null,
             [FromQuery] int pageNumber = 1,
-            [FromQuery] int pageSize = 10)
+            [FromQuery] int pageSize = 10,
+            [FromQuery] int integrated = -1)
         {
             try
             {
@@ -127,6 +128,14 @@ namespace GlobalAPINFe.Controllers
                 }
 
                 sqlQuery = string.Format(sqlQuery, filterCustomerName);
+                if (integrated == 0)
+                {
+                    sqlQuery += " AND o.integrated = false";
+                }
+                else if (integrated == 1)
+                {
+                    sqlQuery += " AND o.integrated = true";
+                }
 
                 var query = _context.Olders.FromSqlRaw(sqlQuery, parametros.ToArray())
                     .Where(p => p.IdEmpresa == idEmpresa);
@@ -479,5 +488,47 @@ namespace GlobalAPINFe.Controllers
             }
         }
 
+        [HttpPut("SetIntegrated/{idEmpresa}/{olderId}/{status}", Name = nameof(SetIntegrated))]
+        [ProducesResponseType(typeof(DefaultResponsePut), 200)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> SetIntegrated(
+            int idEmpresa,
+            Guid olderId,
+            int status)
+        {
+            try
+            {
+                //var older = await repo.RetrieveAsync(olderId);
+                await using var _context = dbContextFactory.CreateDbContext();
+                var older = await _context.Olders.FirstOrDefaultAsync(o => o.Id == olderId);
+
+                if (older == null)
+                {
+                    return NotFound("Pedido não encontrado.");
+                }
+
+                if (status == 0)
+                {
+                    older.Integrated = false;
+                }
+                else
+                {
+                    older.Integrated = true;
+                }
+
+                await _context.SaveChangesAsync();
+
+                return Ok(new DefaultResponsePut
+                {
+                    Success = true,
+                    Message = "Status de integração atualizado com sucesso."
+                });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Ocorreu um erro ao atualizar o status de integração do pedido.");
+                return StatusCode(500, "Ocorreu um erro ao atualizar o status de integração do pedido. Por favor, tente novamente mais tarde.");
+            }
+        }
     }
 }

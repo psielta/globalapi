@@ -2,24 +2,12 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
-using GlobalLib.Database;
 using Microsoft.EntityFrameworkCore;
 
-namespace GlobalErpData.Models;
-
-public enum StatusOlder
-{
-    Pendente = 0,
-    Cancelado = 1,
-    Aprovado = 2,
-    EmPreparo = 3,
-    EmEntrega = 4,
-    Entregue = 5
-}
+namespace GlobalErpData.MMModels;
 
 [Table("older")]
-public partial class Older : IIdentifiable<Guid>
+public partial class Older
 {
     [Key]
     [Column("id")]
@@ -37,10 +25,6 @@ public partial class Older : IIdentifiable<Guid>
     [Column("customer_name")]
     [StringLength(255)]
     public string CustomerName { get; set; } = null!;
-
-    [Column("customer_address")]
-    [StringLength(255)]
-    public string CustomerAddress { get; set; } = null!;
 
     [Column("customer_phone")]
     [StringLength(20)]
@@ -74,7 +58,7 @@ public partial class Older : IIdentifiable<Guid>
     public string? Items { get; set; }
 
     [Column("status")]
-    public StatusOlder Status { get; set; }
+    public int Status { get; set; }
 
     [Column("customer_city")]
     [StringLength(7)]
@@ -100,25 +84,17 @@ public partial class Older : IIdentifiable<Guid>
     [StringLength(255)]
     public string? CustomerReference { get; set; }
 
+    [Column("customer_address")]
+    [StringLength(255)]
+    public string CustomerAddress { get; set; } = null!;
+
     [Column("integrated")]
     public bool? Integrated { get; set; }
 
-    [JsonIgnore]
     [ForeignKey("IdEmpresa")]
     [InverseProperty("Olders")]
     public virtual Empresa IdEmpresaNavigation { get; set; } = null!;
 
-    [JsonIgnore]
     [InverseProperty("Older")]
     public virtual ICollection<OlderItem> OlderItems { get; set; } = new List<OlderItem>();
-
-    public Guid GetId()
-    {
-        return this.Id;
-    }
-
-    public string GetKeyName()
-    {
-        return "Id";
-    }
 }
