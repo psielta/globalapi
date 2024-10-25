@@ -101,6 +101,8 @@ namespace GlobalAPI_ACBrNFe.Controllers
                         return Ok(impNFeTemp);
                     }
 
+                    await InserirXmlDb(idEmpresa, GetChaveNFe(nfe.NFe), xmlContent);
+
                     novaImpcabnfe.Tipo = "E";
                     novaImpcabnfe.NrAutorizacao = nfe.protNFe.infProt.nProt;
                     novaImpcabnfe.Caminho = string.Empty;
@@ -832,6 +834,39 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     return StatusCode(500, new ErrorMessage(500, ex.Message));
 
                 }
+            }
+        }
+
+        private async Task InserirXmlDb(int idEmpresa, string v, string xmlContent)
+        {
+            string SQL = $@"SELECT 
+                              id_empresa,
+                              chave_acesso,
+                              type,
+                              xml
+                            FROM 
+                              public.impxml
+                            WHERE
+                              id_empresa = {idEmpresa}
+                              AND chave_acesso = '{v}'
+                              AND type = 0
+                              ";
+            var impXml = await db.Impxmls.FromSqlRaw(SQL).FirstOrDefaultAsync();
+            if (impXml == null)
+            {
+                Impxml novoImpXml = new Impxml();
+                novoImpXml.IdEmpresa = idEmpresa;
+                novoImpXml.ChaveAcesso = v;
+                novoImpXml.Type = 0;
+                novoImpXml.Xml = xmlContent;
+                await db.Impxmls.AddAsync(novoImpXml);
+                await db.SaveChangesAsync();
+            }
+            else
+            {
+                impXml.Xml = xmlContent;
+                db.Impxmls.Update(impXml);
+                await db.SaveChangesAsync();
             }
         }
 

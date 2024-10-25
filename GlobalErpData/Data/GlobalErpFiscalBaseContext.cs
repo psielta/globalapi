@@ -15,6 +15,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         : base(options)
     {
     }
+    public virtual DbSet<Impxml> Impxmls { get; set; }
     public virtual DbSet<FormaPagt> FormaPagts { get; set; }
     public virtual DbSet<ContasAPagar> ContasAPagars { get; set; }
     public virtual DbSet<HistoricoCaixa> HistoricoCaixas { get; set; }
@@ -777,6 +778,17 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         modelBuilder.Entity<Imptotalnfe>(entity =>
         {
             entity.HasKey(e => e.ChNfe).HasName("pkimptotalnfe");
+        });
+
+        modelBuilder.Entity<Impxml>(entity =>
+        {
+            entity.HasKey(e => new { e.IdEmpresa, e.ChaveAcesso }).HasName("impxml_idx");
+
+            entity.Property(e => e.Type).HasDefaultValue(0);
+
+            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.Impxmls)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("impxml_fk");
         });
 
         modelBuilder.Entity<ItemDetail>(entity =>

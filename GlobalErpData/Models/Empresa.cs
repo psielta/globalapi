@@ -264,6 +264,10 @@ public partial class Empresa : IIdentifiable<int>
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<Older> Olders { get; set; } = new List<Older>();
 
+    [JsonIgnore]
+    [InverseProperty("IdEmpresaNavigation")]
+    public virtual ICollection<Impxml> Impxmls { get; set; } = new List<Impxml>();
+
     [GraphQLIgnore]
     public int GetId()
     {

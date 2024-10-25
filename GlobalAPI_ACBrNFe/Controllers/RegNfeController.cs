@@ -95,6 +95,17 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 return BadRequest(new ErrorMessage(500, "Error importing Entrada"));
             }
             #endregion
+            #region Importa XML
+            try
+            {
+                await ImportarXml(impNFeTemp, entrada, idEmpresa);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Erro ao importar XML ({chaveAcesso}).");
+                return BadRequest(new ErrorMessage(500, "Error importing XML"));
+            }
+            #endregion
             #region Itens
             try
             {
@@ -119,6 +130,30 @@ namespace GlobalAPI_ACBrNFe.Controllers
             #endregion
 
             return Ok(entrada);
+        }
+
+        private async Task ImportarXml(ImpNFeTemp2 impNFeTemp, Entrada entrada, int idEmpresa)
+        {
+            string SQL = $@"SELECT 
+                              id_empresa,
+                              chave_acesso,
+                              type,
+                              xml
+                            FROM 
+                              public.impxml
+                            WHERE
+                              id_empresa = {idEmpresa}
+                              AND chave_acesso = '{impNFeTemp.impcabnfe.ChNfe}'
+                              AND type = 0
+                              ";
+            Impxml? impxml = await db.Impxmls.FromSqlRaw(SQL).FirstOrDefaultAsync();
+            if (impxml == null)
+            {
+                throw new Exception($"Erro ao buscar XML ({impNFeTemp.impcabnfe.ChNfe})");
+            }
+            entrada.XmlNf = impxml.Xml;
+            db.Update(entrada);
+            await db.SaveChangesAsync();
         }
 
         private async Task ImportarDuplicatas(ImpNFeTemp2 impNFeTemp, Entrada entrada, int idEmpresa, int cdHistorico)
@@ -210,10 +245,12 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     ppp.Lote = item.Lote ?? "-1";
                     ppp.DtValidade = (item.DtValid != null) ? (DateUtils.DateTimeToDateOnly(item.DtValid ?? DateTime.Now)) : (
                         new DateOnly(9999, 01, 01));
-                    ppp.Quant = ConvertToDecimal(item.Qtrib);
-                    ppp.VlUnitario = ConvertToDecimal(item.Vuntrib);
+                    ppp.Quant = Math.Round(ConvertToDecimal(item.Qtrib) * (amarracao.FatorConversao ?? 1), 4);
+                    //ConvertToDecimal(item.Qtrib);
+                    ppp.VlUnitario = Math.Round(ConvertToDecimal(item.Vuntrib) / (amarracao.FatorConversao ?? 1), 4);
+                    // ConvertToDecimal(item.Vuntrib);
                     await ImportarUnidadeMedida(item, amarracao, idEmpresa);
-                    ppp.Unidade = item.Utrib;
+                    ppp.Unidade = produtoEstoque.CdUni;//item.Utrib;
                     await AtualizarDadosFiscais(item, ppp, amarracao, entrada, idEmpresa, produtoEstoque);
                     if ((!string.IsNullOrEmpty(item.Csosn)) && item.Csosn.Length > 0)
                     {
