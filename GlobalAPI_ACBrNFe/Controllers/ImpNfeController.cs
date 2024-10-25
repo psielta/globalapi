@@ -835,9 +835,24 @@ namespace GlobalAPI_ACBrNFe.Controllers
             }
         }
 
-        private async Task<bool> BuscarEntradaEmpresa(int idEmpresa, string v)
+        private async Task<bool> BuscarEntradaEmpresa(int idEmpresa, string chaveAcesso)
         {
-            throw new NotImplementedException();
+
+            string SQL = $@"
+                SELECT 
+                  *
+                FROM 
+                  public.entradas e
+                WHERE
+                  e.cd_chave_nfe = '{chaveAcesso}'
+                  AND e.cd_empresa = {idEmpresa}
+                ";
+            var entrada = await db.Entradas.FromSqlRaw(SQL).FirstOrDefaultAsync();
+            if (entrada != null)
+            {
+                return true;
+            }
+            return false;
         }
 
         private async Task GetAmarracoes(ImpNFeTemp impNFeTemp, int idEmpresa, nfeProc nfe)
@@ -1294,7 +1309,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                                 }
                                 else
                                 {
-                                    return StatusCode(500, new ErrorMessage(500, "Erro ao cadastrar unidade de medida")
+                                    return StatusCode(500, new ErrorMessage(500, "Erro ao cadastrar unidade de medida"));
                                 }
                             }
                             else

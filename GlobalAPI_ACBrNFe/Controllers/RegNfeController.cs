@@ -660,6 +660,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 entrada.VlOutras = ConvertToDecimal(impNFeTemp.imptotalnfe.IcmsOutros ?? "0");
                 entrada.VlDescontoNf = ConvertToDecimal(impNFeTemp.imptotalnfe.IcmsDesc ?? "0");
                 entrada.VlStNf = ConvertToDecimal(impNFeTemp.imptotalnfe.IcmsSt ?? "0");
+                entrada.VlAcrescimoNf = 0;
                 entrada.CdGrupoEstoque = cdPlanoEstoque;
                 entrada.TpEntrada = "C";
                 entrada.TpPagt = (impNFeTemp.impcabnfe.TPag ?? "").Equals("01") ? "V" : "P";
