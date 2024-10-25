@@ -50,7 +50,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 var nfe = new nfeProc().CarregarDeXmlString(xmlContent);
                 if (nfe == null)
                 {
-                    return BadRequest();
+                    return BadRequest(new ErrorMessage(400, "Erro ao desserializar XML"));
                 }
 
                 try
@@ -58,6 +58,12 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     _chNFe = GetChaveNFe(nfe.NFe);
                     var novaImpcabnfe = new Impcabnfe();
                     novaImpcabnfe.ChNfe = GetChaveNFe(nfe.NFe);
+
+                    bool EntradaJaFoiFeita = await BuscarEntradaEmpresa(idEmpresa, GetChaveNFe(nfe.NFe));
+                    if (EntradaJaFoiFeita)
+                    {
+                        return BadRequest(new ErrorMessage(400, "Entrada já realizada"));
+                    }
                     var impcabnfe = await db.Impcabnves
                         .FirstOrDefaultAsync(i => i.ChNfe == novaImpcabnfe.ChNfe);
                     if (impcabnfe != null)
@@ -71,25 +77,23 @@ namespace GlobalAPI_ACBrNFe.Controllers
                         }
                         else
                         {
-                            return NotFound("Encontrado cabeçalho, porém grupo totalização não foi encontrado (tbl public.imptotalnfe).");
+                            return NotFound(new ErrorMessage(404, "Encontrado cabeçalho, porém grupo total não foi encontrado (tbl public.imptotalnfe)."));
                         }
                         impNFeTemp.impitensnves = await db.Impitensnves.Where(imptotalnfe => imptotalnfe.ChNfe == novaImpcabnfe.ChNfe).ToListAsync();
                         if (impNFeTemp.impitensnves == null)
                         {
-                            return NotFound("Encontrado cabeçalho, porém grupo itens não foi encontrado (tbl public.impitensnfe).");
+                            return NotFound(new ErrorMessage(404, "Encontrado cabeçalho, porém grupo itens não foi encontrado (tbl public.impitensnfe)."));
                         }
                         if (impNFeTemp.impitensnves.Count == 0)
                         {
-                            return NotFound("Encontrado cabeçalho, porém grupo itens não foi encontrado (tbl public.impitensnfe).");
+                            return NotFound(new ErrorMessage(404, "Encontrado cabeçalho, porém grupo itens não foi encontrado (tbl public.impitensnfe)."));
                         }
                         impNFeTemp.impdupnfe = await db.Impdupnves.Where(imptotalnfe => imptotalnfe.ChNfe == novaImpcabnfe.ChNfe).ToListAsync();
-                        //if (impNFeTemp.impdupnfe == null)
-                        //{
-                        //    return NotFound("Encontrado cabeçalho, porém grupo duplicatas não foi encontrado (tbl public.impdupnfe).");
-                        //}
+                        
                         if (impNFeTemp.impdupnfe.Count == 0)
                         {
-                            return NotFound("Encontrado cabeçalho, porém grupo duplicatas não foi encontrado (tbl public.impdupnfe).");
+                            return NotFound(
+                                new ErrorMessage(404, "Encontrado cabeçalho, porém grupo duplicatas não foi encontrado (tbl public.impdupnfe)."));
                         }
 
                         await GetAmarracoes(impNFeTemp, idEmpresa, nfe);
@@ -819,16 +823,21 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 {
                     logger.LogError(dbEx, "Erro ao salvar dessarializar XML para banco de dados 'public.impcabnfe'");
                     await TentaExcluirAsync(_chNFe);
-                    return StatusCode(500, dbEx.InnerException?.Message ?? "An unknown database error occurred.");
+                    return StatusCode(500, new ErrorMessage(500, dbEx.InnerException?.Message ?? "An unknown database error occurred."));
                 }
                 catch (Exception ex)
                 {
                     logger.LogError(ex, "Erro ao salvar dessarializar XML para banco de dados 'public.impcabnfe'");
                     await TentaExcluirAsync(_chNFe);
-                    return StatusCode(500, ex.Message);
+                    return StatusCode(500, new ErrorMessage(500, ex.Message));
 
                 }
             }
+        }
+
+        private async Task<bool> BuscarEntradaEmpresa(int idEmpresa, string v)
+        {
+            throw new NotImplementedException();
         }
 
         private async Task GetAmarracoes(ImpNFeTemp impNFeTemp, int idEmpresa, nfeProc nfe)
@@ -1102,7 +1111,8 @@ namespace GlobalAPI_ACBrNFe.Controllers
             {
                 if (amarracoes == null || amarracoes.Count == 0)
                 {
-                    return BadRequest("Lista de amarrações vazia");
+                    return BadRequest(
+                        new ErrorMessage(400, "Nenhum produto foi informado para cadastro"));
                 }
 
                 ImpNFeTemp impNFeTemp = new ImpNFeTemp();
@@ -1114,19 +1124,23 @@ namespace GlobalAPI_ACBrNFe.Controllers
 
                 if (impNFeTemp.impitensnves == null || impNFeTemp.impitensnves.Count == 0)
                 {
-                    return BadRequest("Itens da nota fiscal não encontrados");
+                    return BadRequest(new ErrorMessage(500,
+                        "Itens da nota fiscal não encontrados"));
                 }
                 if (impNFeTemp.imptotalnfe == null)
                 {
-                    return BadRequest("Total da nota fiscal não encontrado");
+                    return BadRequest(
+                        new ErrorMessage(500, "Total da nota fiscal não encontrado"));
                 }
                 if (impNFeTemp.impdupnfe == null || impNFeTemp.impdupnfe.Count == 0)
                 {
-                    return BadRequest("Duplicatas da nota fiscal não encontradas");
+                    return BadRequest(
+                        new ErrorMessage(500, "Duplicatas da nota fiscal não encontradas"));
                 }
                 if (impNFeTemp.impcabnfe == null)
                 {
-                    return BadRequest("Cabeçalho da nota fiscal não encontrado");
+                    return BadRequest(
+                        new ErrorMessage(500, "Cabeçalho da nota fiscal não encontrado"));
                 }
 
                 foreach (var amarracao in amarracoes)
@@ -1136,7 +1150,8 @@ namespace GlobalAPI_ACBrNFe.Controllers
                         Impitensnfe? impitensnfe = impNFeTemp.impitensnves.FirstOrDefault(x => x.NrItem == amarracao.NrItem);
                         if (impitensnfe == null)
                         {
-                            return BadRequest("Item da nota fiscal não encontrado");
+                            return BadRequest(
+                                new ErrorMessage(500, "Item da nota fiscal não encontrado"));
                         }
                         ProdutosForn? produtosForn_pes = await GetProdutoForn(idEmpresa, cdForn, impitensnfe.CProd, impitensnfe.Cean);
                         if (produtosForn_pes != null)
@@ -1209,13 +1224,15 @@ namespace GlobalAPI_ACBrNFe.Controllers
                                 }
                                 else
                                 {
-                                    return StatusCode(500, "Erro ao cadastrar grupo");
+                                    return StatusCode(500, 
+                                        new ErrorMessage(500, "Erro ao cadastrar grupo"));
                                 }
                             }
                             else
                             {
                                 return StatusCode(500,
-                                response.Content.ReadAsStringAsync().Result);
+                                
+                                    new ErrorMessage(500, response.Content.ReadAsStringAsync().Result));
                             }
                         }
                         ReferenciaEstoque? referenciaEstoque = await db.ReferenciaEstoques.FirstOrDefaultAsync(x => x.CdEmpresa == idEmpresa && x.NmRef.ToUpper().Trim().Equals("DIVERSOS"));
@@ -1242,13 +1259,13 @@ namespace GlobalAPI_ACBrNFe.Controllers
                                 }
                                 else
                                 {
-                                    return StatusCode(500, "Erro ao cadastrar referencia");
+                                    return StatusCode(500, new ErrorMessage(500, "Erro ao cadastrar referencia"));
                                 }
                             }
                             else
                             {
                                 return StatusCode(500,
-                                responseReferencia.Content.ReadAsStringAsync().Result);
+                                        new ErrorMessage(500, responseReferencia.Content.ReadAsStringAsync().Result));
                             }
                         }
 
@@ -1277,13 +1294,13 @@ namespace GlobalAPI_ACBrNFe.Controllers
                                 }
                                 else
                                 {
-                                    return StatusCode(500, "Erro ao cadastrar unidade de medida");
+                                    return StatusCode(500, new ErrorMessage(500, "Erro ao cadastrar unidade de medida")
                                 }
                             }
                             else
                             {
                                 return StatusCode(500,
-                                responseUnidade.Content.ReadAsStringAsync().Result);
+                                new ErrorMessage(500, responseUnidade.Content.ReadAsStringAsync().Result));
                             }
                         }
 
@@ -1299,7 +1316,8 @@ namespace GlobalAPI_ACBrNFe.Controllers
                             {
                                 if (_produtoEstoque.CdProduto <= 0)
                                 {
-                                    return StatusCode(500, "Erro ao cadastrar produto");
+                                    return StatusCode(500,
+                                        new ErrorMessage(500, "Erro ao cadastrar produto"));
                                 }
 
                                 ProdutosForn produtosForn = new ProdutosForn();
@@ -1322,13 +1340,15 @@ namespace GlobalAPI_ACBrNFe.Controllers
                             }
                             else
                             {
-                                return StatusCode(500, "Erro ao cadastrar produto");
+                                return StatusCode(500,
+                                    new ErrorMessage(500, "Erro ao cadastrar produto"));
                             }
                         }
                         else
                         {
                             return StatusCode(500,
-                            responseProduto.Content.ReadAsStringAsync().Result);
+
+                                new ErrorMessage(500, responseProduto.Content.ReadAsStringAsync().Result));
                         }
                     }
                     else
@@ -1338,14 +1358,18 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 }
                 if (impNFeTemp.amarracoes.Count == 0)
                 {
-                    return BadRequest("Nenhum produto foi cadastrado");
+                    return BadRequest(
+                        new ErrorMessage(400, "Nenhum produto foi cadastrado"));
                 }
                 else if (impNFeTemp.amarracoes.Count != amarracoes.Count)
                 {
-                    return StatusCode(500, "Erro ao cadastrar produtos faltantes NFe");
-                } else if (impNFeTemp.amarracoes.Count != impNFeTemp.impitensnves.Count)
+                    return StatusCode(500,
+                        new ErrorMessage(500, "Erro ao cadastrar produtos faltantes NFe"));
+                }
+                else if (impNFeTemp.amarracoes.Count != impNFeTemp.impitensnves.Count)
                 {
-                    return StatusCode(500, "Erro ao cadastrar produtos faltantes NFe");
+                    return StatusCode(500,
+                        new ErrorMessage(500, "Erro ao cadastrar produtos faltantes NFe"));
                 }
 
 
@@ -1354,7 +1378,8 @@ namespace GlobalAPI_ACBrNFe.Controllers
             catch (Exception ex)
             {
                 logger.LogError(ex, "Erro ao cadastrar produtos faltantes NFe");
-                return StatusCode(500, ex.Message);
+                return StatusCode(500,
+                    new ErrorMessage(500, ex.Message));
             }
         }
 
@@ -1370,7 +1395,9 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 Impitensnfe? impitensnfe = await db.Impitensnves.FirstOrDefaultAsync(x => x.ChNfe == chaveNfe && x.NrItem == nrItem);
                 if (impitensnfe == null)
                 {
-                    return NotFound();
+                    return NotFound(
+                        new ErrorMessage(404, "Item da nota fiscal não encontrado"));
+                        
                 }
                 ProdutosForn? produtoFornOld = await db.ProdutosForns.FirstOrDefaultAsync(x => x.IdEmpresa == idEmpresa && x.CdForn == cdForn && x.IdProdutoExterno == impitensnfe.CProd && x.CdBarra.Equals(impitensnfe.Cean));
                 if (produtoFornOld != null)
@@ -1431,13 +1458,15 @@ namespace GlobalAPI_ACBrNFe.Controllers
                         }
                         else
                         {
-                            return StatusCode(500, "Erro ao cadastrar grupo");
+                            return StatusCode(500,
+                                new ErrorMessage(500, "Erro ao cadastrar grupo"));
                         }
                     }
                     else
                     {
                         return StatusCode(500,
-                        response.Content.ReadAsStringAsync().Result);
+
+                            new ErrorMessage(500, response.Content.ReadAsStringAsync().Result));
                     }
                 }
 
@@ -1465,13 +1494,15 @@ namespace GlobalAPI_ACBrNFe.Controllers
                         }
                         else
                         {
-                            return StatusCode(500, "Erro ao cadastrar referencia");
+                            return StatusCode(500,
+                                new ErrorMessage(500, "Erro ao cadastrar referencia"));
                         }
                     }
                     else
                     {
                         return StatusCode(500,
-                        responseReferencia.Content.ReadAsStringAsync().Result);
+
+                            new ErrorMessage(500, responseReferencia.Content.ReadAsStringAsync().Result));
                     }
                 }
 
@@ -1500,13 +1531,15 @@ namespace GlobalAPI_ACBrNFe.Controllers
                         }
                         else
                         {
-                            return StatusCode(500, "Erro ao cadastrar unidade de medida");
+                            return StatusCode(500,
+                                new ErrorMessage(500, "Erro ao cadastrar unidade de medida"));
                         }
                     }
                     else
                     {
                         return StatusCode(500,
-                        responseUnidade.Content.ReadAsStringAsync().Result);
+
+                            new ErrorMessage(500, responseUnidade.Content.ReadAsStringAsync().Result));
                     }
                 }
 
@@ -1522,7 +1555,8 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     {
                         if (_produtoEstoque.CdProduto <= 0)
                         {
-                            return StatusCode(500, "Erro ao cadastrar produto");
+                            return StatusCode(500,
+                                new ErrorMessage(500, "Erro ao cadastrar produto"));
                         }
 
                         ProdutosForn produtosForn = new ProdutosForn();
@@ -1539,19 +1573,21 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     }
                     else
                     {
-                        return StatusCode(500, "Erro ao cadastrar produto");
+                        return StatusCode(500,
+                            new ErrorMessage(500, "Erro ao cadastrar produto"));
                     }
                 }
                 else
                 {
                     return StatusCode(500,
-                    responseProduto.Content.ReadAsStringAsync().Result);
+                        new ErrorMessage(500, responseProduto.Content.ReadAsStringAsync().Result));
                 }
             }
             catch (Exception ex)
             {
                 logger.LogError(ex, "Erro ao cadastrar produto NFe");
-                return StatusCode(500, ex.Message);
+                return StatusCode(500,
+                    new ErrorMessage(500, ex.Message));
             }
         }
     }
