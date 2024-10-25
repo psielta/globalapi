@@ -106,9 +106,67 @@ namespace GlobalAPI_ACBrNFe.Controllers
             }
             #endregion
             #region Duplicata
+            try
+            {
+                await ImportarDuplicatas(impNFeTemp, entrada, idEmpresa, cdHistorico);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"Erro ao importar duplicatas ({chaveAcesso}).");
+                return BadRequest(new ErrorMessage(500, "Error importing Duplicatas"));
+            }
             #endregion
 
-            throw new NotImplementedException();
+            return Ok(entrada);
+        }
+
+        private async Task ImportarDuplicatas(ImpNFeTemp impNFeTemp, Entrada entrada, int idEmpresa, int cdHistorico)
+        {
+            if (impNFeTemp.impdupnfe == null || impNFeTemp.impdupnfe.Count == 0)
+            {
+                return;
+            }
+            var count = impNFeTemp.impdupnfe.Count;
+            HistoricoCaixa historicoCaixa = await db.HistoricoCaixas.FindAsync(cdHistorico);
+            if (historicoCaixa == null)
+            {
+                throw new Exception($"Erro ao buscar histórico ({cdHistorico})");
+            }
+
+            List<ContasAPagar> contasAPagars = await db.ContasAPagars.Where((x) => x.NrEntrada == entrada.Nr &&
+            x.CdEmpresa == idEmpresa).ToListAsync();
+            if (contasAPagars != null && contasAPagars.Count > 0)
+            {
+                return;
+            }
+
+            foreach (var item in impNFeTemp.impdupnfe)
+            {
+                DateOnly dataVencimento = DateUtils.DateTimeToDateOnly(item.DtVenc ?? DateTime.Now);
+                ContasAPagar contasAPagar = new ContasAPagar();
+                contasAPagar.DtLancamento = DateUtils.DateTimeToDateOnly(DateTime.Now);
+                contasAPagar.DtVencimento = dataVencimento;
+                contasAPagar.CdFornecedor = entrada.CdForn;
+                contasAPagar.NrDuplicata = $"ENT{entrada.Nr}";
+                contasAPagar.VlCp = Convert.ToDecimal(item.Valor);
+                contasAPagar.VlDesconto = Convert.ToDecimal(0);
+                contasAPagar.VlTotal = Convert.ToDecimal(item.Valor);
+                contasAPagar.Pagou = "N";
+                contasAPagar.CdEmpresa = idEmpresa;
+                contasAPagar.NrNf = entrada.Nr.ToString();
+                contasAPagar.CdPlanoCaixa = historicoCaixa.CdPlano;
+                contasAPagar.CdHistoricoCaixa = historicoCaixa.CdSubPlano;
+                contasAPagar.NrEntrada = entrada.Nr;
+                contasAPagar.TpFormaPagt = entrada.TPag;
+                contasAPagar.Rate = 0;
+                contasAPagar.NumberOfPayments = count;
+                contasAPagar.TypeRegister = (count > 0) ? 1 : 0;
+                contasAPagar.Type = 1;
+
+                db.ContasAPagars.Add(contasAPagar);
+                await db.SaveChangesAsync();
+            }
+
         }
 
         private async Task ImportarItens(ImpNFeTemp impNFeTemp, Entrada entrada, int idEmpresa, int cdPlanoEstoque)
@@ -411,7 +469,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                             AND cd_forn = {entrada.CdForn} 
                             AND id_produto_externo = '{item.CProd}'";
             ProdutosForn? produtosForn = await db.ProdutosForns.FromSqlRaw(vsql).FirstOrDefaultAsync();
-            if(produtosForn == null)
+            if (produtosForn == null)
             {
                 produtosForn = new ProdutosForn();
                 produtosForn.CdProduto = ppp.CdProduto;
