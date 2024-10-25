@@ -16,6 +16,7 @@ using NFe.Classes.Informacoes.Emitente;
 using Npgsql;
 using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
+using GlobalLib.Enum;
 
 namespace GlobalAPI_ACBrNFe.Controllers
 {
@@ -101,11 +102,11 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     novaImpcabnfe.Caminho = string.Empty;
                     novaImpcabnfe.XmlNota = xmlContent;
                     novaImpcabnfe.NrNf = nfe.NFe.infNFe.ide.nNF.ToString();
-                    novaImpcabnfe.Modelo = nfe.NFe.infNFe.ide.mod.ToString();
+                    novaImpcabnfe.Modelo = nfe.NFe.infNFe.ide.mod.GetXmlEnumValue();
                     novaImpcabnfe.Serie = nfe.NFe.infNFe.ide.serie.ToString();
                     novaImpcabnfe.Cnfe = nfe.NFe.infNFe.ide.cNF.ToString();
-                    novaImpcabnfe.TpPagt = nfe.NFe.infNFe.pag[0].detPag[0].indPag.ToString() ?? IndicadorPagamento.ipVista.ToString();
-                    novaImpcabnfe.TPag = nfe.NFe.infNFe.pag[0].detPag[0].tPag.ToString() ?? FormaPagamento.fpDinheiro.ToString();
+                    novaImpcabnfe.TpPagt = nfe.NFe.infNFe.pag[0].detPag[0].indPag.GetXmlEnumValueNullable() ?? IndicadorPagamento.ipVista.GetXmlEnumValue();
+                    novaImpcabnfe.TPag = nfe.NFe.infNFe.pag[0].detPag[0].tPag.GetXmlEnumValue() ?? FormaPagamento.fpDinheiro.GetXmlEnumValue();
                     novaImpcabnfe.DtEmissao = nfe.NFe.infNFe.ide.dhEmi.DateTime;
                     if (nfe.NFe.infNFe.ide.dhSaiEnt != null)
                         novaImpcabnfe.DtSaida = nfe.NFe.infNFe.ide.dhSaiEnt?.DateTime;
@@ -332,15 +333,15 @@ namespace GlobalAPI_ACBrNFe.Controllers
                                 if (abstractICMS is ICMS02)
                                 {
                                     iCMS02 = (ICMS02)abstractICMS;
-                                    novoImpitensnfe.Cst = iCMS02.CST.ToString();
-                                    novoImpitensnfe.ImpOrigem = iCMS02.orig.ToString();
+                                    novoImpitensnfe.Cst = iCMS02.CST.GetXmlEnumValue();
+                                    novoImpitensnfe.ImpOrigem = iCMS02.orig.GetXmlEnumValue();
                                 }
                                 else if (abstractICMS is ICMS10)
                                 {
                                     iCMS10 = (ICMS10)abstractICMS;
-                                    novoImpitensnfe.Cst = iCMS10.CST.ToString();
-                                    novoImpitensnfe.ImpOrigem = iCMS10.orig.ToString();
-                                    novoImpitensnfe.ModBc = iCMS10.modBC.ToString();
+                                    novoImpitensnfe.Cst = iCMS10.CST.GetXmlEnumValue();
+                                    novoImpitensnfe.ImpOrigem = iCMS10.orig.GetXmlEnumValue();
+                                    novoImpitensnfe.ModBc = iCMS10.modBC.GetXmlEnumValue();
                                     novoImpitensnfe.Predbc = iCMS10.pRedBCST.ToString();
                                     novoImpitensnfe.Vbc = iCMS10.vBC.ToString();
                                     novoImpitensnfe.Picms = iCMS10.pICMS.ToString();
@@ -349,7 +350,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                                      TbItensNFEPCRED.AsCurrency := ICMS.pCredSN;
                                      TbItensNFEVL_CRED_ICMS.AsFloat := ICMS.vCredICMSSN;
                                      TbItensNFEpST.AsString := Currtostr(ICMS.pST);*/
-                                    novoImpitensnfe.Modbcst = iCMS10.modBCST.ToString();
+                                    novoImpitensnfe.Modbcst = iCMS10.modBCST.GetXmlEnumValue();
                                     novoImpitensnfe.Pmvast = iCMS10.pMVAST.ToString();
                                     novoImpitensnfe.Predbcst = iCMS10.pRedBCST.ToString();
                                     novoImpitensnfe.Vbcst = iCMS10.vBCST.ToString();
@@ -363,15 +364,15 @@ namespace GlobalAPI_ACBrNFe.Controllers
                                 else if (abstractICMS is ICMS15)
                                 {
                                     iCMS15 = (ICMS15)abstractICMS;
-                                    novoImpitensnfe.Cst = iCMS15.CST.ToString();
-                                    novoImpitensnfe.ImpOrigem = iCMS15.orig.ToString();
+                                    novoImpitensnfe.Cst = iCMS15.CST.GetXmlEnumValue();
+                                    novoImpitensnfe.ImpOrigem = iCMS15.orig.GetXmlEnumValue();
                                 }
                                 else if (abstractICMS is ICMS20)
                                 {
                                     iCMS20 = (ICMS20)abstractICMS;
-                                    novoImpitensnfe.Cst = iCMS20.CST.ToString();
-                                    novoImpitensnfe.ImpOrigem = iCMS20.orig.ToString();
-                                    novoImpitensnfe.ModBc = iCMS20.modBC.ToString();
+                                    novoImpitensnfe.Cst = iCMS20.CST.GetXmlEnumValue();
+                                    novoImpitensnfe.ImpOrigem = iCMS20.orig.GetXmlEnumValue();
+                                    novoImpitensnfe.ModBc = iCMS20.modBC.GetXmlEnumValue();
                                     novoImpitensnfe.Predbc = iCMS20.pRedBC.ToString();
                                     novoImpitensnfe.Vbc = iCMS20.vBC.ToString();
                                     novoImpitensnfe.Picms = iCMS20.pICMS.ToString();
@@ -387,12 +388,12 @@ namespace GlobalAPI_ACBrNFe.Controllers
                                 else if (abstractICMS is ICMS30)
                                 {
                                     iCMS30 = (ICMS30)abstractICMS;
-                                    novoImpitensnfe.Cst = iCMS30.CST.ToString();
-                                    novoImpitensnfe.ImpOrigem = iCMS30.orig.ToString();
+                                    novoImpitensnfe.Cst = iCMS30.CST.GetXmlEnumValue();
+                                    novoImpitensnfe.ImpOrigem = iCMS30.orig.GetXmlEnumValue();
 
                                     novoImpitensnfe.Vicmsdeson = iCMS30.vICMSDeson.ToString();
 
-                                    novoImpitensnfe.Modbcst = iCMS30.modBCST.ToString();
+                                    novoImpitensnfe.Modbcst = iCMS30.modBCST.GetXmlEnumValue();
                                     novoImpitensnfe.Pmvast = iCMS30.pMVAST.ToString();
                                     novoImpitensnfe.Predbcst = iCMS30.pRedBCST.ToString();
                                     novoImpitensnfe.Vbcst = iCMS30.vBCST.ToString();
@@ -407,18 +408,18 @@ namespace GlobalAPI_ACBrNFe.Controllers
                                 else if (abstractICMS is ICMS40)
                                 {
                                     iCMS40 = (ICMS40)abstractICMS;
-                                    novoImpitensnfe.Cst = iCMS40.CST.ToString();
-                                    novoImpitensnfe.ImpOrigem = iCMS40.orig.ToString();
+                                    novoImpitensnfe.Cst = iCMS40.CST.GetXmlEnumValue();
+                                    novoImpitensnfe.ImpOrigem = iCMS40.orig.GetXmlEnumValue();
 
                                     novoImpitensnfe.Vicmsdeson = iCMS40.vICMSDeson.ToString();
                                 }
                                 else if (abstractICMS is ICMS51)
                                 {
                                     iCMS51 = (ICMS51)abstractICMS;
-                                    novoImpitensnfe.Cst = iCMS51.CST.ToString();
-                                    novoImpitensnfe.ImpOrigem = iCMS51.orig.ToString();
+                                    novoImpitensnfe.Cst = iCMS51.CST.GetXmlEnumValue();
+                                    novoImpitensnfe.ImpOrigem = iCMS51.orig.GetXmlEnumValue();
 
-                                    novoImpitensnfe.ModBc = iCMS51.modBC.ToString();
+                                    novoImpitensnfe.ModBc = iCMS51.modBC.GetXmlEnumValueNullable();
                                     novoImpitensnfe.Predbc = iCMS51.pRedBC.ToString();
 
                                     novoImpitensnfe.Vbc = iCMS51.vBC.ToString();
@@ -433,14 +434,14 @@ namespace GlobalAPI_ACBrNFe.Controllers
                                 else if (abstractICMS is ICMS53)
                                 {
                                     iCMS53 = (ICMS53)abstractICMS;
-                                    novoImpitensnfe.Cst = iCMS53.CST.ToString();
-                                    novoImpitensnfe.ImpOrigem = iCMS53.orig.ToString();
+                                    novoImpitensnfe.Cst = iCMS53.CST.GetXmlEnumValue();
+                                    novoImpitensnfe.ImpOrigem = iCMS53.orig.GetXmlEnumValue();
                                 }
                                 else if (abstractICMS is ICMS60)
                                 {
                                     iCMS60 = (ICMS60)abstractICMS;
-                                    novoImpitensnfe.Cst = iCMS60.CST.ToString();
-                                    novoImpitensnfe.ImpOrigem = iCMS60.orig.ToString();
+                                    novoImpitensnfe.Cst = iCMS60.CST.GetXmlEnumValue();
+                                    novoImpitensnfe.ImpOrigem = iCMS60.orig.GetXmlEnumValue();
 
                                     novoImpitensnfe.Pst = iCMS60.pST.ToString();
                                     novoImpitensnfe.Vbcstret = iCMS60.vBCSTRet.ToString();
@@ -451,16 +452,16 @@ namespace GlobalAPI_ACBrNFe.Controllers
                                 else if (abstractICMS is ICMS61)
                                 {
                                     iCMS61 = (ICMS61)abstractICMS;
-                                    novoImpitensnfe.Cst = iCMS61.CST.ToString();
-                                    novoImpitensnfe.ImpOrigem = iCMS61.orig.ToString();
+                                    novoImpitensnfe.Cst = iCMS61.CST.GetXmlEnumValue();
+                                    novoImpitensnfe.ImpOrigem = iCMS61.orig.GetXmlEnumValue();
                                 }
                                 else if (abstractICMS is ICMS70)
                                 {
                                     iCMS70 = (ICMS70)abstractICMS;
-                                    novoImpitensnfe.Cst = iCMS70.CST.ToString();
-                                    novoImpitensnfe.ImpOrigem = iCMS70.orig.ToString();
+                                    novoImpitensnfe.Cst = iCMS70.CST.GetXmlEnumValue();
+                                    novoImpitensnfe.ImpOrigem = iCMS70.orig.GetXmlEnumValue();
 
-                                    novoImpitensnfe.ModBc = iCMS70.modBC.ToString();
+                                    novoImpitensnfe.ModBc = iCMS70.modBC.GetXmlEnumValue();
                                     novoImpitensnfe.Predbc = iCMS70.pRedBC.ToString();
                                     novoImpitensnfe.Vbc = iCMS70.vBC.ToString();
                                     novoImpitensnfe.Picms = iCMS70.pICMS.ToString();
@@ -480,10 +481,10 @@ namespace GlobalAPI_ACBrNFe.Controllers
                                 else if (abstractICMS is ICMS90)
                                 {
                                     iCMS90 = (ICMS90)abstractICMS;
-                                    novoImpitensnfe.Cst = iCMS90.CST.ToString();
-                                    novoImpitensnfe.ImpOrigem = iCMS90.orig.ToString();
+                                    novoImpitensnfe.Cst = iCMS90.CST.GetXmlEnumValue();
+                                    novoImpitensnfe.ImpOrigem = iCMS90.orig.GetXmlEnumValue();
 
-                                    novoImpitensnfe.ModBc = iCMS90.modBC.ToString();
+                                    novoImpitensnfe.ModBc = iCMS90.modBC.GetXmlEnumValueNullable();
                                     novoImpitensnfe.Predbc = iCMS90.pRedBC.ToString();
                                     novoImpitensnfe.Vbc = iCMS90.vBC.ToString();
                                     novoImpitensnfe.Picms = iCMS90.pICMS.ToString();
@@ -502,10 +503,10 @@ namespace GlobalAPI_ACBrNFe.Controllers
                                 else if (abstractICMS is ICMSPart)
                                 {
                                     iCMSPart = (ICMSPart)abstractICMS;
-                                    novoImpitensnfe.Cst = iCMSPart.CST.ToString();
-                                    novoImpitensnfe.ImpOrigem = iCMSPart.orig.ToString();
+                                    novoImpitensnfe.Cst = iCMSPart.CST.GetXmlEnumValue();
+                                    novoImpitensnfe.ImpOrigem = iCMSPart.orig.GetXmlEnumValue();
 
-                                    novoImpitensnfe.ModBc = iCMSPart.modBC.ToString();
+                                    novoImpitensnfe.ModBc = iCMSPart.modBC.GetXmlEnumValue();
                                     novoImpitensnfe.Predbc = iCMSPart.pRedBC.ToString();
                                     novoImpitensnfe.Vbc = iCMSPart.vBC.ToString();
                                     novoImpitensnfe.Picms = iCMSPart.pICMS.ToString();
@@ -523,8 +524,8 @@ namespace GlobalAPI_ACBrNFe.Controllers
                                 else if (abstractICMS is ICMSST)
                                 {
                                     iCMSST = (ICMSST)abstractICMS;
-                                    novoImpitensnfe.Cst = iCMSST.CST.ToString();
-                                    novoImpitensnfe.ImpOrigem = iCMSST.orig.ToString();
+                                    novoImpitensnfe.Cst = iCMSST.CST.GetXmlEnumValue();
+                                    novoImpitensnfe.ImpOrigem = iCMSST.orig.GetXmlEnumValue();
 
                                     novoImpitensnfe.Pst = iCMSST.pST.ToString();
                                     novoImpitensnfe.Vbcstret = iCMSST.vBCSTRet.ToString();
@@ -534,23 +535,23 @@ namespace GlobalAPI_ACBrNFe.Controllers
                                 else if (abstractICMS is ICMSSN101)
                                 {
                                     iCMSSN101 = (ICMSSN101)abstractICMS;
-                                    novoImpitensnfe.Csosn = iCMSSN101.CSOSN.ToString();
-                                    novoImpitensnfe.ImpOrigem = iCMSSN101.orig.ToString();
+                                    novoImpitensnfe.Csosn = iCMSSN101.CSOSN.GetXmlEnumValue();
+                                    novoImpitensnfe.ImpOrigem = iCMSSN101.orig.GetXmlEnumValue();
                                     novoImpitensnfe.Pcred = iCMSSN101.pCredSN.ToString();
                                     novoImpitensnfe.VlCredIcms = iCMSSN101.vCredICMSSN.ToString();
                                 }
                                 else if (abstractICMS is ICMSSN102)
                                 {
                                     iCMSSN102 = (ICMSSN102)abstractICMS;
-                                    novoImpitensnfe.Csosn = iCMSSN102.CSOSN.ToString();
-                                    novoImpitensnfe.ImpOrigem = iCMSSN102.orig.ToString();
+                                    novoImpitensnfe.Csosn = iCMSSN102.CSOSN.GetXmlEnumValue();
+                                    novoImpitensnfe.ImpOrigem = iCMSSN102.orig.GetXmlEnumValue();
 
                                 }
                                 else if (abstractICMS is ICMSSN201)
                                 {
                                     iCMSSN201 = (ICMSSN201)abstractICMS;
-                                    novoImpitensnfe.Csosn = iCMSSN201.CSOSN.ToString();
-                                    novoImpitensnfe.ImpOrigem = iCMSSN201.orig.ToString();
+                                    novoImpitensnfe.Csosn = iCMSSN201.CSOSN.GetXmlEnumValue();
+                                    novoImpitensnfe.ImpOrigem = iCMSSN201.orig.GetXmlEnumValue();
                                     novoImpitensnfe.Pmvast = iCMSSN201.pMVAST.ToString();
                                     novoImpitensnfe.Predbcst = iCMSSN201.pRedBCST.ToString();
                                     novoImpitensnfe.Vbcst = iCMSSN201.vBCST.ToString();
@@ -566,8 +567,8 @@ namespace GlobalAPI_ACBrNFe.Controllers
                                 else if (abstractICMS is ICMSSN202)
                                 {
                                     iCMSSN202 = (ICMSSN202)abstractICMS;
-                                    novoImpitensnfe.Csosn = iCMSSN202.CSOSN.ToString();
-                                    novoImpitensnfe.ImpOrigem = iCMSSN202.orig.ToString();
+                                    novoImpitensnfe.Csosn = iCMSSN202.CSOSN.GetXmlEnumValue();
+                                    novoImpitensnfe.ImpOrigem = iCMSSN202.orig.GetXmlEnumValue();
                                     novoImpitensnfe.Pmvast = iCMSSN202.pMVAST.ToString();
                                     novoImpitensnfe.Predbcst = iCMSSN202.pRedBCST.ToString();
                                     novoImpitensnfe.Vbcst = iCMSSN202.vBCST.ToString();
@@ -592,9 +593,9 @@ namespace GlobalAPI_ACBrNFe.Controllers
                                 else if (abstractICMS is ICMSSN900)
                                 {
                                     iCMSSN900 = (ICMSSN900)abstractICMS;
-                                    novoImpitensnfe.Csosn = iCMSSN900.CSOSN.ToString();
-                                    novoImpitensnfe.ImpOrigem = iCMSSN900.orig.ToString();
-                                    novoImpitensnfe.ModBc = iCMSSN900.modBC.ToString();
+                                    novoImpitensnfe.Csosn = iCMSSN900.CSOSN.GetXmlEnumValue();
+                                    novoImpitensnfe.ImpOrigem = iCMSSN900.orig.GetXmlEnumValue();
+                                    novoImpitensnfe.ModBc = iCMSSN900.modBC.GetXmlEnumValueNullable();
                                     novoImpitensnfe.Predbc = iCMSSN900.pRedBC.ToString();
                                     novoImpitensnfe.Vbc = iCMSSN900.vBC.ToString();
                                     novoImpitensnfe.Picms = iCMSSN900.pICMS.ToString();
@@ -640,12 +641,12 @@ namespace GlobalAPI_ACBrNFe.Controllers
                                     if (ipi.TipoIPI is IPINT)
                                     {
                                         iPINT = (IPINT)ipi.TipoIPI;
-                                        novoImpitensnfe.Ipicst = iPINT.CST.ToString();
+                                        novoImpitensnfe.Ipicst = iPINT.CST.GetXmlEnumValue();
                                     }
                                     else if (ipi.TipoIPI is IPITrib)
                                     {
                                         iPITrib = (IPITrib)ipi.TipoIPI;
-                                        novoImpitensnfe.Ipicst = iPITrib.CST.ToString();
+                                        novoImpitensnfe.Ipicst = iPITrib.CST.GetXmlEnumValue();
                                         novoImpitensnfe.Ipivipi = iPITrib.vIPI.ToString();
                                         novoImpitensnfe.Ipivbc = iPITrib.vBC.ToString();
                                         novoImpitensnfe.Ipipipi = iPITrib.pIPI.ToString();
@@ -679,7 +680,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                                 if (pis.TipoPIS is PISAliq)
                                 {
                                     pISAliq = (PISAliq)pis.TipoPIS;
-                                    novoImpitensnfe.PisCst = pISAliq.CST.ToString();
+                                    novoImpitensnfe.PisCst = pISAliq.CST.GetXmlEnumValue();
                                     novoImpitensnfe.Pisvbc = pISAliq.vBC.ToString();
                                     novoImpitensnfe.Pisppis = pISAliq.pPIS.ToString();
                                     novoImpitensnfe.Pisvpis = pISAliq.vPIS.ToString();
@@ -687,12 +688,12 @@ namespace GlobalAPI_ACBrNFe.Controllers
                                 else if (pis.TipoPIS is PISNT)
                                 {
                                     pISNT = (PISNT)pis.TipoPIS;
-                                    novoImpitensnfe.PisCst = pISNT.CST.ToString();
+                                    novoImpitensnfe.PisCst = pISNT.CST.GetXmlEnumValue();
                                 }
                                 else if (pis.TipoPIS is PISOutr)
                                 {
                                     pISOutr = (PISOutr)pis.TipoPIS;
-                                    novoImpitensnfe.PisCst = pISOutr.CST.ToString();
+                                    novoImpitensnfe.PisCst = pISOutr.CST.GetXmlEnumValue();
                                     novoImpitensnfe.Pisvbc = pISOutr.vBC.ToString();
                                     novoImpitensnfe.Pisppis = pISOutr.pPIS.ToString();
                                     novoImpitensnfe.Pisvpis = pISOutr.vPIS.ToString();
@@ -702,7 +703,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                                 else if (pis.TipoPIS is PISQtde)
                                 {
                                     pISQtde = (PISQtde)pis.TipoPIS;
-                                    novoImpitensnfe.PisCst = pISQtde.CST.ToString();
+                                    novoImpitensnfe.PisCst = pISQtde.CST.GetXmlEnumValue();
                                     novoImpitensnfe.Pisqbcprod = pISQtde.qBCProd.ToString();
                                     novoImpitensnfe.Pisvaliqprod = pISQtde.vAliqProd.ToString();
                                     novoImpitensnfe.Pisvpis = pISQtde.vPIS.ToString();
@@ -729,7 +730,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                                 {
                                     cOFINSAliq = (COFINSAliq)imposto.COFINS.TipoCOFINS;
                                     novoImpitensnfe.Confins = "S";
-                                    novoImpitensnfe.CofCst = cOFINSAliq.CST.ToString();
+                                    novoImpitensnfe.CofCst = cOFINSAliq.CST.GetXmlEnumValue();
                                     novoImpitensnfe.CofVbc = cOFINSAliq.vBC.ToString();
                                     novoImpitensnfe.CofPcofins = cOFINSAliq.pCOFINS.ToString();
                                     novoImpitensnfe.CofVcofins = cOFINSAliq.vCOFINS.ToString();
@@ -738,13 +739,13 @@ namespace GlobalAPI_ACBrNFe.Controllers
                                 {
                                     cOFINSNT = (COFINSNT)imposto.COFINS.TipoCOFINS;
                                     novoImpitensnfe.Confins = "S";
-                                    novoImpitensnfe.CofCst = cOFINSNT.CST.ToString();
+                                    novoImpitensnfe.CofCst = cOFINSNT.CST.GetXmlEnumValue();
                                 }
                                 else if (imposto.COFINS.TipoCOFINS is COFINSOutr)
                                 {
                                     cOFINSOutr = (COFINSOutr)imposto.COFINS.TipoCOFINS;
                                     novoImpitensnfe.Confins = "S";
-                                    novoImpitensnfe.CofCst = cOFINSOutr.CST.ToString();
+                                    novoImpitensnfe.CofCst = cOFINSOutr.CST.GetXmlEnumValue();
                                     novoImpitensnfe.CofVbc = cOFINSOutr.vBC.ToString();
                                     novoImpitensnfe.CofPcofins = cOFINSOutr.pCOFINS.ToString();
                                     novoImpitensnfe.CofVcofins = cOFINSOutr.vCOFINS.ToString();
@@ -755,7 +756,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                                 {
                                     cOFINSQtde = (COFINSQtde)imposto.COFINS.TipoCOFINS;
                                     novoImpitensnfe.Confins = "S";
-                                    novoImpitensnfe.CofCst = cOFINSQtde.CST.ToString();
+                                    novoImpitensnfe.CofCst = cOFINSQtde.CST.GetXmlEnumValue();
                                     novoImpitensnfe.CofQbcprod = cOFINSQtde.qBCProd.ToString();
                                     novoImpitensnfe.CofstValiqprod = cOFINSQtde.vAliqProd.ToString();
                                     novoImpitensnfe.CofVcofins = cOFINSQtde.vCOFINS.ToString();

@@ -18,6 +18,11 @@ namespace GlobalLib.Utils
             return DateOnly.FromDateTime(dateTime);
         }
 
+        public static TimeOnly DateTimeToTimeOnly(DateTime dateTime)
+        {
+            return TimeOnly.FromDateTime(dateTime);
+        }
+
         /// <summary>
         /// Converte um objeto DateOnly em um objeto DateTime.
         /// </summary>
@@ -101,6 +106,13 @@ namespace GlobalLib.Utils
         public static bool TryParseDateOnly(string dateString, out DateOnly date)
         {
             return DateOnly.TryParse(dateString, out date);
+        }
+    }
+    public static class TimeOnlyExtensions
+    {
+        public static TimeOnly TruncateToMinutes(this TimeOnly time)
+        {
+            return new TimeOnly(time.Hour, time.Minute);
         }
     }
 

@@ -299,7 +299,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     {
                         ppp.VlPis = 0;
                     }
-                    if (string.IsNullOrEmpty(item.CofVcofins) && item.CofVcofins.Length > 0)
+                    if (!string.IsNullOrEmpty(item.CofVcofins) && item.CofVcofins.Length > 0)
                     {
                         ppp.VlConfins = Convert.ToDecimal(item.CofVcofins);
                     }
@@ -503,7 +503,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
             if (cfopImportacao != null)
             {
 
-                if (string.IsNullOrEmpty(cfopImportacao.CdCfopE) && cfopImportacao.CdCfopE.Length == 4)
+                if (!string.IsNullOrEmpty(cfopImportacao.CdCfopE) && cfopImportacao.CdCfopE.Length == 4)
                 {
                     ppp.CdCfop = cfopImportacao.CdCfopE;
                 }
@@ -589,8 +589,9 @@ namespace GlobalAPI_ACBrNFe.Controllers
             if (entrada == null)
             {
                 entrada = new Entrada();
-                DateOnly data = DateUtils.DateTimeToDateOnly(impNFeTemp.impcabnfe?.DtEmissao ?? DateTime.Now);
+                DateOnly data = DateUtils.DateTimeToDateOnly(DateTime.Now);
                 entrada.Data = data;
+                entrada.DtEmissao = DateUtils.DateTimeToDateOnly(impNFeTemp.impcabnfe.DtEmissao ?? DateTime.Now);
                 if (impNFeTemp.impcabnfe.DtSaida == new DateTime(1899, 12, 30))
                 {
                     entrada.DtSaida = data;
@@ -659,6 +660,10 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 entrada.VlDescontoNf = Convert.ToDecimal(impNFeTemp.imptotalnfe.IcmsDesc ?? "0");
                 entrada.VlStNf = Convert.ToDecimal(impNFeTemp.imptotalnfe.IcmsSt ?? "0");
                 entrada.CdGrupoEstoque = cdPlanoEstoque;
+                entrada.TpEntrada = "C";
+                entrada.TpPagt = (impNFeTemp.impcabnfe.TPag ?? "").Equals("01") ? "V" : "P";
+                entrada.HrSaida = DateUtils.DateTimeToTimeOnly(impNFeTemp.impcabnfe.DtSaida ?? DateTime.Now).TruncateToMinutes();
+                entrada.HrChegada = DateUtils.DateTimeToTimeOnly(DateTime.Now).TruncateToMinutes();
 
                 db.Entradas.Add(entrada);
                 await db.SaveChangesAsync();
