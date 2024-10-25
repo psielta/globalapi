@@ -24,10 +24,10 @@ namespace GlobalAPI_ACBrNFe.Controllers
         }
 
         [HttpPost("Registrar/{idEmpresa}/{chaveAcesso}/{cdPlanoEstoque}/{cdHistorico}", Name = nameof(Registrar))]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(Entrada), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
-        public async Task<ActionResult<Entrada>> Registrar([FromBody] ImpNFeTemp impNFeTemp, int idEmpresa, int cdPlanoEstoque, int cdHistorico, string chaveAcesso)
+        public async Task<ActionResult<Entrada>> Registrar([FromBody] ImpNFeTemp2 impNFeTemp, int idEmpresa, int cdPlanoEstoque, int cdHistorico, string chaveAcesso)
         {
             #region Validações
             if (idEmpresa == 0 || string.IsNullOrEmpty(chaveAcesso) || chaveAcesso.Length < 44)
@@ -53,7 +53,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
             try
             {
                 IdFornecedor = impNFeTemp.amarracoes.FirstOrDefault().CdForn;
-                fornecedor = await db.Fornecedors.FindAsync(IdFornecedor);
+                fornecedor = await db.Fornecedors.FindAsync(IdFornecedor, idEmpresa);
                 if (IdFornecedor <= 0 || fornecedor == null)
                 {
                     return BadRequest(new ErrorMessage(500, "Is missing Fornecedor"));
@@ -120,7 +120,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
             return Ok(entrada);
         }
 
-        private async Task ImportarDuplicatas(ImpNFeTemp impNFeTemp, Entrada entrada, int idEmpresa, int cdHistorico)
+        private async Task ImportarDuplicatas(ImpNFeTemp2 impNFeTemp, Entrada entrada, int idEmpresa, int cdHistorico)
         {
             if (impNFeTemp.impdupnfe == null || impNFeTemp.impdupnfe.Count == 0)
             {
@@ -169,12 +169,12 @@ namespace GlobalAPI_ACBrNFe.Controllers
 
         }
 
-        private async Task ImportarItens(ImpNFeTemp impNFeTemp, Entrada entrada, int idEmpresa, int cdPlanoEstoque)
+        private async Task ImportarItens(ImpNFeTemp2 impNFeTemp, Entrada entrada, int idEmpresa, int cdPlanoEstoque)
         {
             int cont = impNFeTemp.impitensnves.Count;
             foreach (var item in impNFeTemp.impitensnves)
             {
-                Amarracao? amarracao = impNFeTemp.amarracoes.FirstOrDefault(x => x.NrItem == item.NrItem);
+                Amarracao2? amarracao = impNFeTemp.amarracoes.FirstOrDefault(x => x.NrItem == item.NrItem);
                 if (amarracao == null)
                 {
                     throw new Exception($"Erro ao buscar amarração ({item.NrItem})");
@@ -339,7 +339,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     {
                         ppp.PorcSt = 0;
                     }
-                    if (string.IsNullOrEmpty(item.Pisppis) && item.Pisppis.Length > 0)
+                    if (!string.IsNullOrEmpty(item.Pisppis) && item.Pisppis.Length > 0)
                     {
                         ppp.PorcPis = Convert.ToDecimal(item.Pisppis);
                     }
@@ -347,7 +347,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     {
                         ppp.PorcPis = 0;
                     }
-                    if (string.IsNullOrEmpty(item.CofPcofins) && item.CofPcofins.Length > 0)
+                    if (!string.IsNullOrEmpty(item.CofPcofins) && item.CofPcofins.Length > 0)
                     {
                         ppp.PorcConfins = Convert.ToDecimal(item.CofPcofins);
                     }
@@ -355,7 +355,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     {
                         ppp.PorcConfins = 0;
                     }
-                    if (string.IsNullOrEmpty(item.CofstPcofins) && item.CofstPcofins.Length > 0)
+                    if (!string.IsNullOrEmpty(item.CofstPcofins) && item.CofstPcofins.Length > 0)
                     {
                         ppp.PorcCofinsSt = Convert.ToDecimal(item.CofstPcofins);
                     }
@@ -363,7 +363,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     {
                         ppp.PorcCofinsSt = 0;
                     }
-                    if (string.IsNullOrEmpty(item.CofstVbc) && item.CofstVbc.Length > 0)
+                    if (!string.IsNullOrEmpty(item.CofstVbc) && item.CofstVbc.Length > 0)
                     {
                         ppp.VlBaseCofinsSt = Convert.ToDecimal(item.CofstVbc);
                     }
@@ -456,7 +456,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
             }
         }
 
-        private async Task GravarAmarracao(int idEmpresa, ProdutoEntradum ppp, Impitensnfe item, Amarracao amarracao, Entrada entrada)
+        private async Task GravarAmarracao(int idEmpresa, ProdutoEntradum ppp, Impitensnfe item, Amarracao2 amarracao, Entrada entrada)
         {
             string vsql = $@" 
                         SELECT 
@@ -481,7 +481,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
             }
         }
 
-        private async Task AtualizarDadosFiscais(Impitensnfe item, ProdutoEntradum ppp, Amarracao amarracao, Entrada entrada, int idEmpresa, ProdutoEstoque produtoEstoque)
+        private async Task AtualizarDadosFiscais(Impitensnfe item, ProdutoEntradum ppp, Amarracao2 amarracao, Entrada entrada, int idEmpresa, ProdutoEstoque produtoEstoque)
         {
             CfopImportacao? cfopImportacao = await db.CfopImportacaos.FromSqlRaw(
                 $@"
@@ -552,7 +552,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
             await db.SaveChangesAsync();
         }
 
-        private async Task ImportarUnidadeMedida(Impitensnfe item, Amarracao amarracao, int idEmpresa)
+        private async Task ImportarUnidadeMedida(Impitensnfe item, Amarracao2 amarracao, int idEmpresa)
         {
             string SQLunidade = $@"
                 SELECT 
@@ -575,7 +575,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
             }
         }
 
-        private async Task<Entrada?> ImportarEntrada(int idFornecedor, Transportadora? transportadora, ImpNFeTemp impNFeTemp, int idEmpresa, int cdPlanoEstoque)
+        private async Task<Entrada?> ImportarEntrada(int idFornecedor, Transportadora? transportadora, ImpNFeTemp2 impNFeTemp, int idEmpresa, int cdPlanoEstoque)
         {
             Entrada? entrada = db.Entradas.FromSqlRaw($@"
                 SELECT 
@@ -588,6 +588,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
 
             if (entrada == null)
             {
+                entrada = new Entrada();
                 DateOnly data = DateUtils.DateTimeToDateOnly(impNFeTemp.impcabnfe?.DtEmissao ?? DateTime.Now);
                 entrada.Data = data;
                 if (impNFeTemp.impcabnfe.DtSaida == new DateTime(1899, 12, 30))
@@ -665,7 +666,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
             return entrada;
         }
 
-        private async Task<string?> GetCfop(int idEmpresa, ImpNFeTemp impNFeTemp)
+        private async Task<string?> GetCfop(int idEmpresa, ImpNFeTemp2 impNFeTemp)
         {
             string cfop = impNFeTemp.impitensnves.First().Cfop;
             if (string.IsNullOrEmpty(cfop))
@@ -689,7 +690,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
             return cfopImportacao.CdCfopE;
         }
 
-        private async Task<Transportadora?> ImportarTransportadora(ImpNFeTemp impNFeTemp, int idEmpresa)
+        private async Task<Transportadora?> ImportarTransportadora(ImpNFeTemp2 impNFeTemp, int idEmpresa)
         {
             if (string.IsNullOrEmpty(impNFeTemp?.impcabnfe?.CnpjTransp))
             {

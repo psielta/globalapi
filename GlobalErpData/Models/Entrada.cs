@@ -78,7 +78,7 @@ public partial class Entrada : IIdentifiableMultiKey<int, int>
     public int CdGrupoEstoque { get; set; }
 
     [Column("tp_pagt")]
-    [StringLength(1)]
+    [StringLength(128)]
     public string? TpPagt { get; set; }
 
     [Column("transp")]
@@ -149,7 +149,7 @@ public partial class Entrada : IIdentifiableMultiKey<int, int>
     public string? NumDocArrec { get; set; }
 
     [Column("t_pag")]
-    [StringLength(2)]
+    [StringLength(128)]
     public string? TPag { get; set; }
 
     [Column("v_icms_deson")]
