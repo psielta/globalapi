@@ -183,6 +183,10 @@ public partial class Entrada : IIdentifiableMultiKey<int, int>
     [InverseProperty("Entrada")]
     public virtual ICollection<ProdutoEntradum> ProdutoEntrada { get; set; } = new List<ProdutoEntradum>();
 
+    [JsonIgnore]
+    [InverseProperty("Entrada")]
+    public virtual ICollection<ContasAPagar> ContasAPagars { get; set; } = new List<ContasAPagar>();
+
     [GraphQLIgnore]
     public (int, int) GetId()
     {

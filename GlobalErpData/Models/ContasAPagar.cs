@@ -141,6 +141,11 @@ public partial class ContasAPagar : IIdentifiable<int>
     [InverseProperty("ContasAPagars")]
     public virtual Fornecedor Fornecedor { get; set; } = null!;
 
+    [JsonIgnore]
+    [ForeignKey("NrEntrada, CdEmpresa")]
+    [InverseProperty("ContasAPagars")]
+    public virtual Entrada? Entrada { get; set; }
+
     [JsonPropertyName("nmForn")]
     [NotMapped]
     public string NmForn => Fornecedor?.NmForn ?? "";

@@ -300,6 +300,10 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("contas_a_pagar_fk1");
 
+            entity.HasOne(d => d.Entrada).WithMany(p => p.ContasAPagars)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("contas_a_pagar_fk3");
+
             entity.HasOne(d => d.HistoricoCaixa).WithMany(p => p.ContasAPagars)
                 .HasPrincipalKey(p => new { p.CdEmpresa, p.CdSubPlano, p.CdPlano })
                 .HasForeignKey(d => new { d.CdEmpresa, d.CdHistoricoCaixa, d.CdPlanoCaixa })
@@ -1054,7 +1058,9 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
             entity.HasOne(d => d.ProdutoEstoque).WithMany(p => p.ProdutoEntrada).HasConstraintName("produto_entrada_fk1");
 
-            entity.HasOne(d => d.Entrada).WithMany(p => p.ProdutoEntrada).HasConstraintName("produto_entrada_fk");
+            entity.HasOne(d => d.Entrada).WithMany(p => p.ProdutoEntrada)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("produto_entrada_fk");
         });
 
         modelBuilder.Entity<ProdutoEstoque>(entity =>
