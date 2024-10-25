@@ -52,6 +52,14 @@ public partial class SaldoEstoque : IIdentifiable<int>
     [InverseProperty("SaldoEstoques")]
     public virtual ProdutoEstoque ProdutoEstoque { get; set; } = null!;
 
+    [JsonPropertyName("nmPlano")]
+    [NotMapped]
+    public string NmPlano => CdPlanoNavigation?.NmPlano ?? string.Empty;
+
+    [JsonPropertyName("nmProduto")]
+    [NotMapped]
+    public string NmProduto => ProdutoEstoque?.NmProduto ?? "";
+
     public int GetId()
     {
         return Id;

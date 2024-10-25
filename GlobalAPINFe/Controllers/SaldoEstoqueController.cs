@@ -1,10 +1,12 @@
-﻿using GlobalErpData.Dto;
+﻿using GlobalErpData.Data;
+using GlobalErpData.Dto;
 using GlobalErpData.GenericControllers;
 using GlobalErpData.Models;
 using GlobalErpData.Repository;
 using GlobalErpData.Repository.PagedRepositories;
 using GlobalLib.Strings;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,8 +19,14 @@ namespace GlobalAPINFe.Controllers
     [ApiController]
     public class SaldoEstoqueController : GenericPagedController<SaldoEstoque, int, SaldoEstoqueDto>
     {
-        public SaldoEstoqueController(IQueryRepository<SaldoEstoque, int, SaldoEstoqueDto> repo, ILogger<GenericPagedController<SaldoEstoque, int, SaldoEstoqueDto>> logger) : base(repo, logger)
+        private readonly IDbContextFactory<GlobalErpFiscalBaseContext> dbContextFactory;
+
+        public SaldoEstoqueController(IQueryRepository<SaldoEstoque, int, SaldoEstoqueDto> repo, ILogger<GenericPagedController<SaldoEstoque, int, SaldoEstoqueDto>> logger
+            ,
+            IDbContextFactory<GlobalErpFiscalBaseContext> dbContextFactory
+            ) : base(repo, logger)
         {
+            this.dbContextFactory = dbContextFactory;
         }
 
         // Sobrescrevendo os métodos herdados e adicionando os atributos [ProducesResponseType]
@@ -83,11 +91,30 @@ namespace GlobalAPINFe.Controllers
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
             [FromQuery] int? cdProduto = null,
-            [FromQuery] int? cdPlano = null)
+            [FromQuery] int? cdPlano = null,
+            [FromQuery] string? nmProduto = null)
         {
+            await using var _context = dbContextFactory.CreateDbContext();
             try
             {
-                var query = ((SaldoEstoquePagedRepository)repo).GetSaldoEstoquePorEmpresa(idEmpresa).Result.AsQueryable();
+                IQueryable<SaldoEstoque>? query;
+                if (string.IsNullOrEmpty(nmProduto))
+                {
+                    query = ((SaldoEstoquePagedRepository)repo).GetSaldoEstoquePorEmpresa(idEmpresa).Result.AsQueryable();
+                }
+                else
+                {
+                    string SQL = $@"SELECT * FROM saldo_estoque se
+                        WHERE se.cd_empresa = {idEmpresa}
+                        AND se.cd_produto IN (SELECT cd_produto FROM produto_estoque pe
+                        where pe.nm_produto LIKE '%{nmProduto}%'
+                        and pe.id_empresa = {idEmpresa})";
+
+                    query = _context.Set<SaldoEstoque>().FromSqlRaw(SQL).Include(c => c.ProdutoEstoque)
+                        .Include(c => c.CdPlanoNavigation);
+
+
+                }
 
                 if (query == null)
                 {
@@ -106,7 +133,8 @@ namespace GlobalAPINFe.Controllers
                     filteredQuery = filteredQuery.Where(p => p.CdPlano == cdPlano.Value);
                 }
 
-                filteredQuery = filteredQuery.OrderBy(p => p.Id);
+                filteredQuery = filteredQuery
+                    .OrderBy(p => p.Id);
 
                 var pagedList = filteredQuery.ToPagedList(pageNumber, pageSize);
                 var response = new PagedResponse<SaldoEstoque>(pagedList);
