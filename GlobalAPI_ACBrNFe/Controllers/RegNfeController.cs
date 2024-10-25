@@ -6,6 +6,7 @@ using GlobalLib.Strings;
 using GlobalLib.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace GlobalAPI_ACBrNFe.Controllers
 {
@@ -148,9 +149,9 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 contasAPagar.DtVencimento = dataVencimento;
                 contasAPagar.CdFornecedor = entrada.CdForn;
                 contasAPagar.NrDuplicata = $"ENT{entrada.Nr}";
-                contasAPagar.VlCp = Convert.ToDecimal(item.Valor);
-                contasAPagar.VlDesconto = Convert.ToDecimal(0);
-                contasAPagar.VlTotal = Convert.ToDecimal(item.Valor);
+                contasAPagar.VlCp = ConvertToDecimal(item.Valor);
+                contasAPagar.VlDesconto = ConvertToDecimal(0);
+                contasAPagar.VlTotal = ConvertToDecimal(item.Valor);
                 contasAPagar.Pagou = "N";
                 contasAPagar.CdEmpresa = idEmpresa;
                 contasAPagar.NrNf = entrada.Nr.ToString();
@@ -209,8 +210,8 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     ppp.Lote = item.Lote ?? "-1";
                     ppp.DtValidade = (item.DtValid != null) ? (DateUtils.DateTimeToDateOnly(item.DtValid ?? DateTime.Now)) : (
                         new DateOnly(9999, 01, 01));
-                    ppp.Quant = Convert.ToDecimal(item.Qtrib);
-                    ppp.VlUnitario = Convert.ToDecimal(item.Vuntrib);
+                    ppp.Quant = ConvertToDecimal(item.Qtrib);
+                    ppp.VlUnitario = ConvertToDecimal(item.Vuntrib);
                     await ImportarUnidadeMedida(item, amarracao, idEmpresa);
                     ppp.Unidade = item.Utrib;
                     await AtualizarDadosFiscais(item, ppp, amarracao, entrada, idEmpresa, produtoEstoque);
@@ -230,17 +231,17 @@ namespace GlobalAPI_ACBrNFe.Controllers
                         ppp.Cst = item.ImpOrigem + item.Cst;
                     }
 
-                    ppp.BIcms = Convert.ToDecimal(item.Vbc);
-                    ppp.PorcIcms = Convert.ToDecimal(item.Picms);
-                    ppp.VlIcms = Convert.ToDecimal(item.Vicms);
-                    ppp.VlIcmsSt = Convert.ToDecimal(item.Vicmsst);
+                    ppp.BIcms = ConvertToDecimal(ConvertToDecimal(item.Vbc));
+                    ppp.PorcIcms = ConvertToDecimal(item.Picms);
+                    ppp.VlIcms = ConvertToDecimal(item.Vicms);
+                    ppp.VlIcmsSt = ConvertToDecimal(item.Vicmsst);
                     ppp.CstConfins = item.ImpOrigem + item.CofCst;
                     ppp.CstPis = item.ImpOrigem + item.PisCst;
-                    ppp.FreteProduto = Convert.ToDecimal(item.FreteProduto);
+                    ppp.FreteProduto = ConvertToDecimal(item.FreteProduto);
 
                     if (!string.IsNullOrEmpty(item.Ipivbc) && item.Ipivbc.Length > 0)
                     {
-                        ppp.BaseIpi = Convert.ToDecimal(item.Ipivbc);
+                        ppp.BaseIpi = ConvertToDecimal(item.Ipivbc);
                     }
                     else
                     {
@@ -248,7 +249,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     }
                     if (!string.IsNullOrEmpty(item.Ipipipi) && item.Ipipipi.Length > 0)
                     {
-                        ppp.PorcIpi = Convert.ToDecimal(item.Ipipipi);
+                        ppp.PorcIpi = ConvertToDecimal(item.Ipipipi);
                     }
                     else
                     {
@@ -258,13 +259,13 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     {
                         if (!string.IsNullOrEmpty(item.Ipivipi) && item.Ipivipi.Length > 0)
                         {
-                            ppp.VlIpi = Convert.ToDecimal(item.Ipivipi);
+                            ppp.VlIpi = ConvertToDecimal(item.Ipivipi);
                         }
                         else
                         {
                             if (!string.IsNullOrEmpty(impNFeTemp.imptotalnfe.IcmsVipi) && impNFeTemp.imptotalnfe.IcmsVipi.Length > 0)
                             {
-                                ppp.VlIpi = Convert.ToDecimal(impNFeTemp.imptotalnfe.IcmsVipi);
+                                ppp.VlIpi = ConvertToDecimal(impNFeTemp.imptotalnfe.IcmsVipi);
                             }
                             else
                             {
@@ -276,7 +277,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     {
                         if (!string.IsNullOrEmpty(item.Ipivipi) && item.Ipivipi.Length > 0)
                         {
-                            ppp.VlIpi = Convert.ToDecimal(item.Ipivipi);
+                            ppp.VlIpi = ConvertToDecimal(item.Ipivipi);
                         }
                         else
                         {
@@ -285,7 +286,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     }
                     if (!string.IsNullOrEmpty(item.Vldesc) && item.Vldesc.Length > 0)
                     {
-                        ppp.VlOutras = Convert.ToDecimal(item.Vldesc);
+                        ppp.VlOutras = ConvertToDecimal(item.Vldesc);
                     }
                     else
                     {
@@ -293,7 +294,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     }
                     if (!string.IsNullOrEmpty(item.Pisvpis) && item.Pisvpis.Length > 0)
                     {
-                        ppp.VlPis = Convert.ToDecimal(item.Pisvpis);
+                        ppp.VlPis = ConvertToDecimal(item.Pisvpis);
                     }
                     else
                     {
@@ -301,7 +302,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     }
                     if (!string.IsNullOrEmpty(item.CofVcofins) && item.CofVcofins.Length > 0)
                     {
-                        ppp.VlConfins = Convert.ToDecimal(item.CofVcofins);
+                        ppp.VlConfins = ConvertToDecimal(item.CofVcofins);
                     }
                     else
                     {
@@ -309,7 +310,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     }
                     if (!string.IsNullOrEmpty(item.Vbcst) && item.Vbcst.Length > 0)
                     {
-                        ppp.VlBaseSt = Convert.ToDecimal(item.Vbcst);
+                        ppp.VlBaseSt = ConvertToDecimal(item.Vbcst);
                     }
                     else
                     {
@@ -317,7 +318,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     }
                     if (!string.IsNullOrEmpty(item.Pisvbc) && item.Pisvbc.Length > 0)
                     {
-                        ppp.VlBasePis = Convert.ToDecimal(item.Pisvbc);
+                        ppp.VlBasePis = ConvertToDecimal(item.Pisvbc);
                     }
                     else
                     {
@@ -325,7 +326,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     }
                     if (!string.IsNullOrEmpty(item.CofVbc) && item.CofVbc.Length > 0)
                     {
-                        ppp.VlBaseConfins = Convert.ToDecimal(item.CofVbc);
+                        ppp.VlBaseConfins = ConvertToDecimal(item.CofVbc);
                     }
                     else
                     {
@@ -333,7 +334,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     }
                     if (!string.IsNullOrEmpty(item.Picmsst) && item.Picmsst.Length > 0)
                     {
-                        ppp.PorcSt = Convert.ToDecimal(item.Picmsst);
+                        ppp.PorcSt = ConvertToDecimal(item.Picmsst);
                     }
                     else
                     {
@@ -341,7 +342,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     }
                     if (!string.IsNullOrEmpty(item.Pisppis) && item.Pisppis.Length > 0)
                     {
-                        ppp.PorcPis = Convert.ToDecimal(item.Pisppis);
+                        ppp.PorcPis = ConvertToDecimal(item.Pisppis);
                     }
                     else
                     {
@@ -349,7 +350,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     }
                     if (!string.IsNullOrEmpty(item.CofPcofins) && item.CofPcofins.Length > 0)
                     {
-                        ppp.PorcConfins = Convert.ToDecimal(item.CofPcofins);
+                        ppp.PorcConfins = ConvertToDecimal(item.CofPcofins);
                     }
                     else
                     {
@@ -357,7 +358,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     }
                     if (!string.IsNullOrEmpty(item.CofstPcofins) && item.CofstPcofins.Length > 0)
                     {
-                        ppp.PorcCofinsSt = Convert.ToDecimal(item.CofstPcofins);
+                        ppp.PorcCofinsSt = ConvertToDecimal(item.CofstPcofins);
                     }
                     else
                     {
@@ -365,7 +366,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     }
                     if (!string.IsNullOrEmpty(item.CofstVbc) && item.CofstVbc.Length > 0)
                     {
-                        ppp.VlBaseCofinsSt = Convert.ToDecimal(item.CofstVbc);
+                        ppp.VlBaseCofinsSt = ConvertToDecimal(item.CofstVbc);
                     }
                     else
                     {
@@ -373,7 +374,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     }
                     if (!string.IsNullOrEmpty(item.CofstVcofins) && item.CofstVcofins.Length > 0)
                     {
-                        ppp.VlCofinsSt = Convert.ToDecimal(item.CofstVcofins);
+                        ppp.VlCofinsSt = ConvertToDecimal(item.CofstVcofins);
                     }
                     else
                     {
@@ -381,7 +382,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     }
                     if (!string.IsNullOrEmpty(item.Pisstppis) && item.Pisstppis.Length > 0)
                     {
-                        ppp.PorcPisSt = Convert.ToDecimal(item.Pisstppis);
+                        ppp.PorcPisSt = ConvertToDecimal(item.Pisstppis);
                     }
                     else
                     {
@@ -389,7 +390,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     }
                     if (!string.IsNullOrEmpty(item.Pisstvbc) && item.Pisstvbc.Length > 0)
                     {
-                        ppp.VlBasePisSt = Convert.ToDecimal(item.Pisstvbc);
+                        ppp.VlBasePisSt = ConvertToDecimal(item.Pisstvbc);
                     }
                     else
                     {
@@ -398,7 +399,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
 
                     if (!string.IsNullOrEmpty(item.Pisstvpis) && item.Pisstvpis.Length > 0)
                     {
-                        ppp.VlPisSt = Convert.ToDecimal(item.Pisstvpis);
+                        ppp.VlPisSt = ConvertToDecimal(item.Pisstvpis);
                     }
                     else
                     {
@@ -406,20 +407,20 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     }
                     if (!string.IsNullOrEmpty(item.Vicmsdeson) && item.Vicmsdeson.Length > 0)
                     {
-                        ppp.VIcmsDeson = Convert.ToDecimal(item.Vicmsdeson);
+                        ppp.VIcmsDeson = ConvertToDecimal(item.Vicmsdeson);
                     }
                     else
                     {
                         ppp.VIcmsDeson = 0;
                     }
-                    ppp.VlDespAcess = Convert.ToDecimal(item.VlOutros);
-                    ppp.FcpBase = Convert.ToDecimal(item.FcpBase);
-                    ppp.FcpPorc = Convert.ToDecimal(item.FcpPorc);
-                    ppp.FcpValor = Convert.ToDecimal(item.FcpValor);
-                    ppp.ImpBaseIcmsStRet = Convert.ToDecimal(item.Vbcstret);
-                    ppp.ImpBaseIcmsStRet = Convert.ToDecimal(item.Vicmsstret);
-                    ppp.ImpPst = Convert.ToDecimal(item.Pst);
-                    ppp.QtTotal = Math.Round(Convert.ToDecimal(item.Qtrib) * (amarracao.FatorConversao ?? 1), 4);
+                    ppp.VlDespAcess = ConvertToDecimal(item.VlOutros);
+                    ppp.FcpBase = ConvertToDecimal(item.FcpBase);
+                    ppp.FcpPorc = ConvertToDecimal(item.FcpPorc);
+                    ppp.FcpValor = ConvertToDecimal(item.FcpValor);
+                    ppp.ImpBaseIcmsStRet = ConvertToDecimal(item.Vbcstret);
+                    ppp.ImpBaseIcmsStRet = ConvertToDecimal(item.Vicmsstret);
+                    ppp.ImpPst = ConvertToDecimal(item.Pst);
+                    ppp.QtTotal = Math.Round(ConvertToDecimal(item.Qtrib) * (amarracao.FatorConversao ?? 1), 4);
 
                     if (!string.IsNullOrEmpty(item.VeicChassi) && item.VeicChassi.Length > 0)
                     {
@@ -429,12 +430,12 @@ namespace GlobalAPI_ACBrNFe.Controllers
                         ppp.DescCorVeic = item.VeicXcor;
                         ppp.PotenciaMotorVeic = item.VeicPot;
                         ppp.CilindradasVeic = item.VeicCilin;
-                        ppp.PesoLiquidoVeic = Convert.ToDecimal(item.VeicPesol);
-                        ppp.PesoBrutoVeic = Convert.ToDecimal(item.VeicPesob);
+                        ppp.PesoLiquidoVeic = ConvertToDecimal(item.VeicPesol);
+                        ppp.PesoBrutoVeic = ConvertToDecimal(item.VeicPesob);
                         ppp.SerialVeic = item.VeicNserie;
                         ppp.TpCombustVeic = item.VeicTpcomb;
                         ppp.NrMotorVeic = item.VeicNmotor;
-                        ppp.CapcMaxTracVeic = Convert.ToDecimal(item.VeicCmt);
+                        ppp.CapcMaxTracVeic = ConvertToDecimal(item.VeicCmt);
                         ppp.DistEixosVeic = item.VeicDist;
                         ppp.AnoVeic = item.VeicAnomod;
                         ppp.AnoFabVeic = item.VeicAnofab;
@@ -618,7 +619,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 decimal vIcmsD = 0;
                 try
                 {
-                    vIcmsD = Convert.ToDecimal(impNFeTemp.imptotalnfe.Vicmsdeson ?? "0");
+                    vIcmsD = ConvertToDecimal(impNFeTemp.imptotalnfe.Vicmsdeson ?? "0");
                 }
                 catch
                 {
@@ -654,11 +655,11 @@ namespace GlobalAPI_ACBrNFe.Controllers
                         entrada.TpFrete = 0;
                         break;
                 }
-                entrada.VlFrete = Convert.ToDecimal(impNFeTemp.imptotalnfe.IcmsFrete ?? "0");
-                entrada.VlSeguro = Convert.ToDecimal(impNFeTemp.imptotalnfe.IcmsSeg ?? "0");
-                entrada.VlOutras = Convert.ToDecimal(impNFeTemp.imptotalnfe.IcmsOutros ?? "0");
-                entrada.VlDescontoNf = Convert.ToDecimal(impNFeTemp.imptotalnfe.IcmsDesc ?? "0");
-                entrada.VlStNf = Convert.ToDecimal(impNFeTemp.imptotalnfe.IcmsSt ?? "0");
+                entrada.VlFrete = ConvertToDecimal(impNFeTemp.imptotalnfe.IcmsFrete ?? "0");
+                entrada.VlSeguro = ConvertToDecimal(impNFeTemp.imptotalnfe.IcmsSeg ?? "0");
+                entrada.VlOutras = ConvertToDecimal(impNFeTemp.imptotalnfe.IcmsOutros ?? "0");
+                entrada.VlDescontoNf = ConvertToDecimal(impNFeTemp.imptotalnfe.IcmsDesc ?? "0");
+                entrada.VlStNf = ConvertToDecimal(impNFeTemp.imptotalnfe.IcmsSt ?? "0");
                 entrada.CdGrupoEstoque = cdPlanoEstoque;
                 entrada.TpEntrada = "C";
                 entrada.TpPagt = (impNFeTemp.impcabnfe.TPag ?? "").Equals("01") ? "V" : "P";
@@ -719,7 +720,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 transportadora.CdCnpj = cnpj;
                 transportadora.Numero = 0;
                 transportadora.NmEndereco = impNFeTemp.impcabnfe?.EndTransp;
-                transportadora.CdCidade = impNFeTemp.impcabnfe?.CidadeTransp;
+                transportadora.CdCidade = await GetCdCidade(idEmpresa, impNFeTemp.impcabnfe?.CidadeTransp);
                 transportadora.IdEmpresa = idEmpresa;
 
                 db.Transportadoras.Add(transportadora);
@@ -728,5 +729,44 @@ namespace GlobalAPI_ACBrNFe.Controllers
             return transportadora;
         }
 
+        private async Task<string?> GetCdCidade(int idEmpresa, string? cidadeTransp)
+        {
+            string SQL = $@"
+                SELECT 
+                  cd_cidade,
+                  nm_cidade,
+                  uf
+                FROM 
+                  public.cidade
+                WHERE upper(trim(nm_cidade)) LIKE '%{(cidadeTransp ?? "SAO SEBASTIAO DO PARAISO").Trim().ToUpper()}%'
+";
+            Cidade? cidade = await db.Cidades.FromSqlRaw(SQL).FirstOrDefaultAsync();
+            if (cidade == null)
+            {
+                return "3164704";
+            }
+            return cidade.CdCidade;
+
+        }
+        private decimal ConvertToDecimal(string? Decimal)
+        {
+            if (Decimal.IsNullOrEmpty())
+            {
+                Decimal = "0";
+            }
+            return Convert.ToDecimal(Decimal);
+        }
+        private decimal ConvertToDecimal(decimal? Decimal)
+        {
+            if (Decimal == null)
+            {
+                Decimal = 0;
+            }
+            if (Decimal < 0)
+            {
+                Decimal = 0;
+            }
+            return Convert.ToDecimal(Decimal);
+        }
     }
 }
