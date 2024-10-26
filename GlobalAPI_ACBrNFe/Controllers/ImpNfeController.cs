@@ -1225,11 +1225,11 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     return BadRequest(
                         new ErrorMessage(500, "Total da nota fiscal não encontrado"));
                 }
-                if (impNFeTemp.impdupnfe == null || impNFeTemp.impdupnfe.Count == 0)
-                {
-                    return BadRequest(
-                        new ErrorMessage(500, "Duplicatas da nota fiscal não encontradas"));
-                }
+                //if (impNFeTemp.impdupnfe == null || impNFeTemp.impdupnfe.Count == 0)
+                //{
+                //    return BadRequest(
+                //        new ErrorMessage(500, "Duplicatas da nota fiscal não encontradas"));
+                //}
                 if (impNFeTemp.impcabnfe == null)
                 {
                     return BadRequest(

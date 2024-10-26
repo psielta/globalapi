@@ -90,10 +90,9 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     return BadRequest(new ErrorMessage(500, "Is missing amarracao"));
                 }
             }
-            await _hubContext.Clients.Group(sessionId).SendAsync("ReceiveProgress", "Validações concluídas.");
             #endregion
             #region Busca Fornecedor
-            await _hubContext.Clients.Group(sessionId).SendAsync("ReceiveProgress", "Buscando fornecedor...");
+            await _hubContext.Clients.Group(sessionId).SendAsync("ReceiveProgress", "Importando fornecedor...");
             int IdFornecedor = 0;
             Fornecedor? fornecedor = null;
 
@@ -111,9 +110,9 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 logger.LogError($"Erro ao buscar fornecedor ({IdFornecedor}, {chaveAcesso}).");
                 return BadRequest(new ErrorMessage(500, "Is missing Fornecedor"));
             }
-            await _hubContext.Clients.Group(sessionId).SendAsync("ReceiveProgress", "Fornecedor encontrado.");
             #endregion
             #region Busca Transportadora
+            await _hubContext.Clients.Group(sessionId).SendAsync("ReceiveProgress", "Importando Transportadora...");
             Transportadora? transportadora;
             try
             {
@@ -158,13 +157,12 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 logger.LogError(ex, $"Erro ao importar XML ({chaveAcesso}).");
                 return BadRequest(new ErrorMessage(500, "Error importing XML"));
             }
-            await _hubContext.Clients.Group(sessionId).SendAsync("ReceiveProgress", "XML importado com sucesso.");
             #endregion
             #region Itens
             await _hubContext.Clients.Group(sessionId).SendAsync("ReceiveProgress", "Importando itens do XML.");
             try
             {
-                await ImportarItens(impNFeTemp, entrada, idEmpresa, cdPlanoEstoque);
+                await ImportarItens(impNFeTemp, entrada, idEmpresa, cdPlanoEstoque, sessionId);
             }
             catch (Exception ex)
             {
@@ -184,8 +182,8 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 logger.LogError(ex, $"Erro ao importar duplicatas ({chaveAcesso}).");
                 return BadRequest(new ErrorMessage(500, "Error importing Duplicatas"));
             }
-            #endregion
             await _hubContext.Clients.Group(sessionId).SendAsync("ReceiveProgress", "Finalizado com sucesso.");
+            #endregion
 
             return Ok(entrada);
         }
@@ -308,7 +306,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
 
         }
 
-        private async Task ImportarItens(ImpNFeTemp2 impNFeTemp, Entrada entrada, int idEmpresa, int cdPlanoEstoque)
+        private async Task ImportarItens(ImpNFeTemp2 impNFeTemp, Entrada entrada, int idEmpresa, int cdPlanoEstoque, string sessionId)
         {
             int cont = impNFeTemp.impitensnves.Count;
             foreach (var item in impNFeTemp.impitensnves)
@@ -601,8 +599,9 @@ namespace GlobalAPI_ACBrNFe.Controllers
                         var _response = await response.Content.ReadFromJsonAsync<ProdutoEntradum>();
                         if (_response != null)
                         {
-                            logger.LogInformation($"Produto entrada id [{idEmpresa},{_response.NrEntrada},{_response.NrItem}] criado com sucesso.");
                             ppp = _response;
+                            logger.LogInformation($"Produto entrada id [{idEmpresa},{_response.NrEntrada},{_response.NrItem}] criado com sucesso.");
+                            await _hubContext.Clients.Group(sessionId).SendAsync("ReceiveProgress",$"Item {ppp.NrItem} - {produtoEstoque.NmProduto} importado com sucesso...");
                         }
                         else
                         {
