@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using GlobalAPI_ACBrNFe.Models;
 using GlobalErpData.Dto;
 using GlobalErpData.Models;
 using System;
@@ -65,6 +66,13 @@ namespace GlobalErpData.Repository
             CreateMap<Older, GetOldersDto>()
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OlderItems));
             CreateMap<OlderItem, GetOlderItemDto>();
+
+            CreateMap<ProdutoEstoque, ProdutoEstoqueDto2>().ReverseMap();
+
+            // Mapeamento entre Amarracao e Amarracao2, incluindo a propriedade produto
+            CreateMap<Amarracao, Amarracao2>()
+                .ForMember(dest => dest.produto, opt => opt.MapFrom(src => src.produto))
+                .ReverseMap();
 
         }
     }

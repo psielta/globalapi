@@ -947,6 +947,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     Amarracao amarracao = new Amarracao();
                     amarracao.NrItem = item.NrItem;
                     amarracao.CdForn = CdForn;
+                    amarracao.CdUni = "";
 
                     impNFeTemp.amarracoes.Add(amarracao);
                 }
@@ -959,6 +960,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     Amarracao amarracao = new Amarracao();
                     amarracao.NrItem = item.NrItem;
                     amarracao.CdForn = CdForn;
+                    amarracao.CdUni = "";
                     ProdutosForn? produtosForn = await GetProdutoForn(idEmpresa, CdForn, item.CProd, item.Cean);
                     if (produtosForn != null)
                     {
@@ -967,6 +969,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                             amarracao.CdProduto = produtosForn.CdProduto.ToString();
                             amarracao.NmProduto = produtosForn.ProdutoEstoque.NmProduto;
                             amarracao.FatorConversao = produtosForn.ProdutoEstoque.QtTotal;
+                            amarracao.CdUni = produtosForn.ProdutoEstoque.CdUni ?? "";
                             amarracao.produto = produtosForn.ProdutoEstoque;
                             amarracao.CdBarra = produtosForn.ProdutoEstoque.CdBarra;
                         }
@@ -977,6 +980,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                             {
                                 amarracao.NmProduto = produtoEstoque.NmProduto;
                                 amarracao.CdProduto = produtoEstoque.CdProduto.ToString();
+                                amarracao.CdUni = produtoEstoque.CdUni ?? "";
                                 amarracao.FatorConversao = produtoEstoque.QtTotal;
                                 amarracao.produto = produtoEstoque;
                                 amarracao.CdBarra = produtoEstoque.CdBarra;
@@ -1193,7 +1197,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> CadastrarProdutosFaltantes([FromBody] List<Amarracao> amarracoes, int idEmpresa, int cdForn, string chaveNfe, string sessionId)
+        public async Task<IActionResult> CadastrarProdutosFaltantes([FromBody] List<Amarracao2> amarracoes2, int idEmpresa, int cdForn, string chaveNfe, string sessionId)
         {
             if (ImportacaoProdutosProtect.ContainsKey(chaveNfe) && ImportacaoProdutosProtect[chaveNfe] == idEmpresa)
             {
@@ -1202,11 +1206,12 @@ namespace GlobalAPI_ACBrNFe.Controllers
             ImportacaoProdutosProtect[chaveNfe] = idEmpresa;
             try
             {
-                if (amarracoes == null || amarracoes.Count == 0)
+                if (amarracoes2 == null || amarracoes2.Count == 0)
                 {
                     return BadRequest(
                         new ErrorMessage(400, "Nenhum produto foi informado para cadastro"));
                 }
+
 
                 ImpNFeTemp impNFeTemp = new ImpNFeTemp();
                 impNFeTemp.amarracoes = new List<Amarracao>();
@@ -1235,6 +1240,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     return BadRequest(
                         new ErrorMessage(500, "Cabeçalho da nota fiscal não encontrado"));
                 }
+                List<Amarracao> amarracoes = mapper.Map<List<Amarracao>>(amarracoes2);
 
                 foreach (var amarracao in amarracoes)
                 {
@@ -1255,6 +1261,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                                 amarracao.NrItem = impitensnfe.NrItem;
                                 amarracao.produto = produtoEstoque1;
                                 amarracao.NmProduto = produtoEstoque1.NmProduto;
+                                amarracao.CdUni = produtoEstoque1.CdUni ?? "";
                                 amarracao.CdProduto = produtoEstoque1.CdProduto.ToString();
                                 amarracao.FatorConversao = produtoEstoque1.QtTotal;
                                 amarracao.CdBarra = produtoEstoque1.CdBarra;
@@ -1477,6 +1484,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                                 amarracao.NrItem = impitensnfe.NrItem;
                                 amarracao.produto = _produtoEstoque;
                                 amarracao.NmProduto = _produtoEstoque.NmProduto;
+                                amarracao.CdUni = _produtoEstoque.CdUni ?? "";
                                 amarracao.CdProduto = _produtoEstoque.CdProduto.ToString();
                                 amarracao.FatorConversao = _produtoEstoque.QtTotal;
                                 amarracao.CdBarra = _produtoEstoque.CdBarra;
