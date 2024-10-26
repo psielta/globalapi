@@ -1,4 +1,5 @@
-﻿using GlobalAPI_ACBrNFe.Models;
+﻿using AutoMapper;
+using GlobalAPI_ACBrNFe.Models;
 using GlobalErpData.Data;
 using GlobalErpData.Dto;
 using GlobalErpData.Models;
@@ -7,6 +8,8 @@ using GlobalLib.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using NFe.Classes.Informacoes;
+using System.Net.Http.Headers;
 
 namespace GlobalAPI_ACBrNFe.Controllers
 {
@@ -16,12 +19,29 @@ namespace GlobalAPI_ACBrNFe.Controllers
     {
         protected GlobalErpFiscalBaseContext db;
         protected readonly ILogger<ImpNfeController> logger;
+        protected IMapper mapper;
         private string ENDPOINT_POST_FORNECECOR;
-        public RegNfeController(GlobalErpFiscalBaseContext db, ILogger<ImpNfeController> logger)
+        private string ENDPOINT_ENTRADA;
+        private string ENDPOINT_PRODUTO_ENTRADA;
+        private string ENDPOINT_CONTAS_PAGAR;
+        private string ENDPOINT_PRODUTOS_FORN;
+        private string ENDPOINT_PRODUTOS;
+        private string ENDPOINT_UNIDADE_MEDIDA;
+        private string ENDPOINT_TRANSPORTADORA;
+        public RegNfeController(GlobalErpFiscalBaseContext db, ILogger<ImpNfeController> logger
+            , IMapper mapper)
         {
             this.db = db;
             this.logger = logger;
+            this.mapper = mapper;
             ENDPOINT_POST_FORNECECOR = Constants.URL_API_NFE + "/api/Fornecedor";
+            ENDPOINT_ENTRADA = Constants.URL_API_NFE + "/api/Entrada";
+            ENDPOINT_CONTAS_PAGAR = Constants.URL_API_NFE + "/api/ContasAPagar";
+            ENDPOINT_PRODUTO_ENTRADA = Constants.URL_API_NFE + "/api/ProdutoEntrada";
+            ENDPOINT_PRODUTOS_FORN = Constants.URL_API_NFE + "/api/ProdutosForn";
+            ENDPOINT_PRODUTOS = Constants.URL_API_NFE + "/api/ProdutoEstoque";
+            ENDPOINT_UNIDADE_MEDIDA = Constants.URL_API_NFE + "/api/UnidadeMedida";
+            ENDPOINT_TRANSPORTADORA = Constants.URL_API_NFE + "/api/Transportadora";
         }
 
         [HttpPost("Registrar/{idEmpresa}/{chaveAcesso}/{cdPlanoEstoque}/{cdHistorico}", Name = nameof(Registrar))]
@@ -45,6 +65,22 @@ namespace GlobalAPI_ACBrNFe.Controllers
             {
                 logger.LogError($"Erro ao buscar amarrações ({chaveAcesso}).");
                 return BadRequest(new ErrorMessage(500, "Is missing NFe"));
+            }
+            foreach (var item in impNFeTemp.amarracoes)
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(item.CdProduto) || Convert.ToInt32(item.CdProduto) <= 0)
+                    {
+                        logger.LogError($"Erro ao buscar amarrações ({chaveAcesso}).");
+                        return BadRequest(new ErrorMessage(500, "Is missing amarracao"));
+                    }
+                }
+                catch
+                {
+                    logger.LogError($"Erro ao buscar amarrações ({chaveAcesso}).");
+                    return BadRequest(new ErrorMessage(500, "Is missing amarracao"));
+                }
             }
             #endregion
             #region Busca Fornecedor
@@ -152,8 +188,32 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 throw new Exception($"Erro ao buscar XML ({impNFeTemp.impcabnfe.ChNfe})");
             }
             entrada.XmlNf = impxml.Xml;
-            db.Update(entrada);
-            await db.SaveChangesAsync();
+            string url = ENDPOINT_ENTRADA + $"/{idEmpresa}/{entrada.Nr}";
+
+            EntradaDto entradaDto = mapper.Map<EntradaDto>(entrada);
+            HttpClient client = new HttpClient();
+            client.BaseAddress = new Uri(url);
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            HttpResponseMessage response = await client.PutAsJsonAsync(url, entradaDto);
+            if (response.IsSuccessStatusCode)
+            {
+                var _response = await response.Content.ReadFromJsonAsync<Entrada>();
+                if (_response != null)
+                {
+                    logger.LogInformation($"Entrada id [{idEmpresa},{_response.Nr}] criado com sucesso.");
+                    entrada = _response;
+                }
+                else
+                {
+                    logger.LogError($"Erro ao importar XML entrada ({entrada.Nr}).");
+                    throw new Exception("Erro ao importar XML entrada");
+                }
+            }
+            else
+            {
+                logger.LogError($"Erro ao importar XML entrada ({entrada.Nr}).");
+                throw new Exception("Erro ao importar XML entrada");
+            }
         }
 
         private async Task ImportarDuplicatas(ImpNFeTemp2 impNFeTemp, Entrada entrada, int idEmpresa, int cdHistorico)
@@ -179,28 +239,49 @@ namespace GlobalAPI_ACBrNFe.Controllers
             foreach (var item in impNFeTemp.impdupnfe)
             {
                 DateOnly dataVencimento = DateUtils.DateTimeToDateOnly(item.DtVenc ?? DateTime.Now);
-                ContasAPagar contasAPagar = new ContasAPagar();
-                contasAPagar.DtLancamento = DateUtils.DateTimeToDateOnly(DateTime.Now);
-                contasAPagar.DtVencimento = dataVencimento;
-                contasAPagar.CdFornecedor = entrada.CdForn;
-                contasAPagar.NrDuplicata = $"ENT{entrada.Nr}";
-                contasAPagar.VlCp = ConvertToDecimal(item.Valor);
-                contasAPagar.VlDesconto = ConvertToDecimal(0);
-                contasAPagar.VlTotal = ConvertToDecimal(item.Valor);
-                contasAPagar.Pagou = "N";
-                contasAPagar.CdEmpresa = idEmpresa;
-                contasAPagar.NrNf = entrada.Nr.ToString();
-                contasAPagar.CdPlanoCaixa = historicoCaixa.CdPlano;
-                contasAPagar.CdHistoricoCaixa = historicoCaixa.CdSubPlano;
-                contasAPagar.NrEntrada = entrada.Nr;
-                contasAPagar.TpFormaPagt = entrada.TPag;
-                contasAPagar.Rate = 0;
-                contasAPagar.NumberOfPayments = count;
-                contasAPagar.TypeRegister = (count > 0) ? 1 : 0;
-                contasAPagar.Type = 1;
+                ContasAPagarDto contasAPagarDto = new ContasAPagarDto();
+                contasAPagarDto.DtLancamento = DateUtils.DateTimeToDateOnly(DateTime.Now);
+                contasAPagarDto.DtVencimento = dataVencimento;
+                contasAPagarDto.CdFornecedor = entrada.CdForn;
+                contasAPagarDto.NrDuplicata = $"ENT{entrada.Nr}";
+                contasAPagarDto.VlCp = ConvertToDecimal(item.Valor);
+                contasAPagarDto.VlDesconto = ConvertToDecimal(0);
+                contasAPagarDto.VlTotal = ConvertToDecimal(item.Valor);
+                contasAPagarDto.Pagou = "N";
+                contasAPagarDto.CdEmpresa = idEmpresa;
+                contasAPagarDto.NrNf = entrada.Nr.ToString();
+                contasAPagarDto.CdPlanoCaixa = historicoCaixa.CdPlano;
+                contasAPagarDto.CdHistoricoCaixa = historicoCaixa.CdSubPlano;
+                contasAPagarDto.NrEntrada = entrada.Nr;
+                contasAPagarDto.TpFormaPagt = entrada.TPag;
+                contasAPagarDto.Rate = 0;
+                contasAPagarDto.NumberOfPayments = count;
+                contasAPagarDto.TypeRegister = (count > 0) ? 1 : 0;
+                contasAPagarDto.Type = 1;
 
-                db.ContasAPagars.Add(contasAPagar);
-                await db.SaveChangesAsync();
+                HttpClient client = new HttpClient();
+                client.BaseAddress = new Uri(ENDPOINT_CONTAS_PAGAR);
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                HttpResponseMessage response = await client.PostAsJsonAsync(ENDPOINT_CONTAS_PAGAR, contasAPagarDto);
+                if (response.IsSuccessStatusCode)
+                {
+                    var _response = await response.Content.ReadFromJsonAsync<ContasAPagar>();
+                    if (_response != null)
+                    {
+                        logger.LogInformation($"Contas a pagar id [{idEmpresa},{_response.Id}] criado com sucesso.");
+                    }
+                    else
+                    {
+                        logger.LogError($"Erro ao importar Contas a Pagar ({entrada.CdChaveNfe}).");
+                        throw new Exception("Erro ao importar Contas a Pagar");
+                    }
+                }
+                else
+                {
+                    logger.LogError($"Erro ao importar Contas a Pagar ({entrada.CdChaveNfe}).");
+                    throw new Exception("Erro ao importar Contas a Pagar");
+                }
+
             }
 
         }
@@ -487,8 +568,33 @@ namespace GlobalAPI_ACBrNFe.Controllers
                         ppp.RestricaoVeic = item.VeicTprest;
                     }
 
-                    db.ProdutoEntrada.Add(ppp);
-                    await db.SaveChangesAsync();
+                    ProdutoEntradaDto produtoEntradaDto = mapper.Map<ProdutoEntradaDto>(ppp);
+
+                    HttpClient client = new HttpClient();
+                    client.BaseAddress = new Uri(ENDPOINT_PRODUTO_ENTRADA);
+                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    HttpResponseMessage response = await client.PostAsJsonAsync(ENDPOINT_PRODUTO_ENTRADA, produtoEntradaDto);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var _response = await response.Content.ReadFromJsonAsync<ProdutoEntradum>();
+                        if (_response != null)
+                        {
+                            logger.LogInformation($"Produto entrada id [{idEmpresa},{_response.NrEntrada},{_response.NrItem}] criado com sucesso.");
+                            ppp = _response;
+                        }
+                        else
+                        {
+                            logger.LogError($"Erro ao importar Produto entrada ({entrada.CdChaveNfe}).");
+                            throw new Exception("Erro ao importar Produto entrada");
+                        }
+                    }
+                    else
+                    {
+                        logger.LogError($"Erro ao importar Produto entrada ({entrada.CdChaveNfe}).");
+                        throw new Exception("Erro ao importar Produto entrada");
+                    }
+
+
                     await GravarAmarracao(idEmpresa, ppp, item, amarracao, entrada);
                 }
             }
@@ -514,8 +620,32 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 produtosForn.IdEmpresa = idEmpresa;
                 produtosForn.CdForn = entrada.CdForn;
                 produtosForn.IdProdutoExterno = item.CProd;
-                db.ProdutosForns.Add(produtosForn);
-                await db.SaveChangesAsync();
+
+                ProdutosFornDto produtosFornDto = mapper.Map<ProdutosFornDto>(produtosForn);
+
+                HttpClient client = new HttpClient();
+                client.BaseAddress = new Uri(ENDPOINT_PRODUTOS_FORN);
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                HttpResponseMessage response = await client.PostAsJsonAsync(ENDPOINT_PRODUTOS_FORN, produtosFornDto);
+                if (response.IsSuccessStatusCode)
+                {
+                    var _response = await response.Content.ReadFromJsonAsync<ProdutosForn>();
+                    if (_response != null)
+                    {
+                        logger.LogInformation($"ProdutosForn id [{idEmpresa},{_response.Id}] criado com sucesso.");
+
+                    }
+                    else
+                    {
+                        logger.LogError($"Erro ao importar ProdutosForn ({entrada.CdChaveNfe}).");
+                        throw new Exception("Erro ao importar ProdutosForn");
+                    }
+                }
+                else
+                {
+                    logger.LogError($"Erro ao importar ProdutosForn ({entrada.CdChaveNfe}).");
+                    throw new Exception("Erro ao importar ProdutosForn");
+                }
             }
         }
 
@@ -586,8 +716,33 @@ namespace GlobalAPI_ACBrNFe.Controllers
             {
                 produtoEstoque.CdBarra = item.Cean;
             }
-            db.Update(produtoEstoque);
-            await db.SaveChangesAsync();
+
+            ProdutoEstoqueDto produtoEstoqueDto = mapper.Map<ProdutoEstoqueDto>(produtoEstoque);
+            string url = ENDPOINT_PRODUTOS + $"/{idEmpresa}/{produtoEstoque.CdProduto}";
+
+            HttpClient client = new HttpClient();
+            client.BaseAddress = new Uri(url);
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            HttpResponseMessage response = await client.PutAsJsonAsync(url, produtoEstoqueDto);
+            if (response.IsSuccessStatusCode)
+            {
+                var _response = await response.Content.ReadFromJsonAsync<ProdutoEstoque>();
+                if (_response != null)
+                {
+                    logger.LogInformation($"Produto id [{idEmpresa},{_response.CdProduto}] ATUALIZADO com sucesso.");
+                    produtoEstoque = _response;
+                }
+                else
+                {
+                    logger.LogError($"Erro ao ATUALIZAR Produto ({entrada.CdChaveNfe}).");
+                    throw new Exception("Erro ao ATUALIZAR Produto");
+                }
+            }
+            else
+            {
+                logger.LogError($"Erro ao importar ATUALIZAR ({entrada.CdChaveNfe}).");
+                throw new Exception("Erro ao importar ATUALIZAR");
+            }
         }
 
         private async Task ImportarUnidadeMedida(Impitensnfe item, Amarracao2 amarracao, int idEmpresa)
@@ -608,8 +763,32 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 unidade.IdEmpresa = idEmpresa;
                 unidade.CdUnidade = item.Utrib;
                 unidade.Descricao = item.Utrib;
-                db.UnidadeMedidas.Add(unidade);
-                await db.SaveChangesAsync();
+
+                UnidadeMedidaDto unidadeMedidaDto = mapper.Map<UnidadeMedidaDto>(unidade);
+
+                HttpClient client = new HttpClient();
+                client.BaseAddress = new Uri(ENDPOINT_UNIDADE_MEDIDA);
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                HttpResponseMessage response = await client.PostAsJsonAsync(ENDPOINT_UNIDADE_MEDIDA, unidadeMedidaDto);
+                if (response.IsSuccessStatusCode)
+                {
+                    var _response = await response.Content.ReadFromJsonAsync<UnidadeMedida>();
+                    if (_response != null)
+                    {
+                        logger.LogInformation($"UnidadeMedida id [{idEmpresa},{_response.Id}] criado com sucesso.");
+
+                    }
+                    else
+                    {
+                        logger.LogError($"Erro ao importar UnidadeMedida.");
+                        throw new Exception("Erro ao importar UnidadeMedida");
+                    }
+                }
+                else
+                {
+                    logger.LogError($"Erro ao importar UnidadeMedida.");
+                    throw new Exception("Erro ao importar UnidadeMedida");
+                }
             }
         }
 
@@ -704,8 +883,31 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 entrada.HrSaida = DateUtils.DateTimeToTimeOnly(impNFeTemp.impcabnfe.DtSaida ?? DateTime.Now).TruncateToMinutes();
                 entrada.HrChegada = DateUtils.DateTimeToTimeOnly(DateTime.Now).TruncateToMinutes();
 
-                db.Entradas.Add(entrada);
-                await db.SaveChangesAsync();
+                EntradaDto entradaDto = mapper.Map<EntradaDto>(entrada);
+
+                HttpClient client = new HttpClient();
+                client.BaseAddress = new Uri(ENDPOINT_ENTRADA);
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                HttpResponseMessage response = await client.PostAsJsonAsync(ENDPOINT_ENTRADA, entradaDto);
+                if (response.IsSuccessStatusCode)
+                {
+                    var _response = await response.Content.ReadFromJsonAsync<Entrada>();
+                    if (_response != null)
+                    {
+                        logger.LogInformation($"Entrada id [{idEmpresa},{_response.Nr}] criado com sucesso.");
+                        entrada = _response;
+                    }
+                    else
+                    {
+                        logger.LogError($"Erro ao importar Entrada ({entrada.CdChaveNfe}).");
+                        throw new Exception("Erro ao importar Entrada");
+                    }
+                }
+                else
+                {
+                    logger.LogError($"Erro ao importar Entrada ({entrada.CdChaveNfe}).");
+                    throw new Exception("Erro ao importar Entrada");
+                }
             }
             return entrada;
         }
@@ -761,8 +963,31 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 transportadora.CdCidade = await GetCdCidade(idEmpresa, impNFeTemp.impcabnfe?.CidadeTransp);
                 transportadora.IdEmpresa = idEmpresa;
 
-                db.Transportadoras.Add(transportadora);
-                await db.SaveChangesAsync();
+                TransportadoraDto transportadoraDto = mapper.Map<TransportadoraDto>(transportadora);
+
+                HttpClient client = new HttpClient();
+                client.BaseAddress = new Uri(ENDPOINT_TRANSPORTADORA);
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                HttpResponseMessage response = await client.PostAsJsonAsync(ENDPOINT_TRANSPORTADORA, transportadoraDto);
+                if (response.IsSuccessStatusCode)
+                {
+                    var _response = await response.Content.ReadFromJsonAsync<Transportadora>();
+                    if (_response != null)
+                    {
+                        logger.LogInformation($"Transportadora id [{idEmpresa},{_response.CdTransportadora}] criado com sucesso.");
+                        transportadora = _response;
+                    }
+                    else
+                    {
+                        logger.LogError($"Erro ao importar Transportadora ({impNFeTemp?.impcabnfe?.ChNfe}).");
+                        throw new Exception("Erro ao importar Transportadora");
+                    }
+                }
+                else
+                {
+                    logger.LogError($"Erro ao importar Transportadora ({impNFeTemp?.impcabnfe?.ChNfe}).");
+                    throw new Exception("Erro ao importar Transportadora");
+                }
             }
             return transportadora;
         }

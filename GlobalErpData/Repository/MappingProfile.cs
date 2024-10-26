@@ -19,55 +19,52 @@ namespace GlobalErpData.Repository
                CreateMap<MyDto, MyEntity>();
                // Add other mappings here
              */
-            CreateMap<UsuarioDto, Usuario>();
-            CreateMap<EmpresaDto, Empresa>();
-            CreateMap<UsuarioPermissaoDto, UsuarioPermissao>();
-            CreateMap<PermissaoDto, Permissao>();
-            CreateMap<UsuarioPermissaoDto, UsuarioPermissao>();
-            CreateMap<CidadeDto, Cidade>();
-            CreateMap<ReferenciaEstoqueDto, ReferenciaEstoque>();
-            CreateMap<GrupoEstoqueDto, GrupoEstoque>();
-            CreateMap<ProdutoEstoqueDto, ProdutoEstoque>();
-            CreateMap<UnidadeMedidaDto, UnidadeMedida>();
-            
-            CreateMap<ClienteDto, Cliente>();
-            CreateMap<Cliente, ClienteDto>();
+            CreateMap<UsuarioDto, Usuario>().ReverseMap();
+            CreateMap<EmpresaDto, Empresa>().ReverseMap();
+            CreateMap<UsuarioPermissaoDto, UsuarioPermissao>().ReverseMap();
+            CreateMap<PermissaoDto, Permissao>().ReverseMap();
+            CreateMap<CidadeDto, Cidade>().ReverseMap();
+            CreateMap<ReferenciaEstoqueDto, ReferenciaEstoque>().ReverseMap();
+            CreateMap<GrupoEstoqueDto, GrupoEstoque>().ReverseMap();
+            CreateMap<ProdutoEstoqueDto, ProdutoEstoque>().ReverseMap();
+            CreateMap<UnidadeMedidaDto, UnidadeMedida>().ReverseMap();
+            CreateMap<ClienteDto, Cliente>().ReverseMap();
+            CreateMap<FornecedorDto, Fornecedor>().ReverseMap();
+            CreateMap<CertificadoDto, Certificado>().ReverseMap();
+            CreateMap<PlanoEstoqueDto, PlanoEstoque>().ReverseMap();
+            CreateMap<SaldoEstoqueDto, SaldoEstoque>().ReverseMap();
+            CreateMap<CfopImportacaoDto, CfopImportacao>().ReverseMap();
+            CreateMap<ImpcabnfeDto, Impcabnfe>().ReverseMap();
+            CreateMap<ImpdupnfeDto, Impdupnfe>().ReverseMap();
+            CreateMap<ImpitensnfeDto, Impitensnfe>().ReverseMap();
+            CreateMap<ImptotalnfeDto, Imptotalnfe>().ReverseMap();
+            CreateMap<ConfiguracoesUsuarioDto, ConfiguracoesUsuario>().ReverseMap();
+            CreateMap<ConfiguracoesEmpresaDto, ConfiguracoesEmpresa>().ReverseMap();
+            CreateMap<ProdutosFornDto, ProdutosForn>().ReverseMap();
+            CreateMap<EntradaDto, Entrada>().ReverseMap();
+            CreateMap<TransportadoraDto, Transportadora>().ReverseMap();
+            CreateMap<ProdutoEntradaDto, ProdutoEntradum>().ReverseMap();
+            CreateMap<FotosProdutoDto, FotosProduto>().ReverseMap();
+            CreateMap<FeaturedDto, Featured>().ReverseMap();
+            CreateMap<SectionDto, Section>().ReverseMap();
+            CreateMap<SectionItemDto, SectionItem>().ReverseMap();
+            CreateMap<ProductDetailDto, ProductDetail>().ReverseMap();
+            CreateMap<ItemDetailDto, ItemDetail>().ReverseMap();
+            CreateMap<PerfilLojaDto, PerfilLoja>().ReverseMap();
+            CreateMap<OlderDto, Older>().ReverseMap();
+            CreateMap<OlderItemDto, OlderItem>().ReverseMap();
+            CreateMap<CategoryDto, Category>().ReverseMap();
+            CreateMap<ContaCaixaDto, ContaDoCaixa>().ReverseMap();
+            CreateMap<PlanoCaixaDto, PlanoDeCaixa>().ReverseMap();
+            CreateMap<HistoricoCaixaDto, HistoricoCaixa>().ReverseMap();
+            CreateMap<FormaPagtDto, FormaPagt>().ReverseMap();
+            CreateMap<ContasAPagarDto, ContasAPagar>().ReverseMap();
+            CreateMap<ImpxmlDto, Impxml>().ReverseMap();
 
-
-            CreateMap<FornecedorDto, Fornecedor>();
-            CreateMap<CertificadoDto, Certificado>();
-            CreateMap<PlanoEstoqueDto, PlanoEstoque>();
-            CreateMap<SaldoEstoqueDto, SaldoEstoque>();
-            CreateMap<CfopImportacaoDto, CfopImportacao>();
-            CreateMap<ImpcabnfeDto,  Impcabnfe>();
-            CreateMap<ImpdupnfeDto,  Impdupnfe>();
-            CreateMap<ImpitensnfeDto,  Impitensnfe>();
-            CreateMap<ImptotalnfeDto, Imptotalnfe>();
-            CreateMap<ConfiguracoesUsuarioDto, ConfiguracoesUsuario>();
-            CreateMap<ConfiguracoesEmpresaDto, ConfiguracoesEmpresa>();
-            CreateMap<ProdutosFornDto, ProdutosForn>();
-            CreateMap<EntradaDto, Entrada>();
-            CreateMap<TransportadoraDto, Transportadora>();
-            CreateMap<ProdutoEntradaDto, ProdutoEntradum>();
-            CreateMap<FotosProdutoDto, FotosProduto>();
-            CreateMap<FeaturedDto, Featured>();
-            CreateMap<SectionDto, Section>();
-            CreateMap<SectionItemDto, SectionItem>();
-            CreateMap<ProductDetailDto, ProductDetail>();
-            CreateMap<ItemDetailDto, ItemDetail>();
-            CreateMap<PerfilLojaDto, PerfilLoja>();
-            CreateMap<OlderDto,  Older>();
-            CreateMap<OlderItemDto, OlderItem>();
-            CreateMap<OlderItem, GetOlderItemDto>();
+            // Mapear e configurar propriedades específicas
             CreateMap<Older, GetOldersDto>()
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OlderItems));
-            CreateMap<CategoryDto, Category>();
-            CreateMap<ContaCaixaDto, ContaDoCaixa>();
-            CreateMap<PlanoCaixaDto, PlanoDeCaixa>();
-            CreateMap<HistoricoCaixaDto, HistoricoCaixa>();
-            CreateMap<FormaPagtDto, FormaPagt>();
-            CreateMap<ContasAPagarDto, ContasAPagar>();
-            CreateMap<ImpxmlDto, Impxml>();
+            CreateMap<OlderItem, GetOlderItemDto>();
 
         }
     }

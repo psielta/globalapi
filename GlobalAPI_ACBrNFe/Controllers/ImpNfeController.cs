@@ -17,6 +17,8 @@ using Npgsql;
 using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
 using GlobalLib.Enum;
+using AutoMapper;
+using NFe.Classes.Informacoes;
 
 namespace GlobalAPI_ACBrNFe.Controllers
 {
@@ -26,12 +28,29 @@ namespace GlobalAPI_ACBrNFe.Controllers
     {
         protected GlobalErpFiscalBaseContext db;
         protected readonly ILogger<ImpNfeController> logger;
+        protected IMapper mapper;
         private string ENDPOINT_POST_FORNECECOR;
-        public ImpNfeController(GlobalErpFiscalBaseContext db, ILogger<ImpNfeController> logger)
+        private string ENDPOINT_ENTRADA;
+        private string ENDPOINT_PRODUTO_ENTRADA;
+        private string ENDPOINT_CONTAS_PAGAR;
+        private string ENDPOINT_PRODUTOS_FORN;
+        private string ENDPOINT_PRODUTOS;
+        private string ENDPOINT_UNIDADE_MEDIDA;
+        private string ENDPOINT_TRANSPORTADORA;
+        public ImpNfeController(GlobalErpFiscalBaseContext db, ILogger<ImpNfeController> logger,
+            IMapper mapper)
         {
             this.db = db;
             this.logger = logger;
+            this.mapper = mapper;
             ENDPOINT_POST_FORNECECOR = Constants.URL_API_NFE + "/api/Fornecedor";
+            ENDPOINT_ENTRADA = Constants.URL_API_NFE + "/api/Entrada";
+            ENDPOINT_CONTAS_PAGAR = Constants.URL_API_NFE + "/api/ContasAPagar";
+            ENDPOINT_PRODUTO_ENTRADA = Constants.URL_API_NFE + "/api/ProdutoEntrada";
+            ENDPOINT_PRODUTOS_FORN = Constants.URL_API_NFE + "/api/ProdutosForn";
+            ENDPOINT_PRODUTOS = Constants.URL_API_NFE + "/api/ProdutoEstoque";
+            ENDPOINT_UNIDADE_MEDIDA = Constants.URL_API_NFE + "/api/UnidadeMedida";
+            ENDPOINT_TRANSPORTADORA = Constants.URL_API_NFE + "/api/Transportadora";
         }
 
         [HttpPost]
@@ -1221,8 +1240,32 @@ namespace GlobalAPI_ACBrNFe.Controllers
                             else
                             {
                                 //delete o registro do produtosForn
-                                db.ProdutosForns.Remove(produtosForn_pes);
-                                await db.SaveChangesAsync();
+                                //db.ProdutosForns.Remove(produtosForn_pes);
+                                //await db.SaveChangesAsync();
+                                string urlDelete = ENDPOINT_PRODUTOS_FORN + "/" + produtosForn_pes.Id;
+                                HttpClient client = new HttpClient();
+                                client.BaseAddress = new Uri(urlDelete);
+                                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                                HttpResponseMessage response = await client.DeleteAsync(urlDelete);
+                                if (response.IsSuccessStatusCode)
+                                {
+                                    var _response = await response.Content.ReadAsStringAsync();
+                                    if (_response != null)
+                                    {
+                                        logger.LogInformation($"ProdutosForn id [{produtosForn_pes.Id}] DELETADO com sucesso.");
+
+                                    }
+                                    else
+                                    {
+                                        logger.LogError($"Erro ao importar DELETAR produtosForn ({produtosForn_pes.Id}).");
+                                        throw new Exception("Erro ao DELETAR produtosForn");
+                                    }
+                                }
+                                else
+                                {
+                                    logger.LogError($"Erro ao importar DELETAR produtosForn ({produtosForn_pes.Id}).");
+                                    throw new Exception("Erro ao importar DELETAR produtosForn");
+                                }
                             }
                         }
                         ProdutoEstoqueDto produtoEstoque = new ProdutoEstoqueDto();
@@ -1377,8 +1420,32 @@ namespace GlobalAPI_ACBrNFe.Controllers
                                 produtosForn.CdBarra = impitensnfe.Cean;
                                 produtosForn.IdEmpresa = idEmpresa;
 
-                                await db.ProdutosForns.AddAsync(produtosForn);
-                                await db.SaveChangesAsync();
+                                ProdutosFornDto produtosFornDto = mapper.Map<ProdutosFornDto>(produtosForn);
+
+                                HttpClient client = new HttpClient();
+                                client.BaseAddress = new Uri(ENDPOINT_PRODUTOS_FORN);
+                                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                                HttpResponseMessage response = await client.PostAsJsonAsync(ENDPOINT_PRODUTOS_FORN, produtosFornDto);
+                                if (response.IsSuccessStatusCode)
+                                {
+                                    var _response = await response.Content.ReadFromJsonAsync<ProdutosForn>();
+                                    if (_response != null)
+                                    {
+                                        produtosForn = _response;
+                                        logger.LogInformation($"ProdutosForn id [{idEmpresa},{_response.Id}] criado com sucesso.");
+
+                                    }
+                                    else
+                                    {
+                                        logger.LogError($"Erro ao importar ProdutosForn ({impNFeTemp?.impcabnfe?.ChNfe}).");
+                                        throw new Exception("Erro ao importar ProdutosForn");
+                                    }
+                                }
+                                else
+                                {
+                                    logger.LogError($"Erro ao importar ProdutosForn ({impNFeTemp?.impcabnfe?.ChNfe}).");
+                                    throw new Exception("Erro ao importar ProdutosForn");
+                                }
 
                                 amarracao.NrItem = impitensnfe.NrItem;
                                 amarracao.produto = _produtoEstoque;
@@ -1616,8 +1683,32 @@ namespace GlobalAPI_ACBrNFe.Controllers
                         produtosForn.CdBarra = impitensnfe.Cean;
                         produtosForn.IdEmpresa = idEmpresa;
 
-                        await db.ProdutosForns.AddAsync(produtosForn);
-                        await db.SaveChangesAsync();
+                        ProdutosFornDto produtosFornDto = mapper.Map<ProdutosFornDto>(produtosForn);
+
+                        HttpClient client = new HttpClient();
+                        client.BaseAddress = new Uri(ENDPOINT_PRODUTOS_FORN);
+                        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                        HttpResponseMessage response = await client.PostAsJsonAsync(ENDPOINT_PRODUTOS_FORN, produtosFornDto);
+                        if (response.IsSuccessStatusCode)
+                        {
+                            var _response = await response.Content.ReadFromJsonAsync<ProdutosForn>();
+                            if (_response != null)
+                            {
+                                produtosForn = _response;
+                                logger.LogInformation($"ProdutosForn id [{idEmpresa},{_response.Id}] criado com sucesso.");
+
+                            }
+                            else
+                            {
+                                logger.LogError($"Erro ao importar ProdutosForn.");
+                                throw new Exception("Erro ao importar ProdutosForn");
+                            }
+                        }
+                        else
+                        {
+                            logger.LogError($"Erro ao importar ProdutosForn.");
+                            throw new Exception("Erro ao importar ProdutosForn");
+                        }
 
                         return Ok(_produtoEstoque);
                     }
