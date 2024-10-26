@@ -8,11 +8,12 @@ using Microsoft.Extensions.Logging;
 
 namespace GlobalErpData.Repository.PagedRepositories
 {
-    public class SaldoEstoquePagedRepository: GenericPagedRepository<SaldoEstoque, GlobalErpFiscalBaseContext, int, SaldoEstoqueDto>
+    public class SaldoEstoquePagedRepository : GenericPagedRepositoryNoCache<SaldoEstoque, GlobalErpFiscalBaseContext, int, SaldoEstoqueDto>
     {
-        public SaldoEstoquePagedRepository(GlobalErpFiscalBaseContext injectedContext, IMapper mapper, ILogger<GenericRepositoryDto<SaldoEstoque, GlobalErpFiscalBaseContext, int, SaldoEstoqueDto>> logger) : base(injectedContext, mapper, logger)
+        public SaldoEstoquePagedRepository(GlobalErpFiscalBaseContext injectedContext, IMapper mapper, ILogger<GenericPagedRepositoryNoCache<SaldoEstoque, GlobalErpFiscalBaseContext, int, SaldoEstoqueDto>> logger) : base(injectedContext, mapper, logger)
         {
         }
+
         public Task<IQueryable<SaldoEstoque>> GetSaldoEstoquePorEmpresa(int idEmpresa)
         {
             try
@@ -36,9 +37,7 @@ namespace GlobalErpData.Repository.PagedRepositories
             int affected = await db.SaveChangesAsync();
             if (affected == 1)
             {
-                if (EntityCache is null) return entity;
                 logger.LogInformation("Entity created and added to cache with ID: {Id}", entity.GetId());
-                EntityCache.AddOrUpdate(entity.GetId(), entity, UpdateCache);
 
                 return await db.Set<SaldoEstoque>()
                     .Where(e =>
@@ -65,7 +64,6 @@ namespace GlobalErpData.Repository.PagedRepositories
             if (affected == 1)
             {
                 logger.LogInformation("Entity updated with ID: {idCadastro}", idCadastro);
-                UpdateCache(idCadastro, entity);
                 return await db.Set<SaldoEstoque>().Where(e => e.Id == idCadastro)
                     .Include(e => e.ProdutoEstoque)
                     .Include(e => e.CdPlanoNavigation)
