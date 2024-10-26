@@ -3,6 +3,7 @@ using GlobalLib.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ namespace GlobalErpData.Repository
         where TEntity : class, IIdentifiableMultiKey<TKey1, TKey2>
         where TContext : DbContext
     {
+        protected static ConcurrentDictionary<(TKey1, TKey2), TEntity>? EntityCache;
         protected TContext db;
         protected IMapper mapper;
         protected readonly ILogger<GenericPagedRepositoryMultiKey<TEntity, TContext, TKey1, TKey2, TDto>> logger;
@@ -22,6 +24,12 @@ namespace GlobalErpData.Repository
             db = injectedContext;
             this.mapper = mapper;
             this.logger = logger;
+
+            if (EntityCache is null)
+            {
+                EntityCache = new ConcurrentDictionary<(TKey1, TKey2), TEntity>(
+                    db.Set<TEntity>().ToDictionary(e => e.GetId()));
+            }
         }
 
         public virtual async Task<TEntity?> CreateAsync(TDto dto)
@@ -31,8 +39,9 @@ namespace GlobalErpData.Repository
             int affected = await db.SaveChangesAsync();
             if (affected == 1)
             {
-                logger.LogInformation("Entity created with ID: {Id}", entity.GetId());
-                return entity;
+                if (EntityCache is null) return entity;
+                logger.LogInformation("Entity created and added to cache with ID: {Id}", entity.GetId());
+                return EntityCache.AddOrUpdate(entity.GetId(), entity, UpdateCache);
             }
             else
             {
@@ -58,12 +67,39 @@ namespace GlobalErpData.Repository
         {
             try
             {
-                return Task.FromResult(db.Set<TEntity>().Find(idEmpresa, idCadastro));
+                if (EntityCache is null) return Task.FromResult<TEntity?>(null);
+                EntityCache.TryGetValue((idEmpresa, idCadastro), out TEntity? entity);
+                return Task.FromResult(entity);
             }
             catch (Exception ex)
             {
                 logger.LogError(ex, "Error occurred while retrieving entity with ID: {idEmpresa}-{idCadastro}", idEmpresa, idCadastro);
                 return Task.FromResult<TEntity?>(null);
+            }
+        }
+
+        protected virtual TEntity UpdateCache((TKey1, TKey2) id, TEntity entity)
+        {
+            try
+            {
+                TEntity? old;
+                if (EntityCache is not null)
+                {
+                    if (EntityCache.TryGetValue(id, out old))
+                    {
+                        if (EntityCache.TryUpdate(id, entity, old))
+                        {
+                            logger.LogInformation("Entity cache updated for ID: {Id}", id);
+                            return entity;
+                        }
+                    }
+                }
+                return null!;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while updating cache for entity with ID: {idEmpresa}-{idCadastro}", id.Item1, id.Item2);
+                return null!;
             }
         }
 
@@ -77,7 +113,7 @@ namespace GlobalErpData.Repository
             if (affected == 1)
             {
                 logger.LogInformation("Entity updated with ID: {idEmpresa}-{idCadastro}", idEmpresa, idCadastro);
-                return entity;
+                return UpdateCache((idEmpresa, idCadastro), entity);
             }
             else
             {
@@ -86,6 +122,24 @@ namespace GlobalErpData.Repository
             }
         }
 
+        //public async Task<bool?> DeleteAsync(TKey1 idEmpresa, TKey2 idCadastro)
+        //{
+        //    TEntity? entity = db.Set<TEntity>().Find(idEmpresa, idCadastro);
+        //    if (entity is null) return null;
+        //    db.Set<TEntity>().Remove(entity);
+        //    int affected = await db.SaveChangesAsync();
+        //    if (affected == 1)
+        //    {
+        //        if (EntityCache is null) return null;
+        //        logger.LogInformation("Entity deleted with ID: {idEmpresa}-{idCadastro}", idEmpresa, idCadastro);
+        //        return EntityCache.TryRemove((idEmpresa, idCadastro), out entity);
+        //    }
+        //    else
+        //    {
+        //        logger.LogWarning("Failed to delete entity with ID: {idEmpresa}-{idCadastro}", idEmpresa, idCadastro);
+        //        return null;
+        //    }
+        //}
         public virtual async Task<bool?> DeleteAsync(TKey1 idEmpresa, TKey2 idCadastro)
         {
             TEntity? entity = null;
@@ -108,8 +162,9 @@ namespace GlobalErpData.Repository
 
             if (affected == 1)
             {
+                if (EntityCache is null) return null;
                 logger.LogInformation("Entity deleted with ID: {idEmpresa}-{idCadastro}", idEmpresa, idCadastro);
-                return true;
+                return EntityCache.TryRemove((idEmpresa, idCadastro), out entity);
             }
             else
             {
@@ -117,5 +172,6 @@ namespace GlobalErpData.Repository
                 return null;
             }
         }
+
     }
 }

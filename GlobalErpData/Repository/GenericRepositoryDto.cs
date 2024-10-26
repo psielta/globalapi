@@ -3,6 +3,7 @@ using GlobalLib.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ namespace GlobalErpData.Repository
         where TEntity : class, IIdentifiable<TKey>
         where TContext : DbContext
     {
+        private static ConcurrentDictionary<TKey, TEntity>? EntityCache;
         protected TContext db;
         protected IMapper mapper;
         protected readonly ILogger<GenericRepositoryDto<TEntity, TContext, TKey, TDto>> logger;
@@ -22,6 +24,12 @@ namespace GlobalErpData.Repository
             db = injectedContext;
             this.mapper = mapper;
             this.logger = logger;
+
+            if (EntityCache is null)
+            {
+                EntityCache = new ConcurrentDictionary<TKey, TEntity>(
+                    db.Set<TEntity>().ToDictionary(e => e.GetId()));
+            }
         }
 
         public async Task<TEntity?> CreateAsync(TDto dto)
@@ -33,8 +41,9 @@ namespace GlobalErpData.Repository
                 int affected = await db.SaveChangesAsync();
                 if (affected == 1)
                 {
-                    logger.LogInformation("Entity created with ID: {Id}", entity.GetId());
-                    return entity;
+                    if (EntityCache is null) return entity;
+                    logger.LogInformation("Entity created and added to cache with ID: {Id}", entity.GetId());
+                    return EntityCache.AddOrUpdate(entity.GetId(), entity, UpdateCache);
                 }
                 else
                 {
@@ -49,29 +58,57 @@ namespace GlobalErpData.Repository
             }
         }
 
-        public async Task<IEnumerable<TEntity>> RetrieveAllAsync()
+        public Task<IEnumerable<TEntity>> RetrieveAllAsync()
         {
             try
             {
-                return await db.Set<TEntity>().ToListAsync();
+                var entities = EntityCache is null ? Enumerable.Empty<TEntity>() : EntityCache.Values.AsEnumerable();
+                return Task.FromResult(entities);
             }
             catch (Exception ex)
             {
                 logger.LogError(ex, "Error occurred while retrieving all entities.");
-                return Enumerable.Empty<TEntity>();
+                return Task.FromResult(Enumerable.Empty<TEntity>());
             }
         }
 
-        public async Task<TEntity?> RetrieveAsync(TKey id)
+        public Task<TEntity?> RetrieveAsync(TKey id)
         {
             try
             {
-                return await db.Set<TEntity>().FindAsync(id);
+                if (EntityCache is null) return null!;
+                EntityCache.TryGetValue(id, out TEntity? entity);
+                return Task.FromResult(entity);
             }
             catch (Exception ex)
             {
                 logger.LogError(ex, "Error occurred while retrieving entity with ID: {Id}", id);
-                return null;
+                return Task.FromResult<TEntity?>(null);
+            }
+        }
+
+        private TEntity UpdateCache(TKey id, TEntity entity)
+        {
+            try
+            {
+                TEntity? old;
+                if (EntityCache is not null)
+                {
+                    if (EntityCache.TryGetValue(id, out old))
+                    {
+                        if (EntityCache.TryUpdate(id, entity, old))
+                        {
+                            logger.LogInformation("Entity cache updated for ID: {Id}", id);
+                            return entity;
+                        }
+                    }
+                }
+                return null!;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while updating cache for entity with ID: {Id}", id);
+                return null!;
             }
         }
 
@@ -86,7 +123,7 @@ namespace GlobalErpData.Repository
                 if (affected == 1)
                 {
                     logger.LogInformation("Entity updated with ID: {Id}", id);
-                    return entity;
+                    return UpdateCache(id, entity);
                 }
                 else
                 {
@@ -105,15 +142,15 @@ namespace GlobalErpData.Repository
         {
             try
             {
-                TEntity? entity = await db.Set<TEntity>().FindAsync(id);
+                TEntity? entity = db.Set<TEntity>().Find(id);
                 if (entity is null) return null;
-
                 db.Set<TEntity>().Remove(entity);
                 int affected = await db.SaveChangesAsync();
                 if (affected == 1)
                 {
+                    if (EntityCache is null) return null;
                     logger.LogInformation("Entity deleted with ID: {Id}", id);
-                    return true;
+                    return EntityCache.TryRemove(id, out entity);
                 }
                 else
                 {
