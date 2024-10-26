@@ -22,6 +22,8 @@ using NFe.Classes.Informacoes;
 using GlobalAPI_ACBrNFe.Lib;
 using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
+using DFe.Classes;
+using System;
 
 namespace GlobalAPI_ACBrNFe.Controllers
 {
@@ -29,7 +31,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
     [Route("[controller]")]
     public class ImpNfeController : Controller
     {
-        protected static ConcurrentDictionary<int, string>? ImportacaoProdutosProtect;
+        protected static ConcurrentDictionary<string, int>? ImportacaoProdutosProtect;
         protected GlobalErpFiscalBaseContext db;
         protected readonly ILogger<ImpNfeController> logger;
         protected IMapper mapper;
@@ -61,7 +63,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
 
             if(ImportacaoProdutosProtect == null)
             {
-                ImportacaoProdutosProtect = new ConcurrentDictionary<int, string>();
+                ImportacaoProdutosProtect = new ConcurrentDictionary<string, int>();
             }
         }
 
@@ -89,6 +91,11 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     _chNFe = GetChaveNFe(nfe.NFe);
                     var novaImpcabnfe = new Impcabnfe();
                     novaImpcabnfe.ChNfe = GetChaveNFe(nfe.NFe);
+
+                    if (ImportacaoProdutosProtect.ContainsKey(GetChaveNFe(nfe.NFe)) && ImportacaoProdutosProtect[GetChaveNFe(nfe.NFe)] == idEmpresa)
+                    {
+                        return BadRequest(new ErrorMessage(400, "Existe importação de produtos para este xml em andamento. Tente novamente mais tarde."));
+                    }
 
                     bool EntradaJaFoiFeita = await BuscarEntradaEmpresa(idEmpresa, GetChaveNFe(nfe.NFe));
                     if (EntradaJaFoiFeita)
@@ -1186,9 +1193,13 @@ namespace GlobalAPI_ACBrNFe.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> CadastrarProdutosFaltantes([FromBody] List<Amarracao> amarracoes, int idEmpresa, int cdForn, string chaveNfe)
+        public async Task<IActionResult> CadastrarProdutosFaltantes([FromBody] List<Amarracao> amarracoes, int idEmpresa, int cdForn, string chaveNfe, string sessionId)
         {
-
+            if (ImportacaoProdutosProtect.ContainsKey(chaveNfe) && ImportacaoProdutosProtect[chaveNfe] == idEmpresa)
+            {
+                return BadRequest("Ja existe importação em andamento.");
+            }
+            ImportacaoProdutosProtect[chaveNfe] = idEmpresa;
             try
             {
                 if (amarracoes == null || amarracoes.Count == 0)
@@ -1248,7 +1259,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                                 amarracao.FatorConversao = produtoEstoque1.QtTotal;
                                 amarracao.CdBarra = produtoEstoque1.CdBarra;
                                 impNFeTemp.amarracoes.Add(amarracao);
-                                await _hubContext.Clients.All.SendAsync("ReceiveProgress", $"Produto '{produtoEstoque1.NmProduto}' amarrado com sucesso...");
+                                await _hubContext.Clients.Group(sessionId).SendAsync("ReceiveProgress", $"Produto '{produtoEstoque1.NmProduto}' amarrado com sucesso...");
                                 continue;
                             }
                             else
@@ -1427,7 +1438,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                                         new ErrorMessage(500, "Erro ao cadastrar produto"));
                                 }
 
-                                await _hubContext.Clients.All.SendAsync("ReceiveProgress", $"Produto '{_produtoEstoque.NmProduto}' cadastrado com sucesso...");
+                                await _hubContext.Clients.Group(sessionId).SendAsync("ReceiveProgress", $"Produto '{_produtoEstoque.NmProduto}' cadastrado com sucesso...");
 
                                 ProdutosForn produtosForn = new ProdutosForn();
                                 produtosForn.CdProduto = _produtoEstoque.CdProduto;
@@ -1513,6 +1524,11 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 logger.LogError(ex, "Erro ao cadastrar produtos faltantes NFe");
                 return StatusCode(500,
                     new ErrorMessage(500, ex.Message));
+            }
+            finally
+            {
+                int valor;
+                ImportacaoProdutosProtect.TryRemove(chaveNfe, out valor);
             }
         }
 
