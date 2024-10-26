@@ -17,17 +17,17 @@ namespace GlobalAPINFe.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SaldoEstoqueController : GenericPagedControllerNoCache<SaldoEstoque, int, SaldoEstoqueDto>
+    public class SaldoEstoqueController : GenericPagedController<SaldoEstoque, int, SaldoEstoqueDto>
     {
         private readonly IDbContextFactory<GlobalErpFiscalBaseContext> dbContextFactory;
 
-        public SaldoEstoqueController(IQueryRepositoryNoCache<SaldoEstoque, int, SaldoEstoqueDto> repo, ILogger<GenericPagedControllerNoCache<SaldoEstoque, int, SaldoEstoqueDto>> logger
-                        , IDbContextFactory<GlobalErpFiscalBaseContext> dbContextFactory) : base(repo, logger)
+        public SaldoEstoqueController(IQueryRepository<SaldoEstoque, int, SaldoEstoqueDto> repo, ILogger<GenericPagedController<SaldoEstoque, int, SaldoEstoqueDto>> logger
+            ,
+            IDbContextFactory<GlobalErpFiscalBaseContext> dbContextFactory
+            ) : base(repo, logger)
         {
             this.dbContextFactory = dbContextFactory;
         }
-
-
 
         // Sobrescrevendo os métodos herdados e adicionando os atributos [ProducesResponseType]
 
@@ -98,18 +98,23 @@ namespace GlobalAPINFe.Controllers
             try
             {
                 IQueryable<SaldoEstoque>? query;
-                string SQL = $@"SELECT * FROM saldo_estoque se
-                        WHERE se.cd_empresa = {idEmpresa}
-                        ";
-                if (!string.IsNullOrEmpty(nmProduto))
+                if (string.IsNullOrEmpty(nmProduto))
                 {
-                    SQL += $@" AND se.cd_produto IN (SELECT pe.cd_produto FROM produto_estoque pe
-                        where upper(trim(pe.nm_produto)) LIKE '%{nmProduto.Trim().ToUpper()}%'
-                        and pe.id_empresa = {idEmpresa}) ";
+                    query = ((SaldoEstoquePagedRepository)repo).GetSaldoEstoquePorEmpresa(idEmpresa).Result.AsQueryable();
                 }
+                else
+                {
+                    string SQL = $@"SELECT * FROM saldo_estoque se
+                        WHERE se.cd_empresa = {idEmpresa}
+                        AND se.cd_produto IN (SELECT cd_produto FROM produto_estoque pe
+                        where pe.nm_produto LIKE '%{nmProduto}%'
+                        and pe.id_empresa = {idEmpresa})";
 
-                query = _context.SaldoEstoques.FromSqlRaw(SQL).Include(c => c.ProdutoEstoque)
-                    .Include(c => c.CdPlanoNavigation);
+                    query = _context.Set<SaldoEstoque>().FromSqlRaw(SQL).Include(c => c.ProdutoEstoque)
+                        .Include(c => c.CdPlanoNavigation);
+
+
+                }
 
                 if (query == null)
                 {

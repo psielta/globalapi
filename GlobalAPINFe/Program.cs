@@ -97,7 +97,7 @@ builder.Services.AddScoped<IQueryRepository<Cliente, int, ClienteDto>, ClientePa
 builder.Services.AddScoped<IQueryRepository<Certificado, int, CertificadoDto>, CertificadoPagedRepository>();
 builder.Services.AddScoped<IQueryRepositoryMultiKey<Fornecedor, int, int, FornecedorDto>, FornecedorPagedRepositoryMultiKey>();
 builder.Services.AddScoped<IQueryRepository<PlanoEstoque, int, PlanoEstoqueDto>, PlanoEstoquePagedRepository>();
-builder.Services.AddScoped<IQueryRepositoryNoCache<SaldoEstoque, int, SaldoEstoqueDto>, SaldoEstoquePagedRepository>();
+builder.Services.AddScoped<IQueryRepository<SaldoEstoque, int, SaldoEstoqueDto>, SaldoEstoquePagedRepository>();
 builder.Services.AddScoped<IQueryRepository<CfopImportacao, int, CfopImportacaoDto>, CfopImportacaoPagedRepository>();
 builder.Services.AddScoped<IRepositoryDto<Impdupnfe, string, ImpdupnfeDto>, ImpdupnfeRepository>();
 builder.Services.AddScoped<IRepositoryDto<Impcabnfe, string, ImpcabnfeDto>, ImpcabnfeRepository>();
