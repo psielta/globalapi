@@ -34,9 +34,7 @@ namespace GlobalErpData.Repository.PagedRepositoriesMultiKey
             int affected = await db.SaveChangesAsync();
             if (affected == 1)
             {
-                if (EntityCache is null) return entity;
                 logger.LogInformation("Entity created and added to cache with ID: {Id}", entity.GetId());
-                EntityCache.AddOrUpdate(entity.GetId(), entity, UpdateCache);
 
                 return await db.Set<Fornecedor>().Include(e => e.CdCidadeNavigation)
                     .FirstOrDefaultAsync(e => e.CdForn == entity.CdForn && e.IdEmpresa == entity.IdEmpresa);
@@ -58,7 +56,6 @@ namespace GlobalErpData.Repository.PagedRepositoriesMultiKey
             if (affected == 1)
             {
                 logger.LogInformation("Entity updated with ID: {idEmpresa}-{idCadastro}", idEmpresa, idCadastro);
-                UpdateCache((idEmpresa, idCadastro), entity);
 
                 return await db.Set<Fornecedor>().Include(e => e.CdCidadeNavigation)
                     .FirstOrDefaultAsync(e => e.CdForn == entity.CdForn && e.IdEmpresa == entity.IdEmpresa);
