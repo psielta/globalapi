@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using GlobalAPI_ACBrNFe.Lib;
 using GlobalAPI_ACBrNFe.Models;
 using GlobalErpData.Data;
 using GlobalErpData.Dto;
@@ -6,6 +7,7 @@ using GlobalErpData.Models;
 using GlobalLib.Strings;
 using GlobalLib.Utils;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using NFe.Classes.Informacoes;
@@ -20,6 +22,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
         protected GlobalErpFiscalBaseContext db;
         protected readonly ILogger<ImpNfeController> logger;
         protected IMapper mapper;
+        private readonly IHubContext<ImportProgressHub> _hubContext;
         private string ENDPOINT_POST_FORNECECOR;
         private string ENDPOINT_ENTRADA;
         private string ENDPOINT_PRODUTO_ENTRADA;
@@ -29,7 +32,8 @@ namespace GlobalAPI_ACBrNFe.Controllers
         private string ENDPOINT_UNIDADE_MEDIDA;
         private string ENDPOINT_TRANSPORTADORA;
         public RegNfeController(GlobalErpFiscalBaseContext db, ILogger<ImpNfeController> logger
-            , IMapper mapper)
+            , IMapper mapper,
+            IHubContext<ImportProgressHub> hubContext)
         {
             this.db = db;
             this.logger = logger;
@@ -42,6 +46,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
             ENDPOINT_PRODUTOS = Constants.URL_API_NFE + "/api/ProdutoEstoque";
             ENDPOINT_UNIDADE_MEDIDA = Constants.URL_API_NFE + "/api/UnidadeMedida";
             ENDPOINT_TRANSPORTADORA = Constants.URL_API_NFE + "/api/Transportadora";
+            _hubContext = hubContext;
         }
 
         [HttpPost("Registrar/{idEmpresa}/{chaveAcesso}/{cdPlanoEstoque}/{cdHistorico}", Name = nameof(Registrar))]
@@ -50,12 +55,15 @@ namespace GlobalAPI_ACBrNFe.Controllers
         [ProducesResponseType(500)]
         public async Task<ActionResult<Entrada>> Registrar([FromBody] ImpNFeTemp2 impNFeTemp, int idEmpresa, int cdPlanoEstoque, int cdHistorico, string chaveAcesso)
         {
+
             #region Validações
+            await _hubContext.Clients.All.SendAsync("ReceiveProgress", "Iniciando validações...");
             if (idEmpresa == 0 || string.IsNullOrEmpty(chaveAcesso) || chaveAcesso.Length < 44)
             {
                 logger.LogError($"Erro ao buscar NFe ({chaveAcesso}).");
                 return BadRequest(new ErrorMessage(500, "Is missing parameters"));
             }
+
             if (impNFeTemp == null)
             {
                 logger.LogError($"Erro ao buscar NFe ({chaveAcesso}).");
@@ -82,8 +90,10 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     return BadRequest(new ErrorMessage(500, "Is missing amarracao"));
                 }
             }
+            await _hubContext.Clients.All.SendAsync("ReceiveProgress", "Validações concluídas.");
             #endregion
             #region Busca Fornecedor
+            await _hubContext.Clients.All.SendAsync("ReceiveProgress", "Buscando fornecedor...");
             int IdFornecedor = 0;
             Fornecedor? fornecedor = null;
 
@@ -101,6 +111,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 logger.LogError($"Erro ao buscar fornecedor ({IdFornecedor}, {chaveAcesso}).");
                 return BadRequest(new ErrorMessage(500, "Is missing Fornecedor"));
             }
+            await _hubContext.Clients.All.SendAsync("ReceiveProgress", "Fornecedor encontrado.");
             #endregion
             #region Busca Transportadora
             Transportadora? transportadora;
@@ -115,6 +126,9 @@ namespace GlobalAPI_ACBrNFe.Controllers
             }
             #endregion
             #region Entrada
+            await _hubContext.Clients.All.SendAsync("ReceiveProgress", "Importando entrada.");
+
+
             Entrada? entrada;
             try
             {
@@ -130,8 +144,11 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 logger.LogError(ex, $"Erro ao importar entrada ({chaveAcesso}).");
                 return BadRequest(new ErrorMessage(500, "Error importing Entrada"));
             }
+            await _hubContext.Clients.All.SendAsync("ReceiveProgress", "Entrada importada com sucesso.");
+
             #endregion
             #region Importa XML
+            await _hubContext.Clients.All.SendAsync("ReceiveProgress", "Importando conteudo xml.");
             try
             {
                 await ImportarXml(impNFeTemp, entrada, idEmpresa);
@@ -141,8 +158,10 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 logger.LogError(ex, $"Erro ao importar XML ({chaveAcesso}).");
                 return BadRequest(new ErrorMessage(500, "Error importing XML"));
             }
+            await _hubContext.Clients.All.SendAsync("ReceiveProgress", "XML importado com sucesso.");
             #endregion
             #region Itens
+            await _hubContext.Clients.All.SendAsync("ReceiveProgress", "Importando itens do XML.");
             try
             {
                 await ImportarItens(impNFeTemp, entrada, idEmpresa, cdPlanoEstoque);
@@ -152,8 +171,10 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 logger.LogError(ex, $"Erro ao importar itens ({chaveAcesso}).");
                 return BadRequest(new ErrorMessage(500, "Error importing items"));
             }
+            await _hubContext.Clients.All.SendAsync("ReceiveProgress", "Itens do XML importados com sucesso.");
             #endregion
             #region Duplicata
+            await _hubContext.Clients.All.SendAsync("ReceiveProgress", "Importando duplicatas do XML.");
             try
             {
                 await ImportarDuplicatas(impNFeTemp, entrada, idEmpresa, cdHistorico);
@@ -164,6 +185,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 return BadRequest(new ErrorMessage(500, "Error importing Duplicatas"));
             }
             #endregion
+            await _hubContext.Clients.All.SendAsync("ReceiveProgress", "Finalizado com sucesso.");
 
             return Ok(entrada);
         }

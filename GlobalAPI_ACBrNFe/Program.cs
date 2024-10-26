@@ -11,6 +11,7 @@ using GlobalErpData.Repository.PagedRepositoriesMultiKey;
 using GlobalErpData.Repository.Repositories;
 using GlobalErpData.Repository;
 using GlobalAPI_ACBrNFe.Lib.ACBr.Web;
+using GlobalAPI_ACBrNFe.Lib;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -94,6 +95,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSignalR();
 
 
 var app = builder.Build();
@@ -119,5 +121,6 @@ app.UseAuthorization();
 
 // Mapear controladores dentro do middleware de endpoints
 app.MapControllers();
+app.MapHub<ImportProgressHub>("/importProgressHub");
 
 app.Run();

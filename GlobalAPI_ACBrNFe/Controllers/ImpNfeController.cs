@@ -19,6 +19,9 @@ using System.Text.RegularExpressions;
 using GlobalLib.Enum;
 using AutoMapper;
 using NFe.Classes.Informacoes;
+using GlobalAPI_ACBrNFe.Lib;
+using Microsoft.AspNetCore.SignalR;
+using System.Collections.Concurrent;
 
 namespace GlobalAPI_ACBrNFe.Controllers
 {
@@ -26,6 +29,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
     [Route("[controller]")]
     public class ImpNfeController : Controller
     {
+        protected static ConcurrentDictionary<int, string>? ImportacaoProdutosProtect;
         protected GlobalErpFiscalBaseContext db;
         protected readonly ILogger<ImpNfeController> logger;
         protected IMapper mapper;
@@ -36,9 +40,11 @@ namespace GlobalAPI_ACBrNFe.Controllers
         private string ENDPOINT_PRODUTOS_FORN;
         private string ENDPOINT_PRODUTOS;
         private string ENDPOINT_UNIDADE_MEDIDA;
+        private readonly IHubContext<ImportProgressHub> _hubContext;
         private string ENDPOINT_TRANSPORTADORA;
         public ImpNfeController(GlobalErpFiscalBaseContext db, ILogger<ImpNfeController> logger,
-            IMapper mapper)
+            IMapper mapper,
+            IHubContext<ImportProgressHub> hubContext)
         {
             this.db = db;
             this.logger = logger;
@@ -51,6 +57,12 @@ namespace GlobalAPI_ACBrNFe.Controllers
             ENDPOINT_PRODUTOS = Constants.URL_API_NFE + "/api/ProdutoEstoque";
             ENDPOINT_UNIDADE_MEDIDA = Constants.URL_API_NFE + "/api/UnidadeMedida";
             ENDPOINT_TRANSPORTADORA = Constants.URL_API_NFE + "/api/Transportadora";
+            _hubContext = hubContext;
+
+            if(ImportacaoProdutosProtect == null)
+            {
+                ImportacaoProdutosProtect = new ConcurrentDictionary<int, string>();
+            }
         }
 
         [HttpPost]
@@ -108,12 +120,12 @@ namespace GlobalAPI_ACBrNFe.Controllers
                             return NotFound(new ErrorMessage(404, "Encontrado cabeçalho, porém grupo itens não foi encontrado (tbl public.impitensnfe)."));
                         }
                         impNFeTemp.impdupnfe = await db.Impdupnves.Where(imptotalnfe => imptotalnfe.ChNfe == novaImpcabnfe.ChNfe).ToListAsync();
-                        
-                        if (impNFeTemp.impdupnfe.Count == 0)
-                        {
-                            return NotFound(
-                                new ErrorMessage(404, "Encontrado cabeçalho, porém grupo duplicatas não foi encontrado (tbl public.impdupnfe)."));
-                        }
+
+                        //if (impNFeTemp.impdupnfe.Count == 0)
+                        //{
+                        //    return NotFound(
+                        //        new ErrorMessage(404, "Encontrado cabeçalho, porém grupo duplicatas não foi encontrado (tbl public.impdupnfe)."));
+                        //}
 
                         await GetAmarracoes(impNFeTemp, idEmpresa, nfe);
 
@@ -1176,6 +1188,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
         [ProducesResponseType(500)]
         public async Task<IActionResult> CadastrarProdutosFaltantes([FromBody] List<Amarracao> amarracoes, int idEmpresa, int cdForn, string chaveNfe)
         {
+
             try
             {
                 if (amarracoes == null || amarracoes.Count == 0)
@@ -1235,6 +1248,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                                 amarracao.FatorConversao = produtoEstoque1.QtTotal;
                                 amarracao.CdBarra = produtoEstoque1.CdBarra;
                                 impNFeTemp.amarracoes.Add(amarracao);
+                                await _hubContext.Clients.All.SendAsync("ReceiveProgress", $"Produto '{produtoEstoque1.NmProduto}' amarrado com sucesso...");
                                 continue;
                             }
                             else
@@ -1317,14 +1331,14 @@ namespace GlobalAPI_ACBrNFe.Controllers
                                 }
                                 else
                                 {
-                                    return StatusCode(500, 
+                                    return StatusCode(500,
                                         new ErrorMessage(500, "Erro ao cadastrar grupo"));
                                 }
                             }
                             else
                             {
                                 return StatusCode(500,
-                                
+
                                     new ErrorMessage(500, response.Content.ReadAsStringAsync().Result));
                             }
                         }
@@ -1412,6 +1426,8 @@ namespace GlobalAPI_ACBrNFe.Controllers
                                     return StatusCode(500,
                                         new ErrorMessage(500, "Erro ao cadastrar produto"));
                                 }
+
+                                await _hubContext.Clients.All.SendAsync("ReceiveProgress", $"Produto '{_produtoEstoque.NmProduto}' cadastrado com sucesso...");
 
                                 ProdutosForn produtosForn = new ProdutosForn();
                                 produtosForn.CdProduto = _produtoEstoque.CdProduto;
@@ -1514,7 +1530,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 {
                     return NotFound(
                         new ErrorMessage(404, "Item da nota fiscal não encontrado"));
-                        
+
                 }
                 ProdutosForn? produtoFornOld = await db.ProdutosForns.FirstOrDefaultAsync(x => x.IdEmpresa == idEmpresa && x.CdForn == cdForn && x.IdProdutoExterno == impitensnfe.CProd && x.CdBarra.Equals(impitensnfe.Cean));
                 if (produtoFornOld != null)
