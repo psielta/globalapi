@@ -156,6 +156,82 @@ public partial class Entrada : IIdentifiableMultiKey<int, int>
     [Precision(18, 4)]
     public decimal? VIcmsDeson { get; set; }
 
+    [Column("icmstot_v_bc")]
+    [Precision(18, 2)]
+    public decimal? IcmstotVBc { get; set; }
+
+    [Column("icmstot_v_icms")]
+    [Precision(18, 2)]
+    public decimal? IcmstotVIcms { get; set; }
+
+    [Column("icmstot_v_icms_deson")]
+    [Precision(18, 2)]
+    public decimal? IcmstotVIcmsDeson { get; set; }
+
+    [Column("icmstot_v_fcp")]
+    [Precision(18, 2)]
+    public decimal? IcmstotVFcp { get; set; }
+
+    [Column("icmstot_v_bcst")]
+    [Precision(18, 2)]
+    public decimal? IcmstotVBcst { get; set; }
+
+    [Column("icmstot_v_st")]
+    [Precision(18, 2)]
+    public decimal? IcmstotVSt { get; set; }
+
+    [Column("icmstot_v_fcpst")]
+    [Precision(18, 2)]
+    public decimal? IcmstotVFcpst { get; set; }
+
+    [Column("icmstot_v_fcpst_ret")]
+    [Precision(18, 2)]
+    public decimal? IcmstotVFcpstRet { get; set; }
+
+    [Column("icmstot_v_prod")]
+    [Precision(18, 2)]
+    public decimal? IcmstotVProd { get; set; }
+
+    [Column("icmstot_v_frete")]
+    [Precision(18, 2)]
+    public decimal? IcmstotVFrete { get; set; }
+
+    [Column("icmstot_v_seg")]
+    [Precision(18, 2)]
+    public decimal? IcmstotVSeg { get; set; }
+
+    [Column("icmstot_v_desc")]
+    [Precision(18, 2)]
+    public decimal? IcmstotVDesc { get; set; }
+
+    [Column("icmstot_v_ii")]
+    [Precision(18, 2)]
+    public decimal? IcmstotVIi { get; set; }
+
+    [Column("icmstot_v_ipi")]
+    [Precision(18, 2)]
+    public decimal? IcmstotVIpi { get; set; }
+
+    [Column("icmstot_v_ipi_devol")]
+    [Precision(18, 2)]
+    public decimal? IcmstotVIpiDevol { get; set; }
+
+    [Column("icmstot_v_pis")]
+    [Precision(18, 2)]
+    public decimal? IcmstotVPis { get; set; }
+
+    [Column("icmstot_v_cofins")]
+    [Precision(18, 2)]
+    public decimal? IcmstotVCofins { get; set; }
+
+    [Column("icmstot_v_outro")]
+    [Precision(18, 2)]
+    public decimal? IcmstotVOutro { get; set; }
+
+    [Column("icmstot_v_nf")]
+    [Precision(18, 2)]
+    public decimal? IcmstotVNf { get; set; }
+
     [JsonPropertyName("nmPlano")]
     [NotMapped]
     public string NmPlano => CdGrupoEstoqueNavigation?.NmPlano ?? string.Empty;

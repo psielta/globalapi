@@ -86,5 +86,43 @@ namespace GlobalErpData.Dto
         public string? TPag { get; set; }
 
         public decimal? VIcmsDeson { get; set; }
+
+        public decimal? IcmstotVBc { get; set; }
+
+        public decimal? IcmstotVIcms { get; set; }
+
+        public decimal? IcmstotVIcmsDeson { get; set; }
+
+        public decimal? IcmstotVFcp { get; set; }
+
+        public decimal? IcmstotVBcst { get; set; }
+
+        public decimal? IcmstotVSt { get; set; }
+
+        public decimal? IcmstotVFcpst { get; set; }
+
+        public decimal? IcmstotVFcpstRet { get; set; }
+
+        public decimal? IcmstotVProd { get; set; }
+
+        public decimal? IcmstotVFrete { get; set; }
+
+        public decimal? IcmstotVSeg { get; set; }
+
+        public decimal? IcmstotVDesc { get; set; }
+
+        public decimal? IcmstotVIi { get; set; }
+
+        public decimal? IcmstotVIpi { get; set; }
+
+        public decimal? IcmstotVIpiDevol { get; set; }
+
+        public decimal? IcmstotVPis { get; set; }
+
+        public decimal? IcmstotVCofins { get; set; }
+
+        public decimal? IcmstotVOutro { get; set; }
+
+        public decimal? IcmstotVNf { get; set; }
     }
 }

@@ -939,6 +939,28 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 entrada.HrSaida = DateUtils.DateTimeToTimeOnly(impNFeTemp.impcabnfe.DtSaida ?? DateTime.Now).TruncateToMinutes();
                 entrada.HrChegada = DateUtils.DateTimeToTimeOnly(DateTime.Now).TruncateToMinutes();
 
+                entrada.IcmstotVBc = ConvertToDecimal(impNFeTemp.imptotalnfe.IcmsVbc ?? "0");
+                entrada.IcmstotVIcms = ConvertToDecimal(impNFeTemp.imptotalnfe.IcmsValor ?? "0");
+                entrada.IcmstotVIcmsDeson = ConvertToDecimal(impNFeTemp.imptotalnfe.Vicmsdeson ?? "0");
+                entrada.IcmstotVFcp = ConvertToDecimal( "0");
+                entrada.IcmstotVBcst = ConvertToDecimal(impNFeTemp.imptotalnfe.IcmsVbcst ?? "0");
+                entrada.IcmstotVSt = ConvertToDecimal(impNFeTemp.imptotalnfe.IcmsSt ?? "0");
+                entrada.IcmstotVFcpst = ConvertToDecimal(impNFeTemp.imptotalnfe.IcmsVfcpst ?? "0");
+                entrada.IcmstotVFcpstRet = ConvertToDecimal( "0");
+                entrada.IcmstotVProd = ConvertToDecimal(impNFeTemp.imptotalnfe.IcmsVprod ?? "0");
+                entrada.IcmstotVFrete = ConvertToDecimal(impNFeTemp.imptotalnfe.IcmsFrete ?? "0");
+                entrada.IcmstotVSeg = ConvertToDecimal(impNFeTemp.imptotalnfe.IcmsSeg ?? "0");
+                entrada.IcmstotVDesc = ConvertToDecimal(impNFeTemp.imptotalnfe.IcmsDesc ?? "0");
+                entrada.IcmstotVOutro = ConvertToDecimal(impNFeTemp.imptotalnfe.IcmsOutros ?? "0");
+                entrada.IcmstotVIi = ConvertToDecimal(impNFeTemp.imptotalnfe.IcmsVii ?? "0");
+                entrada.IcmstotVIpi = ConvertToDecimal(impNFeTemp.imptotalnfe.IcmsVipi ?? "0");
+                entrada.IcmstotVIpiDevol = ConvertToDecimal(impNFeTemp.imptotalnfe.IcmsVipidevol ?? "0");
+                entrada.IcmstotVPis = ConvertToDecimal(impNFeTemp.imptotalnfe.IcmsVpis ?? "0");
+                entrada.IcmstotVCofins = ConvertToDecimal(impNFeTemp.imptotalnfe.IcmsVconfins ?? "0");
+                entrada.IcmstotVOutro = ConvertToDecimal(impNFeTemp.imptotalnfe.IcmsOutros ?? "0");
+                entrada.IcmstotVNf = ConvertToDecimal(impNFeTemp.imptotalnfe.IcmsVnf ?? "0");
+                    
+
                 EntradaDto entradaDto = mapper.Map<EntradaDto>(entrada);
 
                 HttpClient client = new HttpClient();
