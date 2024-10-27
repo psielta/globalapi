@@ -12,6 +12,7 @@ using GlobalErpData.Repository.Repositories;
 using GlobalErpData.Repository;
 using GlobalAPI_ACBrNFe.Lib.ACBr.Web;
 using GlobalAPI_ACBrNFe.Lib;
+using GlobalErpData.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -85,6 +86,7 @@ builder.Services.AddScoped<IQueryRepositoryMultiKey<Fornecedor, int, int, Fornec
 builder.Services.AddScoped<IQueryRepository<PlanoEstoque, int, PlanoEstoqueDto>, PlanoEstoquePagedRepository>();
 builder.Services.AddScoped<IQueryRepositoryNoCache<SaldoEstoque, int, SaldoEstoqueDto>, SaldoEstoquePagedRepository>();
 builder.Services.AddScoped<IQueryRepository<CfopImportacao, int, CfopImportacaoDto>, CfopImportacaoPagedRepository>();
+builder.Services.AddScoped<EntradaCalculationService>();
 
 //builder.Services.AddScoped<IRepository<TblAccessToken>, TblAccessTokenRepository>();
 //builder.Services.AddHostedService<AtualizarTokenService>();

@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using X.PagedList.Extensions;
 using System.Collections.Generic;
 using System.Globalization;
+using GlobalErpData.Services;
 
 namespace GlobalAPINFe.Controllers
 {
@@ -19,8 +20,14 @@ namespace GlobalAPINFe.Controllers
     [ApiController]
     public class EntradaController : GenericPagedControllerMultiKey<Entrada, int, int, EntradaDto>
     {
-        public EntradaController(IQueryRepositoryMultiKey<Entrada, int, int, EntradaDto> repo, ILogger<GenericPagedControllerMultiKey<Entrada, int, int, EntradaDto>> logger) : base(repo, logger)
+        private readonly EntradaCalculationService _calculationService;
+        public EntradaController(
+            IQueryRepositoryMultiKey<Entrada, int, int, EntradaDto> repo,
+            ILogger<GenericPagedControllerMultiKey<Entrada, int, int, EntradaDto>> logger,
+            EntradaCalculationService calculationService
+        ) : base(repo, logger)
         {
+            _calculationService = calculationService;
         }
 
         // Sobrescrevendo os métodos herdados e adicionando os atributos [ProducesResponseType]
@@ -188,6 +195,10 @@ namespace GlobalAPINFe.Controllers
                         break;
                 }
 
+                foreach (var entrada in filteredQuery)
+                {
+                    _calculationService.CalculateTotals(entrada);
+                }
                 filteredQuery = filteredQuery.OrderBy(p => p.Nr);
 
                 var pagedList = filteredQuery.ToPagedList(pageNumber, pageSize);

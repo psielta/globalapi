@@ -2,6 +2,7 @@
 using GlobalErpData.Data;
 using GlobalErpData.Dto;
 using GlobalErpData.Models;
+using GlobalErpData.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
@@ -15,8 +16,12 @@ namespace GlobalErpData.Repository.PagedRepositoriesMultiKey
 {
     public class EntradaPagedRepository : GenericPagedRepositoryMultiKey<Entrada, GlobalErpFiscalBaseContext, int, int, EntradaDto>
     {
-        public EntradaPagedRepository(GlobalErpFiscalBaseContext injectedContext, IMapper mapper, ILogger<GenericPagedRepositoryMultiKey<Entrada, GlobalErpFiscalBaseContext, int, int, EntradaDto>> logger) : base(injectedContext, mapper, logger)
+        private readonly EntradaCalculationService _calculationService;
+
+        public EntradaPagedRepository(GlobalErpFiscalBaseContext injectedContext, IMapper mapper, ILogger<GenericPagedRepositoryMultiKey<Entrada, GlobalErpFiscalBaseContext, int, int, EntradaDto>> logger,
+            EntradaCalculationService calculationService) : base(injectedContext, mapper, logger)
         {
+            _calculationService = calculationService;
         }
         public Task<IQueryable<Entrada>> GetEntradaAsyncPorEmpresa(int IdEmpresa)
         {
@@ -25,6 +30,7 @@ namespace GlobalErpData.Repository.PagedRepositoriesMultiKey
                 return Task.FromResult(db.Set<Entrada>().Where(e => e.CdEmpresa == IdEmpresa)
                     .Include(e => e.Fornecedor)
                     .Include(e => e.CdGrupoEstoqueNavigation)
+                    .Include(e => e.ProdutoEntrada)
                     .AsQueryable());
             }
             catch (Exception ex)
@@ -44,14 +50,22 @@ namespace GlobalErpData.Repository.PagedRepositoriesMultiKey
                 logger.LogInformation("Entity created and added to cache with ID: {Id}", entity.GetId());
                 EntityCache.AddOrUpdate(entity.GetId(), entity, UpdateCache);
 
-                return await db.Set<Entrada>()
+                Entrada? entradaGerada = await db.Set<Entrada>()
                     .Where(e =>
                         e.Nr == entity.Nr
                         && e.CdEmpresa == entity.CdEmpresa)
                     .OrderByDescending(e => e.Data) // Adiciona uma ordenação
                     .Include(e => e.Fornecedor)
                     .Include(e => e.CdGrupoEstoqueNavigation)
+                    .Include(e => e.ProdutoEntrada)
                     .LastOrDefaultAsync();
+                if (entradaGerada is null)
+                {
+                    logger.LogWarning("Failed to retrieve entity from database.");
+                    return null;
+                }
+                _calculationService.CalculateTotals(entradaGerada);
+                return entradaGerada;
             }
             else
             {
@@ -71,7 +85,19 @@ namespace GlobalErpData.Repository.PagedRepositoriesMultiKey
             {
                 logger.LogInformation("Entity updated with ID: {idEmpresa}-{idCadastro}", idEmpresa, idCadastro);
                 UpdateCache((idEmpresa, idCadastro), entity);
-                return await db.Set<Entrada>().Where(e => e.CdEmpresa == idEmpresa && e.CdForn == idCadastro && e.Data == entity.Data).Include(e => e.Fornecedor).Include(e => e.CdGrupoEstoqueNavigation).FirstOrDefaultAsync();
+                Entrada? entradaGerada =  await db.Set<Entrada>()
+                    .Where(e => e.CdEmpresa == idEmpresa && e.Nr == idCadastro)
+                    .Include(e => e.Fornecedor)
+                    .Include(e => e.CdGrupoEstoqueNavigation)
+                    .Include(e => e.ProdutoEntrada)
+                    .FirstOrDefaultAsync();
+                if (entradaGerada is null)
+                {
+                    logger.LogWarning("Failed to retrieve entity from database.");
+                    return null;
+                }
+                _calculationService.CalculateTotals(entradaGerada);
+                return entradaGerada;
             }
             else
             {

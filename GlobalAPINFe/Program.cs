@@ -18,6 +18,7 @@ using GlobalErpData.Repository.PagedRepositories;
 using GlobalErpData.Repository.PagedRepositoriesMultiKey;
 using System.Globalization;
 using GlobalAPINFe.SwaggerUtils;
+using GlobalErpData.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -125,6 +126,7 @@ builder.Services.AddScoped<IQueryRepository<HistoricoCaixa,int,HistoricoCaixaDto
 builder.Services.AddScoped<IQueryRepository<FormaPagt,int,FormaPagtDto>, FormaPagtRepository>();
 builder.Services.AddScoped<IQueryRepository<ContasAPagar,int,ContasAPagarDto>, ContasAPagarRepository>();
 builder.Services.AddScoped<IQueryRepositoryMultiKey<Impxml, int, string, ImpxmlDto>, ImpXmlRepository>();
+builder.Services.AddScoped<EntradaCalculationService>();
 
 
 

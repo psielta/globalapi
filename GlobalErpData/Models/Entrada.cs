@@ -164,6 +164,22 @@ public partial class Entrada : IIdentifiableMultiKey<int, int>
     [NotMapped]
     public string NmForn => Fornecedor?.NmForn ?? "";
 
+    [JsonPropertyName("valorTotalNfe")]
+    [NotMapped]
+    public double? ValorTotalNfe { get; set; }
+
+    [JsonPropertyName("subTotal")]
+    [NotMapped]
+    public double? SubTotal { get; set; }
+
+    [JsonPropertyName("valorTotalDesconto")]
+    [NotMapped]
+    public double? ValorTotalDesconto { get; set; }
+
+    [JsonPropertyName("valorTotalProdutos")]
+    [NotMapped]
+    public double? ValorTotalProdutos { get; set; }
+
     [JsonIgnore]
     [ForeignKey("CdEmpresa")]
     [InverseProperty("Entrada")]
