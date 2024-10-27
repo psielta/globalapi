@@ -53,7 +53,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
         [ProducesResponseType(typeof(Entrada), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
-        public async Task<ActionResult<Entrada>> Registrar([FromBody] ImpNFeTemp2 impNFeTemp, int idEmpresa, int cdPlanoEstoque, int cdHistorico, string chaveAcesso, string sessionId)
+        public async Task<ActionResult<Entrada>> Registrar([FromBody] ImpNFeTemp2 impNFeTemp, int idEmpresa, int cdPlanoEstoque, int cdHistorico, string chaveAcesso, string sessionId, string tipoEntrada)
         {
 
             #region Validações
@@ -131,7 +131,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
             Entrada? entrada;
             try
             {
-                entrada = await ImportarEntrada(IdFornecedor, transportadora, impNFeTemp, idEmpresa, cdPlanoEstoque);
+                entrada = await ImportarEntrada(IdFornecedor, transportadora, impNFeTemp, idEmpresa, cdPlanoEstoque, tipoEntrada);
                 if (entrada == null)
                 {
                     logger.LogError($"Erro ao importar entrada ({chaveAcesso}).");
@@ -813,7 +813,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
             }
         }
 
-        private async Task<Entrada?> ImportarEntrada(int idFornecedor, Transportadora? transportadora, ImpNFeTemp2 impNFeTemp, int idEmpresa, int cdPlanoEstoque)
+        private async Task<Entrada?> ImportarEntrada(int idFornecedor, Transportadora? transportadora, ImpNFeTemp2 impNFeTemp, int idEmpresa, int cdPlanoEstoque, string tipoEntrada)
         {
             Entrada? entrada = db.Entradas.FromSqlRaw($@"
                 SELECT 
@@ -899,7 +899,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 entrada.VlStNf = ConvertToDecimal(impNFeTemp.imptotalnfe.IcmsSt ?? "0");
                 entrada.VlAcrescimoNf = 0;
                 entrada.CdGrupoEstoque = cdPlanoEstoque;
-                entrada.TpEntrada = "C";
+                entrada.TpEntrada = tipoEntrada;
                 entrada.TpPagt = (impNFeTemp.impcabnfe.TPag ?? "").Equals("01") ? "V" : "P";
                 entrada.HrSaida = DateUtils.DateTimeToTimeOnly(impNFeTemp.impcabnfe.DtSaida ?? DateTime.Now).TruncateToMinutes();
                 entrada.HrChegada = DateUtils.DateTimeToTimeOnly(DateTime.Now).TruncateToMinutes();
