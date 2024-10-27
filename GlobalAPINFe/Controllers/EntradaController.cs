@@ -11,6 +11,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using X.PagedList.Extensions;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace GlobalAPINFe.Controllers
 {
@@ -66,7 +67,6 @@ namespace GlobalAPINFe.Controllers
             return await base.Delete(idEmpresa, idCadastro);
         }
 
-        // Método personalizado ajustado
         [HttpGet("GetEntradaPorEmpresa", Name = nameof(GetEntradaPorEmpresa))]
         [ProducesResponseType(typeof(PagedResponse<Entrada>), 200)]
         [ProducesResponseType(404)]
@@ -74,39 +74,59 @@ namespace GlobalAPINFe.Controllers
             int idEmpresa,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
+            [FromQuery] int tipoPeriodoEntrada = 0,
+            [FromQuery] int tipoDataEntrada = 0,
+            [FromQuery] string? periodoInicial = null,
+            [FromQuery] string? periodoFinal = null,
             [FromQuery] string? nmForn = null,
+            [FromQuery] int? nr = null,
             [FromQuery] int? nrNotaFiscal = null,
             [FromQuery] int? serie = null,
             [FromQuery] string? chaveAcesso = null,
-            [FromQuery] string? tipoEntrada = null,
-            [FromQuery] string? dataInicio = null,
-            [FromQuery] string? dataFim = null)
+            [FromQuery] string? tipoEntrada = null
+)
         {
             try
             {
-                var query = ((EntradaPagedRepository)repo).GetEntradaAsyncPorEmpresa(idEmpresa).Result.AsQueryable();
+                TipoDataEntrada ENUM_tipoDataEntrada = TipoDataEntrada.TDE_DataEntrada;
+                TipoPeriodoEntrada ENUM_tipoPeriodoEntrada = TipoPeriodoEntrada.TPE_Geral;
+
+                if (tipoDataEntrada < 0 || tipoDataEntrada > 2 || tipoPeriodoEntrada < 0 || tipoPeriodoEntrada > 2)
+                {
+                    return BadRequest(new ErrorMessage(500, "Invalid parameters"));
+                }
+
+                ENUM_tipoDataEntrada = (TipoDataEntrada)tipoDataEntrada;
+                ENUM_tipoPeriodoEntrada = (TipoPeriodoEntrada)tipoPeriodoEntrada;
+
+                var query = await ((EntradaPagedRepository)repo).GetEntradaAsyncPorEmpresa(idEmpresa);
 
                 if (query == null)
                 {
-                    return NotFound("Entities not found.");
+                    return NotFound(new ErrorMessage(404, "Entities not found"));
                 }
 
                 var filteredQuery = query.AsEnumerable();
 
                 if (!string.IsNullOrEmpty(nmForn))
                 {
-                    var normalizedNmProduto = UtlStrings.RemoveDiacritics(nmForn.ToLower()).Trim();
-                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.NmForn == null) ? "" : p.NmForn.ToLower()).Contains(normalizedNmProduto));
+                    var normalizedNmForn = UtlStrings.RemoveDiacritics(nmForn.ToLower()).Trim();
+                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.NmForn == null) ? "" : p.NmForn.ToLower()).Contains(normalizedNmForn));
+                }
+
+                if (nr.HasValue)
+                {
+                    filteredQuery = filteredQuery.Where(p => p.Nr == nr.Value);
                 }
 
                 if (nrNotaFiscal.HasValue)
                 {
-                    filteredQuery = filteredQuery.Where(p => p.NrNf != null && p.NrNf.Equals(nrNotaFiscal.ToString()));
+                    filteredQuery = filteredQuery.Where(p => p.NrNf != null && p.NrNf.Equals(nrNotaFiscal.Value.ToString()));
                 }
 
                 if (serie.HasValue)
                 {
-                    filteredQuery = filteredQuery.Where(p => p.SerieNf != null && p.SerieNf.Equals(serie.ToString()));
+                    filteredQuery = filteredQuery.Where(p => p.SerieNf != null && p.SerieNf.Equals(serie.Value.ToString()));
                 }
 
                 if (!string.IsNullOrEmpty(chaveAcesso))
@@ -117,18 +137,55 @@ namespace GlobalAPINFe.Controllers
 
                 if (!string.IsNullOrEmpty(tipoEntrada))
                 {
-                    var normalizedTipoEntrada = UtlStrings.RemoveDiacritics(tipoEntrada.ToLower()).Trim();
-                    filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.TpEntrada == null) ? "" : p.TpEntrada.ToLower()) == normalizedTipoEntrada);
+                    var normalizedTipoEntrada = UtlStrings.RemoveDiacritics(tipoEntrada.ToUpper()).Trim();
+                    filteredQuery = filteredQuery.Where(p => (p.TpEntrada ?? "").ToUpper() == normalizedTipoEntrada);
                 }
 
-                if (!string.IsNullOrEmpty(dataInicio))
+                switch ((int)ENUM_tipoPeriodoEntrada)
                 {
-                    filteredQuery = filteredQuery.Where(p => p.Data.ToDateTime(TimeOnly.MinValue) >= DateTime.Parse(dataInicio));
-                }
-
-                if (!string.IsNullOrEmpty(dataFim))
-                {
-                    filteredQuery = filteredQuery.Where(p => p.Data.ToDateTime(TimeOnly.MaxValue) <= DateTime.Parse(dataFim));
+                    case (int)TipoPeriodoEntrada.TPE_Periodo:
+                        if (!string.IsNullOrEmpty(periodoInicial) && !string.IsNullOrEmpty(periodoFinal))
+                        {
+                            DateOnly dtInicial = DateOnly.ParseExact(periodoInicial, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                            DateOnly dtFinal = DateOnly.ParseExact(periodoFinal, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                            switch ((int)ENUM_tipoDataEntrada)
+                            {
+                                case (int)TipoDataEntrada.TDE_DataEntrada:
+                                    filteredQuery = filteredQuery.Where(p => p.Data >= dtInicial && p.Data <= dtFinal);
+                                    break;
+                                case (int)TipoDataEntrada.TDE_DataEmissao:
+                                    filteredQuery = filteredQuery.Where(p => p.DtEmissao >= dtInicial && p.DtEmissao <= dtFinal);
+                                    break;
+                                case (int)TipoDataEntrada.TDE_DataSaida:
+                                    filteredQuery = filteredQuery.Where(p => p.DtSaida >= dtInicial && p.DtSaida <= dtFinal);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                        break;
+                    case (int)TipoPeriodoEntrada.TPE_AteData:
+                        if (!string.IsNullOrEmpty(periodoFinal))
+                        {
+                            DateOnly dtFinal = DateOnly.ParseExact(periodoFinal, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                            switch ((int)ENUM_tipoDataEntrada)
+                            {
+                                case (int)TipoDataEntrada.TDE_DataEntrada:
+                                    filteredQuery = filteredQuery.Where(p => p.Data <= dtFinal);
+                                    break;
+                                case (int)TipoDataEntrada.TDE_DataEmissao:
+                                    filteredQuery = filteredQuery.Where(p => p.DtEmissao <= dtFinal);
+                                    break;
+                                case (int)TipoDataEntrada.TDE_DataSaida:
+                                    filteredQuery = filteredQuery.Where(p => p.DtSaida <= dtFinal);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                        break;
+                    default:
+                        break;
                 }
 
                 filteredQuery = filteredQuery.OrderBy(p => p.Nr);
@@ -138,16 +195,34 @@ namespace GlobalAPINFe.Controllers
 
                 if (response.Items == null || response.Items.Count == 0)
                 {
-                    return NotFound("Entities not found."); // 404 Resource not found
+                    return NotFound(new ErrorMessage(404, "Entities not found."));
                 }
 
-                return Ok(response); // 200 OK
+                return Ok(response);
             }
             catch (Exception ex)
             {
                 logger.LogError(ex, "Error occurred while retrieving paged entities.");
-                return StatusCode(500, "An error occurred while retrieving entities. Please try again later.");
+                return StatusCode(500, new ErrorMessage(500,
+                    "An error occurred while retrieving entities. Please try again later."
+                    ));
             }
         }
+
+        public enum TipoDataEntrada
+        {
+            TDE_DataEntrada = 0,
+            TDE_DataEmissao = 1,
+            TDE_DataSaida = 2
+        }
+
+        public enum TipoPeriodoEntrada
+        {
+            TPE_Geral = 0,
+            TPE_Periodo = 1,
+            TPE_AteData = 2
+        }
+
+
     }
 }
