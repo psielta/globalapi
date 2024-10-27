@@ -601,7 +601,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                         {
                             ppp = _response;
                             logger.LogInformation($"Produto entrada id [{idEmpresa},{_response.NrEntrada},{_response.NrItem}] criado com sucesso.");
-                            await _hubContext.Clients.Group(sessionId).SendAsync("ReceiveProgress",$"Item {ppp.NrItem} - {produtoEstoque.NmProduto} importado com sucesso...");
+                            await _hubContext.Clients.Group(sessionId).SendAsync("ReceiveProgress", $"Item {ppp.NrItem} - {produtoEstoque.NmProduto} importado com sucesso...");
                         }
                         else
                         {
@@ -691,28 +691,15 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 ).FirstOrDefaultAsync();
             if (cfopImportacao != null)
             {
-
                 if (!string.IsNullOrEmpty(cfopImportacao.CdCfopE) && cfopImportacao.CdCfopE.Length == 4)
                 {
                     ppp.CdCfop = cfopImportacao.CdCfopE;
                 }
                 else
                 {
-                    string ret = string.Empty;
-                    string p = item.Cfop;
-                    if (p.Equals("6101") || p.Equals("6102"))
-                        ret = "2102";
-                    else if (p.Equals("5101") || p.Equals("5102"))
-                        ret = "1102";
-                    else if (p.Equals("5401") || p.Equals("5402") || p.Equals("5403") || p.Equals("5404") || p.Equals("5405"))
-                        ret = "1403";
-                    else if (p.Equals("6401") || p.Equals("6402") || p.Equals("6403") || p.Equals("6404") || p.Equals("6405"))
-                        ret = "2403";
-                    else if (p[0] == '6')
-                        ret = "2102";
-                    else if (p[0] == '5')
-                        ret = "1102";
-                    ppp.CdCfop = ret;
+                    string cfopNotaDeEntrada = item.Cfop ?? "";
+
+                    ppp.CdCfop = GetCfopPadrao(cfopNotaDeEntrada);
                 }
 
                 if (!string.IsNullOrEmpty(cfopImportacao.CfopDentro) && cfopImportacao.CfopDentro.Length == 4)
@@ -727,6 +714,10 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 {
                     produtoEstoque.CdCsosn = cfopImportacao.Csosn;
                 }
+            }
+            else
+            {
+                ppp.CdCfop = GetCfopPadrao(item.Cfop ?? "");
             }
             produtoEstoque.CdClassFiscal = item.Ncm;
             if (!string.IsNullOrEmpty(item.Cest) && item.Cest.Length > 0)
@@ -765,6 +756,50 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 throw new Exception("Erro ao importar ATUALIZAR");
             }
         }
+
+        private string? GetCfopPadrao(string cfopNotaDeEntrada)
+        {
+            string ret = string.Empty;
+
+            // Converte a entrada em um padrão de quatro dígitos, se necessário
+            if (cfopNotaDeEntrada.Length < 4)
+                return null; // ou um valor de fallback
+
+            string p = cfopNotaDeEntrada;
+
+            // Regras para operações estaduais e interestaduais
+            if (p.Equals("6101") || p.Equals("6102") || p.Equals("6103")) // Venda estadual ou interestadual
+                ret = "2102"; // Entrada padrão para revenda
+            else if (p.Equals("5101") || p.Equals("5102") || p.Equals("5103"))
+                ret = "1102";
+            else if (p.Equals("5401") || p.Equals("5402") || p.Equals("5403") || p.Equals("5404") || p.Equals("5405"))
+                ret = "1403";
+            else if (p.Equals("6401") || p.Equals("6402") || p.Equals("6403") || p.Equals("6404") || p.Equals("6405"))
+                ret = "2403";
+
+            // Regras para devoluções
+            else if (p.Equals("5202")) // Devolução de venda
+                ret = "1202"; // Entrada de devolução
+            else if (p.Equals("6202"))
+                ret = "2202"; // Entrada de devolução
+            else if (p.Equals("5411")) // Devolução de bonificação
+                ret = "1411";
+            else if (p.Equals("6411"))
+                ret = "2411";
+
+            // Regras gerais para operações interestaduais e estaduais
+            else if (p.StartsWith("6")) // Interestaduais
+                ret = "2102"; // Exemplo: Entrada de mercadoria para revenda de fora do estado
+            else if (p.StartsWith("5")) // Internas
+                ret = "1102"; // Exemplo: Entrada de mercadoria para revenda dentro do estado
+
+            // Se nenhum caso anterior for atendido
+            else
+                ret = "1102"; // Define um CFOP padrão ou retorna null para tratamento externo
+
+            return ret;
+        }
+
 
         private async Task ImportarUnidadeMedida(Impitensnfe item, Amarracao2 amarracao, int idEmpresa)
         {

@@ -106,37 +106,38 @@ namespace GlobalAPI_ACBrNFe.Controllers
                         .FirstOrDefaultAsync(i => i.ChNfe == novaImpcabnfe.ChNfe);
                     if (impcabnfe != null)
                     {
-                        impNFeTemp.impcabnfe = impcabnfe;
-                        var imptotalnfe = await db.Imptotalnves
-                            .FirstOrDefaultAsync(i => i.ChNfe == novaImpcabnfe.ChNfe);
-                        if (imptotalnfe != null)
-                        {
-                            impNFeTemp.imptotalnfe = imptotalnfe;
-                        }
-                        else
-                        {
-                            return NotFound(new ErrorMessage(404, "Encontrado cabeçalho, porém grupo total não foi encontrado (tbl public.imptotalnfe)."));
-                        }
-                        impNFeTemp.impitensnves = await db.Impitensnves.Where(imptotalnfe => imptotalnfe.ChNfe == novaImpcabnfe.ChNfe).ToListAsync();
-                        if (impNFeTemp.impitensnves == null)
-                        {
-                            return NotFound(new ErrorMessage(404, "Encontrado cabeçalho, porém grupo itens não foi encontrado (tbl public.impitensnfe)."));
-                        }
-                        if (impNFeTemp.impitensnves.Count == 0)
-                        {
-                            return NotFound(new ErrorMessage(404, "Encontrado cabeçalho, porém grupo itens não foi encontrado (tbl public.impitensnfe)."));
-                        }
-                        impNFeTemp.impdupnfe = await db.Impdupnves.Where(imptotalnfe => imptotalnfe.ChNfe == novaImpcabnfe.ChNfe).ToListAsync();
-
-                        //if (impNFeTemp.impdupnfe.Count == 0)
+                        //impNFeTemp.impcabnfe = impcabnfe;
+                        //var imptotalnfe = await db.Imptotalnves
+                        //    .FirstOrDefaultAsync(i => i.ChNfe == novaImpcabnfe.ChNfe);
+                        //if (imptotalnfe != null)
                         //{
-                        //    return NotFound(
-                        //        new ErrorMessage(404, "Encontrado cabeçalho, porém grupo duplicatas não foi encontrado (tbl public.impdupnfe)."));
+                        //    impNFeTemp.imptotalnfe = imptotalnfe;
                         //}
-
-                        await GetAmarracoes(impNFeTemp, idEmpresa, nfe);
-
-                        return Ok(impNFeTemp);
+                        //else
+                        //{
+                        //    return NotFound(new ErrorMessage(404, "Encontrado cabeçalho, porém grupo total não foi encontrado (tbl public.imptotalnfe)."));
+                        //}
+                        //impNFeTemp.impitensnves = await db.Impitensnves.Where(imptotalnfe => imptotalnfe.ChNfe == novaImpcabnfe.ChNfe).ToListAsync();
+                        //if (impNFeTemp.impitensnves == null)
+                        //{
+                        //    return NotFound(new ErrorMessage(404, "Encontrado cabeçalho, porém grupo itens não foi encontrado (tbl public.impitensnfe)."));
+                        //}
+                        //if (impNFeTemp.impitensnves.Count == 0)
+                        //{
+                        //    return NotFound(new ErrorMessage(404, "Encontrado cabeçalho, porém grupo itens não foi encontrado (tbl public.impitensnfe)."));
+                        //}
+                        //impNFeTemp.impdupnfe = await db.Impdupnves.Where(imptotalnfe => imptotalnfe.ChNfe == novaImpcabnfe.ChNfe).ToListAsync();
+                        //
+                        //await GetAmarracoes(impNFeTemp, idEmpresa, nfe);
+                        //
+                        //return Ok(impNFeTemp);
+                        try { 
+                            await DeletarItensAntigos(impcabnfe, idEmpresa);
+                        }
+                        catch (Exception ex)
+                        {
+                            return BadRequest(new ErrorMessage(400, "Erro ao deletar itens antigos"));
+                        }
                     }
 
                     await InserirXmlDb(idEmpresa, GetChaveNFe(nfe.NFe), xmlContent);
@@ -353,6 +354,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                             {
                                 var abstractICMS = imposto.ICMS.TipoICMS;
 
+                                ICMS00? iCMS00 = null;
                                 ICMS02? iCMS02 = null;
                                 ICMS10? iCMS10 = null;
                                 ICMS15? iCMS15 = null;
@@ -374,7 +376,17 @@ namespace GlobalAPI_ACBrNFe.Controllers
                                 ICMSSN500? iCMSSN500 = null;
                                 ICMSSN900? iCMSSN900 = null;
 
-                                if (abstractICMS is ICMS02)
+                                if (abstractICMS is ICMS00)
+                                {
+                                    iCMS00 = (ICMS00)abstractICMS;
+                                    novoImpitensnfe.Cst = iCMS00.CST.GetXmlEnumValue();
+                                    novoImpitensnfe.ImpOrigem = iCMS00.orig.GetXmlEnumValue();
+                                    novoImpitensnfe.Vbc = iCMS00.vBC.ToString();
+                                    novoImpitensnfe.ModBc = iCMS00.modBC.GetXmlEnumValue();
+                                    novoImpitensnfe.Picms = iCMS00.pICMS.ToString();
+                                    novoImpitensnfe.Vicms = iCMS00.vICMS.ToString();
+                                }
+                                else if (abstractICMS is ICMS02)
                                 {
                                     iCMS02 = (ICMS02)abstractICMS;
                                     novoImpitensnfe.Cst = iCMS02.CST.GetXmlEnumValue();
@@ -873,6 +885,18 @@ namespace GlobalAPI_ACBrNFe.Controllers
 
                 }
             }
+        }
+
+        private async Task DeletarItensAntigos(Impcabnfe impcabnfe, int idEmpresa)
+        {
+            string chaveAcesso = impcabnfe.ChNfe;
+            db.Impcabnves.RemoveRange(db.Impcabnves.Where(x => x.ChNfe == chaveAcesso));
+            db.Impitensnves.RemoveRange(db.Impitensnves.Where(x => x.ChNfe == chaveAcesso));
+            db.Impdupnves.RemoveRange(db.Impdupnves.Where(x => x.ChNfe == chaveAcesso));
+            db.Imptotalnves.RemoveRange(db.Imptotalnves.Where(x => x.ChNfe == chaveAcesso));
+            db.Impxmls.RemoveRange(db.Impxmls.Where(x => x.ChaveAcesso == chaveAcesso && x.IdEmpresa == idEmpresa));
+
+            await db.SaveChangesAsync();
         }
 
         private async Task InserirXmlDb(int idEmpresa, string v, string xmlContent)
