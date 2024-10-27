@@ -552,6 +552,10 @@ public partial class ProdutoEstoque : IIdentifiable<int>, IIdentifiableMultiKey<
     [Column("cd_produto_erp")]
     public int? CdProdutoErp { get; set; }
 
+    [JsonPropertyName("quantidade")]
+    [NotMapped]
+    public double? Quantidade { get; set; }
+
     [JsonIgnore]
     [ForeignKey("Category")]
     [InverseProperty("ProdutoEstoques")]

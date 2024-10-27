@@ -92,11 +92,26 @@ namespace GlobalAPINFe.Controllers
             [FromQuery] string? cdClassFiscal = null,
             [FromQuery] string? cest = null,
             [FromQuery] string? cdInterno = null,
-            [FromQuery] string? cdBarra = null)
+            [FromQuery] string? cdBarra = null,
+            [FromQuery] int? cdPlanoEstoque = -1
+            )
         {
             try
             {
-                var query = ((ProdutoEstoquePagedRepositoryMultiKey)repo).GetProdutoEstoqueAsyncPorEmpresa(idEmpresa).Result.AsQueryable();
+                var query = ((ProdutoEstoquePagedRepositoryMultiKey)repo)
+                    .GetProdutoEstoqueAsyncPorEmpresa(idEmpresa)
+                    .Result
+                    .AsQueryable();
+
+                // Include SaldoEstoques based on cdPlanoEstoque
+                if (cdPlanoEstoque != -1)
+                {
+                    query = query.Include(p => p.SaldoEstoques.Where(s => s.CdPlano == cdPlanoEstoque));
+                }
+                else
+                {
+                    query = query.Include(p => p.SaldoEstoques);
+                }
 
                 if (query == null)
                 {
@@ -105,6 +120,7 @@ namespace GlobalAPINFe.Controllers
 
                 var filteredQuery = query.AsEnumerable();
 
+                // Apply your filters as before
                 if (!string.IsNullOrEmpty(nmProduto))
                 {
                     var normalizedNmProduto = UtlStrings.RemoveDiacritics(nmProduto.ToLower()).Trim();
@@ -140,9 +156,38 @@ namespace GlobalAPINFe.Controllers
                     filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.CdBarra == null) ? "" : p.CdBarra.ToLower()) == normalizedCdBarra);
                 }
 
-                filteredQuery = filteredQuery.OrderBy(p => p.CdProduto);
+                if (!string.IsNullOrEmpty(nmProduto))
+                    filteredQuery = filteredQuery.OrderBy(p => p.NmProduto);
+                else
+                    filteredQuery = filteredQuery.OrderByDescending(p => p.CdProduto);
 
                 var pagedList = filteredQuery.ToPagedList(pageNumber, pageSize);
+
+                // Compute Quantidade for each ProdutoEstoque
+                foreach (var produto in pagedList)
+                {
+                    double? quantidade = 0;
+
+                    if (cdPlanoEstoque != -1)
+                    {
+                        // Sum quantities from filtered SaldoEstoques
+                        var saldo = produto.SaldoEstoques.FirstOrDefault();
+                        if (saldo != null)
+                        {
+                            quantidade = (double?)(saldo.QuantE - saldo.QuantV + saldo.QuantF);
+                        }
+                    }
+                    else
+                    {
+                        // Sum quantities across all SaldoEstoques
+                        foreach (var saldo in produto.SaldoEstoques)
+                        {
+                            quantidade += (double?)(saldo.QuantE - saldo.QuantV + saldo.QuantF);
+                        }
+                    }
+                    produto.Quantidade = quantidade;
+                }
+
                 var response = new PagedResponse<ProdutoEstoque>(pagedList);
 
                 if (response.Items == null || response.Items.Count == 0)
@@ -158,6 +203,7 @@ namespace GlobalAPINFe.Controllers
                 return StatusCode(500, "An error occurred while retrieving entities. Please try again later.");
             }
         }
+
 
         [HttpGet("GetProdutosComDetalhes", Name = nameof(GetProdutosComDetalhes))]
         [ProducesResponseType(typeof(GlobalErpData.Dto.PagedList.PagedResponse<ProductDetails>), 200)]
