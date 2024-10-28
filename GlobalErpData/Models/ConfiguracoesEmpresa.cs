@@ -33,6 +33,30 @@ public partial class ConfiguracoesEmpresa : IIdentifiableMultiKey<int, string>
     [Column("cd_empresa")]
     public int CdEmpresa { get; set; }
 
+    [Column("valor_4")]
+    [StringLength(16384)]
+    public string? Valor4 { get; set; }
+
+    [Column("valor_5")]
+    [StringLength(16384)]
+    public string? Valor5 { get; set; }
+
+    [Column("valor_6")]
+    [StringLength(16384)]
+    public string? Valor6 { get; set; }
+
+    [Column("valor_7")]
+    [StringLength(16384)]
+    public string? Valor7 { get; set; }
+
+    [Column("valor_8")]
+    [StringLength(16384)]
+    public string? Valor8 { get; set; }
+
+    [Column("valor_9")]
+    [StringLength(16384)]
+    public string? Valor9 { get; set; }
+
     [JsonIgnore]
     [ForeignKey("CdEmpresa")]
     [InverseProperty("ConfiguracoesEmpresas")]
