@@ -2,6 +2,7 @@
 using GlobalErpData.Data;
 using GlobalErpData.Dto;
 using GlobalErpData.Models;
+using GlobalErpData.Repository.PagedRepositories;
 using GlobalErpData.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -17,11 +18,13 @@ namespace GlobalErpData.Repository.PagedRepositoriesMultiKey
     public class EntradaPagedRepository : GenericPagedRepositoryMultiKey<Entrada, GlobalErpFiscalBaseContext, int, int, EntradaDto>
     {
         private readonly EntradaCalculationService _calculationService;
+        private readonly IQueryRepository<ProdutoEntradum, int, ProdutoEntradaDto> produtoEntradaRepository;
 
         public EntradaPagedRepository(GlobalErpFiscalBaseContext injectedContext, IMapper mapper, ILogger<GenericPagedRepositoryMultiKey<Entrada, GlobalErpFiscalBaseContext, int, int, EntradaDto>> logger,
-            EntradaCalculationService calculationService) : base(injectedContext, mapper, logger)
+            EntradaCalculationService calculationService, IQueryRepository<ProdutoEntradum, int, ProdutoEntradaDto> produtoEntradaRepository) : base(injectedContext, mapper, logger)
         {
             _calculationService = calculationService;
+            this.produtoEntradaRepository = produtoEntradaRepository;
         }
         public Task<IQueryable<Entrada>> GetEntradaAsyncPorEmpresa(int IdEmpresa)
         {
@@ -76,6 +79,14 @@ namespace GlobalErpData.Repository.PagedRepositoriesMultiKey
 
         public async override Task<Entrada?> UpdateAsync(int idEmpresa, int idCadastro, EntradaDto dto)
         {
+            Entrada? oldEntrada = await db.Set<Entrada>().AsNoTracking()
+                .Where(e => e.CdEmpresa == idEmpresa && e.Nr == idCadastro)
+                .FirstOrDefaultAsync();
+            if (oldEntrada is null)
+            {
+                logger.LogWarning("Failed to retrieve entity from database.");
+                return null;
+            }
             Entrada entity = mapper.Map<Entrada>(dto);
             entity.GetType().GetProperty(entity.GetKeyName1())?.SetValue(entity, idEmpresa);
             entity.GetType().GetProperty(entity.GetKeyName2())?.SetValue(entity, idCadastro);
@@ -85,7 +96,17 @@ namespace GlobalErpData.Repository.PagedRepositoriesMultiKey
             {
                 logger.LogInformation("Entity updated with ID: {idEmpresa}-{idCadastro}", idEmpresa, idCadastro);
                 UpdateCache((idEmpresa, idCadastro), entity);
-                Entrada? entradaGerada =  await db.Set<Entrada>()
+                if (oldEntrada.CdGrupoEstoque != dto.CdGrupoEstoque)
+                {
+                    bool x = await ((ProdutoEntradaRepository)produtoEntradaRepository).UpdateAllCdGrupoEstoqueAsync(idEmpresa, idCadastro, dto.CdGrupoEstoque);
+                    if (!x)
+                    {
+                        logger.LogWarning("Failed to update entity with ID: {idEmpresa}-{idCadastro}.", idEmpresa, idCadastro);
+                        //return null;
+                    }
+
+                }
+                Entrada? entradaGerada = await db.Set<Entrada>()
                     .Where(e => e.CdEmpresa == idEmpresa && e.Nr == idCadastro)
                     .Include(e => e.Fornecedor)
                     .Include(e => e.CdGrupoEstoqueNavigation)

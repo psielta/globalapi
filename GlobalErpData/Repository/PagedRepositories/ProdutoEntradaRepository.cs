@@ -72,5 +72,46 @@ namespace GlobalErpData.Repository.PagedRepositories
                 return null;
             }
         }
+
+        public async Task<bool> UpdateAllCdGrupoEstoqueAsync(int idEmpresa, int nrEntrada, int newCdGrupoEstoque)
+        {
+            Entrada? entrada = await db.Set<Entrada>().Where(e => e.CdEmpresa == idEmpresa && e.Nr == nrEntrada).FirstOrDefaultAsync();
+            if (entrada is null)
+            {
+                logger.LogWarning("Failed to find entity with ID: {nrEntrada}", nrEntrada);
+                return false;
+            }
+            if (entrada.CdGrupoEstoque != newCdGrupoEstoque)
+            {
+                logger.LogWarning("Failed to update entity with ID: {nrEntrada}.", nrEntrada);
+                return false;
+            }
+
+            List<ProdutoEntradum> entity = await db.Set<ProdutoEntradum>().Where(e => e.CdEmpresa == idEmpresa && e.NrEntrada == nrEntrada).ToListAsync();
+            if (entity == null || entity.Count == 0)
+            {
+                return true;
+            }
+            foreach (var item in entity)
+            {
+                item.CdPlano = newCdGrupoEstoque;
+                db.Set<ProdutoEntradum>().Update(item);
+            }
+            int affected = await db.SaveChangesAsync();
+            if (affected == entity.Count)
+            {
+                logger.LogInformation("Entity updated with ID: {nrEntrada}", nrEntrada);
+                foreach (var item in entity)
+                {
+                    UpdateCache(item.GetId(), item);
+                }
+                return true;
+            }
+            else
+            {
+                logger.LogWarning("Failed to update entity with ID: {nrEntrada}", nrEntrada);
+                return false;
+            }
+        }
     }
 }
