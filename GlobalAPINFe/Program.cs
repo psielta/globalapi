@@ -73,8 +73,9 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 //    options.UseNpgsql(IniFile.GetConnectionString()));
 
 // Adiciona a fábrica de DbContext para criação sob demanda
-builder.Services.AddDbContextFactory<GlobalErpFiscalBaseContext>(options =>
-    options.UseNpgsql(IniFile.GetConnectionString()));
+//builder.Services.AddDbContextFactory<GlobalErpFiscalBaseContext>(options =>
+//    options.UseNpgsql(IniFile.GetConnectionString()));
+builder.Services.AddDbContext<GlobalErpFiscalBaseContext>(options => options.UseNpgsql(IniFile.GetConnectionString()));
 
 
 //builder.Services

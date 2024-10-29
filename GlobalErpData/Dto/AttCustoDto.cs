@@ -11,7 +11,7 @@ namespace GlobalErpData.Dto
         public int cdProduto { get; set; }
         public int idEmpresa { get; set; }
         public decimal custo { get; set; }
-        public ProdutoEntradaDto Item { get; set; }
+        public ProdutoEntradaDtoComId Item { get; set; }
     }
 
     public class AttCustoDtoList

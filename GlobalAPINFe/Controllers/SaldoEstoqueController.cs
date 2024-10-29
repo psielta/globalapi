@@ -19,17 +19,13 @@ namespace GlobalAPINFe.Controllers
     [ApiController]
     public class SaldoEstoqueController : GenericPagedControllerNoCache<SaldoEstoque, int, SaldoEstoqueDto>
     {
-        private readonly IDbContextFactory<GlobalErpFiscalBaseContext> dbContextFactory;
+        private readonly GlobalErpFiscalBaseContext _context;
 
         public SaldoEstoqueController(IQueryRepositoryNoCache<SaldoEstoque, int, SaldoEstoqueDto> repo, ILogger<GenericPagedControllerNoCache<SaldoEstoque, int, SaldoEstoqueDto>> logger
-                        , IDbContextFactory<GlobalErpFiscalBaseContext> dbContextFactory) : base(repo, logger)
+                        , GlobalErpFiscalBaseContext context) : base(repo, logger)
         {
-            this.dbContextFactory = dbContextFactory;
+            this._context = context;
         }
-
-
-
-        // Sobrescrevendo os métodos herdados e adicionando os atributos [ProducesResponseType]
 
         [HttpGet]
         [ProducesResponseType(typeof(PagedResponse<SaldoEstoque>), 200)]
@@ -94,7 +90,6 @@ namespace GlobalAPINFe.Controllers
             [FromQuery] int? cdPlano = null,
             [FromQuery] string? nmProduto = null)
         {
-            await using var _context = dbContextFactory.CreateDbContext();
             try
             {
                 IQueryable<SaldoEstoque>? query;

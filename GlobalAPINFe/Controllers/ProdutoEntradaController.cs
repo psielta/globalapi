@@ -19,11 +19,11 @@ namespace GlobalAPINFe.Controllers
     [ApiController]
     public class ProdutoEntradaController : GenericPagedController<ProdutoEntradum, int, ProdutoEntradaDto>
     {
-        private readonly IDbContextFactory<GlobalErpFiscalBaseContext> dbContextFactory;
+        private readonly GlobalErpFiscalBaseContext _context;
 
-        public ProdutoEntradaController(IQueryRepository<ProdutoEntradum, int, ProdutoEntradaDto> repo, ILogger<GenericPagedController<ProdutoEntradum, int, ProdutoEntradaDto>> logger, IDbContextFactory<GlobalErpFiscalBaseContext> dbContextFactory) : base(repo, logger)
+        public ProdutoEntradaController(IQueryRepository<ProdutoEntradum, int, ProdutoEntradaDto> repo, ILogger<GenericPagedController<ProdutoEntradum, int, ProdutoEntradaDto>> logger, GlobalErpFiscalBaseContext _context) : base(repo, logger)
         {
-            this.dbContextFactory = dbContextFactory;
+            this._context = _context;
         }
 
         // Sobrescrevendo os métodos herdados e adicionando os atributos [ProducesResponseType]
@@ -133,8 +133,7 @@ namespace GlobalAPINFe.Controllers
         {
             try
             {
-                await using var _context = dbContextFactory.CreateDbContext();
-
+                
                 try
                 {
                     ProdutoEstoque produto = await _context.ProdutoEstoques.FirstOrDefaultAsync(obj =>
@@ -183,8 +182,7 @@ namespace GlobalAPINFe.Controllers
                 {
                     return BadRequest("EAN não pode ser nulo ou vazio.");
                 }
-                await using var _context = dbContextFactory.CreateDbContext();
-
+               
                 try
                 {
                     ProdutoEstoque produto = await _context.ProdutoEstoques.FirstOrDefaultAsync(obj =>

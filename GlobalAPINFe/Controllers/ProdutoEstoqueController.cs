@@ -1,4 +1,5 @@
-﻿using GlobalErpData.Data;
+﻿using AutoMapper;
+using GlobalErpData.Data;
 using GlobalErpData.Dto;
 using GlobalErpData.GenericControllers;
 using GlobalErpData.Models;
@@ -24,14 +25,24 @@ namespace GlobalAPINFe.Controllers
     [ApiController]
     public class ProdutoEstoqueController : GenericPagedControllerMultiKey<ProdutoEstoque, int, int, ProdutoEstoqueDto>
     {
-        private readonly IDbContextFactory<GlobalErpFiscalBaseContext> dbContextFactory;
+        private readonly GlobalErpFiscalBaseContext _context;
+        private readonly IQueryRepository<ProdutoEntradum, int, ProdutoEntradaDto> repProdutoEntrada;
+        private readonly IQueryRepositoryMultiKey<Entrada, int, int, EntradaDto> repEntrada;
+        private readonly IMapper _mapper;
+
 
         public ProdutoEstoqueController(
             IQueryRepositoryMultiKey<ProdutoEstoque, int, int, ProdutoEstoqueDto> repo,
             ILogger<GenericPagedControllerMultiKey<ProdutoEstoque, int, int, ProdutoEstoqueDto>> logger,
-            IDbContextFactory<GlobalErpFiscalBaseContext> context) : base(repo, logger)
+            GlobalErpFiscalBaseContext _context,
+            IQueryRepository<ProdutoEntradum, int, ProdutoEntradaDto> repProdutoEntrada,
+            IQueryRepositoryMultiKey<Entrada, int, int, EntradaDto> repEntrada,
+            IMapper mapper) : base(repo, logger)
         {
-            dbContextFactory = context;
+            this._context = _context;
+            this.repProdutoEntrada = repProdutoEntrada;
+            this.repEntrada = repEntrada;
+            _mapper = mapper;
         }
 
         // Sobrescrevendo os métodos herdados e adicionando os atributos [ProducesResponseType]
@@ -221,8 +232,6 @@ namespace GlobalAPINFe.Controllers
         {
             try
             {
-                await using var _context = dbContextFactory.CreateDbContext();
-
                 string sqlQuery = @"
                     SELECT pe.* FROM produto_estoque pe
                     WHERE pe.id_empresa = @idEmpresa
@@ -404,6 +413,77 @@ namespace GlobalAPINFe.Controllers
 
             var formattedName = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(nmProduto.ToLower());
             return formattedName;
+        }
+
+        [HttpPut("AtualizarCusto/{idEmpresa}/{nrEntrada}")]
+        [ProducesResponseType(typeof(Success), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<ProdutoEstoque>> AtualizarCusto(int idEmpresa, int nrEntrada, [FromBody] AttCustoDtoList dto)
+        {
+            if (dto == null || dto.Itens == null || dto.Itens.Count == 0)
+            {
+                return BadRequest(new BadRequest("No items to update."));
+            }
+            if (idEmpresa == 0 || nrEntrada == 0)
+            {
+                return BadRequest(new BadRequest("Invalid parameters."));
+            }
+
+            try
+            {
+                var entrada = await _context.Entradas
+                        .Where((item) => item.Nr == nrEntrada && item.CdEmpresa == idEmpresa)
+                        .FirstOrDefaultAsync();
+                if (entrada == null)
+                {
+                    return NotFound(new NotFound("Product entry not found."));
+                }
+
+                foreach (var item in dto.Itens)
+                {
+                    var produto = await
+                        _context.ProdutoEstoques
+                        .Where((produto) => produto.CdProduto == item.cdProduto && produto.IdEmpresa == idEmpresa)
+                        .FirstOrDefaultAsync();
+
+                    if (produto == null)
+                    {
+                        return NotFound(new NotFound($"Product {item.cdProduto} not found."));
+                    }
+
+                    ProdutoEstoqueDto produtoEstoqueDto =
+                        _mapper.Map<ProdutoEstoqueDto>(produto);
+
+                    produto.VlCusto = item.custo;
+
+                    var responseProduto = await repo.UpdateAsync(idEmpresa, item.cdProduto, produtoEstoqueDto);
+                    if (responseProduto == null)
+                    {
+                        return BadRequest(new BadRequest($"Error updating product {item.cdProduto}; idEmpresa {item.idEmpresa}."));
+                    }
+                    var oldProdutoEntrada = await
+                        _context.ProdutoEntrada
+                        .Where((produtoEntrada) => produtoEntrada.Nr == item.Item.Nr && produtoEntrada.CdEmpresa == idEmpresa)
+                        .FirstOrDefaultAsync();
+                    var produtoEntradaDto = _mapper.Map<ProdutoEntradaDto>(oldProdutoEntrada);
+
+                    produtoEntradaDto.CustoAtualizado = item.Item.CustoAtualizado;
+
+                    var responseProdutoEntrada = await repProdutoEntrada.UpdateAsync(item.Item.Nr, produtoEntradaDto);
+                    if (responseProdutoEntrada == null)
+                    {
+                        return BadRequest(new BadRequest($"Error updating product entry {item.Item.Nr}."));
+                    }
+                }
+
+                return Ok(new Success("Costs updated successfully."));
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while updating costs.");
+                return StatusCode(500, new InternalServerError("An error occurred while updating costs. Please try again later."));
+            }
         }
     }
 }

@@ -23,17 +23,17 @@ namespace GlobalAPINFe.Controllers
     [ApiController]
     public class OlderController : GenericPagedController<Older, Guid, OlderDto>
     {
-        private readonly IDbContextFactory<GlobalErpFiscalBaseContext> dbContextFactory;
+        private readonly GlobalErpFiscalBaseContext _context;
         private readonly IMapper _mapper;
 
         public OlderController(
             IQueryRepository<Older, Guid, OlderDto> repo,
             ILogger<GenericPagedController<Older, Guid, OlderDto>> logger,
             IMapper mapper,
-            IDbContextFactory<GlobalErpFiscalBaseContext> context) : base(repo, logger)
+            GlobalErpFiscalBaseContext context) : base(repo, logger)
         {
             this._mapper = mapper;
-            dbContextFactory = context;
+            this._context = context;
         }
 
         [HttpGet]
@@ -100,7 +100,6 @@ namespace GlobalAPINFe.Controllers
         {
             try
             {
-                await using var _context = dbContextFactory.CreateDbContext();
                 string sqlQuery = @"
                     SELECT o.* FROM older o
                     WHERE o.id_empresa = @idEmpresa
@@ -189,7 +188,6 @@ namespace GlobalAPINFe.Controllers
         {
             try
             {
-                await using var _context = dbContextFactory.CreateDbContext();
                 var order = await _context.Olders.FirstOrDefaultAsync(o => o.Id == id);
 
                 if (order == null)
@@ -440,8 +438,6 @@ namespace GlobalAPINFe.Controllers
                     Items = new List<Top05ProductsItemDto>()
                 };
 
-                using var _context = dbContextFactory.CreateDbContext();
-
                 var allOlders = _context.Olders
                     .Where(o => o.IdEmpresa == idEmpresa)
                     .Include(o => o.OlderItems)
@@ -499,7 +495,6 @@ namespace GlobalAPINFe.Controllers
             try
             {
                 //var older = await repo.RetrieveAsync(olderId);
-                await using var _context = dbContextFactory.CreateDbContext();
                 var older = await _context.Olders.FirstOrDefaultAsync(o => o.Id == olderId);
 
                 if (older == null)

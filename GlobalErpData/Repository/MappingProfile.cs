@@ -45,6 +45,7 @@ namespace GlobalErpData.Repository
             CreateMap<EntradaDto, Entrada>().ReverseMap();
             CreateMap<TransportadoraDto, Transportadora>().ReverseMap();
             CreateMap<ProdutoEntradaDto, ProdutoEntradum>().ReverseMap();
+            CreateMap<ProdutoEntradaDto, ProdutoEntradaDtoComId>().ReverseMap();
             CreateMap<FotosProdutoDto, FotosProduto>().ReverseMap();
             CreateMap<FeaturedDto, Featured>().ReverseMap();
             CreateMap<SectionDto, Section>().ReverseMap();
