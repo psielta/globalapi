@@ -124,7 +124,7 @@ namespace GlobalAPINFe.Controllers
                 return StatusCode(500, "Ocorreu um erro ao recuperar as entidades. Por favor, tente novamente mais tarde.");
             }
         }
-
+        
         [HttpPost("InserirProdutoEntrada", Name = nameof(InserirProdutoEntrada))]
         [ProducesResponseType(typeof(ProdutoEntradum), 201)]
         [ProducesResponseType(400)]

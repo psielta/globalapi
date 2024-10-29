@@ -351,6 +351,10 @@ public partial class ProdutoEntradum : IIdentifiable<int>
     [JsonPropertyName("nmProduto")]
     [NotMapped]
     public string NmProduto => ProdutoEstoque?.NmProduto ?? "";
+    
+    [JsonPropertyName("vlCustoAntigo")]
+    [NotMapped]
+    public decimal VlCustoAntigo => ProdutoEstoque?.VlCusto ?? 0;
 
     [JsonIgnore]
     [ForeignKey("CdEmpresa")]
