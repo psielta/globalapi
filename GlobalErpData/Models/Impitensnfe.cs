@@ -484,6 +484,11 @@ public partial class Impitensnfe : IIdentifiableMultiKey<string, string>
     [Column("vicmsdeson")]
     [StringLength(255)]
     public string? Vicmsdeson { get; set; }
+
+    [Column("seguro")]
+    [StringLength(50)]
+    public string? Seguro { get; set; }
+
     [GraphQLIgnore]
     public (string, string) GetId()
     {

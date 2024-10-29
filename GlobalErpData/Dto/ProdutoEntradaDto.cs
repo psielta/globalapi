@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -177,6 +179,10 @@ namespace GlobalErpData.Dto
         public string? Cor { get; set; }
 
         public string? Genero { get; set; }
+
+        public decimal? VlSeguro { get; set; }
+
+        public decimal? CustoAtualizado { get; set; }
 
     }
 }

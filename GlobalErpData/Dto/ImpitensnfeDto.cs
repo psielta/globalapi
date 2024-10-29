@@ -127,5 +127,6 @@ namespace GlobalErpData.Dto
         public string? Vuntrib { get; set; }
         public string? Utrib { get; set; }
         public string? Vicmsdeson { get; set; }
+        public string? Seguro { get; set; }
     }
 }

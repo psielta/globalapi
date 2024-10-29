@@ -286,6 +286,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                         novoImpitensnfe.VlTotal = det.prod.vProd.ToString();
                         novoImpitensnfe.Vldesc = det.prod.vDesc.ToString();
                         novoImpitensnfe.FreteProduto = det.prod.vFrete.ToString();
+                        novoImpitensnfe.Seguro = det.prod.vSeg.ToString();
                         novoImpitensnfe.Pis = "N";
                         novoImpitensnfe.Confins = "N";
                         novoImpitensnfe.Iss = "N";

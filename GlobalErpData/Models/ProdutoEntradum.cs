@@ -347,6 +347,14 @@ public partial class ProdutoEntradum : IIdentifiable<int>
     [Column("genero")]
     [StringLength(50)]
     public string? Genero { get; set; }
+    
+    [Column("vl_seguro")]
+    [Precision(18, 4)]
+    public decimal? VlSeguro { get; set; }
+
+    [Column("custo_atualizado")]
+    [Precision(18, 4)]
+    public decimal? CustoAtualizado { get; set; }
 
     [JsonPropertyName("nmProduto")]
     [NotMapped]

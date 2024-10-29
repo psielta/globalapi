@@ -1053,6 +1053,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.VlOutras).HasDefaultValueSql("0");
             entity.Property(e => e.VlPis).HasDefaultValueSql("0");
             entity.Property(e => e.VlPisSt).HasDefaultValueSql("0");
+            entity.Property(e => e.VlSeguro).HasDefaultValueSql("0");
 
             entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.ProdutoEntrada).HasConstraintName("produto_entrada_fk2");
 

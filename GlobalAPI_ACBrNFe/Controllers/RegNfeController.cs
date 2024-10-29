@@ -376,6 +376,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     ppp.CstConfins = item.ImpOrigem + item.CofCst;
                     ppp.CstPis = item.ImpOrigem + item.PisCst;
                     ppp.FreteProduto = ConvertToDecimal(item.FreteProduto);
+                    ppp.VlSeguro = ConvertToDecimal(item.Seguro);
 
                     if (!string.IsNullOrEmpty(item.Ipivbc) && item.Ipivbc.Length > 0)
                     {
