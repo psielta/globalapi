@@ -56,6 +56,10 @@ public partial class ConfiguracoesEmpresa : IIdentifiableMultiKey<int, string>
     [Column("valor_9")]
     [StringLength(16384)]
     public string? Valor9 { get; set; }
+    
+    [Column("valor_10")]
+    [StringLength(16384)]
+    public string? Valor10 { get; set; }
 
     [JsonIgnore]
     [ForeignKey("CdEmpresa")]
