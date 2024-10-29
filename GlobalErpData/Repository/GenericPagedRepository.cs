@@ -34,8 +34,6 @@ namespace GlobalErpData.Repository
 
         public virtual async Task<TEntity?> CreateAsync(TDto dto)
         {
-            //try
-            //{
             TEntity entity = mapper.Map<TEntity>(dto);
             EntityEntry<TEntity> added = await db.Set<TEntity>().AddAsync(entity);
             int affected = await db.SaveChangesAsync();
@@ -50,12 +48,6 @@ namespace GlobalErpData.Repository
                 logger.LogWarning("Failed to create entity from DTO.");
                 return null;
             }
-            //}
-            //catch (Exception ex)
-            //{
-            //    logger.LogError(ex, "Error occurred while creating entity from DTO.");
-            //    return null;
-            //}
         }
 
         public virtual Task<IQueryable<TEntity>> RetrieveAllAsync()
@@ -113,8 +105,6 @@ namespace GlobalErpData.Repository
 
         public virtual async Task<TEntity?> UpdateAsync(TKey id, TDto dto)
         {
-            //try
-            //{
             TEntity entity = mapper.Map<TEntity>(dto);
             entity.GetType().GetProperty(entity.GetKeyName())?.SetValue(entity, id);
             db.Set<TEntity>().Update(entity);
@@ -129,18 +119,10 @@ namespace GlobalErpData.Repository
                 logger.LogWarning("Failed to update entity with ID: {Id}", id);
                 return null;
             }
-            //}
-            //catch (Exception ex)
-            //{
-            //    logger.LogError(ex, "Error occurred while updating entity with ID: {Id}", id);
-            //    throw ex;
-            //}
         }
 
         public virtual async Task<bool?> DeleteAsync(TKey id)
         {
-            //try
-            //{
             TEntity? entity = db.Set<TEntity>().Find(id);
             if (entity is null) return null;
             db.Set<TEntity>().Remove(entity);
@@ -156,12 +138,6 @@ namespace GlobalErpData.Repository
                 logger.LogWarning("Failed to delete entity with ID: {Id}", id);
                 return null;
             }
-            //}
-            //catch (Exception ex)
-            //{
-            //    logger.LogError(ex, "Error occurred while deleting entity with ID: {Id}", id);
-            //    return null;
-            //}
         }
 
         public virtual async Task<IEnumerable<TEntity>?> CreateBulkAsync(IEnumerable<TDto> dtos)
