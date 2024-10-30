@@ -3,7 +3,7 @@ using HotChocolate.Execution;
 using HotChocolate.Resolvers;
 using Microsoft.Extensions.Logging;
 
-namespace GlobalAPINFe.GraphQL
+namespace GlobalNfeGraphql.GraphQL
 {
     public class HotChocolateDiagnosticObserver : ExecutionDiagnosticEventListener
     {

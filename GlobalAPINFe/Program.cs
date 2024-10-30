@@ -8,7 +8,6 @@ using GlobalLib.Database;
 using GlobalErpData.Data;
 using GlobalErpData.Dto;
 using GlobalAPINFe.Controllers;
-using GlobalAPINFe.GraphQL;
 using HotChocolate.AspNetCore;
 using HotChocolate.Data;
 using HotChocolate.Types;
@@ -79,16 +78,16 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddDbContext<GlobalErpFiscalBaseContext>(options => options.UseNpgsql(IniFile.GetConnectionString()));
 
 
-builder.Services
-     .AddGraphQLServer()
-    .AddQueryType<Query>()
-    // .RegisterDbContext<GlobalErpFiscalBaseContext>(DbContextKind.Pooled)
-    .AddDiagnosticEventListener(sp =>
-        new HotChocolateDiagnosticObserver(sp.GetRequiredService<ILogger<HotChocolateDiagnosticObserver>>()))
-
-    .AddProjections()
-    .AddFiltering()
-    .AddSorting();
+//builder.Services
+//     .AddGraphQLServer()
+//    .AddQueryType<Query>()
+//    // .RegisterDbContext<GlobalErpFiscalBaseContext>(DbContextKind.Pooled)
+//    .AddDiagnosticEventListener(sp =>
+//        new HotChocolateDiagnosticObserver(sp.GetRequiredService<ILogger<HotChocolateDiagnosticObserver>>()))
+//
+//    .AddProjections()
+//    .AddFiltering()
+//    .AddSorting();
 
 builder.Services.AddScoped<IRepositoryDto<Empresa, int, EmpresaDto>, EmpresaRepositoryDto>();
 builder.Services.AddScoped<IRepositoryDto<Cidade, string, CidadeDto>, CidadeRepositoryDto>();
@@ -174,6 +173,6 @@ app.UseStaticFiles();
 
 // Mapear controladores e endpoints GraphQL dentro do middleware de endpoints
 app.MapControllers();
-app.MapGraphQL("/graphql");
+//app.MapGraphQL("/graphql");
 
 app.Run();
