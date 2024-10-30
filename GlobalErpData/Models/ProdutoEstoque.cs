@@ -553,7 +553,7 @@ public partial class ProdutoEstoque : IIdentifiable<int>, IIdentifiableMultiKey<
     public int? CdProdutoErp { get; set; }
 
     [Column("dt_cadastro", TypeName = "timestamp(0) without time zone")]
-    public DateTime DtCadastro { get; set; }
+    public DateTime DtCadastro { get; set; } = DateTime.Now;
 
     [JsonPropertyName("quantidade")]
     [NotMapped]
