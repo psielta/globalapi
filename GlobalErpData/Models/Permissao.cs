@@ -30,11 +30,13 @@ public partial class Permissao : IIdentifiable<int>
     [JsonIgnore]
     [InverseProperty("IdPermissaoNavigation")]
     public virtual ICollection<UsuarioPermissao> UsuarioPermissaos { get; set; } = new List<UsuarioPermissao>();
+    [GraphQLIgnore]
     public int GetId()
     {
         return Id;
     }
 
+    [GraphQLIgnore]
     public string GetKeyName()
     {
         return "Id";

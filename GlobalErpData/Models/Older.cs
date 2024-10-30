@@ -112,11 +112,13 @@ public partial class Older : IIdentifiable<Guid>
     [InverseProperty("Older")]
     public virtual ICollection<OlderItem> OlderItems { get; set; } = new List<OlderItem>();
 
+    [GraphQLIgnore]
     public Guid GetId()
     {
         return this.Id;
     }
 
+    [GraphQLIgnore]
     public string GetKeyName()
     {
         return "Id";

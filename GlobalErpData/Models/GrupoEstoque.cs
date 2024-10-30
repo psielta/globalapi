@@ -31,11 +31,13 @@ public partial class GrupoEstoque : IIdentifiable<int>
     [InverseProperty("CdGrupoNavigation")]
     public virtual ICollection<ProdutoEstoque> ProdutoEstoques { get; set; } = new List<ProdutoEstoque>();
 
+    [GraphQLIgnore]
     public int GetId()
     {
         return this.CdGrupo;
     }
 
+    [GraphQLIgnore]
     public string GetKeyName()
     {
         return "CdGrupo";

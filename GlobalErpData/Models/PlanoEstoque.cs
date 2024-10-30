@@ -38,11 +38,13 @@ public partial class PlanoEstoque : IIdentifiable<int>
     [InverseProperty("CdGrupoEstoqueNavigation")]
     public virtual ICollection<Entrada> Entrada { get; set; } = new List<Entrada>();
 
+    [GraphQLIgnore]
     public int GetId()
     {
         return CdPlano;
     }
 
+    [GraphQLIgnore]
     public string GetKeyName()
     {
         return "CdPlano";

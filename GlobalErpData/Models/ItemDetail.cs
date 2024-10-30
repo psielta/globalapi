@@ -35,11 +35,13 @@ public partial class ItemDetail : IIdentifiable<int>
     [InverseProperty("ItemDetails")]
     public virtual ProductDetail IdProductDetailsNavigation { get; set; } = null!;
 
+    [GraphQLIgnore]
     public int GetId()
     {
         return Id;
     }
 
+    [GraphQLIgnore]
     public string GetKeyName()
     {
         return "Id";

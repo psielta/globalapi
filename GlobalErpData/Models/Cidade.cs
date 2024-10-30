@@ -39,11 +39,13 @@ public partial class Cidade : IIdentifiable<string>
     [InverseProperty("CdCidadeNavigation")]
     public virtual ICollection<Transportadora> Transportadoras { get; set; } = new List<Transportadora>();
 
+    [GraphQLIgnore]
     public string GetId()
     {
         return this.CdCidade;
     }
 
+    [GraphQLIgnore]
     public string GetKeyName()
     {
         return "CdCidade";

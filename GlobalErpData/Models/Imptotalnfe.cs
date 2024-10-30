@@ -111,11 +111,13 @@ public partial class Imptotalnfe : IIdentifiable<string>
     [StringLength(50)]
     public string? IcmsVipidevol { get; set; }
 
+    [GraphQLIgnore]
     public string GetId()
     {
         return ChNfe;
     }
 
+    [GraphQLIgnore]
     public string GetKeyName()
     {
         return "ChNfe";

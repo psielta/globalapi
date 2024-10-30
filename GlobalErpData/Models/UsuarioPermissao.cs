@@ -32,11 +32,13 @@ public partial class UsuarioPermissao : IIdentifiable<int>
     [InverseProperty("UsuarioPermissaos")]
     public virtual Usuario IdUsuarioNavigation { get; set; } = null!;
 
+    [GraphQLIgnore]
     public int GetId()
     {
         return Id;
     }
 
+    [GraphQLIgnore]
     public string GetKeyName()
     {
         return "Id";

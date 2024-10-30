@@ -31,11 +31,13 @@ public partial class ReferenciaEstoque : IIdentifiable<int>
     [InverseProperty("CdRefNavigation")]
     public virtual ICollection<ProdutoEstoque> ProdutoEstoques { get; set; } = new List<ProdutoEstoque>();
 
+    [GraphQLIgnore]
     public int GetId()
     {
         return this.CdRef;
     }
 
+    [GraphQLIgnore]
     public string GetKeyName()
     {
         return "CdRef";

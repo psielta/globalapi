@@ -47,11 +47,13 @@ public partial class PerfilLoja : IIdentifiable<int>
     [InverseProperty("PerfilLojas")]
     public virtual Empresa IdEmpresaNavigation { get; set; } = null!;
 
+    [GraphQLIgnore]
     public int GetId()
     {
         return Id;
     }
 
+    [GraphQLIgnore]
     public string GetKeyName()
     {
         return "Id";

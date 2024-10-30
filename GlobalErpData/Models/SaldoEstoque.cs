@@ -60,11 +60,13 @@ public partial class SaldoEstoque : IIdentifiable<int>
     [NotMapped]
     public string NmProduto => ProdutoEstoque?.NmProduto ?? "";
 
+    [GraphQLIgnore]
     public int GetId()
     {
         return Id;
     }
 
+    [GraphQLIgnore]
     public string GetKeyName()
     {
         return "Id";

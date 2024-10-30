@@ -134,11 +134,13 @@ public partial class Impcabnfe : IIdentifiable<string>
     [StringLength(255)]
     public string? CnpjAvulsa { get; set; }
 
+    [GraphQLIgnore]
     public string GetId()
     {
         return ChNfe;
     }
 
+    [GraphQLIgnore]
     public string GetKeyName()
     {
         return "ChNfe";

@@ -101,11 +101,13 @@ public partial class Cliente : IIdentifiable<int>
     [InverseProperty("Clientes")]
     public virtual Usuario IdUsuarioCadNavigation { get; set; } = null!;
 
+    [GraphQLIgnore]
     public int GetId()
     {
         return this.Id;
     }
 
+    [GraphQLIgnore]
     public string GetKeyName()
     {
         return "Id";

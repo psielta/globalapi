@@ -43,16 +43,19 @@ public partial class FotosProduto : IIdentifiableMultiKey<int, int>
     [InverseProperty("FotosProdutos")]
     public virtual ProdutoEstoque ProdutoEstoque { get; set; } = null!;
 
+    [GraphQLIgnore]
     public (int, int) GetId()
     {
         return (IdEmpresa, Id);
     }
 
+    [GraphQLIgnore]
     public string GetKeyName1()
     {
         return "IdEmpresa";
     }
 
+    [GraphQLIgnore]
     public string GetKeyName2()
     {
         return "Id";

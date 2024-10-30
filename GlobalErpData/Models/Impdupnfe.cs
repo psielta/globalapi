@@ -28,11 +28,13 @@ public partial class Impdupnfe: IIdentifiable<string>
     [StringLength(50)]
     public string? Valor { get; set; }
 
+    [GraphQLIgnore]
     public string GetId()
     {
         return ChNfe;
     }
 
+    [GraphQLIgnore]
     public string GetKeyName()
     {
         return "ChNfe";

@@ -379,11 +379,13 @@ public partial class ProdutoEntradum : IIdentifiable<int>
     [InverseProperty("ProdutoEntrada")]
     public virtual ProdutoEstoque? ProdutoEstoque { get; set; }
 
+    [GraphQLIgnore]
     public int GetId()
     {
         return this.Nr;
     }
 
+    [GraphQLIgnore]
     public string GetKeyName()
     {
         return "Nr";
