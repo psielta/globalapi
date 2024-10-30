@@ -6,72 +6,74 @@ namespace GlobalAPINFe.GraphQL
 {
     public class Query
     {
-        [UseDbContext(typeof(GlobalErpFiscalBaseContext))]
-        [UseFiltering]
-        [UseSorting]
-        public IQueryable<Empresa> GetEmpresas([ScopedService] GlobalErpFiscalBaseContext context)
+        private readonly GlobalErpFiscalBaseContext _context;
+
+        public Query(GlobalErpFiscalBaseContext context)
         {
-            return context.Empresas;
-        }
-        [UseDbContext(typeof(GlobalErpFiscalBaseContext))]
-        //[UsePaging(IncludeTotalCount = true, ConnectionName = "ProdutoEstoqueConnection")]
-        [UseFiltering]
-        [UseSorting]
-        public IQueryable<ProdutoEstoque> GetProdutos([ScopedService] GlobalErpFiscalBaseContext context)
-        {
-            return context.ProdutoEstoques;
-        }
-        [UseDbContext(typeof(GlobalErpFiscalBaseContext))]
-        [UseFiltering]
-        [UseSorting]
-        public IQueryable<GrupoEstoque> GetGrupos([ScopedService] GlobalErpFiscalBaseContext context)
-        {
-            return context.GrupoEstoques;
-        }
-        [UseDbContext(typeof(GlobalErpFiscalBaseContext))]
-        [UseFiltering]
-        [UseSorting]
-        public IQueryable<ReferenciaEstoque> GetReferencias([ScopedService] GlobalErpFiscalBaseContext context)
-        {
-            return context.ReferenciaEstoques;
+            _context = context;
         }
 
-        [UseDbContext(typeof(GlobalErpFiscalBaseContext))]
         [UseFiltering]
         [UseSorting]
-        public IQueryable<UnidadeMedida> GetUnidades([ScopedService] GlobalErpFiscalBaseContext context)
+        public IQueryable<Empresa> GetEmpresas()
         {
-            return context.UnidadeMedidas;
-        }
-        [UseDbContext(typeof(GlobalErpFiscalBaseContext))]
-        [UseFiltering]
-        [UseSorting]
-        public IQueryable<Usuario> GetUsuarios([ScopedService] GlobalErpFiscalBaseContext context)
-        {
-            return context.Usuarios;
-        }
-        [UseDbContext(typeof(GlobalErpFiscalBaseContext))]
-        [UseFiltering]
-        [UseSorting]
-        public IQueryable<UsuarioPermissao> GetUsuarioPermissaos([ScopedService] GlobalErpFiscalBaseContext context)
-        {
-            return context.UsuarioPermissaos;
-        }
-        [UseDbContext(typeof(GlobalErpFiscalBaseContext))]
-        [UseFiltering]
-        [UseSorting]
-        public IQueryable<Permissao> GetPermissaos([ScopedService] GlobalErpFiscalBaseContext context)
-        {
-            return context.Permissaos;
-        }
-        [UseDbContext(typeof(GlobalErpFiscalBaseContext))]
-        [UseFiltering]
-        [UseSorting]
-        public IQueryable<Cidade> GetCidades([ScopedService] GlobalErpFiscalBaseContext context)
-        {
-            return context.Cidades;
+            return _context.Empresas;
         }
 
+        [UseFiltering]
+        [UseSorting]
+        public IQueryable<ProdutoEstoque> GetProdutos()
+        {
+            return _context.ProdutoEstoques;
+        }
+
+        [UseFiltering]
+        [UseSorting]
+        public IQueryable<GrupoEstoque> GetGrupos()
+        {
+            return _context.GrupoEstoques;
+        }
+
+        [UseFiltering]
+        [UseSorting]
+        public IQueryable<ReferenciaEstoque> GetReferencias()
+        {
+            return _context.ReferenciaEstoques;
+        }
+
+        [UseFiltering]
+        [UseSorting]
+        public IQueryable<UnidadeMedida> GetUnidades()
+        {
+            return _context.UnidadeMedidas;
+        }
+
+        [UseFiltering]
+        [UseSorting]
+        public IQueryable<Usuario> GetUsuarios()
+        {
+            return _context.Usuarios;
+        }
+
+        [UseFiltering]
+        [UseSorting]
+        public IQueryable<UsuarioPermissao> GetUsuarioPermissaos()
+        {
+            return _context.UsuarioPermissaos;
+        }
+
+        [UseFiltering]
+        [UseSorting]
+        public IQueryable<Permissao> GetPermissaos()
+        {
+            return _context.Permissaos;
+        }
+
+        [UseFiltering]
+        [UseSorting]
+        public IQueryable<Cidade> GetCidades()
+        {
+            return _context.Cidades;
+        }
     }
-
 }

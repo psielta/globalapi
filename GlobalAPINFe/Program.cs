@@ -19,6 +19,7 @@ using GlobalErpData.Repository.PagedRepositoriesMultiKey;
 using System.Globalization;
 using GlobalAPINFe.SwaggerUtils;
 using GlobalErpData.Services;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,7 +28,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin",
         builder => builder
-            .WithOrigins("http://217.196.61.51:3339", "http://217.196.61.51:3006", "http://localhost:5127", "http://localhost:5129", "http://localhost:3006") 
+            .WithOrigins("http://217.196.61.51:3339", "http://217.196.61.51:3006", "http://localhost:5127", "http://localhost:5129", "http://localhost:3006")
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials());
@@ -81,6 +82,7 @@ builder.Services.AddDbContext<GlobalErpFiscalBaseContext>(options => options.Use
 builder.Services
      .AddGraphQLServer()
     .AddQueryType<Query>()
+    // .RegisterDbContext<GlobalErpFiscalBaseContext>(DbContextKind.Pooled)
     .AddDiagnosticEventListener(sp =>
         new HotChocolateDiagnosticObserver(sp.GetRequiredService<ILogger<HotChocolateDiagnosticObserver>>()))
 
@@ -114,8 +116,8 @@ builder.Services.AddScoped<IQueryRepository<ProdutosForn, int, ProdutosFornDto>,
 builder.Services.AddScoped<IQueryRepository<ProdutoEntradum, int, ProdutoEntradaDto>, ProdutoEntradaRepository>();
 builder.Services.AddScoped<IQueryRepositoryMultiKey<Entrada, int, int, EntradaDto>, EntradaPagedRepository>();
 builder.Services.AddScoped<IQueryRepositoryMultiKey<Transportadora, int, int, TransportadoraDto>, TransportadoraPagedRepository>();
-builder.Services.AddScoped<IQueryRepositoryMultiKey<FotosProduto, int,int, FotosProdutoDto>,  FotosProdutoRepository>();
-builder.Services.AddScoped<IQueryRepositoryMultiKey<Featured, int,int, FeaturedDto>, FeaturedRepository>();
+builder.Services.AddScoped<IQueryRepositoryMultiKey<FotosProduto, int, int, FotosProdutoDto>, FotosProdutoRepository>();
+builder.Services.AddScoped<IQueryRepositoryMultiKey<Featured, int, int, FeaturedDto>, FeaturedRepository>();
 builder.Services.AddScoped<IRepositoryDto<Section, int, SectionDto>, SectionRepository>();
 builder.Services.AddScoped<IRepositoryDto<SectionItem, int, SectionItemDto>, SectionItemRepository>();
 builder.Services.AddScoped<IRepositoryDto<ProductDetail, int, ProductDetailDto>, ProductDetailRepository>();
@@ -124,11 +126,11 @@ builder.Services.AddScoped<IRepositoryDto<PerfilLoja, int, PerfilLojaDto>, Perfi
 builder.Services.AddScoped<IRepositoryDto<OlderItem, Guid, OlderItemDto>, OlderItemRepository>();
 builder.Services.AddScoped<IQueryRepository<Older, Guid, OlderDto>, OlderRepository>();
 builder.Services.AddScoped<IRepositoryDto<Category, int, CategoryDto>, CategoryRep>();
-builder.Services.AddScoped<IQueryRepository<ContaDoCaixa,int,ContaCaixaDto>, ContaCaixaRepository>();
-builder.Services.AddScoped<IQueryRepository<PlanoDeCaixa,int,PlanoCaixaDto>, PlanoCaixaRepository>();
-builder.Services.AddScoped<IQueryRepository<HistoricoCaixa,int,HistoricoCaixaDto>, HistoricoCaixaRepository>();
-builder.Services.AddScoped<IQueryRepository<FormaPagt,int,FormaPagtDto>, FormaPagtRepository>();
-builder.Services.AddScoped<IQueryRepository<ContasAPagar,int,ContasAPagarDto>, ContasAPagarRepository>();
+builder.Services.AddScoped<IQueryRepository<ContaDoCaixa, int, ContaCaixaDto>, ContaCaixaRepository>();
+builder.Services.AddScoped<IQueryRepository<PlanoDeCaixa, int, PlanoCaixaDto>, PlanoCaixaRepository>();
+builder.Services.AddScoped<IQueryRepository<HistoricoCaixa, int, HistoricoCaixaDto>, HistoricoCaixaRepository>();
+builder.Services.AddScoped<IQueryRepository<FormaPagt, int, FormaPagtDto>, FormaPagtRepository>();
+builder.Services.AddScoped<IQueryRepository<ContasAPagar, int, ContasAPagarDto>, ContasAPagarRepository>();
 builder.Services.AddScoped<IQueryRepositoryMultiKey<Impxml, int, string, ImpxmlDto>, ImpXmlRepository>();
 builder.Services.AddScoped<EntradaCalculationService>();
 
