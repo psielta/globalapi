@@ -78,7 +78,7 @@ namespace GlobalErpData.Repository
             }
         }
 
-        protected TEntity UpdateCache(TKey id, TEntity entity)
+        public TEntity UpdateCache(TKey id, TEntity entity)
         {
             try
             {

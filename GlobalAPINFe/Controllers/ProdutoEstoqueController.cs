@@ -4,6 +4,7 @@ using GlobalErpData.Dto;
 using GlobalErpData.GenericControllers;
 using GlobalErpData.Models;
 using GlobalErpData.Repository;
+using GlobalErpData.Repository.PagedRepositories;
 using GlobalErpData.Repository.PagedRepositoriesMultiKey;
 using GlobalLib.Strings;
 using Microsoft.AspNetCore.Mvc;
@@ -452,26 +453,43 @@ namespace GlobalAPINFe.Controllers
                         return NotFound(new NotFound($"Product {item.cdProduto} not found."));
                     }
 
-                    ProdutoEstoqueDto produtoEstoqueDto =
-                        _mapper.Map<ProdutoEstoqueDto>(produto);
-
                     produto.VlCusto = item.custo;
 
-                    var responseProduto = await repo.UpdateAsync(idEmpresa, item.cdProduto, produtoEstoqueDto);
-                    if (responseProduto == null)
+                    _context.Update(produto);
+                    int affected = await _context.SaveChangesAsync();
+                    if (affected == 1)
                     {
-                        return BadRequest(new BadRequest($"Error updating product {item.cdProduto}; idEmpresa {item.idEmpresa}."));
+                        logger.LogInformation("Entity updated with ID: {idEmpresa}-{idCadastro}", idEmpresa, produto.CdProduto);
+                        ((ProdutoEstoquePagedRepositoryMultiKey)repo).UpdateCache((idEmpresa, produto.CdProduto), produto);
                     }
+                    else
+                    {
+                        logger.LogWarning("Failed to update entity with ID: {idEmpresa}-{idCadastro}", idEmpresa, produto.CdProduto);
+                        return BadRequest(new BadRequest($"Error updating product {item.cdProduto}; idEmpresa {item.idEmpresa}."));
+
+                    }
+
                     var oldProdutoEntrada = await
                         _context.ProdutoEntrada
                         .Where((produtoEntrada) => produtoEntrada.Nr == item.Item.Nr && produtoEntrada.CdEmpresa == idEmpresa)
                         .FirstOrDefaultAsync();
-                    var produtoEntradaDto = _mapper.Map<ProdutoEntradaDto>(oldProdutoEntrada);
+                    if (oldProdutoEntrada == null)
+                    {
+                        return NotFound(new NotFound($"Product entry {item.Item.Nr} not found."));
+                    }
 
-                    produtoEntradaDto.CustoAtualizado = item.Item.CustoAtualizado;
+                    oldProdutoEntrada.CustoAtualizado = item.Item.CustoAtualizado;
 
-                    var responseProdutoEntrada = await repProdutoEntrada.UpdateAsync(item.Item.Nr, produtoEntradaDto);
-                    if (responseProdutoEntrada == null)
+                    _context.Update(oldProdutoEntrada);
+
+                    int affectedProdutoEntrada = await
+                        _context.SaveChangesAsync();
+                    if (affectedProdutoEntrada == 1)
+                    {
+                        logger.LogInformation("Entity updated with ID: {idEmpresa}-{idCadastro}", idEmpresa, oldProdutoEntrada.Nr);
+                        ((ProdutoEntradaRepository)repProdutoEntrada).UpdateCache(oldProdutoEntrada.Nr, oldProdutoEntrada);
+                    }
+                    else
                     {
                         return BadRequest(new BadRequest($"Error updating product entry {item.Item.Nr}."));
                     }
