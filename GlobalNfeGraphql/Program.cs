@@ -69,11 +69,12 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 //    options.UseNpgsql(IniFile.GetConnectionString()));
 
 // Adiciona a fábrica de DbContext para criação sob demanda
-builder.Services.AddDbContextFactory<GlobalErpFiscalBaseContext>(options =>
+builder.Services.AddPooledDbContextFactory<GlobalErpFiscalBaseContext>(options =>
     options.UseNpgsql(IniFile.GetConnectionString()));
 
 builder.Services
     .AddGraphQLServer()
+    .RegisterDbContext<GlobalErpFiscalBaseContext>(DbContextKind.Pooled)
     .AddQueryType<GlobalNfeGraphql.GraphQL.Query>()
     .AddProjections()
     .AddFiltering()
@@ -103,6 +104,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapGraphQL("/graphql");
+app.MapGraphQL();
 
 app.Run();

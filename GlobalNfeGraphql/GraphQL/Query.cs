@@ -6,67 +6,57 @@ namespace GlobalNfeGraphql.GraphQL
 {
     public class Query
     {
-        [UseDbContext(typeof(GlobalErpFiscalBaseContext))]
         [UseFiltering]
         [UseSorting]
-        public IQueryable<Empresa> GetEmpresas([ScopedService] GlobalErpFiscalBaseContext context)
+        public IQueryable<Empresa> GetEmpresas(GlobalErpFiscalBaseContext context)
         {
             return context.Empresas;
         }
-        [UseDbContext(typeof(GlobalErpFiscalBaseContext))]
-        //[UsePaging(IncludeTotalCount = true, ConnectionName = "ProdutoEstoqueConnection")]
         [UseFiltering]
         [UseSorting]
-        public IQueryable<ProdutoEstoque> GetProdutos([ScopedService] GlobalErpFiscalBaseContext context)
+        public IQueryable<ProdutoEstoque> GetProdutos(GlobalErpFiscalBaseContext context)
         {
             return context.ProdutoEstoques;
         }
-        [UseDbContext(typeof(GlobalErpFiscalBaseContext))]
         [UseFiltering]
         [UseSorting]
-        public IQueryable<GrupoEstoque> GetGrupos([ScopedService] GlobalErpFiscalBaseContext context)
+        public IQueryable<GrupoEstoque> GetGrupos(GlobalErpFiscalBaseContext context)
         {
             return context.GrupoEstoques;
         }
-        [UseDbContext(typeof(GlobalErpFiscalBaseContext))]
         [UseFiltering]
         [UseSorting]
-        public IQueryable<ReferenciaEstoque> GetReferencias([ScopedService] GlobalErpFiscalBaseContext context)
+        public IQueryable<ReferenciaEstoque> GetReferencias(GlobalErpFiscalBaseContext context)
         {
             return context.ReferenciaEstoques;
         }
-        [UseDbContext(typeof(GlobalErpFiscalBaseContext))]
         [UseFiltering]
         [UseSorting]
-        public IQueryable<UnidadeMedida> GetUnidades([ScopedService] GlobalErpFiscalBaseContext context)
+        public IQueryable<UnidadeMedida> GetUnidades(GlobalErpFiscalBaseContext context)
         {
             return context.UnidadeMedidas;
         }
-        [UseDbContext(typeof(GlobalErpFiscalBaseContext))]
         [UseFiltering]
         [UseSorting]
-        public IQueryable<Usuario> GetUsuarios([ScopedService] GlobalErpFiscalBaseContext context)
+        public IQueryable<Usuario> GetUsuarios(GlobalErpFiscalBaseContext context)
         {
             return context.Usuarios;
         }
-        [UseDbContext(typeof(GlobalErpFiscalBaseContext))]
         [UseFiltering]
         [UseSorting]
-        public IQueryable<UsuarioPermissao> GetUsuarioPermissaos([ScopedService] GlobalErpFiscalBaseContext context)
+        public IQueryable<UsuarioPermissao> GetUsuarioPermissaos(GlobalErpFiscalBaseContext context)
         {
             return context.UsuarioPermissaos;
         }
-        [UseDbContext(typeof(GlobalErpFiscalBaseContext))]
         [UseFiltering]
         [UseSorting]
-        public IQueryable<Permissao> GetPermissaos([ScopedService] GlobalErpFiscalBaseContext context)
+        public IQueryable<Permissao> GetPermissaos( GlobalErpFiscalBaseContext context)
         {
             return context.Permissaos;
         }
-        [UseDbContext(typeof(GlobalErpFiscalBaseContext))]
         [UseFiltering]
         [UseSorting]
-        public IQueryable<Cidade> GetCidades([ScopedService] GlobalErpFiscalBaseContext context)
+        public IQueryable<Cidade> GetCidades(GlobalErpFiscalBaseContext context)
         {
             return context.Cidades;
         }
