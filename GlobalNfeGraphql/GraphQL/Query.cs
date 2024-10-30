@@ -60,6 +60,27 @@ namespace GlobalNfeGraphql.GraphQL
         {
             return context.Cidades;
         }
+
+        [UseFiltering]
+        [UseSorting]
+        public IQueryable<Entrada> GetEntradas(GlobalErpFiscalBaseContext context)
+        {
+            return context.Entradas;
+        }
+
+        [UseFiltering]
+        [UseSorting]
+        public IQueryable<ProdutoEntradum> GetProdutoEntrada(GlobalErpFiscalBaseContext context)
+        {
+            return context.ProdutoEntrada;
+        }
+        
+        [UseFiltering]
+        [UseSorting]
+        public IQueryable<ContasAPagar> GetContasAPagar(GlobalErpFiscalBaseContext context)
+        {
+            return context.ContasAPagars;
+        }
     }
 
 }
