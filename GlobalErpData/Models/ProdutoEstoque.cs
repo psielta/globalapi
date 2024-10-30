@@ -552,6 +552,9 @@ public partial class ProdutoEstoque : IIdentifiable<int>, IIdentifiableMultiKey<
     [Column("cd_produto_erp")]
     public int? CdProdutoErp { get; set; }
 
+    [Column("dt_cadastro", TypeName = "timestamp(0) without time zone")]
+    public DateTime DtCadastro { get; set; }
+
     [JsonPropertyName("quantidade")]
     [NotMapped]
     public double? Quantidade { get; set; }

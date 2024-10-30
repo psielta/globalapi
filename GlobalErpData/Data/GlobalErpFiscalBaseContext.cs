@@ -1098,6 +1098,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.DescRef).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.DescricaoProduto).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.DtAltPreco).HasDefaultValueSql("now()");
+            entity.Property(e => e.DtCadastro).HasDefaultValueSql("now()");
             entity.Property(e => e.EcfIcmSt).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.Embalagem).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.EntBcSt).HasDefaultValueSql("0");

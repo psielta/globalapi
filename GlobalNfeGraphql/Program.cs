@@ -59,16 +59,8 @@ builder.Services.AddAuthentication(options =>
         };
     });
 
-// Add services to the container.
-//builder.Services.AddDbContext<GlobalErpContext>(options => options.UseNpgsql(IniFile.GetConnectionString()));
-
-// Add services to the container.
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
-//builder.Services.AddDbContext<GlobalErpFiscalBaseContext>(options =>
-//    options.UseNpgsql(IniFile.GetConnectionString()));
-
-// Adiciona a fábrica de DbContext para criação sob demanda
 builder.Services.AddPooledDbContextFactory<GlobalErpFiscalBaseContext>(options =>
     options.UseNpgsql(IniFile.GetConnectionString()));
 
@@ -82,24 +74,19 @@ builder.Services
 
 
 
-//builder.Services.AddScoped<IRepository<TblAccessToken>, TblAccessTokenRepository>();
-//builder.Services.AddHostedService<AtualizarTokenService>();
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
+app.UseCors("AllowSpecificOrigin");
 app.UseAuthentication();
 app.UseAuthorization();
 
