@@ -356,6 +356,10 @@ public partial class ProdutoEntradum : IIdentifiable<int>
     [Precision(18, 4)]
     public decimal? CustoAtualizado { get; set; }
 
+    [Column("preco_atualizado")]
+    [Precision(18, 4)]
+    public decimal? PrecoAtualizado { get; set; }
+
     [JsonPropertyName("nmProduto")]
     [NotMapped]
     public string NmProduto => ProdutoEstoque?.NmProduto ?? "";
@@ -363,6 +367,35 @@ public partial class ProdutoEntradum : IIdentifiable<int>
     [JsonPropertyName("vlCustoAntigo")]
     [NotMapped]
     public decimal VlCustoAntigo => ProdutoEstoque?.VlCusto ?? 0;
+
+    [JsonPropertyName("vlPrecoAntigo")]
+    [NotMapped]
+    public decimal VlPrecoAntigo => ProdutoEstoque?.VlAVista ?? 0;
+    
+    [JsonPropertyName("percentualImpostos")]
+    [NotMapped]
+    public decimal PercentualImpostos => ProdutoEstoque?.PercentualImpostos ?? 0;
+
+    [JsonPropertyName("percentualComissao")]
+    [NotMapped]
+    public decimal PercentualComissao => ProdutoEstoque?.PercentualComissao ?? 0;
+
+    [JsonPropertyName("percentualCustoFixo")]
+    [NotMapped]
+    public decimal PercentualCustoFixo => ProdutoEstoque?.PercentualCustoFixo ?? 0;
+
+    [JsonPropertyName("percentualLucroLiquidoFiscal")]
+    [NotMapped]
+    public decimal PercentualLucroLiquidoFiscal => ProdutoEstoque?.PercentualLucroLiquidoFiscal ?? 0;
+
+    [JsonPropertyName("indiceMarkupFiscal")]
+    [NotMapped]
+    public decimal IndiceMarkupFiscal => ProdutoEstoque?.IndiceMarkupFiscal ?? 0;
+    
+    [JsonPropertyName("lucroPor")]
+    [NotMapped]
+    public decimal LucroPor => ProdutoEstoque?.LucroPor ?? 0;
+
 
     [JsonIgnore]
     [ForeignKey("CdEmpresa")]

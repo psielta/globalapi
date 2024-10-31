@@ -420,7 +420,7 @@ namespace GlobalAPINFe.Controllers
         [ProducesResponseType(typeof(Success), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<ProdutoEstoque>> AtualizarCusto(int idEmpresa, int nrEntrada, [FromBody] AttCustoDtoList dto)
+        public async Task<ActionResult<Success>> AtualizarCusto(int idEmpresa, int nrEntrada, [FromBody] AttCustoDtoList dto)
         {
             if (dto == null || dto.Itens == null || dto.Itens.Count == 0)
             {
@@ -479,6 +479,195 @@ namespace GlobalAPINFe.Controllers
                     }
 
                     oldProdutoEntrada.CustoAtualizado = item.Item.CustoAtualizado;
+
+                    _context.Update(oldProdutoEntrada);
+
+                    int affectedProdutoEntrada = await
+                        _context.SaveChangesAsync();
+                    if (affectedProdutoEntrada == 1)
+                    {
+                        logger.LogInformation("Entity updated with ID: {idEmpresa}-{idCadastro}", idEmpresa, oldProdutoEntrada.Nr);
+                        ((ProdutoEntradaRepository)repProdutoEntrada).UpdateCache(oldProdutoEntrada.Nr, oldProdutoEntrada);
+                    }
+                    else
+                    {
+                        return BadRequest(new BadRequest($"Error updating product entry {item.Item.Nr}."));
+                    }
+                }
+
+                return Ok(new Success("Costs updated successfully."));
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while updating costs.");
+                return StatusCode(500, new InternalServerError("An error occurred while updating costs. Please try again later."));
+            }
+        }
+
+        [HttpPut("AtualizarPrecoPorLucroBruto/{idEmpresa}/{nrEntrada}")]
+        [ProducesResponseType(typeof(Success), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<Success>> AtualizarPrecoPorLucroBruto(
+                int idEmpresa, int nrEntrada, [FromBody] AttPrecoDtoList dto)
+        {
+            if (dto == null || dto.Itens == null || dto.Itens.Count == 0)
+            {
+                return BadRequest(new BadRequest("No items to update."));
+            }
+            if (idEmpresa == 0 || nrEntrada == 0)
+            {
+                return BadRequest(new BadRequest("Invalid parameters."));
+            }
+
+            try
+            {
+                var entrada = await _context.Entradas
+                        .Where((item) => item.Nr == nrEntrada && item.CdEmpresa == idEmpresa)
+                        .FirstOrDefaultAsync();
+                if (entrada == null)
+                {
+                    return NotFound(new NotFound("Product entry not found."));
+                }
+
+                foreach (var item in dto.Itens)
+                {
+                    var produto = await
+                        _context.ProdutoEstoques
+                        .Where((produto) => produto.CdProduto == item.cdProduto && produto.IdEmpresa == idEmpresa)
+                        .FirstOrDefaultAsync();
+
+                    if (produto == null)
+                    {
+                        return NotFound(new NotFound($"Product {item.cdProduto} not found."));
+                    }
+
+                    produto.LucroPor = item.lucroPor;
+                    decimal preco = Math.Round(((item.lucroPor) / 100 + 1) * (produto.VlCusto ?? 0), 2);
+                    produto.VlAVista = preco;
+
+                    _context.Update(produto);
+                    int affected = await _context.SaveChangesAsync();
+                    if (affected == 1)
+                    {
+                        logger.LogInformation("Entity updated with ID: {idEmpresa}-{idCadastro}", idEmpresa, produto.CdProduto);
+                        ((ProdutoEstoquePagedRepositoryMultiKey)repo).UpdateCache((idEmpresa, produto.CdProduto), produto);
+                    }
+                    else
+                    {
+                        logger.LogWarning("Failed to update entity with ID: {idEmpresa}-{idCadastro}", idEmpresa, produto.CdProduto);
+                        return BadRequest(new BadRequest($"Error updating product {item.cdProduto}; idEmpresa {item.idEmpresa}."));
+
+                    }
+
+                    var oldProdutoEntrada = await
+                        _context.ProdutoEntrada
+                        .Where((produtoEntrada) => produtoEntrada.Nr == item.Item.Nr && produtoEntrada.CdEmpresa == idEmpresa)
+                        .FirstOrDefaultAsync();
+                    if (oldProdutoEntrada == null)
+                    {
+                        return NotFound(new NotFound($"Product entry {item.Item.Nr} not found."));
+                    }
+
+                    oldProdutoEntrada.PrecoAtualizado = preco;
+
+                    _context.Update(oldProdutoEntrada);
+
+                    int affectedProdutoEntrada = await
+                        _context.SaveChangesAsync();
+                    if (affectedProdutoEntrada == 1)
+                    {
+                        logger.LogInformation("Entity updated with ID: {idEmpresa}-{idCadastro}", idEmpresa, oldProdutoEntrada.Nr);
+                        ((ProdutoEntradaRepository)repProdutoEntrada).UpdateCache(oldProdutoEntrada.Nr, oldProdutoEntrada);
+                    }
+                    else
+                    {
+                        return BadRequest(new BadRequest($"Error updating product entry {item.Item.Nr}."));
+                    }
+                }
+
+                return Ok(new Success("Costs updated successfully."));
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while updating costs.");
+                return StatusCode(500, new InternalServerError("An error occurred while updating costs. Please try again later."));
+            }
+        }        
+        
+        [HttpPut("AtualizarPrecoPorLucroLiquido/{idEmpresa}/{nrEntrada}")]
+        [ProducesResponseType(typeof(Success), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<Success>> AtualizarPrecoPorLucroLiquido(
+                int idEmpresa, int nrEntrada, [FromBody] AttPrecoMarkupDtoList dto)
+        {
+            if (dto == null || dto.Itens == null || dto.Itens.Count == 0)
+            {
+                return BadRequest(new BadRequest("No items to update."));
+            }
+            if (idEmpresa == 0 || nrEntrada == 0)
+            {
+                return BadRequest(new BadRequest("Invalid parameters."));
+            }
+
+            try
+            {
+                var entrada = await _context.Entradas
+                        .Where((item) => item.Nr == nrEntrada && item.CdEmpresa == idEmpresa)
+                        .FirstOrDefaultAsync();
+                if (entrada == null)
+                {
+                    return NotFound(new NotFound("Product entry not found."));
+                }
+
+                foreach (var item in dto.Itens)
+                {
+                    var produto = await
+                        _context.ProdutoEstoques
+                        .Where((produto) => produto.CdProduto == item.cdProduto && produto.IdEmpresa == idEmpresa)
+                        .FirstOrDefaultAsync();
+
+                    if (produto == null)
+                    {
+                        return NotFound(new NotFound($"Product {item.cdProduto} not found."));
+                    }
+
+                    produto.PercentualLucroLiquidoFiscal = item.percentualLiquido;
+                    produto.PercentualComissao = item.percentualComissao;
+                    produto.PercentualImpostos = item.percentualImpostos;
+                    produto.PercentualCustoFixo = item.percentualCustoFixo;
+                    
+                    decimal indiceMarkup = 1 - (item.percentualLiquido + item.percentualImpostos + item.percentualComissao + item.percentualCustoFixo) / 100;
+                    decimal preco = Math.Round((produto.VlCusto ?? 0) / indiceMarkup, 2);
+                    
+                    produto.IndiceMarkupFiscal = indiceMarkup;
+                    produto.VlAVista = preco;
+
+                    _context.Update(produto);
+                    int affected = await _context.SaveChangesAsync();
+                    if (affected == 1)
+                    {
+                        logger.LogInformation("Entity updated with ID: {idEmpresa}-{idCadastro}", idEmpresa, produto.CdProduto);
+                        ((ProdutoEstoquePagedRepositoryMultiKey)repo).UpdateCache((idEmpresa, produto.CdProduto), produto);
+                    }
+                    else
+                    {
+                        logger.LogWarning("Failed to update entity with ID: {idEmpresa}-{idCadastro}", idEmpresa, produto.CdProduto);
+                        return BadRequest(new BadRequest($"Error updating product {item.cdProduto}; idEmpresa {item.idEmpresa}."));
+
+                    }
+
+                    var oldProdutoEntrada = await
+                        _context.ProdutoEntrada
+                        .Where((produtoEntrada) => produtoEntrada.Nr == item.Item.Nr && produtoEntrada.CdEmpresa == idEmpresa)
+                        .FirstOrDefaultAsync();
+                    if (oldProdutoEntrada == null)
+                    {
+                        return NotFound(new NotFound($"Product entry {item.Item.Nr} not found."));
+                    }
+
+                    oldProdutoEntrada.PrecoAtualizado = preco;
 
                     _context.Update(oldProdutoEntrada);
 
