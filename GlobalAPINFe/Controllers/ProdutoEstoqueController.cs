@@ -543,7 +543,13 @@ namespace GlobalAPINFe.Controllers
                     }
 
                     produto.LucroPor = item.lucroPor;
+                    produto.PercentualComissao = 0;
+                    produto.PercentualCustoFixo = 0;
+                    produto.PercentualImpostos = 0;
                     decimal preco = Math.Round(((item.lucroPor) / 100 + 1) * (produto.VlCusto ?? 0), 2);
+                    decimal percentualLucroLiquido = 100 * (1 - (produto.VlCusto ?? 0) / (preco));
+                    produto.PercentualLucroLiquidoFiscal = percentualLucroLiquido;
+                    produto.IndiceMarkupFiscal = (1 - percentualLucroLiquido / 100);
                     produto.VlAVista = preco;
 
                     _context.Update(produto);
@@ -593,8 +599,8 @@ namespace GlobalAPINFe.Controllers
                 logger.LogError(ex, "Error occurred while updating costs.");
                 return StatusCode(500, new InternalServerError("An error occurred while updating costs. Please try again later."));
             }
-        }        
-        
+        }
+
         [HttpPut("AtualizarPrecoPorLucroLiquido/{idEmpresa}/{nrEntrada}")]
         [ProducesResponseType(typeof(Success), 200)]
         [ProducesResponseType(400)]
@@ -637,10 +643,10 @@ namespace GlobalAPINFe.Controllers
                     produto.PercentualComissao = item.percentualComissao;
                     produto.PercentualImpostos = item.percentualImpostos;
                     produto.PercentualCustoFixo = item.percentualCustoFixo;
-                    
+
                     decimal indiceMarkup = 1 - (item.percentualLiquido + item.percentualImpostos + item.percentualComissao + item.percentualCustoFixo) / 100;
                     decimal preco = Math.Round((produto.VlCusto ?? 0) / indiceMarkup, 2);
-                    
+
                     produto.IndiceMarkupFiscal = indiceMarkup;
                     produto.VlAVista = preco;
 
