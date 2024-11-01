@@ -33,10 +33,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\..\..\..\..\..\AcbrLib\C#\GTIN\Import\Dinamico\MT\ACBrLib.GTINMT.csproj" />
-		<ProjectReference Include="..\..\..\..\..\..\..\AcbrLib\C#\NCMs\Import\Dinamico\MT\ACBrLib.NCMMT.csproj" />
-		<ProjectReference Include="..\..\..\..\..\..\..\AcbrLib\C#\NFe\Imports\Dinamico\MT\ACBrLib.NFeMT.csproj" />
-		<ProjectReference Include="..\..\..\..\..\..\..\AcbrLib\C#\Shared\ACBrLib.Core\ACBrLib.Core.csproj" />
+		<ProjectReference Include="C:\AcbrLib\C#\GTIN\Import\Dinamico\MT\ACBrLib.GTINMT.csproj" />
+		<ProjectReference Include="C:\AcbrLib\C#\NCMs\Import\Dinamico\MT\ACBrLib.NCMMT.csproj" />
+		<ProjectReference Include="C:\AcbrLib\C#\NFe\Imports\Dinamico\MT\ACBrLib.NFeMT.csproj" />
+		<ProjectReference Include="C:\AcbrLib\C#\Shared\ACBrLib.Core\ACBrLib.Core.csproj" />
 		<ProjectReference Include="..\GlobalErpData\GlobalErpData.csproj" />
 		<ProjectReference Include="..\GlobalLib\GlobalLib.csproj" />
 	</ItemGroup>

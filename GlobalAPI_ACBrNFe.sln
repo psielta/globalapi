@@ -9,13 +9,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GlobalErpData", "GlobalErpD
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GlobalLib", "GlobalLib\GlobalLib.csproj", "{F2D28062-DF19-4F24-992A-8A50D015FD9A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ACBrLib.Core", "..\..\..\..\..\..\AcbrLib\C#\Shared\ACBrLib.Core\ACBrLib.Core.csproj", "{1ED6F46C-0439-44DE-83C0-4B9E35CF9975}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ACBrLib.Core", "C:\AcbrLib\C#\Shared\ACBrLib.Core\ACBrLib.Core.csproj", "{1ED6F46C-0439-44DE-83C0-4B9E35CF9975}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ACBrLib.GTINMT", "..\..\..\..\..\..\AcbrLib\C#\GTIN\Import\Dinamico\MT\ACBrLib.GTINMT.csproj", "{042B7DB0-C237-4AB6-8553-82467B653A83}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ACBrLib.GTINMT", "C:\AcbrLib\C#\GTIN\Import\Dinamico\MT\ACBrLib.GTINMT.csproj", "{042B7DB0-C237-4AB6-8553-82467B653A83}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ACBrLib.NCMMT", "..\..\..\..\..\..\AcbrLib\C#\NCMs\Import\Dinamico\MT\ACBrLib.NCMMT.csproj", "{8E88D8C3-28A3-45AA-BA5A-1FC0E433B7FE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ACBrLib.NCMMT", "C:\AcbrLib\C#\NCMs\Import\Dinamico\MT\ACBrLib.NCMMT.csproj", "{8E88D8C3-28A3-45AA-BA5A-1FC0E433B7FE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ACBrLib.NFeMT", "..\..\..\..\..\..\AcbrLib\C#\NFe\Imports\Dinamico\MT\ACBrLib.NFeMT.csproj", "{CBE01A62-7A2D-4DD4-B86B-FFC760877DA6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ACBrLib.NFeMT", "C:\AcbrLib\C#\NFe\Imports\Dinamico\MT\ACBrLib.NFeMT.csproj", "{CBE01A62-7A2D-4DD4-B86B-FFC760877DA6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
