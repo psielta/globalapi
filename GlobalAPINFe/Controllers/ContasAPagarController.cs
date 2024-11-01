@@ -18,9 +18,6 @@ namespace GlobalAPINFe.Controllers
         {
         }
 
-
-        // Adicione os atributos [ProducesResponseType] nos métodos específicos aqui, se necessário.
-
         [HttpGet]
         [ProducesResponseType(typeof(PagedResponse<ContasAPagar>), 200)]
         [ProducesResponseType(404)]

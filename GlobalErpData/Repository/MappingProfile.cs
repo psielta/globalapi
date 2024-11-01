@@ -62,6 +62,7 @@ namespace GlobalErpData.Repository
             CreateMap<FormaPagtDto, FormaPagt>().ReverseMap();
             CreateMap<ContasAPagarDto, ContasAPagar>().ReverseMap();
             CreateMap<ImpxmlDto, Impxml>().ReverseMap();
+            CreateMap<ContasAReceberDto, ContasAReceber>().ReverseMap();
 
             // Mapear e configurar propriedades específicas
             CreateMap<Older, GetOldersDto>()

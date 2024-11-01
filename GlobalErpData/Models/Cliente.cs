@@ -112,4 +112,8 @@ public partial class Cliente : IIdentifiable<int>
     {
         return "Id";
     }
+
+    [JsonIgnore]
+    [InverseProperty("CdClienteNavigation")]
+    public virtual ICollection<ContasAReceber> ContasARecebers { get; set; } = new List<ContasAReceber>();
 }

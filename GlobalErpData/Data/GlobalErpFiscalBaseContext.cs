@@ -311,6 +311,52 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .HasConstraintName("contas_a_pagar_fk");
         });
 
+        modelBuilder.Entity<ContasAReceber>(entity =>
+        {
+            entity.HasKey(e => e.NrConta).HasName("contas_a_receber_pkey");
+
+            entity.Property(e => e.Alteradodtvenc).HasDefaultValueSql("'N'::character varying");
+            entity.Property(e => e.Cancelado).HasDefaultValueSql("'N'::character varying");
+            entity.Property(e => e.CdProjeto).HasDefaultValueSql("'-1'::integer");
+            entity.Property(e => e.DataLanc).HasDefaultValueSql("('now'::text)::date");
+            entity.Property(e => e.IdAluno).HasDefaultValueSql("'-1'::integer");
+            entity.Property(e => e.IdGrupo).HasDefaultValue(0);
+            entity.Property(e => e.IdLancPrincipal).HasDefaultValueSql("'-1'::integer");
+            entity.Property(e => e.Imprimiu).HasDefaultValueSql("'N'::character varying");
+            entity.Property(e => e.NrContaRenegociado).HasDefaultValueSql("'-1'::integer");
+            entity.Property(e => e.NrFormaPagt).HasDefaultValueSql("'-1'::integer");
+            entity.Property(e => e.NrOs).HasDefaultValueSql("'-1'::integer");
+            entity.Property(e => e.NrSaida).HasDefaultValueSql("'-1'::integer");
+            entity.Property(e => e.QtParcela).HasDefaultValue(1);
+            entity.Property(e => e.Quantidade).HasDefaultValue(1);
+            entity.Property(e => e.Recebeu).HasDefaultValueSql("'N'::character varying");
+            entity.Property(e => e.Status).HasDefaultValueSql("'01'::character varying");
+            entity.Property(e => e.TxtBoleto).HasDefaultValueSql("''::text");
+            entity.Property(e => e.TxtObs).HasDefaultValueSql("''::text");
+            entity.Property(e => e.UtilizouLimite).HasDefaultValueSql("'N'::character varying");
+            entity.Property(e => e.VenceuPrazo).HasDefaultValueSql("'N'::character varying");
+            entity.Property(e => e.Vinculado).HasDefaultValueSql("'N'::character varying");
+            entity.Property(e => e.VlBruto).HasDefaultValueSql("0");
+            entity.Property(e => e.VlDesconto).HasDefaultValueSql("0");
+            entity.Property(e => e.VlIrrf).HasDefaultValueSql("0");
+            entity.Property(e => e.VlIss).HasDefaultValueSql("0");
+            entity.Property(e => e.VlJuros).HasDefaultValueSql("0");
+            entity.Property(e => e.VlPago).HasDefaultValueSql("0");
+
+            entity.HasOne(d => d.CdClienteNavigation).WithMany(p => p.ContasARecebers)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("contas_a_receber_fk1");
+
+            entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.ContasARecebers)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("contas_a_receber_fk");
+
+            entity.HasOne(d => d.HistoricoCaixa).WithMany(p => p.ContasARecebers)
+                .HasPrincipalKey(p => new { p.CdEmpresa, p.CdSubPlano, p.CdPlano })
+                .HasForeignKey(d => new { d.CdEmpresa, d.CdHistoricoCaixa, d.CdPlanoCaixa })
+                .HasConstraintName("contas_a_receber_fk2");
+        });
+
         modelBuilder.Entity<Cte>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("cte_pkey");

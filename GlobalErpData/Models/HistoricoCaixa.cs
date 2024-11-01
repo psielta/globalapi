@@ -64,4 +64,8 @@ public partial class HistoricoCaixa : IIdentifiable<int>
     {
         return "Id";
     }
+
+    [JsonIgnore]
+    [InverseProperty("HistoricoCaixa")]
+    public virtual ICollection<ContasAReceber> ContasARecebers { get; set; } = new List<ContasAReceber>();
 }
