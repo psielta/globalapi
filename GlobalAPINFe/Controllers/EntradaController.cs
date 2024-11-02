@@ -199,7 +199,7 @@ namespace GlobalAPINFe.Controllers
                 {
                     _calculationService.CalculateTotals(entrada);
                 }
-                filteredQuery = filteredQuery.OrderBy(p => p.Nr);
+                filteredQuery = filteredQuery.OrderByDescending(p => p.Nr);
 
                 var pagedList = filteredQuery.ToPagedList(pageNumber, pageSize);
                 var response = new PagedResponse<Entrada>(pagedList);

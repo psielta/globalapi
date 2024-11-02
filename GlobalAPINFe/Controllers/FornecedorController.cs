@@ -118,7 +118,7 @@ namespace GlobalAPINFe.Controllers
                     filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveSpecialCharacters(UtlStrings.RemoveDiacritics((p.Cnpj == null) ? "" : p.Cnpj.Trim().ToLower())) == normalizeCnpj);
                 }
 
-                filteredQuery = filteredQuery.OrderBy(p => p.CdForn);
+                filteredQuery = filteredQuery.OrderByDescending(p => p.CdForn);
 
                 var pagedList = filteredQuery.ToPagedList(pageNumber, pageSize);
                 var response = new PagedResponse<Fornecedor>(pagedList);

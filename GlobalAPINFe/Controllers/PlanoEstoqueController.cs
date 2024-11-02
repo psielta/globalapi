@@ -96,7 +96,7 @@ namespace GlobalAPINFe.Controllers
 
 
 
-                filteredQuery = filteredQuery.OrderBy(p => p.CdPlano);
+                filteredQuery = filteredQuery.OrderByDescending(p => p.CdPlano);
 
                 var pagedList = filteredQuery.ToPagedList(pageNumber, pageSize);
                 var response = new PagedResponse<PlanoEstoque>(pagedList);

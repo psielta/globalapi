@@ -168,10 +168,10 @@ namespace GlobalAPINFe.Controllers
                     filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveDiacritics((p.CdBarra == null) ? "" : p.CdBarra.ToLower()) == normalizedCdBarra);
                 }
 
-                if (!string.IsNullOrEmpty(nmProduto))
-                    filteredQuery = filteredQuery.OrderBy(p => p.NmProduto);
-                else
-                    filteredQuery = filteredQuery.OrderByDescending(p => p.CdProduto);
+                //if (!string.IsNullOrEmpty(nmProduto))
+                //    filteredQuery = filteredQuery.OrderBy(p => p.NmProduto);
+                //else
+                filteredQuery = filteredQuery.OrderByDescending(p => p.CdProduto);
 
                 var pagedList = filteredQuery.ToPagedList(pageNumber, pageSize);
 

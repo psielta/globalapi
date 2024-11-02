@@ -107,7 +107,7 @@ namespace GlobalAPINFe.Controllers
                 }
 
 
-                filteredQuery = filteredQuery.OrderBy(p => p.Id);
+                filteredQuery = filteredQuery.OrderByDescending(p => p.Id);
 
                 var pagedList = filteredQuery.ToPagedList(pageNumber, pageSize);
                 var response = new PagedResponse<CfopImportacao>(pagedList);

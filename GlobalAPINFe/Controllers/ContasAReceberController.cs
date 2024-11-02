@@ -184,7 +184,7 @@ namespace GlobalAPINFe.Controllers
                     filteredQuery = filteredQuery.Where(p => p.CdPlanoCaixa == cdPlanoCaixa);
                 }
 
-                filteredQuery = filteredQuery.OrderBy(p => p.NrConta);
+                filteredQuery = filteredQuery.OrderByDescending(p => p.NrConta);
                 var pagedList = filteredQuery.ToPagedList(pageNumber, pageSize);
                 var response = new PagedResponse<ContasAReceber>(pagedList);
 

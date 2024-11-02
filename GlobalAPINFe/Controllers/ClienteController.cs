@@ -127,7 +127,7 @@ namespace GlobalAPINFe.Controllers
                     filteredQuery = filteredQuery.Where(p => UtlStrings.RemoveSpecialCharacters(UtlStrings.RemoveDiacritics((p.InscricaoEstadual == null) ? "" : p.InscricaoEstadual.ToLower().Trim())) == normalizedIe);
                 }
 
-                filteredQuery = filteredQuery.OrderBy(p => p.Id);
+                filteredQuery = filteredQuery.OrderByDescending(p => p.Id);
 
                 var pagedList = filteredQuery.ToPagedList(pageNumber, pageSize);
                 var response = new PagedResponse<Cliente>(pagedList);

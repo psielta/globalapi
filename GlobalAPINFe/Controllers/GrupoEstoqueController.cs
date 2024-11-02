@@ -113,6 +113,7 @@ namespace GlobalAPINFe.Controllers
                 {
                     return NotFound("Entities not found."); // 404 Resource not found
                 }
+                query = query.OrderByDescending(e => e.CdGrupo);
                 var pagedList = await query.ToPagedListAsync(pageNumber, pageSize);
                 var response = new PagedResponse<GrupoEstoque>(pagedList);
 

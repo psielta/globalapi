@@ -124,7 +124,7 @@ namespace GlobalAPINFe.Controllers
                 }
 
                 filteredQuery = filteredQuery
-                    .OrderBy(p => p.Id);
+                    .OrderByDescending(p => p.Id);
 
                 var pagedList = filteredQuery.ToPagedList(pageNumber, pageSize);
                 var response = new PagedResponse<SaldoEstoque>(pagedList);

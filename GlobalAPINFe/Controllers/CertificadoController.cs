@@ -94,7 +94,7 @@ namespace GlobalAPINFe.Controllers
 
                 var filteredQuery = query.AsEnumerable();
 
-                filteredQuery = filteredQuery.OrderBy(p => p.Id);
+                filteredQuery = filteredQuery.OrderByDescending(p => p.Id);
 
                 var pagedList = filteredQuery.ToPagedList(pageNumber, pageSize);
                 var response = new PagedResponse<Certificado>(pagedList);
