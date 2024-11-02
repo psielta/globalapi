@@ -173,7 +173,6 @@ namespace GlobalAPINFe.Controllers
                                 default:
                                     break;
                             }
-                            filteredQuery = filteredQuery.Where(p => p.DtVencimento >= dtInicial && p.DtVencimento <= dtFinal);
                         }
                         break;
                     case (int)TipoPeriodoCAP.TPC_Ate_Data:

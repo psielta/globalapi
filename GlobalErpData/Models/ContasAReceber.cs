@@ -193,6 +193,10 @@ public partial class ContasAReceber : IIdentifiable<int>
     [InverseProperty("ContasARecebers")]
     public virtual Cliente CdClienteNavigation { get; set; } = null!;
 
+    [JsonPropertyName("nmCliente")]
+    [NotMapped]
+    public string NmCliente => CdClienteNavigation?.NmCliente ?? "";
+
     [JsonIgnore]
     [ForeignKey("CdEmpresa")]
     [InverseProperty("ContasARecebers")]
