@@ -19,10 +19,10 @@ using System.Globalization;
 using GlobalAPINFe.SwaggerUtils;
 using GlobalErpData.Services;
 using System;
+using GlobalAPINFe.Lib;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configuração do CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin",
@@ -66,28 +66,8 @@ builder.Services.AddAuthentication(options =>
         };
     });
 
-// Add services to the container.
 builder.Services.AddAutoMapper(typeof(MappingProfile));
-
-//builder.Services.AddDbContext<GlobalErpFiscalBaseContext>(options =>
-//    options.UseNpgsql(IniFile.GetConnectionString()));
-
-// Adiciona a fábrica de DbContext para criação sob demanda
-//builder.Services.AddDbContextFactory<GlobalErpFiscalBaseContext>(options =>
-//    options.UseNpgsql(IniFile.GetConnectionString()));
 builder.Services.AddDbContext<GlobalErpFiscalBaseContext>(options => options.UseNpgsql(IniFile.GetConnectionString()));
-
-
-//builder.Services
-//     .AddGraphQLServer()
-//    .AddQueryType<Query>()
-//    // .RegisterDbContext<GlobalErpFiscalBaseContext>(DbContextKind.Pooled)
-//    .AddDiagnosticEventListener(sp =>
-//        new HotChocolateDiagnosticObserver(sp.GetRequiredService<ILogger<HotChocolateDiagnosticObserver>>()))
-//
-//    .AddProjections()
-//    .AddFiltering()
-//    .AddSorting();
 
 builder.Services.AddScoped<IRepositoryDto<Empresa, int, EmpresaDto>, EmpresaRepositoryDto>();
 builder.Services.AddScoped<IRepositoryDto<Cidade, string, CidadeDto>, CidadeRepositoryDto>();
@@ -134,46 +114,41 @@ builder.Services.AddScoped<IQueryRepository<ContasAReceber, int, ContasAReceberD
 builder.Services.AddScoped<IQueryRepositoryMultiKey<Impxml, int, string, ImpxmlDto>, ImpXmlRepository>();
 builder.Services.AddScoped<EntradaCalculationService>();
 
-
-
-builder.Services.AddControllers()/*
-        .AddJsonOptions(options =>
-        {
-            options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
-            options.JsonSerializerOptions.MaxDepth = 64; 
-        }); */;
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    // Importante: Adicionar essa configuração
     c.OperationFilter<FileUploadOperationFilter>();
 });
 
 var app = builder.Build();
 
-// Configure o pipeline de requisições HTTP.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// Adicione o middleware de roteamento
 app.UseRouting();
-
-// Configure o CORS antes dos middlewares de autenticação e autorização
 app.UseCors("AllowSpecificOrigin");
-
-//app.UseHttpsRedirection();
-
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseStaticFiles();
-
-// Mapear controladores e endpoints GraphQL dentro do middleware de endpoints
 app.MapControllers();
-//app.MapGraphQL("/graphql");
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<GlobalErpFiscalBaseContext>();
+        SeedData.Initialize(context);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Ocorreu um erro ao inicializar o banco de dados.");
+    }
+}
 
 app.Run();
