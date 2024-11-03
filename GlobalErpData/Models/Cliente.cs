@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using GlobalErpData.MMModels;
 using GlobalLib.Database;
 using Microsoft.EntityFrameworkCore;
 
@@ -116,4 +117,8 @@ public partial class Cliente : IIdentifiable<int>
     [JsonIgnore]
     [InverseProperty("CdClienteNavigation")]
     public virtual ICollection<ContasAReceber> ContasARecebers { get; set; } = new List<ContasAReceber>();
+
+    [JsonIgnore]
+    [InverseProperty("ClienteNavigation")]
+    public virtual ICollection<Saida> Saida { get; set; } = new List<Saida>();
 }

@@ -1267,6 +1267,54 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .HasConstraintName("referencia_estoque_fk");
         });
 
+        modelBuilder.Entity<Saida>(entity =>
+        {
+            entity.HasKey(e => e.NrLanc).HasName("saidas_pkey");
+
+            entity.Property(e => e.CdCarga).HasDefaultValueSql("'-1'::integer");
+            entity.Property(e => e.CdSituacao).HasDefaultValueSql("'01'::character varying");
+            entity.Property(e => e.CdUf).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.CdVendedor).HasDefaultValueSql("'-1'::integer");
+            entity.Property(e => e.Cfop).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.ChaveAcessoNfe).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.ChaveNfeSaida).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.CnpjMarket).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.Data).HasDefaultValueSql("('now'::text)::date");
+            entity.Property(e => e.IdConvenio).HasDefaultValueSql("'-1'::integer");
+            entity.Property(e => e.IdEndEntrega).HasDefaultValueSql("'-1'::integer");
+            entity.Property(e => e.IdEndRetirada).HasDefaultValueSql("'-1'::integer");
+            entity.Property(e => e.IdMedico).HasDefaultValueSql("'-1'::integer");
+            entity.Property(e => e.IdPaciente).HasDefaultValueSql("'-1'::integer");
+            entity.Property(e => e.IdPontoVenda).HasDefaultValueSql("'-1'::integer");
+            entity.Property(e => e.IdTipoIndicador).HasDefaultValueSql("'-1'::integer");
+            entity.Property(e => e.IdTipoOperacaoIntermediador).HasDefaultValueSql("'-1'::integer");
+            entity.Property(e => e.LocalSalvoNota).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.NmMarket).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.NrAutorizacaoNfe).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.NrNotaFiscal).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.NrProtoCancelamento).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.Observacao).HasDefaultValueSql("''::text");
+            entity.Property(e => e.PagaComissao).HasDefaultValueSql("'N'::character varying");
+            entity.Property(e => e.Pagou).HasDefaultValueSql("'N'::character varying");
+            entity.Property(e => e.Requisicao).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.SerieNf).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.TabelaVenda).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.TpOperacao).HasDefaultValueSql("'N'::character varying");
+            entity.Property(e => e.TxtJustificativaCancelamento).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.TxtObsNf).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.VlDescGlobal).HasDefaultValueSql("0");
+            entity.Property(e => e.VlOutro).HasDefaultValueSql("0");
+            entity.Property(e => e.XmNf).HasDefaultValueSql("''::text");
+
+            entity.HasOne(d => d.ClienteNavigation).WithMany(p => p.Saida)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("saidas_fk1");
+
+            entity.HasOne(d => d.EmpresaNavigation).WithMany(p => p.Saida)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("saidas_fk");
+        });
+
         modelBuilder.Entity<SaldoEstoque>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("saldo_estoque_pk");

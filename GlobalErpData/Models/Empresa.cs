@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using GlobalErpData.MMModels;
 using GlobalLib.Database;
 
 namespace GlobalErpData.Models;
@@ -312,4 +313,8 @@ public partial class Empresa : IIdentifiable<int>
     [JsonIgnore]
     [InverseProperty("CdEmpresaNavigation")]
     public virtual ICollection<FormaPagt> FormaPagts { get; set; } = new List<FormaPagt>();
+
+    [JsonIgnore]
+    [InverseProperty("EmpresaNavigation")]
+    public virtual ICollection<Saida> Saida { get; set; } = new List<Saida>();
 }
