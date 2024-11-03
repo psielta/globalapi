@@ -82,7 +82,9 @@ namespace GlobalAPINFe.Controllers
             [FromQuery] string? nrNotaFiscal = null,
             [FromQuery] string? serie = null,
             [FromQuery] string? chaveAcesso = null,
-            [FromQuery] string? tipoSaida = null
+            [FromQuery] string? tipoSaida = null,
+            [FromQuery] string? cdSituacao = null
+
         )
         {
             try
@@ -138,6 +140,11 @@ namespace GlobalAPINFe.Controllers
                 {
                     var normalizedTipoSaida = UtlStrings.RemoveDiacritics(tipoSaida.ToUpper()).Trim();
                     filteredQuery = filteredQuery.Where(p => (p.TpSaida ?? "").ToUpper() == normalizedTipoSaida);
+                }
+                if (!string.IsNullOrEmpty(cdSituacao))
+                {
+                    var normalizedCdSituacao = UtlStrings.RemoveDiacritics(cdSituacao.ToUpper()).Trim();
+                    filteredQuery = filteredQuery.Where(p => (p.CdSituacao ?? "").ToUpper() == normalizedCdSituacao);
                 }
 
                 switch ((int)ENUM_tipoPeriodoSaida)
