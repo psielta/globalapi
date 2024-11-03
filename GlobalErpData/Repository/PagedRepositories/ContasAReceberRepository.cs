@@ -21,7 +21,9 @@ namespace GlobalErpData.Repository.PagedRepositories
 
         public Task<IQueryable<ContasAReceber>> GetContasAReceberAsyncPorEmpresa(int IdEmpresa)
         {
-            return Task.FromResult(db.Set<ContasAReceber>().Where(e => e.CdEmpresa == IdEmpresa).AsQueryable());
+            return Task.FromResult(db.Set<ContasAReceber>().Where(e => e.CdEmpresa == IdEmpresa)
+                .Include(p => p.CdClienteNavigation)
+                .AsQueryable());
         }
 
         public async override Task<ContasAReceber?> CreateAsync(ContasAReceberDto dto)
