@@ -77,6 +77,8 @@ namespace GlobalErpData.Repository
                 .ReverseMap();
 
             CreateMap<Saida, SaidaDto>().ReverseMap();
+            CreateMap<ProdutoSaidum, ProdutoSaidumDto>().ReverseMap();
+
 
         }
     }

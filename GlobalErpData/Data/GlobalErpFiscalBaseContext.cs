@@ -1244,6 +1244,105 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .HasConstraintName("fk_featured_id");
         });
 
+        modelBuilder.Entity<ProdutoSaidum>(entity =>
+        {
+            entity.HasKey(e => e.Nr).HasName("produto_saida_pkey");
+
+            entity.Property(e => e.AnoFabVeic).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.AnoVeic).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.BaixaEstoque).HasDefaultValueSql("'S'::character varying");
+            entity.Property(e => e.Cancelou).HasDefaultValueSql("'N'::character varying");
+            entity.Property(e => e.CapcMaxLotVeic).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.CapcMaxTracVeic).HasDefaultValueSql("0");
+            entity.Property(e => e.CdInterno).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.ChasiVeic).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.CilindradasVeic).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.CondVeic).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.Cor).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.CorVeic).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.CstCofins).HasDefaultValueSql("0");
+            entity.Property(e => e.CstPis).HasDefaultValueSql("0");
+            entity.Property(e => e.DescComplementoNome).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.DescCorVeic).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.DescRateio).HasDefaultValueSql("0");
+            entity.Property(e => e.DistEixosVeic).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.EspecVeic).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.Genero).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.IcmsSubstituto).HasDefaultValueSql("0");
+            entity.Property(e => e.IdCorVeic).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.IdMarcaVeic).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.IdSerieKit).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.IdSerieProduto).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.IdVinVeic).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.MvaSt).HasDefaultValueSql("0");
+            entity.Property(e => e.NrMotorVeic).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.Pagou).HasDefaultValueSql("'N'::character varying");
+            entity.Property(e => e.PesoBrutoVeic).HasDefaultValueSql("0");
+            entity.Property(e => e.PesoLiquidoVeic).HasDefaultValueSql("0");
+            entity.Property(e => e.Pfcpufdest).HasDefaultValueSql("0");
+            entity.Property(e => e.Picmsinter).HasDefaultValueSql("0");
+            entity.Property(e => e.Picmsinterpart).HasDefaultValueSql("0");
+            entity.Property(e => e.Picmsufdest).HasDefaultValueSql("0");
+            entity.Property(e => e.PocIcms).HasDefaultValueSql("0");
+            entity.Property(e => e.PocReducao).HasDefaultValueSql("0");
+            entity.Property(e => e.PorcCofins).HasDefaultValueSql("0");
+            entity.Property(e => e.PorcCofinsSt).HasDefaultValueSql("0");
+            entity.Property(e => e.PorcIbpt).HasDefaultValueSql("0");
+            entity.Property(e => e.PorcIpi).HasDefaultValueSql("0");
+            entity.Property(e => e.PorcPis).HasDefaultValueSql("0");
+            entity.Property(e => e.PorcPisSt).HasDefaultValueSql("0");
+            entity.Property(e => e.PorcSt).HasDefaultValueSql("0");
+            entity.Property(e => e.PotenciaMotorVeic).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.QtTotal).HasDefaultValueSql("1");
+            entity.Property(e => e.Quant).HasDefaultValueSql("1");
+            entity.Property(e => e.QuantEstorno).HasDefaultValueSql("0");
+            entity.Property(e => e.RestricaoVeic).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.SequenciaItem).HasDefaultValue(0);
+            entity.Property(e => e.SerialVeic).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.St).HasDefaultValueSql("0");
+            entity.Property(e => e.Tamanho).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.TpCombustVeic).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.TpOperacaoVeic).HasDefaultValueSql("'-1'::integer");
+            entity.Property(e => e.TpPinturaVeic).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.TpVeic).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.Un).HasDefaultValueSql("'UN'::character varying");
+            entity.Property(e => e.UtilizarIdInternoNfe).HasDefaultValueSql("'N'::character varying");
+            entity.Property(e => e.Vbcfcpufdest).HasDefaultValueSql("0");
+            entity.Property(e => e.Vbcufdest).HasDefaultValueSql("0");
+            entity.Property(e => e.Vfcpufdest).HasDefaultValueSql("0");
+            entity.Property(e => e.Vicmsufdest).HasDefaultValueSql("0");
+            entity.Property(e => e.Vicmsufremt).HasDefaultValueSql("0");
+            entity.Property(e => e.VlAproxImposto).HasDefaultValueSql("0");
+            entity.Property(e => e.VlBaseCofins).HasDefaultValueSql("0");
+            entity.Property(e => e.VlBaseCofinsSt).HasDefaultValueSql("0");
+            entity.Property(e => e.VlBaseIcms).HasDefaultValueSql("0");
+            entity.Property(e => e.VlBaseIpi).HasDefaultValueSql("0");
+            entity.Property(e => e.VlBasePis).HasDefaultValueSql("0");
+            entity.Property(e => e.VlBasePisSt).HasDefaultValueSql("0");
+            entity.Property(e => e.VlBaseRetido).HasDefaultValueSql("0");
+            entity.Property(e => e.VlBaseSt).HasDefaultValueSql("0");
+            entity.Property(e => e.VlCofins).HasDefaultValueSql("0");
+            entity.Property(e => e.VlCofinsSt).HasDefaultValueSql("0");
+            entity.Property(e => e.VlComissao).HasDefaultValueSql("0");
+            entity.Property(e => e.VlCreditoIcms).HasDefaultValueSql("0");
+            entity.Property(e => e.VlCusto).HasDefaultValueSql("0");
+            entity.Property(e => e.VlIcms).HasDefaultValueSql("0");
+            entity.Property(e => e.VlIcmsRet).HasDefaultValueSql("0");
+            entity.Property(e => e.VlIpi).HasDefaultValueSql("0");
+            entity.Property(e => e.VlPis).HasDefaultValueSql("0");
+            entity.Property(e => e.VlPisSt).HasDefaultValueSql("0");
+            entity.Property(e => e.VlSt).HasDefaultValueSql("0");
+            entity.Property(e => e.VlUnid).HasDefaultValueSql("0");
+
+            entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.ProdutoSaida).HasConstraintName("produto_saida_fk1");
+
+            entity.HasOne(d => d.NrSaidaNavigation).WithMany(p => p.ProdutoSaida).HasConstraintName("produto_saida_fk2");
+
+            entity.HasOne(d => d.ProdutoEstoque).WithMany(p => p.ProdutoSaida)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("produto_saida_fk");
+        });
+
         modelBuilder.Entity<ProdutosForn>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("produtos_forn_pkey");

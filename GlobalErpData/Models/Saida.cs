@@ -192,6 +192,10 @@ public partial class Saida : IIdentifiable<int>
     [InverseProperty("Saida")]
     public virtual Empresa EmpresaNavigation { get; set; } = null!;
 
+    [JsonIgnore]
+    [InverseProperty("NrSaidaNavigation")]
+    public virtual ICollection<ProdutoSaidum> ProdutoSaida { get; set; } = new List<ProdutoSaidum>();
+
     [GraphQLIgnore]
     public int GetId()
     {

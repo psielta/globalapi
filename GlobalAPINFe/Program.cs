@@ -111,6 +111,7 @@ builder.Services.AddScoped<IQueryRepository<HistoricoCaixa, int, HistoricoCaixaD
 builder.Services.AddScoped<IQueryRepository<FormaPagt, int, FormaPagtDto>, FormaPagtRepository>();
 builder.Services.AddScoped<IQueryRepository<ContasAPagar, int, ContasAPagarDto>, ContasAPagarRepository>();
 builder.Services.AddScoped<IQueryRepository<Saida, int, SaidaDto>, SaidaRepository>();
+builder.Services.AddScoped<IQueryRepository<ProdutoSaidum, int, ProdutoSaidumDto>, ProdutoSaidumRepository>();
 builder.Services.AddScoped<IQueryRepository<ContasAReceber, int, ContasAReceberDto>, ContasAReceberRepository>();
 builder.Services.AddScoped<IQueryRepositoryMultiKey<Impxml, int, string, ImpxmlDto>, ImpXmlRepository>();
 builder.Services.AddScoped<EntradaCalculationService>();

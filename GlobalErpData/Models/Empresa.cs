@@ -316,4 +316,8 @@ public partial class Empresa : IIdentifiable<int>
     [JsonIgnore]
     [InverseProperty("EmpresaNavigation")]
     public virtual ICollection<Saida> Saida { get; set; } = new List<Saida>();
+
+    [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<ProdutoSaidum> ProdutoSaida { get; set; } = new List<ProdutoSaidum>();
 }

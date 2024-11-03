@@ -177,7 +177,7 @@ namespace GlobalAPINFe.Controllers
                 
                 try
                 {
-                    ProdutoEstoque produto = await _context.ProdutoEstoques.FirstOrDefaultAsync(obj =>
+                    ProdutoEstoque? produto = await _context.ProdutoEstoques.FirstOrDefaultAsync(obj =>
                     obj.IdEmpresa == dto.CdEmpresa && obj.CdProduto == dto.CdProduto);
                     if (produto == null)
                     {
