@@ -50,10 +50,6 @@ public partial class ProdutoSaidum : IIdentifiable<int>
     [Column("cd_empresa")]
     public int CdEmpresa { get; set; }
 
-    [Column("nm_produto")]
-    [StringLength(256)]
-    public string NmProduto { get; set; } = null!;
-
     [Column("pagou")]
     [StringLength(1)]
     public string? Pagou { get; set; }

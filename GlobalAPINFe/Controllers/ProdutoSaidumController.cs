@@ -148,7 +148,7 @@ namespace GlobalAPINFe.Controllers
         [ProducesResponseType(typeof(ProdutoSaidum), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> InserirProdutoSaidum([FromBody] InsercaoProdutoSaidumDto dto)
+        public async Task<ActionResult<ProdutoSaidum>> InserirProdutoSaidum([FromBody] InsercaoProdutoSaidumDto dto)
         {
             try
             {
@@ -214,7 +214,7 @@ namespace GlobalAPINFe.Controllers
         [ProducesResponseType(typeof(ProdutoSaidum), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> InserirProdutoSaidumEan([FromBody] InsercaoProdutoSaidumEanDto dto)
+        public async Task<ActionResult<ProdutoSaidum>> InserirProdutoSaidumEan([FromBody] InsercaoProdutoSaidumEanDto dto)
         {
             try
             {
