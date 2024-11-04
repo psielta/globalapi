@@ -133,6 +133,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
     public virtual DbSet<OlderItem> OlderItems { get; set; }
 
+    public virtual DbSet<ProdutoSaidum> ProdutoSaida { get; set; }
+
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -1404,6 +1406,10 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.VlDescGlobal).HasDefaultValueSql("0");
             entity.Property(e => e.VlOutro).HasDefaultValueSql("0");
             entity.Property(e => e.XmNf).HasDefaultValueSql("''::text");
+
+            entity.HasOne(d => d.CdGrupoEstoqueNavigation).WithMany(p => p.Saida)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("saidas_fk2");
 
             entity.HasOne(d => d.ClienteNavigation).WithMany(p => p.Saida)
                 .OnDelete(DeleteBehavior.ClientSetNull)

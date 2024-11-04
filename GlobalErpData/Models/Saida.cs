@@ -178,6 +178,18 @@ public partial class Saida : IIdentifiable<int>
     [Column("xm_nf_cnc")]
     public string? XmNfCnc { get; set; }
 
+    [Column("cd_grupo_estoque")]
+    public int CdGrupoEstoque { get; set; }
+
+    [JsonIgnore]
+    [ForeignKey("CdGrupoEstoque")]
+    [InverseProperty("Saida")]
+    public virtual PlanoEstoque CdGrupoEstoqueNavigation { get; set; } = null!;
+
+    [JsonPropertyName("nmPlano")]
+    [NotMapped]
+    public string NmPlano => CdGrupoEstoqueNavigation?.NmPlano ?? "";
+
     [JsonIgnore]
     [ForeignKey("Cliente")]
     [InverseProperty("Saida")]

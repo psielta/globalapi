@@ -25,6 +25,7 @@ namespace GlobalErpData.Repository.PagedRepositories
             {
                 return Task.FromResult(db.Set<Saida>().Where(e => e.Empresa == IdEmpresa)
                     .Include(e => e.ClienteNavigation)
+                    .Include(p => p.CdGrupoEstoqueNavigation)
                     .AsQueryable());
             }
             catch (Exception ex)
@@ -46,6 +47,7 @@ namespace GlobalErpData.Repository.PagedRepositories
                 EntityCache.AddOrUpdate(entity.GetId(), entity, UpdateCache);
 
                 return await db.Set<Saida>().Include(e => e.ClienteNavigation)
+                    .Include(p => p.CdGrupoEstoqueNavigation)
                     .FirstOrDefaultAsync(e => e.NrLanc == entity.NrLanc);
             }
             else
@@ -65,6 +67,7 @@ namespace GlobalErpData.Repository.PagedRepositories
                 logger.LogInformation("Entity updated with ID: {Id}", id);
                 UpdateCache(id, entity);
                 return await db.Set<Saida>().Include(e => e.ClienteNavigation)
+                    .Include(p => p.CdGrupoEstoqueNavigation)
                     .FirstOrDefaultAsync(e => e.NrLanc == id);
             }
             else
