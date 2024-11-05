@@ -102,5 +102,6 @@ namespace GlobalErpData.Dto
         public string? TpOperacao { get; set; }
 
         public string? XmNfCnc { get; set; }
+        public int CdGrupoEstoque { get; set; }
     }
 }

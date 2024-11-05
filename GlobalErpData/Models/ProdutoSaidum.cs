@@ -488,15 +488,19 @@ public partial class ProdutoSaidum : IIdentifiable<int>
     [InverseProperty("ProdutoSaida")]
     public virtual ProdutoEstoque ProdutoEstoque { get; set; } = null!;
 
+    [JsonPropertyName("nmProduto")]
+    [NotMapped]
+    public string NmProduto => ProdutoEstoque?.NmProduto ?? "";
+
     [GraphQLIgnore]
     public int GetId()
     {
-        throw new NotImplementedException();
+        return Nr;
     }
 
     [GraphQLIgnore]
     public string GetKeyName()
     {
-        throw new NotImplementedException();
+        return "Nr";
     }
 }
