@@ -1,0 +1,19 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace GlobalErpData.Dto
+{
+    public class CestNcmDto
+    {
+        public string NrCest { get; set; } = null!;
+
+        public string NrNcm { get; set; } = null!;
+
+        public string? Descricao { get; set; }
+    }
+}

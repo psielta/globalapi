@@ -113,11 +113,11 @@ namespace GlobalErpData.GenericControllers
                 {
                     return BadRequest("Invalid data provided.");
                 }
-                TEntity? existing = await repo.RetrieveAsync(id);
-                if (existing == null)
-                {
-                    return NotFound($"Entity with ID {id} not found.");
-                }
+                //TEntity? existing = await repo.RetrieveAsync(id);
+                //if (existing == null)
+                //{
+                //    return NotFound($"Entity with ID {id} not found.");
+                //}
                 TEntity? updated = await repo.UpdateAsync(id, dto);
                 if (updated == null)
                 {

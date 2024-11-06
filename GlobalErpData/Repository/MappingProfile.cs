@@ -82,6 +82,9 @@ namespace GlobalErpData.Repository
             CreateMap<Cst,CstDto>().ReverseMap();
             CreateMap<Csosn, CsosnDto>().ReverseMap();
             CreateMap<Cfop, CfopDto>().ReverseMap();
+            CreateMap<Ibpt, IbptDto>().ReverseMap();
+            CreateMap<Ncm, NcmDto>().ReverseMap();
+            CreateMap<CestNcm,CestNcmDto>().ReverseMap();
 
 
         }

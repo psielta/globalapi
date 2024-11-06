@@ -15,6 +15,9 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         : base(options)
     {
     }
+    public virtual DbSet<Ibpt> Ibpts { get; set; }
+    public virtual DbSet<Ncm> Ncms { get; set; }
+    public virtual DbSet<CestNcm> CestNcms { get; set; }
     public virtual DbSet<Impxml> Impxmls { get; set; }
     public virtual DbSet<Cfop> Cfops { get; set; }
     public virtual DbSet<OrigemCst> OrigemCsts { get; set; }
@@ -173,6 +176,13 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .HasComment("H - Homologacao\r\nP - Producao");
 
             entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.Certificados).HasConstraintName("certificados_fk");
+        });
+
+        modelBuilder.Entity<CestNcm>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("cest_ncm_pkey");
+
+            entity.Property(e => e.Descricao).HasDefaultValueSql("''::character varying");
         });
 
         modelBuilder.Entity<Cfop>(entity =>
@@ -835,6 +845,19 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .HasConstraintName("historico_caixa_fk");
         });
 
+        modelBuilder.Entity<Ibpt>(entity =>
+        {
+            entity.HasKey(e => e.NrLanc).HasName("ibpt_pkey");
+
+            entity.Property(e => e.Aliqestadual).HasDefaultValueSql("0");
+            entity.Property(e => e.Aliqimp).HasDefaultValueSql("0");
+            entity.Property(e => e.Aliqmunicipal).HasDefaultValueSql("0");
+            entity.Property(e => e.Aliqnac).HasDefaultValueSql("0");
+            entity.Property(e => e.Descricao).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.Ex).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.Tabela).HasDefaultValueSql("''::character varying");
+        });
+
         modelBuilder.Entity<Impcabnfe>(entity =>
         {
             entity.HasKey(e => e.ChNfe).HasName("pkimpcabnfe");
@@ -980,6 +1003,11 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.Id).ValueGeneratedOnAdd();
 
             entity.HasOne(d => d.IdEmpresaNavigation).WithMany().HasConstraintName("mdfe_seguro_fk");
+        });
+
+        modelBuilder.Entity<Ncm>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("ncm_pkey");
         });
 
         modelBuilder.Entity<Older>(entity =>
