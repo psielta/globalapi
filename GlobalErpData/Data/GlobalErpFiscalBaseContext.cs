@@ -1010,6 +1010,17 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasKey(e => e.Id).HasName("ncm_pkey");
         });
 
+        modelBuilder.Entity<ObsNf>(entity =>
+        {
+            entity.HasKey(e => e.NrLanc).HasName("obs_nf_pkey");
+
+            entity.Property(e => e.TxtObs).HasDefaultValueSql("''::character varying(1)");
+
+            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.ObsNfs)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("obs_nf_fk");
+        });
+
         modelBuilder.Entity<Older>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("older_pkey");

@@ -85,6 +85,7 @@ namespace GlobalErpData.Repository
             CreateMap<Ibpt, IbptDto>().ReverseMap();
             CreateMap<Ncm, NcmDto>().ReverseMap();
             CreateMap<CestNcm,CestNcmDto>().ReverseMap();
+            CreateMap<ObsNf, ObsNfDto>().ReverseMap();
 
 
         }

@@ -97,6 +97,9 @@ public partial class Empresa : IIdentifiable<int>
     public virtual ICollection<Certificado> Certificados { get; set; } = new List<Certificado>();
     [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
+    public virtual ICollection<ObsNf> ObsNfs { get; set; } = new List<ObsNf>();
+    [JsonIgnore]
+    [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<Cliente> Clientes { get; set; } = new List<Cliente>();
     [JsonIgnore]
     [InverseProperty("CdEmpresaNavigation")]
