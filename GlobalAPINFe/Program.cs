@@ -122,6 +122,8 @@ builder.Services.AddScoped<IQueryRepository<ProdutoSaidum, int, ProdutoSaidumDto
 builder.Services.AddScoped<IQueryRepository<ContasAReceber, int, ContasAReceberDto>, ContasAReceberRepository>();
 builder.Services.AddScoped<IQueryRepositoryMultiKey<Impxml, int, string, ImpxmlDto>, ImpXmlRepository>();
 builder.Services.AddScoped<IQueryRepository<ObsNf, int, ObsNfDto>, ObsNfRepository>();
+builder.Services.AddScoped<IQueryRepository<Frete, int, FreteDto>, FreteRepository>();
+builder.Services.AddScoped<IQueryRepository<SaidasVolume, int, SaidasVolumeDto>, SaidasVolumeRepository>();
 builder.Services.AddScoped<EntradaCalculationService>();
 
 builder.Services.AddControllers();

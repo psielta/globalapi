@@ -102,4 +102,8 @@ public partial class Transportadora : IIdentifiableMultiKey<int, int>
     {
         return "CdTransportadora";
     }
+
+    [JsonIgnore]
+    [InverseProperty("Transportadora")]
+    public virtual ICollection<Frete> Fretes { get; set; } = new List<Frete>();
 }

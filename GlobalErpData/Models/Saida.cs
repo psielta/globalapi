@@ -219,4 +219,12 @@ public partial class Saida : IIdentifiable<int>
     {
         return "NrLanc";
     }
+
+    [JsonIgnore]
+    [InverseProperty("NrSaidaNavigation")]
+    public virtual ICollection<SaidasVolume> SaidasVolumes { get; set; } = new List<SaidasVolume>();
+
+    [JsonIgnore]
+    [InverseProperty("NrSaidaNavigation")]
+    public virtual ICollection<Frete> Fretes { get; set; } = new List<Frete>();
 }

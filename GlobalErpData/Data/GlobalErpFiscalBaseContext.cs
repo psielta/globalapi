@@ -821,6 +821,21 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .HasConstraintName("fk_produto");
         });
 
+        modelBuilder.Entity<Frete>(entity =>
+        {
+            entity.HasKey(e => e.NrLanc).HasName("frete_pkey");
+
+            entity.Property(e => e.Quant).HasDefaultValueSql("0");
+
+            entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.Fretes)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("frete_fk");
+
+            entity.HasOne(d => d.NrSaidaNavigation).WithMany(p => p.Fretes).HasConstraintName("frete_fk1");
+
+            entity.HasOne(d => d.Transportadora).WithMany(p => p.Fretes).HasConstraintName("frete_fk2");
+        });
+
         modelBuilder.Entity<GrupoEstoque>(entity =>
         {
             entity.HasKey(e => e.CdGrupo).HasName("grupo_estoque_pkey");
@@ -1489,6 +1504,19 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.EmpresaNavigation).WithMany(p => p.Saida)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("saidas_fk");
+        });
+
+        modelBuilder.Entity<SaidasVolume>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("saidas_volumes_pkey");
+
+            entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.SaidasVolumes)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("saidas_volumes_fk");
+
+            entity.HasOne(d => d.NrSaidaNavigation).WithMany(p => p.SaidasVolumes)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("saidas_volumes_fk1");
         });
 
         modelBuilder.Entity<SaldoEstoque>(entity =>
