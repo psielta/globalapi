@@ -503,4 +503,9 @@ public partial class ProdutoSaidum : IIdentifiable<int>
     {
         return "Nr";
     }
+
+    [JsonIgnore]
+    [ForeignKey("CdPlano")]
+    [InverseProperty("ProdutoSaida")]
+    public virtual PlanoEstoque CdPlanoNavigation { get; set; } = null!;
 }

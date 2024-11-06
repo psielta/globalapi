@@ -16,6 +16,10 @@ public partial class GlobalErpFiscalBaseContext : DbContext
     {
     }
     public virtual DbSet<Impxml> Impxmls { get; set; }
+    public virtual DbSet<Cfop> Cfops { get; set; }
+    public virtual DbSet<OrigemCst> OrigemCsts { get; set; }
+    public virtual DbSet<Csosn> Csosns { get; set; }
+    public virtual DbSet<Cst> Csts { get; set; }
     public virtual DbSet<FormaPagt> FormaPagts { get; set; }
     public virtual DbSet<ContasAPagar> ContasAPagars { get; set; }
     public virtual DbSet<HistoricoCaixa> HistoricoCaixas { get; set; }
@@ -169,6 +173,15 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .HasComment("H - Homologacao\r\nP - Producao");
 
             entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.Certificados).HasConstraintName("certificados_fk");
+        });
+
+        modelBuilder.Entity<Cfop>(entity =>
+        {
+            entity.HasKey(e => e.CdCfop).HasName("cfop_pkey");
+
+            entity.Property(e => e.DescNfe).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.Descricao).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.TipoCfop).HasDefaultValueSql("''::character varying");
         });
 
         modelBuilder.Entity<CfopImportacao>(entity =>
@@ -357,6 +370,16 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .HasPrincipalKey(p => new { p.CdEmpresa, p.CdSubPlano, p.CdPlano })
                 .HasForeignKey(d => new { d.CdEmpresa, d.CdHistoricoCaixa, d.CdPlanoCaixa })
                 .HasConstraintName("contas_a_receber_fk2");
+        });
+
+        modelBuilder.Entity<Csosn>(entity =>
+        {
+            entity.HasKey(e => e.Codigo).HasName("csosn_pkey");
+        });
+
+        modelBuilder.Entity<Cst>(entity =>
+        {
+            entity.HasKey(e => e.Codigo).HasName("cst_pkey");
         });
 
         modelBuilder.Entity<Cte>(entity =>
@@ -986,6 +1009,11 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .HasConstraintName("older_items_fk");
         });
 
+        modelBuilder.Entity<OrigemCst>(entity =>
+        {
+            entity.HasKey(e => e.Codigo).HasName("origem_cst_pkey");
+        });
+
         modelBuilder.Entity<PerfilLoja>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("perfil_loja_pkey");
@@ -1337,6 +1365,10 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.VlUnid).HasDefaultValueSql("0");
 
             entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.ProdutoSaida).HasConstraintName("produto_saida_fk1");
+
+            entity.HasOne(d => d.CdPlanoNavigation).WithMany(p => p.ProdutoSaida)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("produto_saida_fk3");
 
             entity.HasOne(d => d.NrSaidaNavigation).WithMany(p => p.ProdutoSaida).HasConstraintName("produto_saida_fk2");
 

@@ -74,6 +74,10 @@ builder.Services.AddScoped<IRepositoryDto<Cidade, string, CidadeDto>, CidadeRepo
 builder.Services.AddScoped<IRepositoryDto<Usuario, string, UsuarioDto>, UsuarioRepositoryDto>();
 builder.Services.AddScoped<IRepositoryDto<Permissao, int, PermissaoDto>, PermissaoRepositoryDto>();
 builder.Services.AddScoped<IRepositoryDto<UsuarioPermissao, int, UsuarioPermissaoDto>, UsuarioPermissaoRepositoryDto>();
+builder.Services.AddScoped<IRepositoryDto<Csosn, string, CsosnDto>, CsosnRepository>();
+builder.Services.AddScoped<IRepositoryDto<Cfop, string, CfopDto>, CfopRepository>();
+builder.Services.AddScoped<IRepositoryDto<Cst, string, CstDto>, CstRepository>();
+builder.Services.AddScoped<IRepositoryDto<OrigemCst, string, OrigemCstDto>, OrigemCstRepository>();
 builder.Services.AddScoped<IQueryRepository<ReferenciaEstoque, int, ReferenciaEstoqueDto>, ReferenciaEstoquePagedRepository>();
 builder.Services.AddScoped<IQueryRepository<GrupoEstoque, int, GrupoEstoqueDto>, GrupoEstoquePagedRepository>();
 builder.Services.AddScoped<IQueryRepository<ProdutoEstoque, int, ProdutoEstoqueDto>, ProdutoEstoquePagedRepository>();
