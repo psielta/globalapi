@@ -18,7 +18,7 @@ namespace GlobalErpData.Services
         {
             _context = context;
         }
-        public async void InserirProdutoSaidum(
+        public async Task InserirProdutoSaidum(
             InsercaoProdutoSaidumEanDto dto,
             ProdutoSaidumDto ProdutoSaidumDto, ProdutoEstoque produto, Cliente cliente)
         {
@@ -71,6 +71,22 @@ namespace GlobalErpData.Services
                 ProdutoSaidumDto.Cfop = produto.CfoFora;
                 ProdutoSaidumDto.Cst = produto.CstFora1;
                 ProdutoSaidumDto.PocIcms = produto.IcmsFora;
+            }
+        }
+
+        public async Task RealizarCalculoImpostoSaida(ProdutoSaidum produtoSaidum)
+        {
+            string ncm = produtoSaidum.Ncm ?? "";
+            Ibpt? ibpt = await _context.Ibpts.Where(i => i.Codigo.Equals(ncm)).FirstOrDefaultAsync();
+            if (ibpt == null)
+            { 
+                produtoSaidum.PorcIbpt = 0;
+                produtoSaidum.VlAproxImposto = 0;
+            }
+            else
+            { 
+                produtoSaidum.PorcIbpt = ibpt?.Aliqnac ?? 0;
+                produtoSaidum.VlAproxImposto = Math.Round(produtoSaidum.VlTotal * ((produtoSaidum.PorcIbpt ?? 0) / 100), 4);
             }
         }
     }
