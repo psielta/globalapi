@@ -17,9 +17,9 @@ namespace GlobalErpData.Repository.PagedRepositories
         {
         }
 
-        public Task<IQueryable<SaidasVolume>> GetSaidasVolumePorEmpresa(int IdEmpresa)
+        public Task<IQueryable<SaidasVolume>> GetSaidasVolumePorSaida(int nrSaida)
         {
-            return Task.FromResult(db.Set<SaidasVolume>().Where(e => e.CdEmpresa == IdEmpresa).AsQueryable());
+            return Task.FromResult(db.Set<SaidasVolume>().Where(e => e.NrSaida == nrSaida).AsQueryable());
         }
     }
 }

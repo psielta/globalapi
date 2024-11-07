@@ -68,14 +68,14 @@ namespace GlobalAPINFe.Controllers
 
         // Métodos personalizados ajustados
 
-        [HttpGet("GetSaidasVolumePorEmpresa", Name = nameof(GetSaidasVolumePorEmpresa))]
+        [HttpGet("GetSaidasVolumePorSaida", Name = nameof(GetSaidasVolumePorSaida))]
         [ProducesResponseType(typeof(PagedResponse<SaidasVolume>), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<PagedResponse<SaidasVolume>>> GetSaidasVolumePorEmpresa(int idEmpresa, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        public async Task<ActionResult<PagedResponse<SaidasVolume>>> GetSaidasVolumePorSaida(int nrSaida, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                var query = await ((SaidasVolumeRepository)repo).GetSaidasVolumePorEmpresa(idEmpresa);
+                var query = await ((SaidasVolumeRepository)repo).GetSaidasVolumePorSaida(nrSaida);
                 if (query == null)
                 {
                     return NotFound("Entities not found."); // 404 Resource not found
@@ -97,14 +97,14 @@ namespace GlobalAPINFe.Controllers
             }
         }
 
-        [HttpGet("GetAllSaidasVolumePorEmpresa/{idEmpresa}", Name = nameof(GetAllSaidasVolumePorEmpresa))]
+        [HttpGet("GetAllSaidasVolumePorSaida/{nrSaida}", Name = nameof(GetAllSaidasVolumePorSaida))]
         [ProducesResponseType(typeof(IEnumerable<SaidasVolume>), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<IEnumerable<SaidasVolume>>> GetAllSaidasVolumePorEmpresa(int idEmpresa)
+        public async Task<ActionResult<IEnumerable<SaidasVolume>>> GetAllSaidasVolumePorSaida(int nrSaida)
         {
             try
             {
-                var entitysFilterByEmpresa = await ((SaidasVolumeRepository)repo).GetSaidasVolumePorEmpresa(idEmpresa);
+                var entitysFilterByEmpresa = await ((SaidasVolumeRepository)repo).GetSaidasVolumePorSaida(nrSaida);
 
                 if (entitysFilterByEmpresa == null)
                 {

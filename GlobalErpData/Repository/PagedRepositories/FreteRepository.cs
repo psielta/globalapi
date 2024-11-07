@@ -16,9 +16,9 @@ namespace GlobalErpData.Repository.PagedRepositories
         public FreteRepository(GlobalErpFiscalBaseContext injectedContext, IMapper mapper, ILogger<GenericRepositoryDto<Frete, GlobalErpFiscalBaseContext, int, FreteDto>> logger) : base(injectedContext, mapper, logger)
         { }
 
-        public Task<IQueryable<Frete>> GetFretePorEmpresa(int IdEmpresa)
+        public Task<IQueryable<Frete>> GetFretePorSaida(int nrSaida)
         {
-            return Task.FromResult(db.Set<Frete>().Where(e => e.CdEmpresa == IdEmpresa).AsQueryable());
+            return Task.FromResult(db.Set<Frete>().Where(e => e.NrSaida == nrSaida).AsQueryable());
         }
     }
 }

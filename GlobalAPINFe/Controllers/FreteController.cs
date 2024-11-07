@@ -67,14 +67,14 @@ namespace GlobalAPINFe.Controllers
 
         // Métodos personalizados ajustados
 
-        [HttpGet("GetFretePorEmpresa", Name = nameof(GetFretePorEmpresa))]
+        [HttpGet("GetFretePorSaida", Name = nameof(GetFretePorSaida))]
         [ProducesResponseType(typeof(PagedResponse<Frete>), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<PagedResponse<Frete>>> GetFretePorEmpresa(int idEmpresa, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        public async Task<ActionResult<PagedResponse<Frete>>> GetFretePorSaida(int nrSaida, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                var query = await ((FreteRepository)repo).GetFretePorEmpresa(idEmpresa);
+                var query = await ((FreteRepository)repo).GetFretePorSaida(nrSaida);
                 if (query == null)
                 {
                     return NotFound("Entities not found."); // 404 Resource not found
@@ -96,14 +96,14 @@ namespace GlobalAPINFe.Controllers
             }
         }
 
-        [HttpGet("GetAllFretePorEmpresa/{idEmpresa}", Name = nameof(GetAllFretePorEmpresa))]
+        [HttpGet("GetAllFretePorSaida/{nrSaida}", Name = nameof(GetAllFretePorSaida))]
         [ProducesResponseType(typeof(IEnumerable<Frete>), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<IEnumerable<Frete>>> GetAllFretePorEmpresa(int idEmpresa)
+        public async Task<ActionResult<IEnumerable<Frete>>> GetAllFretePorSaida(int nrSaida)
         {
             try
             {
-                var entitysFilterByEmpresa = await ((FreteRepository)repo).GetFretePorEmpresa(idEmpresa);
+                var entitysFilterByEmpresa = await ((FreteRepository)repo).GetFretePorSaida(nrSaida);
 
                 if (entitysFilterByEmpresa == null)
                 {
