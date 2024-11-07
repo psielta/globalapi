@@ -181,6 +181,10 @@ public partial class Saida : IIdentifiable<int>
     [Column("cd_grupo_estoque")]
     public int CdGrupoEstoque { get; set; }
 
+    [Column("vl_seguro")]
+    [Precision(18, 4)]
+    public decimal? VlSeguro { get; set; }
+
     [JsonIgnore]
     [ForeignKey("CdGrupoEstoque")]
     [InverseProperty("Saida")]

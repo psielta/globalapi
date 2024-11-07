@@ -1,0 +1,77 @@
+﻿using GlobalErpData.Data;
+using GlobalErpData.Dto;
+using GlobalErpData.Models;
+using GlobalLib.Utils;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace GlobalErpData.Services
+{
+    public class ProdutoSaidumService
+    {
+        private readonly GlobalErpFiscalBaseContext _context;
+        public ProdutoSaidumService(GlobalErpFiscalBaseContext context)
+        {
+            _context = context;
+        }
+        public async void InserirProdutoSaidum(
+            InsercaoProdutoSaidumEanDto dto,
+            ProdutoSaidumDto ProdutoSaidumDto, ProdutoEstoque produto, Cliente cliente)
+        {
+            ProdutoSaidumDto.NrSaida = dto.NrSaida;
+            ProdutoSaidumDto.CdEmpresa = dto.CdEmpresa ?? 0;
+            ProdutoSaidumDto.CdProduto = produto.CdProduto;
+            ProdutoSaidumDto.NmProduto = produto.NmProduto;
+            ProdutoSaidumDto.Lote = "-1";
+            ProdutoSaidumDto.Desconto = 0;
+            ProdutoSaidumDto.DtValidade = DateUtils.DateTimeToDateOnly(DateTime.Now);
+            ProdutoSaidumDto.Quant = dto.Quant;
+            ProdutoSaidumDto.CdPlano = dto.CdPlano;
+            ProdutoSaidumDto.VlVenda = Math.Round(produto.VlAVista ?? 0, 4);
+            ProdutoSaidumDto.VlTotal = Math.Round(ProdutoSaidumDto.Quant * ProdutoSaidumDto.VlVenda, 4);
+            ProdutoSaidumDto.Cest = produto.Cest;
+            ProdutoSaidumDto.CstPis = produto.CstPis;
+            ProdutoSaidumDto.CstCofins = produto.CstCofins;
+            ProdutoSaidumDto.PorcPis = produto.TaxaPis;
+            ProdutoSaidumDto.PorcCofins = produto.TaxaCofins;
+            ProdutoSaidumDto.Un = produto.CdUni;
+            ProdutoSaidumDto.Ncm = produto.CdClassFiscal;
+            ProdutoSaidumDto.CdCsosn = produto.CdCsosn;
+
+            if (cliente.CdCidadeNavigation == null)
+            {
+                Cidade? cidade = await _context.Cidades.FindAsync(cliente.CdCidade);
+                if (cidade == null)
+                {
+                    throw new Exception("Cidade não encontrada");
+                }
+                cliente.CdCidadeNavigation = cidade;
+            }
+
+            Empresa? empresa = await _context.Empresas
+                .Include(e => e.CdCidadeNavigation)
+                .Where(e => e.CdEmpresa == dto.CdEmpresa).FirstOrDefaultAsync();
+            if (empresa == null)
+            {
+                throw new Exception("Empresa não encontrada");
+            }
+
+            if (cliente.CdCidadeNavigation.Uf.Equals(empresa.CdCidadeNavigation.Uf))
+            {
+                ProdutoSaidumDto.Cfop = produto.CfoDentro;
+                ProdutoSaidumDto.Cst = produto.CstDentro1;
+                ProdutoSaidumDto.PocIcms = produto.IcmsDentro;
+            }
+            else
+            {
+                ProdutoSaidumDto.Cfop = produto.CfoFora;
+                ProdutoSaidumDto.Cst = produto.CstFora1;
+                ProdutoSaidumDto.PocIcms = produto.IcmsFora;
+            }
+        }
+    }
+}

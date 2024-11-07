@@ -1491,6 +1491,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.TxtObsNf).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.VlDescGlobal).HasDefaultValueSql("0");
             entity.Property(e => e.VlOutro).HasDefaultValueSql("0");
+            entity.Property(e => e.VlSeguro).HasDefaultValueSql("0");
             entity.Property(e => e.XmNf).HasDefaultValueSql("''::text");
 
             entity.HasOne(d => d.CdGrupoEstoqueNavigation).WithMany(p => p.Saida)
