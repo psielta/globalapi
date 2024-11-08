@@ -21,7 +21,7 @@ public partial class Usuario : IIdentifiable<string>
     public string NmUsuario { get; set; } = null!;
 
     [Column("cd_senha")]
-    [StringLength(10)]
+    [StringLength(16384)]
     public string CdSenha { get; set; } = null!;
 
     [Column("nm_pessoa")]
@@ -37,6 +37,27 @@ public partial class Usuario : IIdentifiable<string>
 
     [Column("admin")]
     public bool? Admin { get; set; }
+
+    [Column("email")]
+    [StringLength(512)]
+    public string? Email { get; set; }
+
+    [Column("nm_usuario_normalized")]
+    [StringLength(62)]
+    public string NmUsuarioNormalized { get; set; }
+
+    [Column("email_normalized")]
+    [StringLength(512)]
+    public string EmailNormalized { get; set; }
+
+    [Column("email_confirmed")]
+    public bool EmailConfirmed { get; set; }
+
+    [Column("security_stamp")]
+    public string SecurityStamp { get; set; }
+
+    [NotMapped]
+    public bool NeedPasswordHashUpdate { get; set; } = false;
 
     [JsonIgnore]
     [ForeignKey("CdEmpresa")]

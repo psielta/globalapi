@@ -20,6 +20,8 @@ using GlobalAPINFe.SwaggerUtils;
 using GlobalErpData.Services;
 using System;
 using GlobalAPINFe.Lib;
+using GlobalAPINFe.Identity;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -126,7 +128,23 @@ builder.Services.AddScoped<IQueryRepository<Frete, int, FreteDto>, FreteReposito
 builder.Services.AddScoped<IQueryRepository<SaidasVolume, int, SaidasVolumeDto>, SaidasVolumeRepository>();
 builder.Services.AddScoped<EntradaCalculationService>();
 builder.Services.AddTransient<EmailService>();
+builder.Services.AddScoped<IUserStore<Usuario>, CustomUserStore>();
+//builder.Services.AddScoped<IPasswordHasher<Usuario>, PasswordHasher<Usuario>>();
+builder.Services.AddScoped<IPasswordHasher<Usuario>, CustomPasswordHasher>();
+builder.Services.AddIdentityCore<Usuario>(options =>
+{
+    // Configurações de senha
+    options.Password.RequireDigit = false;
+    options.Password.RequiredLength = 6;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireLowercase = false;
+})
+.AddSignInManager<SignInManager<Usuario>>() // Adicionado para registrar o SignInManager
+.AddUserStore<CustomUserStore>()
+.AddDefaultTokenProviders();
 
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
