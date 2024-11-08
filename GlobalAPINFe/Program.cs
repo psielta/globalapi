@@ -125,6 +125,7 @@ builder.Services.AddScoped<IQueryRepository<ObsNf, int, ObsNfDto>, ObsNfReposito
 builder.Services.AddScoped<IQueryRepository<Frete, int, FreteDto>, FreteRepository>();
 builder.Services.AddScoped<IQueryRepository<SaidasVolume, int, SaidasVolumeDto>, SaidasVolumeRepository>();
 builder.Services.AddScoped<EntradaCalculationService>();
+builder.Services.AddTransient<EmailService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -162,5 +163,7 @@ using (var scope = app.Services.CreateScope())
         logger.LogError(ex, "Ocorreu um erro ao inicializar o banco de dados.");
     }
 }
+
+
 
 app.Run();
