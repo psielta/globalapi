@@ -20,8 +20,8 @@ using GlobalAPINFe.SwaggerUtils;
 using GlobalErpData.Services;
 using System;
 using GlobalAPINFe.Lib;
-using GlobalAPINFe.Identity;
 using Microsoft.AspNetCore.Identity;
+using GlobalErpData.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -127,6 +127,8 @@ builder.Services.AddScoped<IQueryRepository<ObsNf, int, ObsNfDto>, ObsNfReposito
 builder.Services.AddScoped<IQueryRepository<Frete, int, FreteDto>, FreteRepository>();
 builder.Services.AddScoped<IQueryRepository<SaidasVolume, int, SaidasVolumeDto>, SaidasVolumeRepository>();
 builder.Services.AddScoped<EntradaCalculationService>();
+
+
 builder.Services.AddTransient<EmailService>();
 builder.Services.AddScoped<IUserStore<Usuario>, CustomUserStore>();
 //builder.Services.AddScoped<IPasswordHasher<Usuario>, PasswordHasher<Usuario>>();
@@ -143,8 +145,8 @@ builder.Services.AddIdentityCore<Usuario>(options =>
 .AddSignInManager<SignInManager<Usuario>>() // Adicionado para registrar o SignInManager
 .AddUserStore<CustomUserStore>()
 .AddDefaultTokenProviders();
-
 builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>

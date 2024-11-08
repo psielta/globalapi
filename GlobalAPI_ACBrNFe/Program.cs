@@ -13,6 +13,8 @@ using GlobalErpData.Repository;
 using GlobalAPI_ACBrNFe.Lib.ACBr.Web;
 using GlobalAPI_ACBrNFe.Lib;
 using GlobalErpData.Services;
+using GlobalErpData.Identity;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -87,6 +89,24 @@ builder.Services.AddScoped<IQueryRepository<PlanoEstoque, int, PlanoEstoqueDto>,
 builder.Services.AddScoped<IQueryRepositoryNoCache<SaldoEstoque, int, SaldoEstoqueDto>, SaldoEstoquePagedRepository>();
 builder.Services.AddScoped<IQueryRepository<CfopImportacao, int, CfopImportacaoDto>, CfopImportacaoPagedRepository>();
 builder.Services.AddScoped<EntradaCalculationService>();
+
+builder.Services.AddTransient<EmailService>();
+builder.Services.AddScoped<IUserStore<Usuario>, CustomUserStore>();
+//builder.Services.AddScoped<IPasswordHasher<Usuario>, PasswordHasher<Usuario>>();
+builder.Services.AddScoped<IPasswordHasher<Usuario>, CustomPasswordHasher>();
+builder.Services.AddIdentityCore<Usuario>(options =>
+{
+    // Configurações de senha
+    options.Password.RequireDigit = false;
+    options.Password.RequiredLength = 6;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireLowercase = false;
+})
+.AddSignInManager<SignInManager<Usuario>>() // Adicionado para registrar o SignInManager
+.AddUserStore<CustomUserStore>()
+.AddDefaultTokenProviders();
+builder.Services.AddHttpContextAccessor();
 
 //builder.Services.AddScoped<IRepository<TblAccessToken>, TblAccessTokenRepository>();
 //builder.Services.AddHostedService<AtualizarTokenService>();

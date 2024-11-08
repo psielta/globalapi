@@ -2,10 +2,13 @@
 using GlobalErpData.Models;
 using GlobalErpData.Repository;
 using GlobalErpData.Repository.Repositories;
+using GlobalErpData.Services;
 using GlobalLib.Database;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 
 namespace GlobalAPI_ACBrNFe.Controllers
@@ -15,22 +18,29 @@ namespace GlobalAPI_ACBrNFe.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IConfiguration _configuration;
-        private readonly IRepositoryDto<Usuario, string, UsuarioDto> repositoryUsuario;
+        private readonly UserManager<Usuario> _userManager;
+        private readonly SignInManager<Usuario> _signInManager;
         private readonly IRepositoryDto<Empresa, int, EmpresaDto> repositoryEmpresa;
         private readonly IRepositoryDto<Permissao, int, PermissaoDto> repositoryPermissao;
         private readonly IRepositoryDto<UsuarioPermissao, int, UsuarioPermissaoDto> repositoryUsuarioPermissao;
+        private readonly EmailService _emailService;
 
-        public AuthController(IConfiguration configuration,
-            IRepositoryDto<Usuario, string, UsuarioDto> repositoryUsuario,
+        public AuthController(
+            IConfiguration configuration,
+            UserManager<Usuario> userManager,
+            SignInManager<Usuario> signInManager,
             IRepositoryDto<Empresa, int, EmpresaDto> repositoryEmpresa,
             IRepositoryDto<Permissao, int, PermissaoDto> repositoryPermissao,
-            IRepositoryDto<UsuarioPermissao, int, UsuarioPermissaoDto> repositoryUsuarioPermissao)
+            IRepositoryDto<UsuarioPermissao, int, UsuarioPermissaoDto> repositoryUsuarioPermissao,
+            EmailService emailService)
         {
             _configuration = configuration;
-            this.repositoryUsuario = repositoryUsuario;
+            _userManager = userManager;
+            _signInManager = signInManager;
             this.repositoryEmpresa = repositoryEmpresa;
             this.repositoryPermissao = repositoryPermissao;
             this.repositoryUsuarioPermissao = repositoryUsuarioPermissao;
+            _emailService = emailService;
         }
 
         [HttpPost("login")]
@@ -49,59 +59,83 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 return BadRequest("Invalid client request");
             }
 
-            IEnumerable<Usuario> usuarios = await repositoryUsuario.RetrieveAllAsync();
-
-            if (usuarios == null || usuarios.Count() == 0)
-            {
-                return NotFound();
-            }
-
-            Usuario usuario = usuarios.FirstOrDefault(u => u.NmUsuario == user.Username && u.CdSenha == user.Password, null);
+            // Buscar o usuário pelo e-mail ou nome de usuário
+            var usuario = await _userManager.FindByEmailAsync(user.Username) ?? await _userManager.FindByNameAsync(user.Username);
             if (usuario == null)
             {
                 return NotFound();
             }
-            if (!usuario.Ativo.Equals("S"))
+
+            // Verificar se o usuário está ativo
+            if (usuario.Ativo != "S")
             {
                 return Unauthorized();
             }
 
-            Empresa empresa = await repositoryEmpresa.RetrieveAsync(usuario.CdEmpresa);
+            // Verificar a senha
+            var result = await _signInManager.CheckPasswordSignInAsync(usuario, user.Password, false);
+            if (!result.Succeeded)
+            {
+                return Unauthorized();
+            }
+
+            // Atualizar a senha se necessário
+            if (usuario.NeedPasswordHashUpdate)
+            {
+                var updateResult = await _userManager.UpdateAsync(usuario);
+                if (!updateResult.Succeeded)
+                {
+                    return StatusCode(500, "Erro ao atualizar a senha do usuário.");
+                }
+                usuario.NeedPasswordHashUpdate = false;
+            }
+
+            // Buscar empresa
+            var empresa = await repositoryEmpresa.RetrieveAsync(usuario.CdEmpresa);
             if (empresa == null)
             {
                 return NotFound();
             }
 
-            /*if (!empresa.Ativa)
-            {
-                return Unauthorized();
-            }*/
+            // Buscar permissões
             var permissoes = await repositoryPermissao.RetrieveAllAsync();
             var permissoesUsuario = await ((UsuarioPermissaoRepositoryDto)repositoryUsuarioPermissao).RetrieveAllAsyncPerUser(usuario.NmUsuario);
-
 
             var token = GenerateJwtToken(usuario, empresa, permissoes, permissoesUsuario);
             return Ok(new { token });
         }
 
-        private ResponseLogin GenerateJwtToken(Usuario usuario, Empresa empresa,
+
+        private ResponseLogin GenerateJwtToken(
+            Usuario usuario,
+            Empresa empresa,
             IEnumerable<Permissao> permissoes,
-            IEnumerable<UsuarioPermissao> permissoesUsuario
-            )
+            IEnumerable<UsuarioPermissao> permissoesUsuario)
         {
-            var y = _configuration["Jwt:Issuer"];
-            var x = _configuration["Jwt:Audience"];
-            var z = _configuration["Jwt:Key"];
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+            var claims = new List<Claim>
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, usuario.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
+                new Claim(ClaimTypes.Name, usuario.NmUsuario),
+                new Claim(ClaimTypes.Email, usuario.Email ?? string.Empty)
+            };
+
+            // Adicionar outras claims se necessário
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var expiracao = DateTime.Now.AddHours(24);
-            var token = new JwtSecurityToken(_configuration["Jwt:Issuer"],
-                _configuration["Jwt:Audience"],
-                null,
+
+            var token = new JwtSecurityToken(
+                issuer: _configuration["Jwt:Issuer"],
+                audience: _configuration["Jwt:Audience"],
+                claims: claims,
                 expires: expiracao,
-                signingCredentials: credentials);
+                signingCredentials: creds);
 
             string jwt = new JwtSecurityTokenHandler().WriteToken(token);
+
             return new ResponseLogin
             {
                 Token = jwt,
@@ -111,7 +145,6 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 Username = usuario.NmUsuario,
                 Permissoes = permissoes,
                 PermissoesUsuario = permissoesUsuario
-
             };
         }
     }

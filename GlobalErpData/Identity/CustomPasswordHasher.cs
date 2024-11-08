@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using System;
 
-namespace GlobalAPINFe.Identity
+namespace GlobalErpData.Identity
 {
     
 
