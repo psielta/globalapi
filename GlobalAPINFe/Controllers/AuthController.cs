@@ -161,8 +161,7 @@ namespace GlobalAPIDominio.Controllers
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null)
             {
-                // Não revelar que o usuário não existe
-                return Ok("Se uma conta correspondente for encontrada, um e-mail de redefinição de senha será enviado.");
+                return NotFound();
             }
 
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
@@ -186,8 +185,9 @@ namespace GlobalAPIDominio.Controllers
                 placeholders
             );
 
-            return Ok("Se uma conta correspondente for encontrada, um e-mail de redefinição de senha será enviado.");
+            return Ok("E-mail de redefinição de senha enviado.");
         }
+
         [HttpPost("reset-password")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]

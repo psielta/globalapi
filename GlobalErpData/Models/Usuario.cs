@@ -40,21 +40,22 @@ public partial class Usuario : IIdentifiable<string>
 
     [Column("email")]
     [StringLength(512)]
-    public string? Email { get; set; }
+    public string Email { get; set; } = null!;
 
     [Column("nm_usuario_normalized")]
     [StringLength(62)]
-    public string NmUsuarioNormalized { get; set; }
+    public string NmUsuarioNormalized { get; set; } = null!;
 
     [Column("email_normalized")]
     [StringLength(512)]
-    public string EmailNormalized { get; set; }
+    public string EmailNormalized { get; set; } = null!;
 
     [Column("email_confirmed")]
     public bool EmailConfirmed { get; set; }
 
     [Column("security_stamp")]
-    public string SecurityStamp { get; set; }
+    [StringLength(1024)]
+    public string SecurityStamp { get; set; } = null!;
 
     [NotMapped]
     public bool NeedPasswordHashUpdate { get; set; } = false;
@@ -67,19 +68,19 @@ public partial class Usuario : IIdentifiable<string>
     [JsonIgnore]
     [InverseProperty("IdUsuarioCadNavigation")]
     public virtual ICollection<Cliente> Clientes { get; set; } = new List<Cliente>();
-    
-    [JsonIgnore]
-    [InverseProperty("IdUsuarioNavigation")]
-    public virtual ICollection<UsuarioPermissao> UsuarioPermissaos { get; set; } = new List<UsuarioPermissao>();
 
     [JsonIgnore]
     [InverseProperty("IdUsuarioNavigation")]
     public virtual ICollection<ConfiguracoesUsuario> ConfiguracoesUsuarios { get; set; } = new List<ConfiguracoesUsuario>();
-    
+
+    [JsonIgnore]
+    [InverseProperty("IdUsuarioNavigation")]
+    public virtual ICollection<UsuarioPermissao> UsuarioPermissaos { get; set; } = new List<UsuarioPermissao>();
+
     [GraphQLIgnore]
     public string GetId()
     {
-        return this.NmUsuario;
+        return NmUsuario;
     }
 
     [GraphQLIgnore]
@@ -88,3 +89,4 @@ public partial class Usuario : IIdentifiable<string>
         return "NmUsuario";
     }
 }
+

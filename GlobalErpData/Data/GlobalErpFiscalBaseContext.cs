@@ -1589,11 +1589,6 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         {
             entity.HasKey(e => e.NmUsuario).HasName("usuario_pkey");
 
-            entity.Property(e => e.NmUsuarioNormalized).HasColumnName("nm_usuario_normalized");
-            entity.Property(e => e.EmailNormalized).HasColumnName("email_normalized");
-            entity.Property(e => e.EmailConfirmed).HasColumnName("email_confirmed");
-            entity.Property(e => e.SecurityStamp).HasColumnName("security_stamp");
-
             entity.Property(e => e.Ativo).HasDefaultValueSql("'S'::character varying");
             entity.Property(e => e.Id).ValueGeneratedOnAdd();
 
