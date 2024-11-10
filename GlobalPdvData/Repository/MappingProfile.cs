@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using GlobalPdvData.Dto;
+using GlobalPdvData.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +18,12 @@ namespace GlobalPdvData.Repository
                CreateMap<MyDto, MyEntity>();
                // Add other mappings here
              */
+
+            CreateMap<UsuarioDto, Usuario>().ReverseMap();
+            CreateMap<EmpresaDto, Empresa>().ReverseMap();
+            CreateMap<UsuarioPermissaoDto, UsuarioPermissao>().ReverseMap();
+            CreateMap<PermissaoDto, Permissao>().ReverseMap();
+            CreateMap<CidadeDto, Cidade>().ReverseMap();
         }
     }
 }

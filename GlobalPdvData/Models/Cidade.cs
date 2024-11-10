@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using GlobalLib.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace GlobalPdvData.Models;
 
 [Table("cidade")]
-public partial class Cidade
+public partial class Cidade : IIdentifiable<string>
 {
     [Key]
     [Column("cd_cidade")]
@@ -26,4 +27,16 @@ public partial class Cidade
     [JsonIgnore]
     [InverseProperty("CdCidadeNavigation")]
     public virtual ICollection<Empresa> Empresas { get; set; } = new List<Empresa>();
+
+    [GraphQLIgnore]
+    public string GetId()
+    {
+        return this.CdCidade;
+    }
+
+    [GraphQLIgnore]
+    public string GetKeyName()
+    {
+        return "CdCidade";
+    }
 }

@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using GlobalLib.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace GlobalPdvData.Models;
 
 [Table("usuario")]
 [Index("Id", Name = "usuario_id_key", IsUnique = true)]
-public partial class Usuario
+public partial class Usuario : IIdentifiable<string>
 {
     [Column("id")]
     public int Id { get; set; }
@@ -63,4 +64,21 @@ public partial class Usuario
 
     [NotMapped]
     public bool NeedPasswordHashUpdate { get; set; } = false;
+
+    [JsonIgnore]
+    [InverseProperty("IdUsuarioNavigation")]
+    public virtual ICollection<UsuarioPermissao> UsuarioPermissaos { get; set; } = new List<UsuarioPermissao>();
+
+    [GraphQLIgnore]
+    public string GetId()
+    {
+        return NmUsuario;
+    }
+
+    [GraphQLIgnore]
+    public string GetKeyName()
+    {
+        return "NmUsuario";
+    }
+
 }

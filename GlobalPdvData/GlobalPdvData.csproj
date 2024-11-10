@@ -39,7 +39,8 @@
 	  <ProjectReference Include="..\GlobalLib\GlobalLib.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-	  <Folder Include="Dto\" />
+	  <Folder Include="Repository\PagedRepositoriesMultiKey\" />
+	  <Folder Include="Repository\PagedRepositories\" />
 	</ItemGroup>
 
 </Project>

@@ -22,6 +22,8 @@ public partial class GlobalErpPdvV1Context : DbContext
     public virtual DbSet<Empresa> Empresas { get; set; }
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
+    public virtual DbSet<UsuarioPermissao> UsuarioPermissaos { get; set; }
+    public virtual DbSet<Permissao> Permissaos { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -61,6 +63,13 @@ public partial class GlobalErpPdvV1Context : DbContext
                 .HasConstraintName("empresa_fk");
         });
 
+        modelBuilder.Entity<Permissao>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("permissao_pkey");
+
+            entity.Property(e => e.Descricao).HasDefaultValueSql("''::character varying");
+        });
+
         modelBuilder.Entity<Usuario>(entity =>
         {
             entity.HasKey(e => e.NmUsuario).HasName("usuario_pkey");
@@ -69,6 +78,19 @@ public partial class GlobalErpPdvV1Context : DbContext
             entity.Property(e => e.Id).ValueGeneratedOnAdd();
 
             entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.Usuarios).HasConstraintName("usuario_fk");
+        });
+
+        modelBuilder.Entity<UsuarioPermissao>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("usuario_permissao_pkey");
+
+            entity.HasOne(d => d.IdPermissaoNavigation).WithMany(p => p.UsuarioPermissaos)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("usuario_permissao_fk1");
+
+            entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.UsuarioPermissaos)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("usuario_permissao_fk");
         });
 
         OnModelCreatingPartial(modelBuilder);

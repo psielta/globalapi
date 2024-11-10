@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using GlobalLib.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace GlobalPdvData.Models;
 
 [Table("empresa")]
-public partial class Empresa
+public partial class Empresa : IIdentifiable<int>
 {
     [Key]
     [Column("cd_empresa")]
@@ -96,4 +97,16 @@ public partial class Empresa
     [JsonIgnore]
     [InverseProperty("CdEmpresaNavigation")]
     public virtual ICollection<Usuario> Usuarios { get; set; } = new List<Usuario>();
+
+    [GraphQLIgnore]
+    public string GetKeyName()
+    {
+        return "CdEmpresa";
+    }
+
+    [GraphQLIgnore]
+    public int GetId()
+    {
+        return this.CdEmpresa;
+    }
 }
