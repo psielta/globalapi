@@ -1,4 +1,5 @@
 ﻿using GlobalLib.Database;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
@@ -7,24 +8,31 @@ using X.PagedList;
 using System;
 using System.Linq;
 using X.PagedList.EF;
-using GlobalErpData.Repository;
-using GlobalErpData.Dto;
+using GlobalLib.Repository;
+using GlobalLib.Dto;
 
-namespace GlobalErpData.GenericControllers
+namespace GlobalLib.GenericControllers
 {
+    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public abstract class GenericPagedControllerNoCache<TEntity, TKey, TDto> : Controller where TEntity : class, IIdentifiable<TKey>
+    public abstract class GenericPagedController<TEntity, TKey, TDto> : Controller where TEntity : class, IIdentifiable<TKey>
     {
-        protected readonly IQueryRepositoryNoCache<TEntity, TKey, TDto> repo;
-        protected readonly ILogger<GenericPagedControllerNoCache<TEntity, TKey, TDto>> logger;
+        protected readonly IQueryRepository<TEntity, TKey, TDto> repo;
+        protected readonly ILogger<GenericPagedController<TEntity, TKey, TDto>> logger;
 
-        public GenericPagedControllerNoCache(IQueryRepositoryNoCache<TEntity, TKey, TDto> repo, ILogger<GenericPagedControllerNoCache<TEntity, TKey, TDto>> logger)
+        public GenericPagedController(IQueryRepository<TEntity, TKey, TDto> repo, ILogger<GenericPagedController<TEntity, TKey, TDto>> logger)
         {
             this.repo = repo;
             this.logger = logger;
         }
 
+        /// <summary>
+        /// Retrieves a paginated list of entities.
+        /// </summary>
+        /// <param name="pageNumber">The page number (default is 1).</param>
+        /// <param name="pageSize">The page size (default is 10).</param>
+        /// <returns>A paginated list of entities.</returns>
         [HttpGet]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
@@ -38,9 +46,9 @@ namespace GlobalErpData.GenericControllers
 
                 if (response.Items == null || response.Items.Count == 0)
                 {
-                    return NotFound("Entities not found.");
+                    return NotFound("Entities not found."); // 404 Resource not found
                 }
-                return Ok(response);
+                return Ok(response); // 200 OK
             }
             catch (Exception ex)
             {
@@ -49,6 +57,11 @@ namespace GlobalErpData.GenericControllers
             }
         }
 
+        /// <summary>
+        /// Retrieves a single entity by its ID.
+        /// </summary>
+        /// <param name="id">The ID of the entity.</param>
+        /// <returns>The requested entity.</returns>
         [HttpGet("{id}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
@@ -59,9 +72,9 @@ namespace GlobalErpData.GenericControllers
                 TEntity? entity = await repo.RetrieveAsync(id);
                 if (entity == null)
                 {
-                    return NotFound($"Entity with ID {id} not found.");
+                    return NotFound($"Entity with ID {id} not found."); // 404 Resource not found
                 }
-                return Ok(entity);
+                return Ok(entity); // 200 OK
             }
             catch (Exception ex)
             {
@@ -70,6 +83,11 @@ namespace GlobalErpData.GenericControllers
             }
         }
 
+        /// <summary>
+        /// Creates a new entity.
+        /// </summary>
+        /// <param name="dto">The data transfer object representing the new entity.</param>
+        /// <returns>The created entity.</returns>
         [HttpPost]
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
@@ -79,7 +97,7 @@ namespace GlobalErpData.GenericControllers
             {
                 if (dto == null)
                 {
-                    return BadRequest("Invalid data provided.");
+                    return BadRequest("Invalid data provided."); // 400 Bad request
                 }
                 TEntity? added = await repo.CreateAsync(dto);
                 if (added == null)
@@ -88,7 +106,7 @@ namespace GlobalErpData.GenericControllers
                 }
                 else
                 {
-                    return CreatedAtAction(
+                    return CreatedAtAction( // 201 Created
                       nameof(GetEntity),
                       new { id = added.GetId() },
                       added);
@@ -101,6 +119,12 @@ namespace GlobalErpData.GenericControllers
             }
         }
 
+        /// <summary>
+        /// Updates an existing entity.
+        /// </summary>
+        /// <param name="id">The ID of the entity to update.</param>
+        /// <param name="dto">The data transfer object containing updated data.</param>
+        /// <returns>The updated entity.</returns>
         [HttpPut("{id}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
@@ -111,19 +135,18 @@ namespace GlobalErpData.GenericControllers
             {
                 if (dto == null)
                 {
-                    return BadRequest("Invalid data provided.");
+                    return BadRequest("Invalid data provided."); // 400 Bad request
                 }
-                //TEntity? existing = await repo.RetrieveAsync(id);
-                //if (existing == null)
-                //{
-                //    return NotFound($"Entity with ID {id} not found.");
-                //}
-                TEntity? updated = await repo.UpdateAsync(id, dto);
-                if (updated == null)
+                TEntity? existing = await repo.RetrieveAsync(id);
+                if (existing == null)
                 {
-                    return BadRequest("Failed to update the entity.");
+                    return NotFound($"Entity with ID {id} not found."); // 404 Resource not found
                 }
-                return Ok(updated);
+                await repo.UpdateAsync(id, dto);
+
+                // Retrieve the updated entity
+                TEntity updated = await repo.RetrieveAsync(id);
+                return Ok(updated); // 200 OK with updated object
             }
             catch (Exception ex)
             {
@@ -132,6 +155,11 @@ namespace GlobalErpData.GenericControllers
             }
         }
 
+        /// <summary>
+        /// Deletes an entity by its ID.
+        /// </summary>
+        /// <param name="id">The ID of the entity to delete.</param>
+        /// <returns>No content.</returns>
         [HttpDelete("{id}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
@@ -143,16 +171,17 @@ namespace GlobalErpData.GenericControllers
                 TEntity? existing = await repo.RetrieveAsync(id);
                 if (existing == null)
                 {
-                    return NotFound($"Entity with ID {id} not found.");
+                    return NotFound($"Entity with ID {id} not found."); // 404 Resource not found
                 }
                 bool? deleted = await repo.DeleteAsync(id);
-                if (deleted.HasValue && deleted.Value)
+                if (deleted.HasValue && deleted.Value) // short circuit AND
                 {
-                    return NoContent();
+                    return NoContent(); // 204 No content
                 }
                 else
                 {
-                    return BadRequest($"Entity with ID {id} was found but failed to delete.");
+                    return BadRequest( // 400 Bad request
+                      $"Entity with ID {id} was found but failed to delete.");
                 }
             }
             catch (Exception ex)
@@ -171,23 +200,24 @@ namespace GlobalErpData.GenericControllers
             {
                 if (dtos == null || !dtos.Any())
                 {
-                    return BadRequest("Invalid data provided.");
+                    return BadRequest("Dados inválidos fornecidos."); // 400 Bad Request
                 }
 
                 var entities = await repo.CreateBulkAsync(dtos);
 
                 if (entities == null)
                 {
-                    return BadRequest("Failed to create the entities.");
+                    return BadRequest("Falha ao criar as entidades.");
                 }
 
-                return StatusCode(201, entities);
+                return StatusCode(201, entities); // 201 Created
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error occurred while creating entities in bulk.");
-                return StatusCode(500, "An error occurred while creating the entities.");
+                logger.LogError(ex, "Erro ao criar entidades em lote.");
+                return StatusCode(500, "Ocorreu um erro ao criar as entidades.");
             }
         }
+
     }
 }

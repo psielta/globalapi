@@ -1,7 +1,8 @@
 ﻿using AutoMapper;
 using FastReport.Export.PdfSimple;
 using GlobalErpData.Dto;
-using GlobalErpData.GenericControllers;
+using GlobalLib.GenericControllers;
+using GlobalLib.Repository;
 using GlobalErpData.Models;
 using GlobalErpData.Repository;
 using GlobalErpData.Repository.PagedRepositories;
@@ -13,6 +14,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using X.PagedList.Extensions;
+using GlobalLib.Dto;
 
 namespace GlobalAPINFe.Controllers
 {

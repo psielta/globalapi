@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace GlobalErpData.Repository
+namespace GlobalLib.Repository
 {
     public abstract class GenericPagedRepositoryNoCache<TEntity, TContext, TKey, TDto> : IQueryRepositoryNoCache<TEntity, TKey, TDto>
         where TEntity : class, IIdentifiable<TKey>

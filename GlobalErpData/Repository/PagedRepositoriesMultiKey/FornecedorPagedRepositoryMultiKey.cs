@@ -5,6 +5,7 @@ using GlobalErpData.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
+using GlobalLib.Repository;
 
 namespace GlobalErpData.Repository.PagedRepositoriesMultiKey
 {

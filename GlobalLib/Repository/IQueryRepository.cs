@@ -1,4 +1,4 @@
-﻿namespace GlobalErpData.Repository
+﻿namespace GlobalLib.Repository
 {
     public interface IQueryRepository<T, TKey, TDto>
     {

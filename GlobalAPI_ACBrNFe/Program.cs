@@ -15,6 +15,7 @@ using GlobalAPI_ACBrNFe.Lib;
 using GlobalErpData.Services;
 using GlobalErpData.Identity;
 using Microsoft.AspNetCore.Identity;
+using GlobalLib.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 

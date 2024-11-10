@@ -1,5 +1,7 @@
 ﻿using GlobalErpData.Dto;
-using GlobalErpData.GenericControllers;
+using GlobalLib.GenericControllers;
+using GlobalLib.Repository;
+using GlobalLib.Dto;
 using GlobalErpData.Models;
 using GlobalErpData.Repository;
 using Microsoft.AspNetCore.Mvc;

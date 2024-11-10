@@ -2,6 +2,7 @@
 using GlobalErpData.Data;
 using GlobalErpData.Dto;
 using GlobalErpData.Models;
+using GlobalLib.Repository;
 using Microsoft.Extensions.Logging;
 
 namespace GlobalErpData.Repository.PagedRepositories

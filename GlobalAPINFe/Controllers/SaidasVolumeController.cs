@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using GlobalErpData.Data;
 using GlobalErpData.Dto;
-using GlobalErpData.GenericControllers;
+using GlobalLib.GenericControllers;
+using GlobalLib.Repository;
 using GlobalErpData.Models;
+using GlobalLib.Dto;
 using GlobalErpData.Repository;
 using GlobalErpData.Repository.PagedRepositories;
 using Microsoft.AspNetCore.Mvc;

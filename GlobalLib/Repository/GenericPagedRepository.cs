@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace GlobalErpData.Repository
+namespace GlobalLib.Repository
 {
     public abstract class GenericPagedRepository<TEntity, TContext, TKey, TDto> : IQueryRepository<TEntity, TKey, TDto>
         where TEntity : class, IIdentifiable<TKey>

@@ -1,6 +1,6 @@
 ﻿using X.PagedList;
 
-namespace GlobalErpData.Dto
+namespace GlobalLib.Dto
 {
     public class PagedResponse<T>
     {

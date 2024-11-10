@@ -3,6 +3,7 @@ using GlobalErpData.Models;
 using GlobalErpData.Data;
 using AutoMapper;
 using Microsoft.Extensions.Logging;
+using GlobalLib.Repository;
 
 namespace GlobalErpData.Repository.PagedRepositories
 {

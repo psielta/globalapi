@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace GlobalErpData.Repository
+namespace GlobalLib.Repository
 {
     public abstract class GenericRepositoryDto<TEntity, TContext, TKey, TDto> : IRepositoryDto<TEntity, TKey, TDto>
         where TEntity : class, IIdentifiable<TKey>

@@ -4,6 +4,7 @@ using GlobalErpData.Dto;
 using GlobalErpData.Models;
 using GlobalLib.Database;
 using Microsoft.Extensions.Logging;
+using GlobalLib.Repository;
 
 namespace GlobalErpData.Repository.Repositories
 {

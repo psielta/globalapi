@@ -1,6 +1,7 @@
 ﻿using GlobalErpData.Dto;
 using GlobalErpData.Models;
-using GlobalErpData.GenericControllers;
+using GlobalLib.GenericControllers;
+using GlobalLib.Repository;
 using GlobalErpData.Repository;
 using GlobalErpData.Repository.Repositories;
 using GlobalLib.Strings;

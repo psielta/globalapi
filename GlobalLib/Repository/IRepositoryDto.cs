@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GlobalErpData.Repository
+namespace GlobalLib.Repository
 {
     public interface IRepositoryDto<T, TKey, TDto>
     {

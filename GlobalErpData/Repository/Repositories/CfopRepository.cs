@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using GlobalErpData.Data;
 using GlobalErpData.Dto;
+using GlobalLib.Repository;
 using GlobalErpData.Models;
 using Microsoft.Extensions.Logging;
 using System;

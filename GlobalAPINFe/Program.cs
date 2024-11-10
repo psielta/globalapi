@@ -22,6 +22,7 @@ using System;
 using GlobalAPINFe.Lib;
 using Microsoft.AspNetCore.Identity;
 using GlobalErpData.Identity;
+using GlobalLib.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 

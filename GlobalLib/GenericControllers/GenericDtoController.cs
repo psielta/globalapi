@@ -1,11 +1,11 @@
-﻿using GlobalErpData.Repository;
+﻿using GlobalLib.Repository;
 using GlobalLib.Database;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace GlobalErpData.GenericControllers
+namespace GlobalLib.GenericControllers
 {
     [Route("api/[controller]")]
     [ApiController]

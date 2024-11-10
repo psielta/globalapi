@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace GlobalErpData.GenericControllers
+namespace GlobalLib.GenericControllers
 {
     //[Authorize]
     [Route("api/[controller]")]

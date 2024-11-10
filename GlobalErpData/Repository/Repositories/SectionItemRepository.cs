@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using GlobalLib.Repository;
 using GlobalErpData.Data;
 using GlobalErpData.Dto;
 using GlobalErpData.Models;

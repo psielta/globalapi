@@ -1,4 +1,4 @@
-﻿namespace GlobalErpData.Repository
+﻿namespace GlobalLib.Repository
 {
     public interface IQueryRepositoryMultiKey<T, TKey1, TKey2, TDto>
     {

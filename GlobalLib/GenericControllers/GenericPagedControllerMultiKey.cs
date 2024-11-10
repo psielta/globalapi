@@ -4,11 +4,11 @@ using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using System;
 using System.Linq;
-using GlobalErpData.Repository;
-using GlobalErpData.Dto;
+using GlobalLib.Repository;
+using GlobalLib.Dto;
 using X.PagedList.EF;
 
-namespace GlobalErpData.GenericControllers
+namespace GlobalLib.GenericControllers
 {
     [Route("api/[controller]")]
     [ApiController]

@@ -1,4 +1,4 @@
-﻿using GlobalErpData.Dto;
+﻿using GlobalLib.Dto;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GlobalErpData.GenericControllers
+namespace GlobalLib.GenericControllers
 {
     public static class GenericApiConventions
     {

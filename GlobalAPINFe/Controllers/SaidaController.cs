@@ -1,11 +1,13 @@
 ﻿using GlobalErpData.Dto;
-using GlobalErpData.GenericControllers;
+using GlobalLib.GenericControllers;
+using GlobalLib.Repository;
 using GlobalErpData.Models;
 using GlobalErpData.Repository;
 using GlobalErpData.Repository.PagedRepositories;
 using GlobalLib.Strings;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
+using GlobalLib.Dto;
 using X.PagedList.Extensions;
 
 namespace GlobalAPINFe.Controllers

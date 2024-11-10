@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using GlobalLib.Repository;
 using System.Threading.Tasks;
 
 namespace GlobalErpData.Repository.PagedRepositoriesMultiKey

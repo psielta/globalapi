@@ -1,9 +1,11 @@
 ﻿using GlobalErpData.Dto;
-using GlobalErpData.GenericControllers;
+using GlobalLib.GenericControllers;
+using GlobalLib.Repository;
 using GlobalErpData.Models;
 using GlobalErpData.Repository;
 using GlobalErpData.Repository.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using GlobalLib.Dto;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;

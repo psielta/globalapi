@@ -4,6 +4,7 @@ using GlobalErpData.Dto;
 using GlobalErpData.Models;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore;
+using GlobalLib.Repository;
 using Microsoft.Extensions.Logging;
 
 namespace GlobalErpData.Repository.PagedRepositories

@@ -1,10 +1,11 @@
 ﻿using GlobalErpData.Dto;
-using GlobalErpData.GenericControllers;
 using GlobalErpData.Models;
 using GlobalErpData.Repository;
 using GlobalErpData.Repository.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using GlobalLib.Repository;
+using GlobalLib.GenericControllers;
 
 namespace GlobalAPINFe.Controllers
 {

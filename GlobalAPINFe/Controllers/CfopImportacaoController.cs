@@ -1,5 +1,6 @@
 ﻿using GlobalErpData.Dto;
-using GlobalErpData.GenericControllers;
+using GlobalLib.GenericControllers;
+using GlobalLib.Repository;
 using GlobalErpData.Models;
 using GlobalErpData.Repository;
 using GlobalErpData.Repository.PagedRepositories;
@@ -10,6 +11,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using X.PagedList.Extensions;
 using System.Collections.Generic;
+using GlobalLib.Dto;
 
 namespace GlobalAPINFe.Controllers
 {

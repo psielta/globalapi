@@ -10,6 +10,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using GlobalLib.Repository;
+using GlobalLib.GenericControllers;
+
 
 namespace GlobalAPIDominio.Controllers
 {
