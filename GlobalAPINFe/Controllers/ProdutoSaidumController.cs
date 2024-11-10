@@ -174,6 +174,7 @@ namespace GlobalAPINFe.Controllers
                     ProdutoSaidumDto.NrSaida = dto.NrSaida;
                     ProdutoSaidumDto.CdEmpresa = dto.CdEmpresa ?? 0;
                     ProdutoSaidumDto.CdProduto = produto.CdProduto;
+                    ProdutoSaidumDto.CdBarra = produto.CdBarra;
                     ProdutoSaidumDto.NmProduto = produto.NmProduto;
                     ProdutoSaidumDto.Lote = "-1";
                     ProdutoSaidumDto.Desconto = 0;
@@ -242,6 +243,7 @@ namespace GlobalAPINFe.Controllers
                     ProdutoSaidumDto ProdutoSaidumDto = new ProdutoSaidumDto();
                     ProdutoSaidumDto.NrSaida = dto.NrSaida;
                     ProdutoSaidumDto.CdEmpresa = dto.CdEmpresa  ?? 0;
+                    ProdutoSaidumDto.CdBarra = produto.CdBarra;
                     ProdutoSaidumDto.CdProduto = produto.CdProduto;
                     ProdutoSaidumDto.NmProduto = produto.NmProduto;
                     ProdutoSaidumDto.Lote = "-1";

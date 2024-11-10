@@ -473,6 +473,10 @@ public partial class ProdutoSaidum : IIdentifiable<int>
     [StringLength(50)]
     public string? Genero { get; set; }
 
+    [Column("cd_barra")]
+    [StringLength(20)]
+    public string CdBarra { get; set; } = null!;
+
     [JsonIgnore]
     [ForeignKey("CdEmpresa")]
     [InverseProperty("ProdutoSaida")]

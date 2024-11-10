@@ -25,6 +25,7 @@ namespace GlobalErpData.Services
             ProdutoSaidumDto.NrSaida = dto.NrSaida;
             ProdutoSaidumDto.CdEmpresa = dto.CdEmpresa ?? 0;
             ProdutoSaidumDto.CdProduto = produto.CdProduto;
+            ProdutoSaidumDto.CdBarra = produto.CdBarra;
             ProdutoSaidumDto.NmProduto = produto.NmProduto;
             ProdutoSaidumDto.Lote = "-1";
             ProdutoSaidumDto.Desconto = 0;
@@ -79,12 +80,12 @@ namespace GlobalErpData.Services
             string ncm = produtoSaidum.Ncm ?? "";
             Ibpt? ibpt = await _context.Ibpts.Where(i => i.Codigo.Equals(ncm)).FirstOrDefaultAsync();
             if (ibpt == null)
-            { 
+            {
                 produtoSaidum.PorcIbpt = 0;
                 produtoSaidum.VlAproxImposto = 0;
             }
             else
-            { 
+            {
                 produtoSaidum.PorcIbpt = ibpt?.Aliqnac ?? 0;
                 produtoSaidum.VlAproxImposto = Math.Round(produtoSaidum.VlTotal * ((produtoSaidum.PorcIbpt ?? 0) / 100), 4);
             }

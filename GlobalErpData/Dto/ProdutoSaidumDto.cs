@@ -110,5 +110,7 @@ namespace GlobalErpData.Dto
         public string? TpCombustVeic { get; set; }
         public string? NrMotorVeic { get; set; }
         public decimal? CapcMaxTracVeic { get; set; }
+        public string CdBarra { get; set; } = null!;
+
     }
 }
