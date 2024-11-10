@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GlobalAPINFe.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class CstController : GenericDtoController<Cst, string, CstDto>
     {
         public CstController(IRepositoryDto<Cst, string, CstDto> repo, ILogger<GenericDtoController<Cst, string, CstDto>> logger) : base(repo, logger)

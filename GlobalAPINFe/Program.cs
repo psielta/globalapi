@@ -128,6 +128,8 @@ builder.Services.AddScoped<IQueryRepository<ObsNf, int, ObsNfDto>, ObsNfReposito
 builder.Services.AddScoped<IQueryRepository<Frete, int, FreteDto>, FreteRepository>();
 builder.Services.AddScoped<IQueryRepository<SaidasVolume, int, SaidasVolumeDto>, SaidasVolumeRepository>();
 builder.Services.AddScoped<IQueryRepository<SaidaNotasDevolucao, int, SaidaNotasDevolucaoDto>, SaidaNotasDevolucaoRepository>();
+builder.Services.AddScoped<IQueryRepository<ProtocoloEstadoNcm, int, ProtocoloEstadoNcmDto>, ProtocoloEstadoNcmRepository>();
+builder.Services.AddScoped<IQueryRepository<CfopCsosnV2, int, CfopCsosnV2Dto>, CfopCsosnV2Repository>();
 builder.Services.AddScoped<EntradaCalculationService>();
 
 

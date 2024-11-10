@@ -8,6 +8,8 @@ using GlobalLib.Dto;
 
 namespace GlobalAPINFe.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class OrigemCstController : GenericDtoController<OrigemCst, string, OrigemCstDto>
     {
         public OrigemCstController(IRepositoryDto<OrigemCst, string, OrigemCstDto> repo, ILogger<GenericDtoController<OrigemCst, string, OrigemCstDto>> logger) : base(repo, logger)

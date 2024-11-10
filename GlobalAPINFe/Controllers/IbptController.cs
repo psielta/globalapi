@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GlobalAPINFe.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class IbptController : GenericDtoController<Ibpt, int, IbptDto>
     {
         public IbptController(IRepositoryDto<Ibpt, int, IbptDto> repo, ILogger<GenericDtoController<Ibpt, int, IbptDto>> logger) : base(repo, logger)

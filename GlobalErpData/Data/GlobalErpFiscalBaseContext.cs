@@ -29,6 +29,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
     public virtual DbSet<Category> Categories { get; set; }
     public virtual DbSet<PerfilLoja> PerfilLojas { get; set; }
     public virtual DbSet<ItemDetail> ItemDetails { get; set; }
+    public virtual DbSet<CfopCsosnV2> CfopCsosnV2s { get; set; }
+    public virtual DbSet<ProtocoloEstadoNcm> ProtocoloEstadoNcms { get; set; }
     public virtual DbSet<ProductDetail> ProductDetails { get; set; }
     public virtual DbSet<FotosProduto> FotosProdutos { get; set; }
     public virtual DbSet<Featured> Featureds { get; set; }
@@ -192,6 +194,15 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.DescNfe).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.Descricao).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.TipoCfop).HasDefaultValueSql("''::character varying");
+        });
+
+        modelBuilder.Entity<CfopCsosnV2>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("cfop_csosn_pkey");
+
+            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.CfopCsosnV2s)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("cfop_csosn_v2_fk");
         });
 
         modelBuilder.Entity<CfopImportacao>(entity =>
@@ -1443,6 +1454,20 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.Fornecedor).WithMany(p => p.ProdutosForns).HasConstraintName("produtos_forn_fk3");
 
             entity.HasOne(d => d.ProdutoEstoque).WithMany(p => p.ProdutosForns).HasConstraintName("produtos_forn_fk2");
+        });
+
+        modelBuilder.Entity<ProtocoloEstadoNcm>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("protocolo_estado_ncm_pkey");
+
+            entity.Property(e => e.Iva).HasDefaultValueSql("0");
+            entity.Property(e => e.RedIcms).HasDefaultValueSql("0");
+            entity.Property(e => e.RedSt).HasDefaultValueSql("0");
+            entity.Property(e => e.St).HasDefaultValueSql("0");
+
+            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.ProtocoloEstadoNcms)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("protocolo_estado_ncm_fk");
         });
 
         modelBuilder.Entity<ReferenciaEstoque>(entity =>

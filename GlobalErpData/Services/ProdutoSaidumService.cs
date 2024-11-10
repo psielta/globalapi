@@ -89,6 +89,21 @@ namespace GlobalErpData.Services
                 produtoSaidum.PorcIbpt = ibpt?.Aliqnac ?? 0;
                 produtoSaidum.VlAproxImposto = Math.Round(produtoSaidum.VlTotal * ((produtoSaidum.PorcIbpt ?? 0) / 100), 4);
             }
+
+            if (produtoSaidum != null && produtoSaidum?.Cst?.Length > 0 && (!produtoSaidum.Cst.Equals("040")))
+            {
+                if (
+                    produtoSaidum.Cfop.Length > 0 &&
+                    (produtoSaidum.Cfop.StartsWith("54") || produtoSaidum.Cfop.StartsWith("64")) &&
+                    (Convert.ToInt32(produtoSaidum.Cfop ?? "0") < 5410 || Convert.ToInt32(produtoSaidum.Cfop ?? "0") < 6410)
+                   )
+                {
+                    produtoSaidum.VlBaseIcms = 0;
+                    produtoSaidum.VlIcms = 0;
+                    produtoSaidum.PocIcms = 0;
+                    produtoSaidum.Cst = "060";
+                }
+            }
         }
     }
 }
