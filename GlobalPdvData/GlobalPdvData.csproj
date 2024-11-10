@@ -5,10 +5,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Folder Include="Data\" />
-  </ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="AutoMapper" Version="13.0.1" />
 		<PackageReference Include="HotChocolate.Abstractions" Version="13.9.12" />
@@ -38,6 +34,12 @@
 		<PackageReference Include="X.PagedList" Version="10.0.3" />
 		<PackageReference Include="X.PagedList.EF" Version="10.0.3" />
 		<PackageReference Include="Zeus.Net.NFe.NFCe" Version="2024.3.1.1550" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\GlobalLib\GlobalLib.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Dto\" />
 	</ItemGroup>
 
 </Project>
