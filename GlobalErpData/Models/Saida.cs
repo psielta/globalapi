@@ -231,4 +231,9 @@ public partial class Saida : IIdentifiable<int>
     [JsonIgnore]
     [InverseProperty("NrSaidaNavigation")]
     public virtual ICollection<Frete> Fretes { get; set; } = new List<Frete>();
+
+    [JsonIgnore]
+    [InverseProperty("NrSaidaNavigation")]
+    public virtual ICollection<SaidaNotasDevolucao> SaidaNotasDevolucaos { get; set; } = new List<SaidaNotasDevolucao>();
+
 }

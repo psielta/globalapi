@@ -1,0 +1,140 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{Subject}}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f4f8fb;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0073e6 0%, #0056b3 100%);
+            color: #ffffff;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+            .header h1 {
+                margin: 0;
+                font-size: 26px;
+                font-weight: 600;
+                letter-spacing: 0.5px;
+                color: #ffffff;
+            }
+
+        .content {
+            padding: 35px 30px;
+            color: #444;
+        }
+
+            .content p {
+                margin: 15px 0;
+                font-size: 16px;
+                line-height: 1.7;
+            }
+
+        .button-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .button {
+            display: inline-block;
+            background: linear-gradient(135deg, #0073e6 0%, #0056b3 100%);
+            color: #ffffff !important;
+            padding: 14px 28px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 115, 230, 0.2);
+        }
+
+            .button:hover {
+                background: linear-gradient(135deg, #0056b3 0%, #004494 100%);
+                transform: translateY(-1px);
+                box-shadow: 0 6px 12px rgba(0, 115, 230, 0.3);
+            }
+
+        .footer {
+            background-color: #f8fafc;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #eef2f7;
+        }
+
+            .footer p {
+                margin: 8px 0;
+                font-size: 13px;
+                color: #666;
+            }
+
+        /* Responsividade para dispositivos móveis */
+        @media only screen and (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .email-container {
+                margin: 10px auto;
+            }
+
+            .content {
+                padding: 25px 20px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .button {
+                padding: 12px 24px;
+                font-size: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>{{Subject}}</h1>
+        </div>
+        <div class="content">
+            <p>Olá, {{Nome}}</p>
+            <p>{{Body}}</p>
+            <div class="button-container">
+                <a href="{{Link}}" class="button">Clique aqui para confirmar</a>
+            </div>
+        </div>
+        <div class="footer">
+            <p>&copy; 2024 Global Software Informação</p>
+            <p>Todos os direitos reservados</p>
+            <p>Esta é uma mensagem automática, por favor não responda.</p>
+        </div>
+    </div>
+</body>
+</html>

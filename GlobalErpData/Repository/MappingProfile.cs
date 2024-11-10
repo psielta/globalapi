@@ -89,6 +89,7 @@ namespace GlobalErpData.Repository
             CreateMap<SaidasVolume, SaidasVolumeDto>().ReverseMap();
             CreateMap<Frete, FreteDto>().ReverseMap();
 
+            CreateMap<SaidaNotasDevolucaoDto, SaidaNotasDevolucao>().ReverseMap();
 
         }
     }

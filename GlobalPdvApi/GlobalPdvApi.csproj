@@ -43,9 +43,13 @@
 		<PackageReference Include="X.PagedList.EF" Version="10.0.3" />
 	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\GlobalPdvData\GlobalPdvData.csproj" />
-	  
-  </ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\GlobalErpData\GlobalErpData.csproj" />
+	  <ProjectReference Include="..\GlobalLib\GlobalLib.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="wwwroot\featured\1\11\" />
+	</ItemGroup>
 
 </Project>

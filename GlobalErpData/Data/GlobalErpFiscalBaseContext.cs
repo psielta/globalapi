@@ -1507,6 +1507,17 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .HasConstraintName("saidas_fk");
         });
 
+        modelBuilder.Entity<SaidaNotasDevolucao>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("saida_notas_devolucao_pkey");
+
+            entity.Property(e => e.ChaveAcesso).HasDefaultValueSql("''::character varying");
+
+            entity.HasOne(d => d.NrSaidaNavigation).WithMany(p => p.SaidaNotasDevolucaos)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("saida_notas_devolucao_fk");
+        });
+
         modelBuilder.Entity<SaidasVolume>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("saidas_volumes_pkey");
