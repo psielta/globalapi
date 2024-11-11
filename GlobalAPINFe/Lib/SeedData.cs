@@ -24,7 +24,7 @@ namespace GlobalAPINFe.Lib
                 new Permissao { Chave = "cad-entrada-nfe", Modulo = "ES", Descricao = "Entrada" },
                 new Permissao { Chave = "cad-saida-nfe", Modulo = "ES", Descricao = "Saida" },
                 new Permissao { Chave = "cad-protocolo-estado-ncm", Modulo = "ES", Descricao = "Cadastro de Protocolo Estado NCM" },
-                new Permissao { Chave = "cad-protocolo-estado-ncm", Modulo = "ES", Descricao = "Cadastro de Protocolo Estado NCM" },
+                new Permissao { Chave = "cad-ncm-protocolo-estado", Modulo = "ES", Descricao = "Cadastro de Amarração NCM x Protocolo" },
                 new Permissao { Chave = "cad-cfop-csosn", Modulo = "ES", Descricao = "Cadastro de CFOP por CSOSN" },
                 new Permissao { Chave = "imp-nfe", Modulo = "ES", Descricao = "Importação XML" },
                 new Permissao { Chave = "configuracao-empresa", Modulo = "ADM", Descricao = "Configurações" },

@@ -30,6 +30,10 @@ public partial class NcmProtocoloEstado : IIdentifiable<int>
     [InverseProperty("NcmProtocoloEstados")]
     public virtual ProtocoloEstadoNcm IdCabProtocoloNavigation { get; set; } = null!;
 
+    [JsonPropertyName("nmProtocolo")]
+    [NotMapped]
+    public string NmProtocolo => IdCabProtocoloNavigation?.Nome ?? "";
+
     [JsonIgnore]
     [ForeignKey("IdEmpresa")]
     [InverseProperty("NcmProtocoloEstados")]
