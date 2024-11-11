@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using GlobalLib.Database;
 using Microsoft.EntityFrameworkCore;
 
@@ -48,10 +49,14 @@ public partial class ProtocoloEstadoNcm : IIdentifiable<int>
     [Column("txt_obs")]
     [StringLength(16384)]
     public string? TxtObs { get; set; }
-
+    [JsonIgnore]
     [ForeignKey("IdEmpresa")]
     [InverseProperty("ProtocoloEstadoNcms")]
     public virtual Empresa IdEmpresaNavigation { get; set; } = null!;
+    [JsonIgnore]
+    [InverseProperty("IdCabProtocoloNavigation")]
+    public virtual ICollection<NcmProtocoloEstado> NcmProtocoloEstados { get; set; } = new List<NcmProtocoloEstado>();
+
     [GraphQLIgnore]
     public int GetId()
     {

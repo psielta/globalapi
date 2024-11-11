@@ -20,6 +20,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
     public virtual DbSet<CestNcm> CestNcms { get; set; }
     public virtual DbSet<Impxml> Impxmls { get; set; }
     public virtual DbSet<Cfop> Cfops { get; set; }
+    public virtual DbSet<NcmProtocoloEstado> NcmProtocoloEstados { get; set; }
     public virtual DbSet<OrigemCst> OrigemCsts { get; set; }
     public virtual DbSet<Csosn> Csosns { get; set; }
     public virtual DbSet<Cst> Csts { get; set; }
@@ -1034,6 +1035,17 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         modelBuilder.Entity<Ncm>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("ncm_pkey");
+        });
+
+        modelBuilder.Entity<NcmProtocoloEstado>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("ncm_protocolo_estado_pkey");
+
+            entity.HasOne(d => d.IdCabProtocoloNavigation).WithMany(p => p.NcmProtocoloEstados).HasConstraintName("ncm_protocolo_estado_fk");
+
+            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.NcmProtocoloEstados)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("ncm_protocolo_estado_fk1");
         });
 
         modelBuilder.Entity<ObsNf>(entity =>

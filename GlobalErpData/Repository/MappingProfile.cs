@@ -92,6 +92,7 @@ namespace GlobalErpData.Repository
             CreateMap<SaidaNotasDevolucaoDto, SaidaNotasDevolucao>().ReverseMap();
             CreateMap<ProtocoloEstadoNcmDto, ProtocoloEstadoNcm>().ReverseMap();
             CreateMap<CfopCsosnV2Dto, CfopCsosnV2>().ReverseMap();
+            CreateMap<NcmProtocoloEstadoDto, NcmProtocoloEstado>().ReverseMap();
 
         }
     }

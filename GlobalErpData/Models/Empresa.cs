@@ -194,6 +194,9 @@ public partial class Empresa : IIdentifiable<int>
     [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<Mdfe> Mdves { get; set; } = new List<Mdfe>();
+    [JsonIgnore]
+    [InverseProperty("IdEmpresaNavigation")]
+    public virtual ICollection<NcmProtocoloEstado> NcmProtocoloEstados { get; set; } = new List<NcmProtocoloEstado>();
 
     [JsonIgnore]
     [InverseProperty("CdEmpresaNavigation")]

@@ -130,6 +130,7 @@ builder.Services.AddScoped<IQueryRepository<SaidasVolume, int, SaidasVolumeDto>,
 builder.Services.AddScoped<IQueryRepository<SaidaNotasDevolucao, int, SaidaNotasDevolucaoDto>, SaidaNotasDevolucaoRepository>();
 builder.Services.AddScoped<IQueryRepository<ProtocoloEstadoNcm, int, ProtocoloEstadoNcmDto>, ProtocoloEstadoNcmRepository>();
 builder.Services.AddScoped<IQueryRepository<CfopCsosnV2, int, CfopCsosnV2Dto>, CfopCsosnV2Repository>();
+builder.Services.AddScoped<IQueryRepository<NcmProtocoloEstado, int, NcmProtocoloEstadoDto>, NcmProtocoloEstadoRepository>();
 builder.Services.AddScoped<EntradaCalculationService>();
 
 

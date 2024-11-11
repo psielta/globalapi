@@ -104,6 +104,22 @@ namespace GlobalErpData.Services
                     produtoSaidum.Cst = "060";
                 }
             }
+            if (produtoSaidum?.Cfop?.Length > 0)
+            {
+                CfopCsosnV2? cfopCsosnV2 = await _context.CfopCsosnV2s
+                    .Where(c => c.Cfop.Equals(produtoSaidum.Cfop)).FirstOrDefaultAsync();
+                if (cfopCsosnV2 != null)
+                {
+                    produtoSaidum.CdCsosn = cfopCsosnV2.Csosn;
+                }
+            }
+
+            //if (produtoSaidum?.Ncm?.Length > 0)
+            //{
+            //    ProtocoloEstadoNcm? protocoloEstadoNcm = await _context.ProtocoloEstadoNcms
+            //        .Where(p => p..Equals(produtoSaidum.Ncm)).FirstOrDefaultAsync();
+            //}
+
         }
     }
 }

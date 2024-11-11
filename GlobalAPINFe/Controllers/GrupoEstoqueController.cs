@@ -23,8 +23,6 @@ namespace GlobalAPINFe.Controllers
         {
         }
 
-        // Sobrescrevendo os métodos herdados e adicionando os atributos [ProducesResponseType]
-
         [HttpGet]
         [ProducesResponseType(typeof(PagedResponse<GrupoEstoque>), 200)]
         [ProducesResponseType(404)]
