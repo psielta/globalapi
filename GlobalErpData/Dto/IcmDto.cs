@@ -10,6 +10,7 @@ namespace GlobalErpData.Dto
 {
     public class IcmDto
     {
+        public decimal? Am { get; set; }
         public decimal? Ac { get; set; }
         public decimal? Al { get; set; }
         public decimal? Ap { get; set; }
@@ -26,6 +27,7 @@ namespace GlobalErpData.Dto
         public decimal? Pb { get; set; }
         public decimal? Pi { get; set; }
         public decimal? Pr { get; set; }
+        public decimal? Pe { get; set; }
         public decimal? Rj { get; set; }
         public decimal? Rn { get; set; }
         public decimal? Ro { get; set; }

@@ -78,7 +78,7 @@ namespace GlobalErpData.Services
             }
         }
 
-        public async Task RealizarCalculoImpostoSaida(ProdutoSaidum produtoSaidum, Cliente cliente)
+        public async Task RealizarCalculoImpostoSaida(ProdutoSaidum produtoSaidum, ProdutoEstoque produto, Cliente cliente)
         {
             Empresa? empresa = await _context.Empresas
                 .AsNoTracking()
@@ -172,7 +172,7 @@ namespace GlobalErpData.Services
                         Tributados00(produtoSaidum);
                         break;
                     case "10":
-                        Tributados10(produtoSaidum);
+                        await Tributados10(produtoSaidum, cliente, empresa, produto);
                         break;
                     default:
                         break;
@@ -183,9 +183,42 @@ namespace GlobalErpData.Services
             /*********************************************************/
         }
 
-        private void Tributados10(ProdutoSaidum? produtoSaidum)
+        private async Task Tributados10(ProdutoSaidum? produtoSaidum, Cliente cliente, Empresa empresa, ProdutoEstoque produto)
         {
-            throw new NotImplementedException();
+            if (cliente.Mva ?? false)
+            {
+                decimal? porcIcms = await GetIcmsEstado(empresa);
+                decimal pIcms = porcIcms ?? 0;
+                int tipoRegimeCliente = cliente.TpRegime ?? 0;
+                produtoSaidum.MvaSt = 0;
+                if (tipoRegimeCliente == 1 || tipoRegimeCliente == 3)
+                {
+                    produtoSaidum.MvaSt = produto.Mva ?? 0;
+                }
+                produtoSaidum.PorcSt = produto.PorcSubst ?? 0;
+
+                produtoSaidum.VlBaseSt = (produtoSaidum.VlTotal + produtoSaidum.VlIpi)
+                    * ((100 + produtoSaidum.MvaSt) / 100);
+
+                decimal valorIcms = Math.Round((produtoSaidum.VlTotal) * (pIcms / 100), 2);
+                decimal vBase = 0;
+                if ((produto.VlTabelaGov ?? 0) > 0)
+                {
+                    vBase = produto.VlTabelaGov ?? 0;
+                }
+                else
+                {
+                    vBase = produtoSaidum.VlBaseSt ?? 0;
+                }
+                produtoSaidum.VlSt = Math.Round((vBase) * ((produto.PorcAliqInterna ?? 0) / 100), 2) - valorIcms;
+            } else
+            {
+                if (!possuiProtocoloNcm)
+                {
+                    produtoSaidum.VlBaseSt = produtoSaidum.VlTotal - produtoSaidum.DescRateio;
+                }
+                produtoSaidum.VlSt = Math.Round((produtoSaidum.VlBaseSt ?? 0) * ((produtoSaidum.PorcSt ?? 0) / 100), 2);
+            }
         }
 
         private void Tributados00(ProdutoSaidum? produtoSaidum)
@@ -195,6 +228,80 @@ namespace GlobalErpData.Services
                 produtoSaidum.VlBaseIcms = produtoSaidum.VlTotal - produtoSaidum.DescRateio;
             }
             produtoSaidum.VlIcms = Math.Round((produtoSaidum.VlBaseIcms ?? 0) * ((produtoSaidum.PocIcms ?? 0) / 100), 2);
+        }
+
+        private async Task<decimal?> GetIcmsEstado(Empresa empresa)
+        {
+            Icm? icm = await _context.Icms.AsNoTracking().Where(p => p.CdEmpresa == empresa.CdEmpresa).FirstAsync();
+            if (icm == null)
+            {
+                throw new Exception("ICMS não encontrado");
+            }
+            if (empresa.CdCidadeNavigation == null)
+            {
+                empresa.CdCidadeNavigation = await _context.Cidades.FindAsync(empresa.CdCidade);
+            }
+            string ufEmpresa = empresa.CdCidadeNavigation?.Uf ?? "";
+
+            switch (ufEmpresa)
+            {
+                case "AC":
+                    return icm.Ac;
+                case "AL":
+                    return icm.Al;
+                case "AM":
+                    return icm.Am;
+                case "AP":
+                    return icm.Ap;
+                case "BA":
+                    return icm.Ba;
+                case "CE":
+                    return icm.Ce;
+                case "DF":
+                    return icm.Df;
+                case "ES":
+                    return icm.Es;
+                case "GO":
+                    return icm.Go;
+                case "MA":
+                    return icm.Ma;
+                case "MG":
+                    return icm.Mg;
+                case "MS":
+                    return icm.Ms;
+                case "MT":
+                    return icm.Mt;
+                case "PA":
+                    return icm.Pa;
+                case "PB":
+                    return icm.Pb;
+                case "PE":
+                    return icm.Pe;
+                case "PI":
+                    return icm.Pi;
+                case "PR":
+                    return icm.Pr;
+                case "RJ":
+                    return icm.Rj;
+                case "RN":
+                    return icm.Rn;
+                case "RO":
+                    return icm.Ro;
+                case "RR":
+                    return icm.Rr;
+                case "RS":
+                    return icm.Rs;
+                case "SC":
+                    return icm.Sc;
+                case "SE":
+                    return icm.Se;
+                case "SP":
+                    return icm.Sp;
+                case "TO":
+                    return icm.To;
+                default:
+                    throw new Exception("Estado não encontrado");
+            }
         }
     }
 }

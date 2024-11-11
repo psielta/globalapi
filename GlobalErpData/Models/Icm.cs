@@ -78,6 +78,10 @@ public partial class Icm : IIdentifiable<int>
     [Column("pi")]
     [Precision(18, 2)]
     public decimal? Pi { get; set; }
+    
+    [Column("pe")]
+    [Precision(18, 2)]
+    public decimal? Pe { get; set; }
 
     [Column("pr")]
     [Precision(18, 2)]
