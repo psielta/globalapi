@@ -5,7 +5,7 @@ namespace GlobalAPINFe.Lib
 {
     public class SeedData
     {
-        public static void Initialize(GlobalErpFiscalBaseContext context)
+        public static void Initialize(GlobalErpFiscalBaseContext context, Serilog.ILogger logger)
         {
             var requiredPermissions = new List<Permissao>
             {
@@ -25,6 +25,7 @@ namespace GlobalAPINFe.Lib
                 new Permissao { Chave = "cad-saida-nfe", Modulo = "ES", Descricao = "Saida" },
                 new Permissao { Chave = "cad-protocolo-estado-ncm", Modulo = "ES", Descricao = "Cadastro de Protocolo Estado NCM" },
                 new Permissao { Chave = "cad-ncm-protocolo-estado", Modulo = "ES", Descricao = "Cadastro de Amarração NCM x Protocolo" },
+                new Permissao { Chave = "cad-icm", Modulo = "ES", Descricao = "Cadastro de ICMS" },
                 new Permissao { Chave = "cad-cfop-csosn", Modulo = "ES", Descricao = "Cadastro de CFOP por CSOSN" },
                 new Permissao { Chave = "imp-nfe", Modulo = "ES", Descricao = "Importação XML" },
                 new Permissao { Chave = "configuracao-empresa", Modulo = "ADM", Descricao = "Configurações" },
@@ -38,25 +39,87 @@ namespace GlobalAPINFe.Lib
                 new Permissao { Chave = "cad-plano-caixa", Modulo = "FI", Descricao = "Cadastro de Plano de Caixa" },
                 
             };
-
-            var existingPermissions = context.Permissaos.ToList();
-
-            var permissionDict = existingPermissions.ToDictionary(p => p.Chave, p => p);
-
-            foreach (var requiredPermission in requiredPermissions)
+            try
             {
-                if (permissionDict.TryGetValue(requiredPermission.Chave, out var existingPermission))
+                var existingPermissions = context.Permissaos.ToList();
+
+                var permissionDict = existingPermissions.ToDictionary(p => p.Chave, p => p);
+
+                foreach (var requiredPermission in requiredPermissions)
                 {
-                    existingPermission.Modulo = requiredPermission.Modulo;
-                    existingPermission.Descricao = requiredPermission.Descricao;
-                }
-                else
-                {
-                    context.Permissaos.Add(requiredPermission);
+                    if (permissionDict.TryGetValue(requiredPermission.Chave, out var existingPermission))
+                    {
+                        existingPermission.Modulo = requiredPermission.Modulo;
+                        existingPermission.Descricao = requiredPermission.Descricao;
+                    }
+                    else
+                    {
+                        context.Permissaos.Add(requiredPermission);
+                    }
                 }
             }
+            catch (Exception e)
+            {
+                logger.Error(e, "Error occurred while seeding permissions.");
+            }
+            try
+            {
+                var existingEmpresas = context.Empresas.ToList();
+                var existingIcm = context.Icms.ToList();
+                foreach (Empresa empresa in existingEmpresas)
+                {
+                    var existingIcm_ = existingIcm.Where(p => p.CdEmpresa == empresa.CdEmpresa);
+                    if (existingIcm_ == null || existingIcm_.Count() == 0)
+                    {
+                        Icm icm = new Icm
+                        {
+                            Am = 17.00m,
+                            Ac = 17.00m,
+                            Al = 17.00m,
+                            Ap = 17.00m,
+                            Ba = 17.00m,
+                            Ce = 17.00m,
+                            Df = 17.00m,
+                            Es = 17.00m,
+                            Go = 17.00m,
+                            Ma = 17.00m,
+                            Mg = 18.00m,
+                            Mt = 17.00m,
+                            Ms = 17.00m,
+                            Pa = 18.00m,
+                            Pb = 17.00m,
+                            Pi = 17.00m,
+                            Pr = 17.00m,
+                            Rj = 19.00m,
+                            Rn = 17.00m,
+                            Ro = 17.00m,
+                            Rr = 17.00m,
+                            Rs = 17.00m,
+                            Sc = 17.00m,
+                            Se = 17.00m,
+                            Sp = 18.00m,
+                            To = 17.00m,
+                            Ex = 17.00m,
+                            CdEmpresa = empresa.CdEmpresa
+                        };
 
-            context.SaveChanges();
+                        context.Icms.Add(icm);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                logger.Error(e, "Error occurred while seeding ICMS.");
+            }
+
+            try
+            {
+                context.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                logger.Error(e, "Error occurred while saving changes.");
+            }
         }
     }
 }

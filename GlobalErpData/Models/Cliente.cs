@@ -79,6 +79,12 @@ public partial class Cliente : IIdentifiable<int>
     [StringLength(20)]
     public string? InscricaoEstadual { get; set; }
 
+    [Column("mva")]
+    public bool? Mva { get; set; }
+
+    [Column("tp_regime")]
+    public int? TpRegime { get; set; }
+
     [JsonPropertyName("nmCidade")]
     [NotMapped]
     public string NmCidade => CdCidadeNavigation?.NmCidade ?? string.Empty;

@@ -43,6 +43,7 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.File("logs/myapp.txt", rollingInterval: RollingInterval.Day, rollOnFileSizeLimit: true, fileSizeLimitBytes: 10485760, retainedFileCountLimit: 7)
     .CreateLogger();
 
+builder.Services.AddSingleton(Log.Logger);
 builder.Logging.ClearProviders();
 builder.Logging.AddSerilog();
 
@@ -131,9 +132,9 @@ builder.Services.AddScoped<IQueryRepository<SaidaNotasDevolucao, int, SaidaNotas
 builder.Services.AddScoped<IQueryRepository<ProtocoloEstadoNcm, int, ProtocoloEstadoNcmDto>, ProtocoloEstadoNcmRepository>();
 builder.Services.AddScoped<IQueryRepository<CfopCsosnV2, int, CfopCsosnV2Dto>, CfopCsosnV2Repository>();
 builder.Services.AddScoped<IQueryRepository<NcmProtocoloEstado, int, NcmProtocoloEstadoDto>, NcmProtocoloEstadoRepository>();
+builder.Services.AddScoped<IQueryRepository<Icm, int, IcmDto>, IcmRepository>();
+
 builder.Services.AddScoped<EntradaCalculationService>();
-
-
 builder.Services.AddTransient<EmailService>();
 builder.Services.AddScoped<IUserStore<Usuario>, CustomUserStore>();
 //builder.Services.AddScoped<IPasswordHasher<Usuario>, PasswordHasher<Usuario>>();
@@ -180,7 +181,8 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var context = services.GetRequiredService<GlobalErpFiscalBaseContext>();
-        SeedData.Initialize(context);
+        var logger = services.GetRequiredService<Serilog.ILogger>();
+        SeedData.Initialize(context, logger);
     }
     catch (Exception ex)
     {

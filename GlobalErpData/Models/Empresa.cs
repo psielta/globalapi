@@ -168,6 +168,10 @@ public partial class Empresa : IIdentifiable<int>
     public virtual ICollection<Cte> Ctes { get; set; } = new List<Cte>();
 
     [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<Icm> Icms { get; set; } = new List<Icm>();
+
+    [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<MdfeChafe> MdfeChaves { get; set; } = new List<MdfeChafe>();
 

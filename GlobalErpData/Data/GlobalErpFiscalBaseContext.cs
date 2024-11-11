@@ -21,6 +21,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
     public virtual DbSet<Impxml> Impxmls { get; set; }
     public virtual DbSet<Cfop> Cfops { get; set; }
     public virtual DbSet<NcmProtocoloEstado> NcmProtocoloEstados { get; set; }
+    public virtual DbSet<Icm> Icms { get; set; }
     public virtual DbSet<OrigemCst> OrigemCsts { get; set; }
     public virtual DbSet<Csosn> Csosns { get; set; }
     public virtual DbSet<Cst> Csts { get; set; }
@@ -234,6 +235,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.DtCadastro).HasDefaultValueSql("('now'::text)::date");
             entity.Property(e => e.EMail).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.IdCteAntigo).HasDefaultValueSql("'-1'::integer");
+            entity.Property(e => e.Mva).HasDefaultValue(false);
             entity.Property(e => e.NmBairro).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.NmEndereco).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.NrDoc).HasDefaultValueSql("''::character varying");
@@ -883,6 +885,15 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.Descricao).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.Ex).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.Tabela).HasDefaultValueSql("''::character varying");
+        });
+
+        modelBuilder.Entity<Icm>(entity =>
+        {
+            entity.HasKey(e => e.NrLanc).HasName("icms_pkey");
+
+            entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.Icms)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("icms_fk");
         });
 
         modelBuilder.Entity<Impcabnfe>(entity =>

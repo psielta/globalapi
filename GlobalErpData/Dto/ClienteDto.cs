@@ -1,6 +1,7 @@
 ﻿using GlobalLib.Database;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -40,8 +41,11 @@ namespace GlobalErpData.Dto
         public int? IdCteAntigo { get; set; }
 
         public string? InscricaoEstadual { get; set; }
+        public bool? Mva { get; set; }
 
-        
+        public int? TpRegime { get; set; }
+
+
     }
 
 }

@@ -14,9 +14,11 @@ namespace GlobalErpData.Services
     public class ProdutoSaidumService
     {
         private readonly GlobalErpFiscalBaseContext _context;
+        private bool possuiProtocoloNcm;
         public ProdutoSaidumService(GlobalErpFiscalBaseContext context)
         {
             _context = context;
+            possuiProtocoloNcm = false;
         }
         public async Task InserirProdutoSaidum(
             InsercaoProdutoSaidumEanDto dto,
@@ -54,6 +56,7 @@ namespace GlobalErpData.Services
             }
 
             Empresa? empresa = await _context.Empresas
+                .AsNoTracking()
                 .Include(e => e.CdCidadeNavigation)
                 .Where(e => e.CdEmpresa == dto.CdEmpresa).FirstOrDefaultAsync();
             if (empresa == null)
@@ -75,8 +78,13 @@ namespace GlobalErpData.Services
             }
         }
 
-        public async Task RealizarCalculoImpostoSaida(ProdutoSaidum produtoSaidum)
+        public async Task RealizarCalculoImpostoSaida(ProdutoSaidum produtoSaidum, Cliente cliente)
         {
+            Empresa? empresa = await _context.Empresas
+                .AsNoTracking()
+                .Include(e => e.CdCidadeNavigation)
+                .Where(e => e.CdEmpresa == produtoSaidum.CdEmpresa).FirstOrDefaultAsync();
+
             string ncm = produtoSaidum.Ncm ?? "";
             Ibpt? ibpt = await _context.Ibpts.Where(i => i.Codigo.Equals(ncm)).FirstOrDefaultAsync();
             if (ibpt == null)
@@ -114,12 +122,79 @@ namespace GlobalErpData.Services
                 }
             }
 
-            //if (produtoSaidum?.Ncm?.Length > 0)
-            //{
-            //    ProtocoloEstadoNcm? protocoloEstadoNcm = await _context.ProtocoloEstadoNcms
-            //        .Where(p => p..Equals(produtoSaidum.Ncm)).FirstOrDefaultAsync();
-            //}
+            if (cliente.CdCidadeNavigation == null)
+            {
+                Cidade? cidade = await _context.Cidades.FindAsync(cliente.CdCidade);
+                if (cidade == null)
+                {
+                    throw new Exception("Cidade não encontrada");
+                }
+                cliente.CdCidadeNavigation = cidade;
+            }
 
+            if (produtoSaidum?.Ncm?.Length > 0)
+            {
+                ProtocoloEstadoNcm? protocoloEstadoNcm = await _context.ProtocoloEstadoNcms
+                    .FromSqlRaw($@"
+                        select  p.* from protocolo_estado_ncm p
+                        where p.id in (select id_cab_protocolo from ncm_protocolo_estado where id_ncm = '{produtoSaidum?.Ncm}' LIMIT 1)
+                        and p.ativo = 'S' and p.uf = '{cliente.CdCidadeNavigation.Uf}'
+                    ").FirstOrDefaultAsync();
+
+                if (protocoloEstadoNcm != null)
+                {
+                    possuiProtocoloNcm = true;
+                    produtoSaidum.VlBaseIcms = produtoSaidum.VlTotal - produtoSaidum.DescRateio;
+                    produtoSaidum.PorcSt = protocoloEstadoNcm.St;
+                    produtoSaidum.MvaSt = protocoloEstadoNcm.Iva;
+                    if (protocoloEstadoNcm.RedIcms > 0)
+                    {
+                        decimal? vValorBase = (produtoSaidum.VlBaseIcms) - (produtoSaidum.VlBaseIcms * (protocoloEstadoNcm.RedIcms / 100));
+                        produtoSaidum.VlBaseIcms = Math.Round(vValorBase ?? 0, 2);
+                    }
+                    if (protocoloEstadoNcm.RedSt > 0)
+                    {
+                        produtoSaidum.VlBaseSt = produtoSaidum.VlTotal - produtoSaidum.DescRateio;
+                        decimal? vValorBase = (produtoSaidum.VlBaseSt) - (produtoSaidum.VlBaseSt * (protocoloEstadoNcm.RedSt / 100));
+                        produtoSaidum.VlBaseSt = Math.Round(vValorBase ?? 0, 2);
+                    }
+                }
+            }
+
+            if (empresa.TipoRegime > 1)
+            {
+
+                string onlyCst = produtoSaidum?.Cst.Length > 0 ? produtoSaidum.Cst?.Substring(1, 2) : "";
+
+                switch (onlyCst)
+                {
+                    case "00":
+                        Tributados00(produtoSaidum);
+                        break;
+                    case "10":
+                        Tributados10(produtoSaidum);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+
+            /*********************************************************/
+        }
+
+        private void Tributados10(ProdutoSaidum? produtoSaidum)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void Tributados00(ProdutoSaidum? produtoSaidum)
+        {
+            if (!possuiProtocoloNcm)
+            {
+                produtoSaidum.VlBaseIcms = produtoSaidum.VlTotal - produtoSaidum.DescRateio;
+            }
+            produtoSaidum.VlIcms = Math.Round((produtoSaidum.VlBaseIcms ?? 0) * ((produtoSaidum.PocIcms ?? 0) / 100), 2);
         }
     }
 }
