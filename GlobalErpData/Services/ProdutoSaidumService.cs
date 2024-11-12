@@ -211,6 +211,126 @@ namespace GlobalErpData.Services
             VerificarCstPis(produtoSaidum);
             VerificarCstCofins(produtoSaidum);
 
+            string cst = produtoSaidum.Cst ?? "";
+            string csosn = produtoSaidum.CdCsosn ?? "";
+            if (cst.Equals("060") || csosn.Equals("0500"))
+            {
+                bool gerarRetidoSaida = true;
+                ConfiguracoesEmpresa? configuracoesEmpresa = await _context.ConfiguracoesEmpresas
+                    .Where(c => c.CdEmpresa == produtoSaidum.CdEmpresa && c.Chave.Equals("RETNFE"))
+                    .FirstOrDefaultAsync();
+                if (configuracoesEmpresa != null)
+                {
+                    if ((!string.IsNullOrEmpty(configuracoesEmpresa.Valor1)) && configuracoesEmpresa.Valor1.Equals("N"))
+                    {
+                        gerarRetidoSaida = false;
+                    }
+                }
+
+                if (gerarRetidoSaida)
+                {
+                    ProdutoEntradum? produtoEntradum = await _context.ProdutoEntrada
+                        .FromSqlRaw($@"
+                        SELECT * FROM produto_entrada WHERE nr IN 
+                        (
+                            select
+                                    pe.nr
+                            from
+                                    produto_entrada pe
+                            inner join
+                                    entradas e
+                            on
+                                    pe.nr_entrada = e.nr
+                                    and pe.cd_empresa = e.cd_empresa
+                            where
+                                    pe.cd_produto = {produto.CdProduto}
+                                    and   
+                                    e.data =
+                                    (
+                                            select
+                                                    max(data)
+                                            from
+                                                    entradas e
+                                                    inner join produto_entrada x on x.nr_entrada = e.nr
+                                                    and x.cd_empresa = e.cd_empresa
+                                            where
+                                                    e.tp_entrada = 'C'
+                                                    x.cd_produto = {produto.CdProduto}  and 
+                                                    e.cd_empresa = {empresa.CdEmpresa}
+                                    )
+
+                        ) ORDER BY nr DESC LIMIT 1").FirstOrDefaultAsync();
+
+                    if (produtoEntradum != null)
+                    {
+                        decimal vultima_compra = produtoEntradum.VlUnitario;
+                        // normal
+                        decimal vmva_entrada = produto.EntMva ?? 0;
+                        decimal vporc_st_ent = produto.EntPorcSt ?? 0;
+
+                        // redução
+                        decimal vreducao = produto.EntReducaoBc ?? 0;
+                        decimal vbc_st = produto.EntBcSt ?? 0;
+                        decimal vicms_st = produto.EntIcmsSt ?? 0;
+
+                        decimal vlr_bc = 0;
+                        decimal vlr_icms = 0;
+                        decimal vl_reduzido = 0;
+                        // calculo normal
+                        if (vmva_entrada > 0 && vporc_st_ent > 0)
+                        {
+                            vlr_bc = (vultima_compra * vmva_entrada / 100) + vultima_compra;
+                            vlr_icms = (vporc_st_ent / 100) * vlr_bc;
+                        }
+                        else// calculo reduzido
+                        {
+                            vl_reduzido = vultima_compra - (vultima_compra * vreducao / 100);
+                            vlr_bc = (vl_reduzido * vbc_st / 100) + vl_reduzido;
+                            vlr_icms = (vicms_st / 100) * vlr_bc;
+                        }
+                        produtoSaidum.VlBaseRetido = vlr_bc;
+                        produtoSaidum.VlIcmsRet = vlr_icms;
+
+                        decimal valiqsubs = produto.IcmsSubsAliq ?? 0;
+                        decimal vreducaosubs = produto.IcmsSubsReducao ?? 0;
+                        decimal valiqreducao = produto.IcmsSubsReducaoAliq ?? 0;
+
+                        vl_reduzido = 0;
+                        decimal vlr_icms_substituto = 0;
+
+                        if (valiqsubs > 0)
+                        {
+                            vlr_icms_substituto = (vultima_compra * valiqsubs / 100);
+                        }
+                        else
+                        {
+                            vl_reduzido = vultima_compra - (vultima_compra * vreducaosubs / 100);
+                            vlr_icms_substituto = (vl_reduzido * valiqreducao / 100);
+                        }
+
+                        produtoSaidum.IcmsSubstituto = vlr_icms_substituto;
+
+                        decimal vbaseret = 0;
+                        decimal vicmsret = 0;
+                        decimal vpst = 0;
+                        decimal vicmspsubs = 0;
+                        if (configuracoesEmpresa.Valor2.Equals("S"))
+                        {
+                            vbaseret = produtoEntradum.ImpBaseStRet ?? 0;
+                            vicmsret = produtoEntradum.ImpBaseIcmsStRet ?? 0;
+                            vpst = produtoEntradum.ImpPst ?? 0;
+                            vicmspsubs = produtoEntradum.ImpIcmsPropSubs ?? 0;
+
+
+                            produtoSaidum.VlBaseRetido = vbaseret;
+                            produtoSaidum.VlIcmsRet = vicmsret;
+                            produtoSaidum.St = vpst;
+                            produtoSaidum.IcmsSubstituto = vicmspsubs;
+                        }
+                    }
+                }
+            }
+
         }
 
         private void VerificarCstCofins(ProdutoSaidum? produtoSaidum)
