@@ -102,10 +102,15 @@ public partial class Cliente : IIdentifiable<int>
     [ForeignKey("IdEmpresa")]
     [InverseProperty("Clientes")]
     public virtual Empresa IdEmpresaNavigation { get; set; } = null!;
+
     [JsonIgnore]
     [ForeignKey("IdUsuarioCad")]
     [InverseProperty("Clientes")]
     public virtual Usuario IdUsuarioCadNavigation { get; set; } = null!;
+
+    [JsonIgnore]
+    [InverseProperty("ClienteNavigation")]
+    public virtual ICollection<NfceSaida> NfceSaida { get; set; } = new List<NfceSaida>();
 
     [GraphQLIgnore]
     public int GetId()

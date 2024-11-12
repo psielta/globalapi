@@ -46,6 +46,14 @@ public partial class PlanoEstoque : IIdentifiable<int>
     [InverseProperty("CdPlanoNavigation")]
     public virtual ICollection<ProdutoSaidum> ProdutoSaida { get; set; } = new List<ProdutoSaidum>();
 
+    [JsonIgnore]
+    [InverseProperty("CdPlanoNavigation")]
+    public virtual ICollection<NfceProdutoSaidum> NfceProdutoSaidumCdPlanoNavigations { get; set; } = new List<NfceProdutoSaidum>();
+
+    [JsonIgnore]
+    [InverseProperty("CdPlanoSecundarioNavigation")]
+    public virtual ICollection<NfceProdutoSaidum> NfceProdutoSaidumCdPlanoSecundarioNavigations { get; set; } = new List<NfceProdutoSaidum>();
+
     [GraphQLIgnore]
     public int GetId()
     {
