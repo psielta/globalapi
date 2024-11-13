@@ -266,7 +266,7 @@ namespace GlobalErpData.Services
                 await CalcularICMSAutomaticamente(produtoSaidum, cliente, empresa, produto);
             }
 
-            CalcularPisCofins(produtoSaidum);
+            CalcularPisCofins(produtoSaidum, produto);
             VerificarCstPis(produtoSaidum);
             VerificarCstCofins(produtoSaidum);
 
@@ -427,13 +427,17 @@ namespace GlobalErpData.Services
 
         }
 
-        private void CalcularPisCofins(ProdutoSaidumDto? produtoSaidum)
+        private void CalcularPisCofins(ProdutoSaidumDto? produtoSaidum, ProdutoEstoque produto)
         {
+            produtoSaidum.PorcCofins = produto.TaxaCofins;
+            produtoSaidum.PorcPis = produto.TaxaPis;
+            produtoSaidum.CstPis = produto.CstPis;
+            produtoSaidum.CstCofins = produto.CstCofins;
             produtoSaidum.VlBaseCofins = produtoSaidum.VlTotal - produtoSaidum.VlIcms - (produtoSaidum.DescRateio ?? 0);
-            decimal vValorAux = Math.Round((produtoSaidum.VlBaseCofins ?? 0) * ((produtoSaidum.PorcCofins ?? 0) / 100), 2);
+            decimal vValorAux = Math.Round((produtoSaidum.VlBaseCofins ?? 0) * ((produto.TaxaPis?? 0) / 100), 2);
             produtoSaidum.VlCofins = vValorAux;
             produtoSaidum.VlBasePis = produtoSaidum.VlTotal - produtoSaidum.VlIcms - (produtoSaidum.DescRateio ?? 0);
-            vValorAux = Math.Round((produtoSaidum.VlBasePis ?? 0) * ((produtoSaidum.PorcPis ?? 0) / 100), 2);
+            vValorAux = Math.Round((produtoSaidum.VlBasePis ?? 0) * ((produto.TaxaCofins?? 0) / 100), 2);
             produtoSaidum.VlPis = vValorAux;
         }
 

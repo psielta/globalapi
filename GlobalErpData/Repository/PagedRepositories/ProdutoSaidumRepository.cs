@@ -64,6 +64,14 @@ namespace GlobalErpData.Repository.PagedRepositories
                 return null;
             }
             await AtualizarCadastroProduto(dto, produto, saida.ClienteNavigation);
+            //await produtoSaidumService.InserirDadosProduto(new InsercaoProdutoSaidumDto()
+            //{
+            //    NrSaida = saida.NrLanc,
+            //    CdEmpresa = dto.CdEmpresa,
+            //    CdProduto = dto.CdProduto,
+            //    Quant = dto.Quant,
+            //    CdPlano = saida.CdGrupoEstoque
+            //}, dto, produto, saida.ClienteNavigation);
             await produtoSaidumService.RealizarCalculoImpostoSaida(dto, produto, saida.ClienteNavigation);
             ProdutoSaidum entity = mapper.Map<ProdutoSaidum>(dto);
             EntityEntry<ProdutoSaidum> added = await db.Set<ProdutoSaidum>().AddAsync(entity);
@@ -170,6 +178,14 @@ namespace GlobalErpData.Repository.PagedRepositories
                 return null;
             }
             await AtualizarCadastroProduto(dto, produto, saida.ClienteNavigation);
+            //await produtoSaidumService.InserirDadosProduto(new InsercaoProdutoSaidumDto()
+            //{
+            //    NrSaida = saida.NrLanc,
+            //    CdEmpresa = dto.CdEmpresa,
+            //    CdProduto = dto.CdProduto,
+            //    Quant = dto.Quant,
+            //    CdPlano = saida.CdGrupoEstoque
+            //}, dto, produto, saida.ClienteNavigation);
             await produtoSaidumService.RealizarCalculoImpostoSaida(dto, produto, saida.ClienteNavigation);
             ProdutoSaidum entity = mapper.Map<ProdutoSaidum>(dto);
             entity.GetType().GetProperty(entity.GetKeyName())?.SetValue(entity, id);
