@@ -15,50 +15,37 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         : base(options)
     {
     }
-    public virtual DbSet<Ibpt> Ibpts { get; set; }
-    public virtual DbSet<Ncm> Ncms { get; set; }
-    public virtual DbSet<CestNcm> CestNcms { get; set; }
-    public virtual DbSet<Impxml> Impxmls { get; set; }
-    public virtual DbSet<Cfop> Cfops { get; set; }
-    public virtual DbSet<NcmProtocoloEstado> NcmProtocoloEstados { get; set; }
-    public virtual DbSet<Icm> Icms { get; set; }
-    public virtual DbSet<OrigemCst> OrigemCsts { get; set; }
-    public virtual DbSet<Csosn> Csosns { get; set; }
-    public virtual DbSet<Cst> Csts { get; set; }
-    public virtual DbSet<FormaPagt> FormaPagts { get; set; }
-    public virtual DbSet<ContasAPagar> ContasAPagars { get; set; }
-    public virtual DbSet<HistoricoCaixa> HistoricoCaixas { get; set; }
     public virtual DbSet<Category> Categories { get; set; }
-    public virtual DbSet<PerfilLoja> PerfilLojas { get; set; }
-    public virtual DbSet<ItemDetail> ItemDetails { get; set; }
-    public virtual DbSet<CfopCsosnV2> CfopCsosnV2s { get; set; }
-    public virtual DbSet<ProtocoloEstadoNcm> ProtocoloEstadoNcms { get; set; }
-    public virtual DbSet<ProductDetail> ProductDetails { get; set; }
-    public virtual DbSet<FotosProduto> FotosProdutos { get; set; }
-    public virtual DbSet<Featured> Featureds { get; set; }
-    public virtual DbSet<Section> Sections { get; set; }
-    public virtual DbSet<SectionItem> SectionItems { get; set; }
-    public virtual DbSet<ContaDoCaixa> ContaDoCaixas { get; set; }
+
     public virtual DbSet<Certificado> Certificados { get; set; }
-    public virtual DbSet<ConfiguracoesEmpresa> ConfiguracoesEmpresas { get; set; }
-    public virtual DbSet<ConfiguracoesUsuario> ConfiguracoesUsuarios { get; set; }
-    public virtual DbSet<Entrada> Entradas { get; set; }
-    public virtual DbSet<PlanoEstoque> PlanoEstoques { get; set; }
-    public virtual DbSet<SaldoEstoque> SaldoEstoques { get; set; }
+
+    public virtual DbSet<CestNcm> CestNcms { get; set; }
+
+    public virtual DbSet<Cfop> Cfops { get; set; }
+
+    public virtual DbSet<CfopCsosnV2> CfopCsosnV2s { get; set; }
+
+    public virtual DbSet<CfopImportacao> CfopImportacaos { get; set; }
+
     public virtual DbSet<Cidade> Cidades { get; set; }
-    public virtual DbSet<Impcabnfe> Impcabnves { get; set; }
-    public virtual DbSet<ProdutoEntradum> ProdutoEntrada { get; set; }
-
-    public virtual DbSet<Impdupnfe> Impdupnves { get; set; }
-
-    public virtual DbSet<Impitensnfe> Impitensnves { get; set; }
-
-    public virtual DbSet<Imptotalnfe> Imptotalnves { get; set; }
 
     public virtual DbSet<Cliente> Clientes { get; set; }
 
-    public virtual DbSet<CfopImportacao> CfopImportacaos { get; set; }
     public virtual DbSet<ConfEmail> ConfEmails { get; set; }
+
+    public virtual DbSet<ConfiguracoesEmpresa> ConfiguracoesEmpresas { get; set; }
+
+    public virtual DbSet<ConfiguracoesUsuario> ConfiguracoesUsuarios { get; set; }
+
+    public virtual DbSet<ContaDoCaixa> ContaDoCaixas { get; set; }
+
+    public virtual DbSet<ContasAPagar> ContasAPagars { get; set; }
+
+    public virtual DbSet<ContasAReceber> ContasARecebers { get; set; }
+
+    public virtual DbSet<Csosn> Csosns { get; set; }
+
+    public virtual DbSet<Cst> Csts { get; set; }
 
     public virtual DbSet<Cte> Ctes { get; set; }
 
@@ -92,8 +79,6 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
     public virtual DbSet<CteRodVeiculo> CteRodVeiculos { get; set; }
 
-    public virtual DbSet<Transportadora> Transportadoras { get; set; }
-
     public virtual DbSet<CteSeguro> CteSeguros { get; set; }
 
     public virtual DbSet<CteValePedagio> CteValePedagios { get; set; }
@@ -104,11 +89,40 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
     public virtual DbSet<Empresa> Empresas { get; set; }
 
+    public virtual DbSet<Entrada> Entradas { get; set; }
+
     public virtual DbSet<EnvioEmailAutomatico> EnvioEmailAutomaticos { get; set; }
+
+    public virtual DbSet<Featured> Featureds { get; set; }
+
+    public virtual DbSet<FormaPagt> FormaPagts { get; set; }
+
+    public virtual DbSet<Fornecedor> Fornecedors { get; set; }
+
+    public virtual DbSet<FotosProduto> FotosProdutos { get; set; }
+
+    public virtual DbSet<Frete> Fretes { get; set; }
 
     public virtual DbSet<GrupoEstoque> GrupoEstoques { get; set; }
 
-    public virtual DbSet<Fornecedor> Fornecedors { get; set; }
+    public virtual DbSet<HistoricoCaixa> HistoricoCaixas { get; set; }
+
+    public virtual DbSet<Ibpt> Ibpts { get; set; }
+
+    public virtual DbSet<Icm> Icms { get; set; }
+
+    public virtual DbSet<Impcabnfe> Impcabnves { get; set; }
+
+    public virtual DbSet<Impdupnfe> Impdupnves { get; set; }
+
+    public virtual DbSet<Impitensnfe> Impitensnves { get; set; }
+
+    public virtual DbSet<Imptotalnfe> Imptotalnves { get; set; }
+
+    public virtual DbSet<Impxml> Impxmls { get; set; }
+
+    public virtual DbSet<ItemDetail> ItemDetails { get; set; }
+
     public virtual DbSet<Mdfe> Mdves { get; set; }
 
     public virtual DbSet<MdfeChafe> MdfeChaves { get; set; }
@@ -127,24 +141,71 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
     public virtual DbSet<MdfeSeguro> MdfeSeguros { get; set; }
 
-    public virtual DbSet<Permissao> Permissaos { get; set; }
+    public virtual DbSet<Ncm> Ncms { get; set; }
 
-    public virtual DbSet<ProdutoEstoque> ProdutoEstoques { get; set; }
+    public virtual DbSet<NcmProtocoloEstado> NcmProtocoloEstados { get; set; }
 
-    public virtual DbSet<ProdutosForn> ProdutosForns { get; set; }
-    public virtual DbSet<ReferenciaEstoque> ReferenciaEstoques { get; set; }
+    public virtual DbSet<NfceAberturaCaixa> NfceAberturaCaixas { get; set; }
 
-    public virtual DbSet<Usuario> Usuarios { get; set; }
+    public virtual DbSet<NfceFormaPgt> NfceFormaPgts { get; set; }
 
-    public virtual DbSet<UsuarioPermissao> UsuarioPermissaos { get; set; }
+    public virtual DbSet<NfceProdutoSaidum> NfceProdutoSaida { get; set; }
 
-    public virtual DbSet<UnidadeMedida> UnidadeMedidas { get; set; }
+    public virtual DbSet<NfceSaida> NfceSaidas { get; set; }
+
+    public virtual DbSet<NfceSangriaCaixa> NfceSangriaCaixas { get; set; }
+
+    public virtual DbSet<NfceSuprimentoCaixa> NfceSuprimentoCaixas { get; set; }
+
+    public virtual DbSet<ObsNf> ObsNfs { get; set; }
 
     public virtual DbSet<Older> Olders { get; set; }
 
     public virtual DbSet<OlderItem> OlderItems { get; set; }
 
+    public virtual DbSet<OrigemCst> OrigemCsts { get; set; }
+
+    public virtual DbSet<PerfilLoja> PerfilLojas { get; set; }
+
+    public virtual DbSet<Permissao> Permissaos { get; set; }
+
+    public virtual DbSet<PlanoDeCaixa> PlanoDeCaixas { get; set; }
+
+    public virtual DbSet<PlanoEstoque> PlanoEstoques { get; set; }
+
+    public virtual DbSet<ProductDetail> ProductDetails { get; set; }
+
+    public virtual DbSet<ProdutoEntradum> ProdutoEntrada { get; set; }
+
+    public virtual DbSet<ProdutoEstoque> ProdutoEstoques { get; set; }
+
     public virtual DbSet<ProdutoSaidum> ProdutoSaida { get; set; }
+
+    public virtual DbSet<ProdutosForn> ProdutosForns { get; set; }
+
+    public virtual DbSet<ProtocoloEstadoNcm> ProtocoloEstadoNcms { get; set; }
+
+    public virtual DbSet<ReferenciaEstoque> ReferenciaEstoques { get; set; }
+
+    public virtual DbSet<Saida> Saidas { get; set; }
+
+    public virtual DbSet<SaidaNotasDevolucao> SaidaNotasDevolucaos { get; set; }
+
+    public virtual DbSet<SaidasVolume> SaidasVolumes { get; set; }
+
+    public virtual DbSet<SaldoEstoque> SaldoEstoques { get; set; }
+
+    public virtual DbSet<Section> Sections { get; set; }
+
+    public virtual DbSet<SectionItem> SectionItems { get; set; }
+
+    public virtual DbSet<Transportadora> Transportadoras { get; set; }
+
+    public virtual DbSet<UnidadeMedida> UnidadeMedidas { get; set; }
+
+    public virtual DbSet<Usuario> Usuarios { get; set; }
+
+    public virtual DbSet<UsuarioPermissao> UsuarioPermissaos { get; set; }
 
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

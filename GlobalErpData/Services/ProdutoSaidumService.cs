@@ -20,7 +20,7 @@ namespace GlobalErpData.Services
             _context = context;
             possuiProtocoloNcm = false;
         }
-        public async Task InserirProdutoSaidum(
+        public async Task InserirDadosProduto(
             InsercaoProdutoSaidumEanDto dto,
             ProdutoSaidumDto ProdutoSaidumDto, ProdutoEstoque produto, Cliente cliente)
         {
@@ -77,8 +77,66 @@ namespace GlobalErpData.Services
                 ProdutoSaidumDto.PocIcms = produto.IcmsFora;
             }
         }
+        
+        public async Task InserirDadosProduto(
+            InsercaoProdutoSaidumDto dto,
+            ProdutoSaidumDto ProdutoSaidumDto, ProdutoEstoque produto, Cliente cliente)
+        {
+            ProdutoSaidumDto.NrSaida = dto.NrSaida;
+            ProdutoSaidumDto.CdEmpresa = dto.CdEmpresa ?? 0;
+            ProdutoSaidumDto.CdProduto = produto.CdProduto;
+            ProdutoSaidumDto.CdBarra = produto.CdBarra;
+            ProdutoSaidumDto.NmProduto = produto.NmProduto;
+            ProdutoSaidumDto.Lote = "-1";
+            ProdutoSaidumDto.Desconto = 0;
+            ProdutoSaidumDto.DtValidade = DateUtils.DateTimeToDateOnly(DateTime.Now);
+            ProdutoSaidumDto.Quant = dto.Quant;
+            ProdutoSaidumDto.CdPlano = dto.CdPlano;
+            ProdutoSaidumDto.VlVenda = Math.Round(produto.VlAVista ?? 0, 4);
+            ProdutoSaidumDto.VlTotal = Math.Round(ProdutoSaidumDto.Quant * ProdutoSaidumDto.VlVenda, 4);
+            ProdutoSaidumDto.Cest = produto.Cest;
+            ProdutoSaidumDto.CstPis = produto.CstPis;
+            ProdutoSaidumDto.CstCofins = produto.CstCofins;
+            ProdutoSaidumDto.PorcPis = produto.TaxaPis;
+            ProdutoSaidumDto.PorcCofins = produto.TaxaCofins;
+            ProdutoSaidumDto.Un = produto.CdUni;
+            ProdutoSaidumDto.Ncm = produto.CdClassFiscal;
+            ProdutoSaidumDto.CdCsosn = produto.CdCsosn;
 
-        public async Task RealizarCalculoImpostoSaida(ProdutoSaidum produtoSaidum, ProdutoEstoque produto, Cliente cliente)
+            if (cliente.CdCidadeNavigation == null)
+            {
+                Cidade? cidade = await _context.Cidades.FindAsync(cliente.CdCidade);
+                if (cidade == null)
+                {
+                    throw new Exception("Cidade não encontrada");
+                }
+                cliente.CdCidadeNavigation = cidade;
+            }
+
+            Empresa? empresa = await _context.Empresas
+                .AsNoTracking()
+                .Include(e => e.CdCidadeNavigation)
+                .Where(e => e.CdEmpresa == dto.CdEmpresa).FirstOrDefaultAsync();
+            if (empresa == null)
+            {
+                throw new Exception("Empresa não encontrada");
+            }
+
+            if (cliente.CdCidadeNavigation.Uf.Equals(empresa.CdCidadeNavigation.Uf))
+            {
+                ProdutoSaidumDto.Cfop = produto.CfoDentro;
+                ProdutoSaidumDto.Cst = produto.CstDentro1;
+                ProdutoSaidumDto.PocIcms = produto.IcmsDentro;
+            }
+            else
+            {
+                ProdutoSaidumDto.Cfop = produto.CfoFora;
+                ProdutoSaidumDto.Cst = produto.CstFora1;
+                ProdutoSaidumDto.PocIcms = produto.IcmsFora;
+            }
+        }
+
+        public async Task RealizarCalculoImpostoSaida(ProdutoSaidumDto produtoSaidum, ProdutoEstoque produto, Cliente cliente)
         {
             Empresa? empresa = await _context.Empresas
                 .AsNoTracking()
@@ -115,6 +173,7 @@ namespace GlobalErpData.Services
             if (produtoSaidum?.Cfop?.Length > 0)
             {
                 CfopCsosnV2? cfopCsosnV2 = await _context.CfopCsosnV2s
+                    .AsNoTracking()
                     .Where(c => c.Cfop.Equals(produtoSaidum.Cfop)).FirstOrDefaultAsync();
                 if (cfopCsosnV2 != null)
                 {
@@ -139,7 +198,7 @@ namespace GlobalErpData.Services
                         select  p.* from protocolo_estado_ncm p
                         where p.id in (select id_cab_protocolo from ncm_protocolo_estado where id_ncm = '{produtoSaidum?.Ncm}' LIMIT 1)
                         and p.ativo = 'S' and p.uf = '{cliente.CdCidadeNavigation.Uf}'
-                    ").FirstOrDefaultAsync();
+                    ").AsNoTracking().FirstOrDefaultAsync();
 
                 if (protocoloEstadoNcm != null)
                 {
@@ -333,7 +392,7 @@ namespace GlobalErpData.Services
 
         }
 
-        private void VerificarCstCofins(ProdutoSaidum? produtoSaidum)
+        private void VerificarCstCofins(ProdutoSaidumDto? produtoSaidum)
         {
             if (!string.IsNullOrEmpty(produtoSaidum.CstCofins))
             {
@@ -350,7 +409,7 @@ namespace GlobalErpData.Services
             }
         }
 
-        private void VerificarCstPis(ProdutoSaidum? produtoSaidum)
+        private void VerificarCstPis(ProdutoSaidumDto? produtoSaidum)
         {
             if (!string.IsNullOrEmpty(produtoSaidum.CstPis))
             {
@@ -368,7 +427,7 @@ namespace GlobalErpData.Services
 
         }
 
-        private void CalcularPisCofins(ProdutoSaidum? produtoSaidum)
+        private void CalcularPisCofins(ProdutoSaidumDto? produtoSaidum)
         {
             produtoSaidum.VlBaseCofins = produtoSaidum.VlTotal - produtoSaidum.VlIcms - (produtoSaidum.DescRateio ?? 0);
             decimal vValorAux = Math.Round((produtoSaidum.VlBaseCofins ?? 0) * ((produtoSaidum.PorcCofins ?? 0) / 100), 2);
@@ -378,7 +437,7 @@ namespace GlobalErpData.Services
             produtoSaidum.VlPis = vValorAux;
         }
 
-        private async Task CalcularICMSAutomaticamente(ProdutoSaidum? produtoSaidum, Cliente cliente, Empresa empresa, ProdutoEstoque produto)
+        private async Task CalcularICMSAutomaticamente(ProdutoSaidumDto? produtoSaidum, Cliente cliente, Empresa empresa, ProdutoEstoque produto)
         {
             decimal icmsDentro = produto.IcmsDentro ?? 0;
             decimal icmsFora = produto.IcmsFora ?? 0;
@@ -421,7 +480,7 @@ namespace GlobalErpData.Services
             }
         }
 
-        private async Task Tributados90(ProdutoSaidum? produtoSaidum, Cliente cliente, Empresa empresa, ProdutoEstoque produto)
+        private async Task Tributados90(ProdutoSaidumDto? produtoSaidum, Cliente cliente, Empresa empresa, ProdutoEstoque produto)
         {
             decimal pocReducao = produtoSaidum.PocReducao ?? 0;
             produtoSaidum.PocReducao = pocReducao;
@@ -432,7 +491,7 @@ namespace GlobalErpData.Services
             produtoSaidum.VlSt = Math.Round((produtoSaidum.VlBaseSt ?? 0) * ((produtoSaidum.PorcSt ?? 0) / 100), 2);
         }
 
-        private async Task Tributados70(ProdutoSaidum? produtoSaidum, Cliente cliente, Empresa empresa, ProdutoEstoque produto)
+        private async Task Tributados70(ProdutoSaidumDto? produtoSaidum, Cliente cliente, Empresa empresa, ProdutoEstoque produto)
         {
             if (cliente.Mva ?? false)
             {
@@ -462,7 +521,7 @@ namespace GlobalErpData.Services
             }
         }
 
-        private void Tributados40(ProdutoSaidum? produtoSaidum)
+        private void Tributados40(ProdutoSaidumDto? produtoSaidum)
         {
             produtoSaidum.VlBaseIcms = 0;
             produtoSaidum.VlIcms = 0;
@@ -472,7 +531,7 @@ namespace GlobalErpData.Services
             produtoSaidum.PocReducao = 0;
             produtoSaidum.MvaSt = 0;
         }
-        private void Tributados41(ProdutoSaidum? produtoSaidum)
+        private void Tributados41(ProdutoSaidumDto? produtoSaidum)
         {
             produtoSaidum.VlBaseIcms = 0;
             produtoSaidum.VlIcms = 0;
@@ -482,7 +541,7 @@ namespace GlobalErpData.Services
             produtoSaidum.PocReducao = 0;
             produtoSaidum.MvaSt = 0;
         }
-        private void Tributados50(ProdutoSaidum? produtoSaidum)
+        private void Tributados50(ProdutoSaidumDto? produtoSaidum)
         {
             produtoSaidum.VlBaseIcms = 0;
             produtoSaidum.VlIcms = 0;
@@ -492,7 +551,7 @@ namespace GlobalErpData.Services
             produtoSaidum.PocReducao = 0;
             produtoSaidum.MvaSt = 0;
         }
-        private void Tributados60(ProdutoSaidum? produtoSaidum)
+        private void Tributados60(ProdutoSaidumDto? produtoSaidum)
         {
             produtoSaidum.VlBaseIcms = 0;
             produtoSaidum.VlIcms = 0;
@@ -503,7 +562,7 @@ namespace GlobalErpData.Services
             produtoSaidum.MvaSt = 0;
         }
 
-        private async Task Tributados30(ProdutoSaidum? produtoSaidum, Cliente cliente, Empresa empresa, ProdutoEstoque produto)
+        private async Task Tributados30(ProdutoSaidumDto? produtoSaidum, Cliente cliente, Empresa empresa, ProdutoEstoque produto)
         {
             if (cliente.Mva ?? false)
             {
@@ -535,7 +594,7 @@ namespace GlobalErpData.Services
             }
         }
 
-        private async Task Tributados20(ProdutoSaidum? produtoSaidum)
+        private async Task Tributados20(ProdutoSaidumDto? produtoSaidum)
         {
             decimal pocReducao = produtoSaidum.PocReducao ?? 0;
             produtoSaidum.PocReducao = pocReducao;
@@ -543,7 +602,7 @@ namespace GlobalErpData.Services
             produtoSaidum.VlIcms = Math.Round((produtoSaidum.VlBaseIcms ?? 0) * ((produtoSaidum.PocIcms ?? 0) / 100), 2);
         }
 
-        private async Task Tributados10(ProdutoSaidum? produtoSaidum, Cliente cliente, Empresa empresa, ProdutoEstoque produto)
+        private async Task Tributados10(ProdutoSaidumDto? produtoSaidum, Cliente cliente, Empresa empresa, ProdutoEstoque produto)
         {
             if (cliente.Mva ?? false)
             {
@@ -582,7 +641,7 @@ namespace GlobalErpData.Services
             }
         }
 
-        private void Tributados00(ProdutoSaidum? produtoSaidum)
+        private void Tributados00(ProdutoSaidumDto? produtoSaidum)
         {
             if (!possuiProtocoloNcm)
             {

@@ -10,18 +10,23 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using X.PagedList.Extensions;
 using GlobalLib.Dto;
+using GlobalErpData.Services;
 
 namespace GlobalAPINFe.Controllers
 {
     public class ProdutoSaidumController : GenericPagedController<ProdutoSaidum, int, ProdutoSaidumDto>
     {
         private readonly GlobalErpFiscalBaseContext _context;
+        private readonly ProdutoSaidumService produtoSaidumService;
         public ProdutoSaidumController(
                 IQueryRepository<ProdutoSaidum, int, ProdutoSaidumDto> repo,
                 ILogger<GenericPagedController<ProdutoSaidum, int, ProdutoSaidumDto>> logger,
-                GlobalErpFiscalBaseContext _context) : base(repo, logger)
+                GlobalErpFiscalBaseContext _context,
+                ProdutoSaidumService produtoSaidumService
+                ) : base(repo, logger)
         {
             this._context = _context;
+            this.produtoSaidumService = produtoSaidumService;
         }
 
         [HttpGet]
@@ -168,25 +173,33 @@ namespace GlobalAPINFe.Controllers
                     {
                         throw new Exception("Empresa não encontrada.");
                     }
-                    if(produto.VlAVista == null)
+                    if (produto.VlAVista == null)
                     {
                         throw new Exception("Valor de venda não encontrado.");
                     }
-                    ProdutoSaidumDto ProdutoSaidumDto = new ProdutoSaidumDto();
-                    ProdutoSaidumDto.NrSaida = dto.NrSaida;
-                    ProdutoSaidumDto.CdEmpresa = dto.CdEmpresa ?? 0;
-                    ProdutoSaidumDto.CdProduto = produto.CdProduto;
-                    ProdutoSaidumDto.CdBarra = produto.CdBarra;
-                    ProdutoSaidumDto.NmProduto = produto.NmProduto;
-                    ProdutoSaidumDto.Lote = "-1";
-                    ProdutoSaidumDto.Desconto = 0;
-                    ProdutoSaidumDto.DtValidade = DateUtils.DateTimeToDateOnly(DateTime.Now);
-                    ProdutoSaidumDto.Quant = dto.Quant;
-                    ProdutoSaidumDto.CdPlano = dto.CdPlano;
-                    ProdutoSaidumDto.VlVenda = Math.Round(produto.VlAVista ?? 0, 4);
-                    ProdutoSaidumDto.VlTotal = Math.Round(ProdutoSaidumDto.Quant * ProdutoSaidumDto.VlVenda, 4);
+                    ProdutoSaidumDto produtoSaidumDto = new ProdutoSaidumDto();
+                    //ProdutoSaidumDto.NrSaida = dto.NrSaida;
+                    //ProdutoSaidumDto.CdEmpresa = dto.CdEmpresa ?? 0;
+                    //ProdutoSaidumDto.CdProduto = produto.CdProduto;
+                    //ProdutoSaidumDto.CdBarra = produto.CdBarra;
+                    //ProdutoSaidumDto.NmProduto = produto.NmProduto;
+                    //ProdutoSaidumDto.Lote = "-1";
+                    //ProdutoSaidumDto.Desconto = 0;
+                    //ProdutoSaidumDto.DtValidade = DateUtils.DateTimeToDateOnly(DateTime.Now);
+                    //ProdutoSaidumDto.Quant = dto.Quant;
+                    //ProdutoSaidumDto.CdPlano = dto.CdPlano;
+                    //ProdutoSaidumDto.VlVenda = Math.Round(produto.VlAVista ?? 0, 4);
+                    //ProdutoSaidumDto.VlTotal = Math.Round(ProdutoSaidumDto.Quant * ProdutoSaidumDto.VlVenda, 4);
 
-                    var response = await repo.CreateAsync(ProdutoSaidumDto);
+                    Saida? saida = await _context.Saidas
+                        .AsNoTracking()
+                        .Include(s => s.ClienteNavigation).ThenInclude(c => c.CdCidadeNavigation)
+                        .FirstOrDefaultAsync(obj => obj.NrLanc == dto.NrSaida && obj.Empresa == dto.CdEmpresa);
+
+                    await produtoSaidumService.InserirDadosProduto(dto, produtoSaidumDto, produto, saida.ClienteNavigation);
+                    
+                    var response = await repo.CreateAsync(produtoSaidumDto);
+
                     if (response == null)
                     {
                         return BadRequest("Falha ao criar a entidade.");
@@ -244,7 +257,7 @@ namespace GlobalAPINFe.Controllers
                     }
                     ProdutoSaidumDto ProdutoSaidumDto = new ProdutoSaidumDto();
                     ProdutoSaidumDto.NrSaida = dto.NrSaida;
-                    ProdutoSaidumDto.CdEmpresa = dto.CdEmpresa  ?? 0;
+                    ProdutoSaidumDto.CdEmpresa = dto.CdEmpresa ?? 0;
                     ProdutoSaidumDto.CdBarra = produto.CdBarra;
                     ProdutoSaidumDto.CdProduto = produto.CdProduto;
                     ProdutoSaidumDto.NmProduto = produto.NmProduto;

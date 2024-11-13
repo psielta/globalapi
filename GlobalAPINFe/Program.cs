@@ -135,6 +135,7 @@ builder.Services.AddScoped<IQueryRepository<NcmProtocoloEstado, int, NcmProtocol
 builder.Services.AddScoped<IQueryRepository<Icm, int, IcmDto>, IcmRepository>();
 
 builder.Services.AddScoped<EntradaCalculationService>();
+builder.Services.AddScoped<ProdutoSaidumService>();
 builder.Services.AddTransient<EmailService>();
 builder.Services.AddScoped<IUserStore<Usuario>, CustomUserStore>();
 //builder.Services.AddScoped<IPasswordHasher<Usuario>, PasswordHasher<Usuario>>();
