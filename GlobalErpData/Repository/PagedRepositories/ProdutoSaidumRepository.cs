@@ -188,5 +188,43 @@ namespace GlobalErpData.Repository.PagedRepositories
                 return null;
             }
         }
+        
+        public async Task<ProdutoSaidum?> UpdateAsyncSemRecalcular(int id, ProdutoSaidumDto dto)
+        {
+            ProdutoEstoque? produto = await db.ProdutoEstoques
+                .FirstOrDefaultAsync(e => e.CdProduto == dto.CdProduto && e.IdEmpresa == dto.CdEmpresa);
+            if (produto is null)
+            {
+                logger.LogWarning("Failed to create entity from DTO. Produto not found.");
+                return null;
+            }
+            Saida? saida = await db.Saidas
+                        .AsNoTracking()
+                        .Include(s => s.ClienteNavigation).ThenInclude(c => c.CdCidadeNavigation)
+                        .FirstOrDefaultAsync(obj => obj.NrLanc == dto.NrSaida && obj.Empresa == dto.CdEmpresa);
+            if (saida is null)
+            {
+                logger.LogWarning("Failed to create entity from DTO. Saida not found.");
+                return null;
+            }
+            await AtualizarCadastroProduto(dto, produto, saida.ClienteNavigation);
+            //await produtoSaidumService.RealizarCalculoImpostoSaida(dto, produto, saida.ClienteNavigation);
+            ProdutoSaidum entity = mapper.Map<ProdutoSaidum>(dto);
+            entity.GetType().GetProperty(entity.GetKeyName())?.SetValue(entity, id);
+            db.Set<ProdutoSaidum>().Update(entity);
+            int affected = await db.SaveChangesAsync();
+            if (affected == 1)
+            {
+                logger.LogInformation("Entity updated with ID: {Id}", id);
+                UpdateCache(id, entity);
+                return await db.Set<ProdutoSaidum>().Include(e => e.ProdutoEstoque)
+                    .FirstOrDefaultAsync(e => e.Nr == id);
+            }
+            else
+            {
+                logger.LogWarning("Failed to update entity with ID: {Id}", id);
+                return null;
+            }
+        }
     }
 }

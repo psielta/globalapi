@@ -79,6 +79,36 @@ namespace GlobalAPINFe.Controllers
             return await base.CreateBulk(dtos);
         }
 
+        [HttpPut("UpdateSemRecalculo/{id}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public virtual async Task<ActionResult<ProdutoSaidum>> UpdateSemRecalculo(int id, [FromBody] ProdutoSaidumDto dto)
+        {
+            try
+            {
+                if (dto == null)
+                {
+                    return BadRequest("Invalid data provided."); // 400 Bad request
+                }
+                ProdutoSaidum? existing = await repo.RetrieveAsync(id);
+                if (existing == null)
+                {
+                    return NotFound($"Entity with ID {id} not found."); // 404 Resource not found
+                }
+                await ((ProdutoSaidumRepository)repo).UpdateAsyncSemRecalcular(id, dto);
+
+                // Retrieve the updated entity
+                ProdutoSaidum updated = await repo.RetrieveAsync(id);
+                return Ok(updated); // 200 OK with updated object
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while updating the entity with ID {Id}.", id);
+                return StatusCode(500, $"An error occurred while updating the entity with ID {id}: {ex.GetType().Name} - {ex.Message} - {ex.InnerException}");
+            }
+        }
+
         [HttpGet("GetProdutoSaidumPorSaida", Name = nameof(GetProdutoSaidumPorSaida))]
         [ProducesResponseType(typeof(PagedResponse<ProdutoSaidum>), 200)]
         [ProducesResponseType(404)]
