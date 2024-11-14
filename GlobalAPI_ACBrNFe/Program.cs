@@ -16,6 +16,7 @@ using GlobalErpData.Services;
 using GlobalErpData.Identity;
 using Microsoft.AspNetCore.Identity;
 using GlobalLib.Repository;
+using GlobalAPI_ACBrNFe.Lib.ACBr.NFe;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -90,6 +91,7 @@ builder.Services.AddScoped<IQueryRepository<PlanoEstoque, int, PlanoEstoqueDto>,
 builder.Services.AddScoped<IQueryRepositoryNoCache<SaldoEstoque, int, SaldoEstoqueDto>, SaldoEstoquePagedRepository>();
 builder.Services.AddScoped<IQueryRepository<CfopImportacao, int, CfopImportacaoDto>, CfopImportacaoPagedRepository>();
 builder.Services.AddScoped<EntradaCalculationService>();
+builder.Services.AddScoped<NFeGlobalService>();
 
 builder.Services.AddTransient<EmailService>();
 builder.Services.AddScoped<IUserStore<Usuario>, CustomUserStore>();
