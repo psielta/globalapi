@@ -88,6 +88,18 @@ public partial class Empresa : IIdentifiable<int>
     [StringLength(255)]
     public string? MailContador { get; set; }
 
+    [Column("iest")]
+    [StringLength(50)]
+    public string? Iest { get; set; }
+
+    [Column("complemento")]
+    [StringLength(255)]
+    public string? Complemento { get; set; }
+
+    [Column("cnae")]
+    [StringLength(50)]
+    public string? Cnae { get; set; }
+
     [JsonIgnore]
     [ForeignKey("CdCidade")]
     [InverseProperty("Empresas")]
