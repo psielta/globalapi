@@ -366,4 +366,7 @@ public partial class Empresa : IIdentifiable<int>
     [InverseProperty("CdEmpresaNavigation")]
     public virtual ICollection<NfceSuprimentoCaixa> NfceSuprimentoCaixas { get; set; } = new List<NfceSuprimentoCaixa>();
 
+    [JsonIgnore]
+    [InverseProperty("IdEmpresaNavigation")]
+    public virtual ControleNumeracaoNfe? ControleNumeracaoNfe { get; set; }
 }

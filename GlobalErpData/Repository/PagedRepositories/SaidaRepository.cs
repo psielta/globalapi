@@ -18,9 +18,11 @@ namespace GlobalErpData.Repository.PagedRepositories
     public class SaidaRepository : GenericPagedRepository<Saida, GlobalErpFiscalBaseContext, int, SaidaDto>
     {
         private readonly SaidaCalculationService _calculationService;
-        public SaidaRepository(GlobalErpFiscalBaseContext injectedContext, IMapper mapper, ILogger<GenericRepositoryDto<Saida, GlobalErpFiscalBaseContext, int, SaidaDto>> logger, SaidaCalculationService saidaCalculationService) : base(injectedContext, mapper, logger)
+        private readonly IQueryRepository<ControleNumeracaoNfe, int, ControleNumeracaoNfeDto> queryRepositoryNum;
+        public SaidaRepository(GlobalErpFiscalBaseContext injectedContext, IMapper mapper, ILogger<GenericRepositoryDto<Saida, GlobalErpFiscalBaseContext, int, SaidaDto>> logger, SaidaCalculationService saidaCalculationService, IQueryRepository<ControleNumeracaoNfe, int, ControleNumeracaoNfeDto> queryRepositoryNum) : base(injectedContext, mapper, logger)
         {
             _calculationService = saidaCalculationService;
+            this.queryRepositoryNum = queryRepositoryNum;
         }
 
         public Task<IQueryable<Saida>> GetSaidaAsyncPorEmpresa(int IdEmpresa)
@@ -43,6 +45,26 @@ namespace GlobalErpData.Repository.PagedRepositories
 
         public async override Task<Saida?> CreateAsync(SaidaDto dto)
         {
+            ControleNumeracaoNfe? numeracao = null;
+            
+            if (!dto.TpSaida.Equals("A"))
+            {
+                var allNumeracoes = await ((ControleNumeracaoNfeRepository)queryRepositoryNum).GetControleNumeracaoNfeAsyncPorEmpresa(dto.Empresa);
+                if (allNumeracoes is null)
+                {
+                    logger.LogWarning("Failed to retrieve all numeracoes from database.");
+                    return null;
+                }
+                numeracao = allNumeracoes.FirstOrDefault(n => n.Padrao);
+                if (numeracao is null)
+                {
+                    logger.LogWarning("Failed to retrieve all numeracoes padrao from database.");
+                    return null;
+                }
+                long proximaNumeracao = numeracao.ProximoNumero;
+                dto.NrNotaFiscal = proximaNumeracao.ToString();
+                dto.SerieNf = numeracao.Serie.ToString();
+            }
             Saida entity = mapper.Map<Saida>(dto);
             EntityEntry<Saida> added = await db.Set<Saida>().AddAsync(entity);
             int affected = await db.SaveChangesAsync();
@@ -60,6 +82,14 @@ namespace GlobalErpData.Repository.PagedRepositories
                 {
                     logger.LogWarning("Failed to retrieve entity from database.");
                     return null;
+                }
+                if (!dto.TpSaida.Equals("A") && numeracao != null)
+                { 
+                    numeracao.ProximoNumero = numeracao.ProximoNumero + 1;
+
+                    db.ControleNumeracaoNves.Update(numeracao);
+                    await db.SaveChangesAsync();
+                    ((ControleNumeracaoNfeRepository) queryRepositoryNum).UpdateCache(numeracao.GetId(), numeracao);
                 }
                 _calculationService.CalculateTotals(saida);
                 return saida;

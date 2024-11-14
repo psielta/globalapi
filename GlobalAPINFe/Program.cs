@@ -133,6 +133,7 @@ builder.Services.AddScoped<IQueryRepository<ProtocoloEstadoNcm, int, ProtocoloEs
 builder.Services.AddScoped<IQueryRepository<CfopCsosnV2, int, CfopCsosnV2Dto>, CfopCsosnV2Repository>();
 builder.Services.AddScoped<IQueryRepository<NcmProtocoloEstado, int, NcmProtocoloEstadoDto>, NcmProtocoloEstadoRepository>();
 builder.Services.AddScoped<IQueryRepository<Icm, int, IcmDto>, IcmRepository>();
+builder.Services.AddScoped<IQueryRepository<ControleNumeracaoNfe, int, ControleNumeracaoNfeDto>, ControleNumeracaoNfeRepository>();
 
 builder.Services.AddScoped<EntradaCalculationService>();
 builder.Services.AddScoped<SaidaCalculationService>();

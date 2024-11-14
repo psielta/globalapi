@@ -45,6 +45,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
     public virtual DbSet<Csosn> Csosns { get; set; }
 
+    public virtual DbSet<ControleNumeracaoNfe> ControleNumeracaoNves { get; set; }
+
     public virtual DbSet<Cst> Csts { get; set; }
 
     public virtual DbSet<Cte> Ctes { get; set; }
@@ -455,6 +457,19 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .HasPrincipalKey(p => new { p.CdEmpresa, p.CdSubPlano, p.CdPlano })
                 .HasForeignKey(d => new { d.CdEmpresa, d.CdHistoricoCaixa, d.CdPlanoCaixa })
                 .HasConstraintName("contas_a_receber_fk2");
+        });
+
+        modelBuilder.Entity<ControleNumeracaoNfe>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("controle_numeracao_nfe_pkey");
+
+            entity.HasIndex(e => e.IdEmpresa, "idx_unico_padrao_por_empresa")
+                .IsUnique()
+                .HasFilter("(padrao = true)");
+
+            entity.HasOne(d => d.IdEmpresaNavigation).WithOne(p => p.ControleNumeracaoNfe)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("controle_numeracao_nfe_fk");
         });
 
         modelBuilder.Entity<Csosn>(entity =>
