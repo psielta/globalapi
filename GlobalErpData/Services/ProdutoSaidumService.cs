@@ -223,7 +223,7 @@ namespace GlobalErpData.Services
             if (empresa.TipoRegime > 1)
             {
 
-                string onlyCst = produtoSaidum?.Cst.Length > 0 ? produtoSaidum.Cst?.Substring(1, 2) : "";
+                string onlyCst = (produtoSaidum?.Cst ?? "").Length > 0 ? produtoSaidum.Cst?.Substring(1, 2) : "";
 
                 switch (onlyCst)
                 {

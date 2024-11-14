@@ -9,13 +9,18 @@ using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 using GlobalLib.Dto;
 using X.PagedList.Extensions;
+using GlobalErpData.Services;
 
 namespace GlobalAPINFe.Controllers
 {
     public class SaidaController : GenericPagedController<Saida, int, SaidaDto>
     {
-        public SaidaController(IQueryRepository<Saida, int, SaidaDto> repo, ILogger<GenericPagedController<Saida, int, SaidaDto>> logger) : base(repo, logger)
+        private readonly SaidaCalculationService _calculationService;
+        public SaidaController(IQueryRepository<Saida, int, SaidaDto> repo,
+            ILogger<GenericPagedController<Saida, int, SaidaDto>> logger,
+            SaidaCalculationService calculationService) : base(repo, logger)
         {
+            _calculationService = calculationService;
         }
 
         [HttpGet]
@@ -195,7 +200,10 @@ namespace GlobalAPINFe.Controllers
                     default:
                         break;
                 }
-
+                foreach (var saida in filteredQuery)
+                {
+                    _calculationService.CalculateTotals(saida);
+                }
                 filteredQuery = filteredQuery.OrderByDescending(p => p.NrLanc);
 
                 var pagedList = filteredQuery.ToPagedList(pageNumber, pageSize);

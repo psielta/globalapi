@@ -185,6 +185,22 @@ public partial class Saida : IIdentifiable<int>
     [Precision(18, 4)]
     public decimal? VlSeguro { get; set; }
 
+    [JsonPropertyName("valorTotalNfe")]
+    [NotMapped]
+    public double? ValorTotalNfe { get; set; }
+
+    [JsonPropertyName("subTotal")]
+    [NotMapped]
+    public double? SubTotal { get; set; }
+
+    [JsonPropertyName("valorTotalDesconto")]
+    [NotMapped]
+    public double? ValorTotalDesconto { get; set; }
+
+    [JsonPropertyName("valorTotalProdutos")]
+    [NotMapped]
+    public double? ValorTotalProdutos { get; set; }
+
     [JsonIgnore]
     [ForeignKey("CdGrupoEstoque")]
     [InverseProperty("Saida")]
