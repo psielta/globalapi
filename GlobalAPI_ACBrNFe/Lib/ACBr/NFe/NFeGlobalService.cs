@@ -163,30 +163,10 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             notaFiscal.InfNFe.Versao = "4.0";
 
             //Identificação
-            await MontarGrupoIdentificacao(saida, notaFiscal, empresa, cer, isContingencia);
+            await Ide(saida, notaFiscal, empresa, cer, isContingencia);
 
             //Emitente
-            notaFiscal.Emitente.CRT = CRT.crtSimplesNacional;
-            notaFiscal.Emitente.CNPJCPF = "99999999999999";
-            notaFiscal.Emitente.xNome = "PROJETO ACBR";
-            notaFiscal.Emitente.xFant = "PROJETO ACBR";
-            notaFiscal.Emitente.IE = "999999999999";
-            notaFiscal.Emitente.IEST = "";
-            notaFiscal.Emitente.IM = "";
-            notaFiscal.Emitente.CNAE = "";
-            notaFiscal.Emitente.xLgr = "Rua Cel Aureliano Camargo";
-            notaFiscal.Emitente.nro = "973";
-            notaFiscal.Emitente.xCpl = "";
-            notaFiscal.Emitente.xBairro = "Centro";
-            notaFiscal.Emitente.cMun = 3554003;
-            notaFiscal.Emitente.xMun = "Tatui";
-            notaFiscal.Emitente.cUF = "35";
-            notaFiscal.Emitente.UF = "SP";
-            notaFiscal.Emitente.CEP = "18270000";
-            notaFiscal.Emitente.cPais = 1058;
-            notaFiscal.Emitente.xPais = "BRASIL";
-            notaFiscal.Emitente.Fone = "(11)9999-9999";
-            //notaFiscal.Emitente.cMunFG = 3554003;
+            await Emitente(saida, notaFiscal, empresa);
 
             //Destinatario
             notaFiscal.Destinatario.idEstrangeiro = "";
@@ -285,7 +265,54 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             return notaFiscal;
         }
 
-        private async Task MontarGrupoIdentificacao(Saida saida, NotaFiscal notaFiscal, Empresa empresa, Certificado certificado, bool isContigencia = false)
+        private async Task Emitente(Saida saida, NotaFiscal notaFiscal, Empresa empresa)
+        {
+            notaFiscal.Emitente.CNPJCPF = empresa.CdCnpj;
+            notaFiscal.Emitente.IE = empresa.NrInscrEstadual;
+            notaFiscal.Emitente.xNome = empresa.NmEmpresa;
+            notaFiscal.Emitente.xFant = empresa.NmEmpresa;
+            notaFiscal.Emitente.Fone = empresa.Telefone;
+            notaFiscal.Emitente.CEP = empresa.CdCep;
+            notaFiscal.Emitente.xLgr = empresa.NmEndereco;
+            notaFiscal.Emitente.nro = empresa.Numero.ToString();
+            notaFiscal.Emitente.xCpl = "";
+            notaFiscal.Emitente.xBairro = empresa.NmBairro;
+            notaFiscal.Emitente.cMun = Convert.ToInt32(empresa.CdCidade);
+            notaFiscal.Emitente.xMun = empresa.CdCidadeNavigation.NmCidade;
+            notaFiscal.Emitente.UF = empresa.CdCidadeNavigation.Uf;
+            notaFiscal.Emitente.cPais = 1058;
+            notaFiscal.Emitente.xPais = "BRASIL";
+
+            //notaFiscal.Emitente.IEST = "";
+
+            switch (empresa.TipoRegime ?? 1)
+            {
+                case 1:
+                    notaFiscal.Emitente.CRT = CRT.crtSimplesNacional;
+                    break;
+                case 2:
+                    notaFiscal.Emitente.CRT = CRT.crtSimplesExcessoReceita;
+                    break;
+                case 3:
+                    notaFiscal.Emitente.CRT = CRT.crtRegimeNormal;
+                    break;
+                default:
+                    notaFiscal.Emitente.CRT = CRT.crtSimplesNacional;
+                    break;
+            }
+
+            notaFiscal.Emitente.IM = empresa.NrInscrMunicipal;
+            //notaFiscal.Emitente.CNAE = empresa.Cnae;
+            //notaFiscal.Emitente.IEST = "";
+            if (((empresa.CpfcnpfAutorizado ?? "").Length > 0) && ((empresa.AutorizoXml ?? "").Equals("S")))
+            {
+                var aut = new AutXML();
+                aut.CNPJCPF = empresa.CpfcnpfAutorizado;
+                notaFiscal.AutXML.Add(aut);
+            }
+        }
+
+        private async Task Ide(Saida saida, NotaFiscal notaFiscal, Empresa empresa, Certificado certificado, bool isContigencia = false)
         {
             notaFiscal.Identificacao.cNF = 400;
 
