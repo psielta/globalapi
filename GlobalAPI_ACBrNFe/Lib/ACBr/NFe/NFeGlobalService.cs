@@ -385,6 +385,7 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
                     notaFiscal.Identificacao.idDest = DestinoOperacao.doInterna;
                     break;
                 default:
+                    notaFiscal.Identificacao.finNFe = FinalidadeNFe.fnNormal;
                     break;
             }
 
@@ -403,7 +404,10 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             notaFiscal.Identificacao.cUF = DFeUtils.GetCodigoUF(empresa.CdCidadeNavigation.Uf ?? "") ?? 0;
             notaFiscal.Identificacao.cMunFG = Convert.ToInt32(empresa.CdCidadeNavigation.CdCidade);
             //notaFiscal.Identificacao.finNFe = FinalidadeNFe.fnNormal;
-            notaFiscal.Identificacao.indFinal = ConsumidorFinal.cfConsumidorFinal;
+            if (saida.ClienteNavigation.ConsumidorFinal)
+                notaFiscal.Identificacao.indFinal = ConsumidorFinal.cfConsumidorFinal;
+            else
+                notaFiscal.Identificacao.indFinal = ConsumidorFinal.cfNao;
             notaFiscal.Identificacao.indPres = PresencaComprador.pcPresencial;
             notaFiscal.Identificacao.procEmi = ProcessoEmissao.peAplicativoContribuinte;
             notaFiscal.Identificacao.indIntermed = IndIntermed.iiOperacaoSemIntermediador;
