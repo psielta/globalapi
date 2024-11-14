@@ -295,6 +295,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
             entity.Property(e => e.Ativo).HasDefaultValueSql("'S'::character varying");
             entity.Property(e => e.Cep).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.ConsumidorFinal).HasDefaultValue(true);
             entity.Property(e => e.DtCadastro).HasDefaultValueSql("('now'::text)::date");
             entity.Property(e => e.EMail).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.IdCteAntigo).HasDefaultValueSql("'-1'::integer");

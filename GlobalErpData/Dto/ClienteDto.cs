@@ -44,6 +44,7 @@ namespace GlobalErpData.Dto
         public bool? Mva { get; set; }
 
         public int? TpRegime { get; set; }
+        public bool ConsumidorFinal { get; set; }
 
 
     }

@@ -93,6 +93,9 @@ public partial class Cliente : IIdentifiable<int>
     [NotMapped]
     public string Uf => CdCidadeNavigation?.Uf ?? string.Empty;
 
+    [Column("consumidor_final")]
+    public bool ConsumidorFinal { get; set; }
+
     [JsonIgnore]
     [ForeignKey("CdCidade")]
     [InverseProperty("Clientes")]

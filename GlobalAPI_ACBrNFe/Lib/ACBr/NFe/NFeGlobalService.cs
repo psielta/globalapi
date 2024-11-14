@@ -9,6 +9,7 @@ using GlobalErpData.Models;
 using GlobalLib.Utils;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System;
 
 namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
@@ -71,7 +72,30 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             nfe.Config.SalvarArq = true;
             nfe.Config.SepararPorCNPJ = true;
             nfe.Config.SepararPorModelo = true;
-
+            if (string.IsNullOrEmpty(_config["AcbrSettings:PathIni"]))
+            {
+                throw new Exception("PathIni não configurado");
+            }
+            if (string.IsNullOrEmpty(_config["AcbrSettings:PathSchemas"]))
+            {
+                throw new Exception("PathSchemas não configurado");
+            }
+            if (string.IsNullOrEmpty(_config["AcbrSettings:PathNFe"]))
+            {
+                throw new Exception("PathNFe não configurado");
+            }
+            if (string.IsNullOrEmpty(_config["AcbrSettings:PathInu"]))
+            {
+                throw new Exception("PathInu não configurado");
+            }
+            if (string.IsNullOrEmpty(_config["AcbrSettings:PathEvento"]))
+            {
+                throw new Exception("PathEvento não configurado");
+            }
+            if (string.IsNullOrEmpty(_config["AcbrSettings:BasePathPDF"]))
+            {
+                throw new Exception("BasePathPDF não configurado");
+            }
             if (!Directory.Exists(_config["AcbrSettings:PathSchemas"]))
             {
                 Directory.CreateDirectory(_config["AcbrSettings:PathSchemas"]);
@@ -99,7 +123,7 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             nfe.Config.PathInu = _config["AcbrSettings:PathInu"];
             nfe.Config.PathEvento = _config["AcbrSettings:PathEvento"];
 
-            string pathPdf = @"C:\Global\NFE\Temp\PDF\" + CdEmpresa.ToString();
+            string pathPdf = _config["AcbrSettings:BasePathPDF"] + CdEmpresa.ToString();
             if (!Directory.Exists(pathPdf))
             {
                 Directory.CreateDirectory(pathPdf);
@@ -277,16 +301,93 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             {
                 throw new Exception("Grupo Identificacao: CFOP não encontrado");
             }
+            if ((saida.NrCnf ?? 0) <= 0)
+            {
+                int codigoDFe = DFeUtils.GerarCodigoDFe(saida.NrLanc);
+                notaFiscal.Identificacao.cNF = codigoDFe;
 
+                saida.NrCnf = codigoDFe;
+            }
+            else
+            {
+                notaFiscal.Identificacao.cNF = saida.NrCnf ?? 0;
+            }
             notaFiscal.Identificacao.natOp = cfop.Descricao;
-            notaFiscal.Identificacao.indPag = IndicadorPagamento.ipVista;
-            //notaFiscal.Identificacao.mod = ModeloNFe.moNFe;
+            if (saida.TpPagt.Equals("V"))
+                notaFiscal.Identificacao.indPag = IndicadorPagamento.ipVista;
+            else notaFiscal.Identificacao.indPag = IndicadorPagamento.ipPrazo;
+            notaFiscal.Identificacao.modelo = ModeloNFe.moNFe;
             notaFiscal.Identificacao.Serie = saida.SerieNf;
             notaFiscal.Identificacao.nNF = Convert.ToInt32(saida.NrNotaFiscal);
-            notaFiscal.Identificacao.cNF = DFeUtils.GerarCodigoDFe(saida.NrLanc);
             notaFiscal.Identificacao.dhEmi = DateTime.Now;
             notaFiscal.Identificacao.dhSaiEnt = DateTime.Now;
-            notaFiscal.Identificacao.tpNF = TipoNFe.tnSaida;
+
+            string tipoSaida = saida.TpSaida ?? "";
+            switch (tipoSaida)
+            {
+                case "V":
+                    notaFiscal.Identificacao.tpNF = TipoNFe.tnSaida;
+                    notaFiscal.Identificacao.finNFe = FinalidadeNFe.fnNormal;
+                    break;
+                case "DV":
+                    notaFiscal.Identificacao.tpNF = TipoNFe.tnEntrada;
+                    notaFiscal.Identificacao.finNFe = FinalidadeNFe.fnDevolucao;
+                    break;
+                case "E":
+                    notaFiscal.Identificacao.tpNF = TipoNFe.tnEntrada;
+                    notaFiscal.Identificacao.finNFe = FinalidadeNFe.fnNormal;
+                    break;
+                case "TR":
+                    notaFiscal.Identificacao.tpNF = TipoNFe.tnSaida;
+                    break;
+                case "TP":
+                    notaFiscal.Identificacao.tpNF = TipoNFe.tnSaida;
+                    notaFiscal.Identificacao.finNFe = FinalidadeNFe.fnNormal;
+                    break;
+                case "DC":
+                    notaFiscal.Identificacao.tpNF = TipoNFe.tnSaida;
+                    notaFiscal.Identificacao.finNFe = FinalidadeNFe.fnDevolucao;
+                    break;
+                case "RA":
+                    notaFiscal.Identificacao.tpNF = TipoNFe.tnSaida;
+                    notaFiscal.Identificacao.finNFe = FinalidadeNFe.fnNormal;
+                    break;
+                case "CO":
+                    notaFiscal.Identificacao.tpNF = TipoNFe.tnSaida;
+                    notaFiscal.Identificacao.finNFe = FinalidadeNFe.fnComplementar;
+                    break;
+                case "BO":
+                    notaFiscal.Identificacao.tpNF = TipoNFe.tnSaida;
+                    notaFiscal.Identificacao.finNFe = FinalidadeNFe.fnNormal;
+                    break;
+                case "AG":
+                    notaFiscal.Identificacao.tpNF = TipoNFe.tnSaida;
+                    notaFiscal.Identificacao.finNFe = FinalidadeNFe.fnNormal;
+                    break;
+                case "OU":
+                    notaFiscal.Identificacao.tpNF = TipoNFe.tnSaida;
+                    notaFiscal.Identificacao.finNFe = FinalidadeNFe.fnNormal;
+                    break;
+            }
+
+            string destinoOperacaoSaida = saida.TpOperacao ?? "N";
+            switch (destinoOperacaoSaida)
+            {
+                case "N":
+                    notaFiscal.Identificacao.idDest =
+                        ((saida.ClienteNavigation.CdCidadeNavigation.Uf ?? "")
+                        .Equals(empresa.CdCidadeNavigation.Uf ?? "")) ? DestinoOperacao.doInterna : DestinoOperacao.doInterestadual;
+                    break;
+                case "E":
+                    notaFiscal.Identificacao.idDest = DestinoOperacao.doInterestadual;
+                    break;
+                case "I":
+                    notaFiscal.Identificacao.idDest = DestinoOperacao.doInterna;
+                    break;
+                default:
+                    break;
+            }
+
             notaFiscal.Identificacao.idDest = DestinoOperacao.doInterna;
             if ((certificado.Tipo ?? "").Equals("H"))
                 notaFiscal.Identificacao.tpAmb = TipoAmbiente.taHomologacao;
@@ -299,12 +400,25 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             }
             else
                 notaFiscal.Identificacao.tpEmis = TipoEmissao.teNormal;
-            notaFiscal.Identificacao.finNFe = FinalidadeNFe.fnNormal;
+            notaFiscal.Identificacao.cUF = DFeUtils.GetCodigoUF(empresa.CdCidadeNavigation.Uf ?? "") ?? 0;
+            notaFiscal.Identificacao.cMunFG = Convert.ToInt32(empresa.CdCidadeNavigation.CdCidade);
+            //notaFiscal.Identificacao.finNFe = FinalidadeNFe.fnNormal;
             notaFiscal.Identificacao.indFinal = ConsumidorFinal.cfConsumidorFinal;
             notaFiscal.Identificacao.indPres = PresencaComprador.pcPresencial;
             notaFiscal.Identificacao.procEmi = ProcessoEmissao.peAplicativoContribuinte;
             notaFiscal.Identificacao.indIntermed = IndIntermed.iiOperacaoSemIntermediador;
             notaFiscal.Identificacao.verProc = _config["Versao:Versao"];
+
+            if (saida.SaidaNotasDevolucaos != null && saida.SaidaNotasDevolucaos.Count() > 0)
+            {
+                foreach (SaidaNotasDevolucao chaveRef in saida.SaidaNotasDevolucaos)
+                {
+                    NFRef nFRef = new NFRef();
+                    nFRef.Tipo = TipoRef.NFe;
+                    nFRef.refNFe = chaveRef.ChaveAcesso;
+                    notaFiscal.Identificacao.NFref.Add(nFRef);
+                }
+            }
         }
     }
 

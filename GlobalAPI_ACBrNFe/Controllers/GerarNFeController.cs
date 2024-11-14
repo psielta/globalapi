@@ -64,9 +64,10 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 await _hubContext.Clients.Group(sessionHubDto.sessionId).SendAsync("ReceiveProgress", "Iniciando validações...");
                 Saida? saida = await db.Saidas
                     .Include(f => f.Fretes)
-                    .Include(e => e.ClienteNavigation)
                     .Include(p => p.CdGrupoEstoqueNavigation)
                     .Include(p => p.ProdutoSaida)
+                    .Include(e => e.ClienteNavigation).ThenInclude(cliente => cliente.CdCidadeNavigation)
+                    .Include(l => l.SaidaNotasDevolucaos)
                     .Where(s => s.NrLanc == nrLanc).FirstOrDefaultAsync();
 
 
@@ -167,6 +168,19 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 try
                 {
                     await _hubContext.Clients.Group(sessionHubDto.sessionId).SendAsync("ReceiveProgress", "Montando NFe.");
+                }
+                catch (Exception ex)
+                {
+                    string errorMessage = $"Erro ao Alterar Situação (nrLanc={nrLanc}, empresa={saida.Empresa}): {ex.Message}";
+                    _logger.LogError(errorMessage);
+                    return BadRequest(new BadRequest(errorMessage));
+                }
+                #endregion 
+                #region Atualizar Saida
+                try
+                {
+                    await _hubContext.Clients.Group(sessionHubDto.sessionId).SendAsync("ReceiveProgress", "Atualizando dados Saida.");
+                    //realizar post saida
                 }
                 catch (Exception ex)
                 {
