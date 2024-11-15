@@ -251,25 +251,6 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
 
         private async Task Destinatario(Saida saida, NotaFiscal notaFiscal)
         {
-            notaFiscal.Destinatario.idEstrangeiro = "";
-            notaFiscal.Destinatario.CNPJCPF = "99999999999999";
-            notaFiscal.Destinatario.xNome = "Nome Destinatario";
-            notaFiscal.Destinatario.indIEDest = IndicadorIE.inIsento;
-            notaFiscal.Destinatario.IE = "ISENTO";
-            notaFiscal.Destinatario.ISUF = "";
-            notaFiscal.Destinatario.Email = "acbr@projetoacbr.com.br";
-            notaFiscal.Destinatario.xLgr = "Rua das Flores";
-            notaFiscal.Destinatario.nro = "973";
-            notaFiscal.Destinatario.xCpl = "";
-            notaFiscal.Destinatario.xBairro = "Centro";
-            notaFiscal.Destinatario.cMun = 3550308;
-            notaFiscal.Destinatario.xMun = "São Paulo";
-            notaFiscal.Destinatario.UF = "SP";
-            notaFiscal.Destinatario.CEP = "04615000";
-            notaFiscal.Destinatario.cPais = 1058;
-            notaFiscal.Destinatario.xPais = "BRASIL";
-            notaFiscal.Destinatario.Fone = "(11)9999-9999";
-
             notaFiscal.Destinatario.CNPJCPF = UtlStrings.OnlyInteger(saida.ClienteNavigation.NrDoc ?? "");
             if (!string.IsNullOrEmpty(saida.ClienteNavigation.InscricaoEstadual ?? ""))
             {
@@ -300,14 +281,14 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             }
 
             notaFiscal.Destinatario.xNome = saida.ClienteNavigation.NmCliente;
-            notaFiscal.Destinatario.Fone = UtlStrings.OnlyInteger(saida.ClienteNavigation.Telefone??"");
+            notaFiscal.Destinatario.Fone = UtlStrings.OnlyInteger(saida.ClienteNavigation.Telefone ?? "");
             notaFiscal.Destinatario.ISUF = "";
             notaFiscal.Destinatario.IM = "";
             if ((saida.ClienteNavigation.EMail ?? "").Length > 10)
                 notaFiscal.Destinatario.Email = saida.ClienteNavigation.EMail;
             notaFiscal.Destinatario.CEP = saida.ClienteNavigation.Cep;
             notaFiscal.Destinatario.xLgr = saida.ClienteNavigation.NmEndereco;
-            //notaFiscal.Destinatario.xCpl = saida.ClienteNavigation.Com;
+            notaFiscal.Destinatario.xCpl = saida.ClienteNavigation.Complemento;
             notaFiscal.Destinatario.nro = saida.ClienteNavigation.Numero ?? "";
             notaFiscal.Destinatario.xBairro = saida.ClienteNavigation.NmBairro;
             notaFiscal.Destinatario.cMun = Convert.ToInt32(saida.ClienteNavigation.CdCidade);
@@ -315,6 +296,45 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             notaFiscal.Destinatario.UF = saida.ClienteNavigation.CdCidadeNavigation.Uf;
             notaFiscal.Destinatario.cPais = 1058;
             notaFiscal.Destinatario.xPais = "BRASIL";
+
+            EntregaNfe? entrega = await db.EntregaNves.Where(e => e.IdCliente == saida.Cliente).FirstOrDefaultAsync();
+            if (entrega != null)
+            {
+                notaFiscal.Entrega.CNPJCPF = UtlStrings.OnlyInteger(entrega.Cnpjcpf ?? "");
+                notaFiscal.Entrega.xNome = entrega.Xnome;
+                notaFiscal.Entrega.IE = entrega.Ie;
+                notaFiscal.Entrega.xLgr = entrega.Xlgr;
+                notaFiscal.Entrega.nro = entrega.Nro ?? "";
+                notaFiscal.Entrega.xCpl = entrega.Xcpl;
+                notaFiscal.Entrega.xBairro = entrega.Xbairro;
+                notaFiscal.Entrega.cMun = entrega.Cmun ?? 0;
+                notaFiscal.Entrega.xMun = entrega.Xmun;
+                notaFiscal.Entrega.UF = entrega.Uf;
+                notaFiscal.Entrega.CEP = entrega.Cep;
+                notaFiscal.Entrega.Fone = entrega.Fone;
+                notaFiscal.Entrega.Email = entrega.Email;
+                notaFiscal.Entrega.PaisCod = 1058;
+                notaFiscal.Entrega.Pais = "BRASIL";
+            } 
+            RetiradaNfe? retirada = await db.RetiradaNves.Where(e => e.IdCliente == saida.Cliente).FirstOrDefaultAsync();
+            if (retirada != null)
+            {
+                notaFiscal.Retirada.CNPJCPF = UtlStrings.OnlyInteger(retirada.Cnpjcpf ?? "");
+                notaFiscal.Retirada.xNome = retirada.Xnome;
+                notaFiscal.Retirada.IE = retirada.Ie;
+                notaFiscal.Retirada.xLgr = retirada.Xlgr;
+                notaFiscal.Retirada.nro = retirada.Nro ?? "";
+                notaFiscal.Retirada.xCpl = retirada.Xcpl;
+                notaFiscal.Retirada.xBairro = retirada.Xbairro;
+                notaFiscal.Retirada.cMun = retirada.Cmun ?? 0;
+                notaFiscal.Retirada.xMun = retirada.Xmun;
+                notaFiscal.Retirada.UF = retirada.Uf;
+                notaFiscal.Retirada.CEP = retirada.Cep;
+                notaFiscal.Retirada.Fone = retirada.Fone;
+                notaFiscal.Retirada.Email = retirada.Email;
+                notaFiscal.Retirada.PaisCod = 1058;
+                notaFiscal.Retirada.Pais = "BRASIL";
+            }
         }
 
         private async Task Emitente(Saida saida, NotaFiscal notaFiscal, Empresa empresa)
