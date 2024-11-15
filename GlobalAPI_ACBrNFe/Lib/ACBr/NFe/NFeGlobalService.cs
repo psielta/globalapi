@@ -312,10 +312,11 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
                 notaFiscal.Entrega.UF = entrega.Uf;
                 notaFiscal.Entrega.CEP = entrega.Cep;
                 notaFiscal.Entrega.Fone = entrega.Fone;
-                notaFiscal.Entrega.Email = entrega.Email;
+                if ((entrega.Email ?? "").Length > 10)
+                    notaFiscal.Entrega.Email = entrega.Email;
                 notaFiscal.Entrega.PaisCod = 1058;
                 notaFiscal.Entrega.Pais = "BRASIL";
-            } 
+            }
             RetiradaNfe? retirada = await db.RetiradaNves.Where(e => e.IdCliente == saida.Cliente).FirstOrDefaultAsync();
             if (retirada != null)
             {
@@ -331,7 +332,8 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
                 notaFiscal.Retirada.UF = retirada.Uf;
                 notaFiscal.Retirada.CEP = retirada.Cep;
                 notaFiscal.Retirada.Fone = retirada.Fone;
-                notaFiscal.Retirada.Email = retirada.Email;
+                if ((retirada.Email ?? "").Length > 10)
+                    notaFiscal.Retirada.Email = retirada.Email;
                 notaFiscal.Retirada.PaisCod = 1058;
                 notaFiscal.Retirada.Pais = "BRASIL";
             }
