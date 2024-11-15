@@ -4,6 +4,7 @@ using ACBrLib.NFe;
 using AutoMapper;
 using GlobalAPI_ACBrNFe.Lib;
 using GlobalAPI_ACBrNFe.Lib.ACBr.NFe;
+using GlobalAPI_ACBrNFe.Lib.ACBr.NFe.Utils;
 using GlobalErpData.Data;
 using GlobalErpData.Dto;
 using GlobalErpData.Models;
@@ -19,6 +20,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
 
@@ -52,11 +54,14 @@ namespace GlobalAPI_ACBrNFe.Controllers
         }
 
         [HttpPost("{nrLanc}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ResponseEnviarDto), 200)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> PostWithId(/*[FromServices] ACBrNFe nfe,*/ int nrLanc, [FromBody] SessionHubDto sessionHubDto)
+        public async Task<ActionResult<ResponseEnviarDto>> PostWithId(/*[FromServices] ACBrNFe nfe,*/ int nrLanc, [FromBody] SessionHubDto sessionHubDto)
         {
+            ResponseEnviarDto response = new ResponseEnviarDto();
+            ResponseGerarDto responseGerar;
+
             NotaFiscal notaFiscal = null;
             try
             {
@@ -65,7 +70,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 Saida? saida = await db.Saidas
                     .Include(f => f.Fretes)
                     .Include(p => p.CdGrupoEstoqueNavigation)
-                    .Include(p => p.ProdutoSaida)
+                    .Include(p => p.ProdutoSaida).ThenInclude(p => p.ProdutoEstoque)
                     .Include(e => e.ClienteNavigation).ThenInclude(cliente => cliente.CdCidadeNavigation)
                     .Include(l => l.SaidaNotasDevolucaos)
                     .Where(s => s.NrLanc == nrLanc).FirstOrDefaultAsync();
@@ -113,7 +118,6 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     throw new Exception("Certificado não encontrado");
                 }
                 #endregion
-
                 #region Montar NFe
                 try
                 {
@@ -131,7 +135,16 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 try
                 {
                     await _hubContext.Clients.Group(sessionHubDto.sessionId).SendAsync("ReceiveProgress", "Montando NFe.");
-                    await nFeGlobalService.GerarNFeAsync(notaFiscal, saida, empresa, cer);
+                    responseGerar = await nFeGlobalService.GerarNFeAsync(notaFiscal, saida, empresa, cer);
+                    if (responseGerar.envioRetornoResposta == null)
+                    {
+                        throw new Exception("Erro ao gerar NFe");
+                    }
+                    else if (responseGerar.envioRetornoResposta.Envio.CStat != 100)
+                    {
+                        response.success = false;
+                        response.message = responseGerar.envioRetornoResposta.Resposta;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -140,60 +153,47 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     return BadRequest(new BadRequest(errorMessage));
                 }
                 #endregion
-                #region Armazenar XML
-                try
+
+                if (response.success)
                 {
-                    await _hubContext.Clients.Group(sessionHubDto.sessionId).SendAsync("ReceiveProgress", "Montando NFe.");
+                    #region Atualizar Saida
+                    try
+                    {
+                        await _hubContext.Clients.Group(sessionHubDto.sessionId).SendAsync("ReceiveProgress", "Atualizando dados Saida.");
+                        saida.CdSituacao = "02";
+                        saida.NrAutorizacaoNfe = responseGerar.envioRetornoResposta.Envio.NRec;
+                        saida.XmNf = responseGerar.xml;
+
+                        if (System.IO.File.Exists(responseGerar.pathPdf))
+                        {
+                            saida.Pdf = System.IO.File.ReadAllBytes(responseGerar.pathPdf);
+                        }
+
+                        HttpClient client = new HttpClient();
+
+                        string url = Constants.URL_API_NFE + "/api/Saida/" + saida.NrLanc;
+                        SaidaDto saidaDto = mapper.Map<SaidaDto>(saida);
+                        client.BaseAddress = new Uri(url);
+                        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                        HttpResponseMessage responseEndpoint = await client.PutAsJsonAsync(url, saidaDto);
+                        if (!responseEndpoint.IsSuccessStatusCode)
+                        {
+                            throw new Exception($"Erro ao atualizar Saida ({saida.NrLanc}) HTTP {responseEndpoint.StatusCode}: {responseEndpoint.Content}.");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        string errorMessage = $"Erro ao Alterar Situação (nrLanc={nrLanc}, empresa={saida.Empresa}): {ex.Message}";
+                        _logger.LogError(errorMessage);
+                        return BadRequest(new BadRequest(errorMessage));
+                    }
+                    #endregion
                 }
-                catch (Exception ex)
-                {
-                    string errorMessage = $"Erro ao Armazenar XML (nrLanc={nrLanc}, empresa={saida.Empresa}): {ex.Message}";
-                    _logger.LogError(errorMessage);
-                    return BadRequest(new BadRequest(errorMessage));
-                }
-                #endregion
-                #region Armazenar PDF
-                try
-                {
-                    await _hubContext.Clients.Group(sessionHubDto.sessionId).SendAsync("ReceiveProgress", "Montando NFe.");
-                }
-                catch (Exception ex)
-                {
-                    string errorMessage = $"Erro ao Armazenar PDF (nrLanc={nrLanc}, empresa={saida.Empresa}): {ex.Message}";
-                    _logger.LogError(errorMessage);
-                    return BadRequest(new BadRequest(errorMessage));
-                }
-                #endregion
-                #region Alterar Situação
-                try
-                {
-                    await _hubContext.Clients.Group(sessionHubDto.sessionId).SendAsync("ReceiveProgress", "Montando NFe.");
-                }
-                catch (Exception ex)
-                {
-                    string errorMessage = $"Erro ao Alterar Situação (nrLanc={nrLanc}, empresa={saida.Empresa}): {ex.Message}";
-                    _logger.LogError(errorMessage);
-                    return BadRequest(new BadRequest(errorMessage));
-                }
-                #endregion 
-                #region Atualizar Saida
-                try
-                {
-                    await _hubContext.Clients.Group(sessionHubDto.sessionId).SendAsync("ReceiveProgress", "Atualizando dados Saida.");
-                    //realizar post saida
-                }
-                catch (Exception ex)
-                {
-                    string errorMessage = $"Erro ao Alterar Situação (nrLanc={nrLanc}, empresa={saida.Empresa}): {ex.Message}";
-                    _logger.LogError(errorMessage);
-                    return BadRequest(new BadRequest(errorMessage));
-                }
-                #endregion
 
 
                 await _hubContext.Clients.Group(sessionHubDto.sessionId).SendAsync("ReceiveProgress", "Gerado com sucesso.");
 
-                return Ok();
+                return Ok(response);
 
             }
             catch (Exception ex)

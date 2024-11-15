@@ -104,5 +104,8 @@ namespace GlobalErpData.Dto
         public string? XmNfCnc { get; set; }
         public int CdGrupoEstoque { get; set; }
         public decimal? VlSeguro { get; set; }
+
+        public byte[]? Pdf { get; set; }
+
     }
 }

@@ -201,6 +201,9 @@ public partial class Saida : IIdentifiable<int>
     [NotMapped]
     public double? ValorTotalProdutos { get; set; }
 
+    [Column("pdf")]
+    public byte[]? Pdf { get; set; }
+
     [JsonIgnore]
     [ForeignKey("CdGrupoEstoque")]
     [InverseProperty("Saida")]

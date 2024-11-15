@@ -6,11 +6,13 @@ using AutoMapper;
 using GlobalAPI_ACBrNFe.Lib.ACBr.NFe.Utils;
 using GlobalErpData.Data;
 using GlobalErpData.Models;
+using GlobalErpData.Services;
 using GlobalLib.Strings;
 using GlobalLib.Utils;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using NFe.Classes;
 using System;
 
 namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
@@ -24,17 +26,20 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
         protected GlobalErpFiscalBaseContext db;
         private readonly IConfiguration _config;
         private Saida saida;
+        private readonly SaidaCalculationService saidaCalculationService;
         public NFeGlobalService(ACBrNFe aCBrNFe,
             ILogger<NFeGlobalService> logger,
             IMapper mapper,
             IHubContext<ImportProgressHub> hubContext,
             GlobalErpFiscalBaseContext db,
+            SaidaCalculationService saidaCalculationService,
             IConfiguration config)
         {
             nfe = aCBrNFe;
             _logger = logger;
             this.mapper = mapper;
             _hubContext = hubContext;
+            this.saidaCalculationService = saidaCalculationService;
             this.db = db;
             _config = config;
         }
@@ -147,13 +152,33 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             nfe.ConfigGravar();
         }
 
-        public async Task GerarNFeAsync(NotaFiscal notaFiscal, Saida saida, Empresa empresa, Certificado cer)
+        public async Task<ResponseGerarDto > GerarNFeAsync(NotaFiscal notaFiscal, Saida saida, Empresa empresa, Certificado cer)
         {
+            ResponseGerarDto responseGerarDto = new ResponseGerarDto();
+
             this.SetConfiguracaoNfe(saida.Empresa, empresa, cer);
             string nota = notaFiscal.ToString();
+            string doc = $"S{saida.NrLanc}";
+            responseGerarDto.pathPdf = System.IO.Path.Combine(nfe.Config.DANFe.PathPDF, doc + ".pdf");
+            if (System.IO.File.Exists(responseGerarDto.pathPdf))
+            {
+                System.IO.File.Delete(responseGerarDto.pathPdf);
+            }
+
             nfe.LimparLista();
+            nfe.Config.DANFe.NomeDocumento = doc;
             nfe.CarregarINI(nota);
-            nfe.Enviar(1);
+            nfe.Assinar();
+            nfe.Validar();
+            EnvioRetornoResposta? rep = nfe.Enviar(saida.NrLanc);
+            responseGerarDto.envioRetornoResposta = rep;
+            if (rep.Envio.CStat.Equals(100))
+            {
+                responseGerarDto.xml = nfe.ObterXml(0);
+                nfe.ImprimirPDF();
+            }
+
+            return responseGerarDto;
         }
 
         public async Task<NotaFiscal> MontarNFeAsync(Saida saida, Empresa empresa, Certificado cer, bool isContingencia = false)
@@ -172,48 +197,11 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             //Destinatario
             await Destinatario(saida, notaFiscal);
 
+            //Observação
+            notaFiscal.DadosAdicionais.infCpl = saida.TxtObsNf ?? "";
+
             //Produto
-            var produto = new ProdutoNFe();
-
-            produto.nItem = 1;
-            produto.cProd = "123456";
-            produto.cEAN = "7896523206646";
-            produto.xProd = "Camisa Polo ACBr";
-            produto.NCM = "61051000";
-            produto.EXTIPI = "";
-            produto.CFOP = "5101";
-            produto.uCom = "UN";
-            produto.qCom = 1;
-            produto.vUnCom = 100;
-            produto.vProd = 100;
-            produto.cEANTrib = "7896523206646";
-            produto.uTrib = "UN";
-            produto.qTrib = 1;
-            produto.vUnTrib = 100;
-            produto.vOutro = 0;
-            produto.vFrete = 0;
-            produto.vSeg = 0;
-            produto.vDesc = 0;
-            produto.infAdProd = "Informacao Adicional do Produto";
-            produto.indTot = IndicadorTotal.itSomaTotalNFe;
-
-            //ICMS
-            produto.ICMS.orig = 0;
-            produto.ICMS.CSOSN = CSOSNIcms.csosn900;
-            produto.ICMS.modBC = DeterminacaoBaseIcms.dbiPrecoTabelado;
-            produto.ICMS.pRedBC = 0;
-            produto.ICMS.vBC = 100;
-            produto.ICMS.pICMS = 18;
-            produto.ICMS.vICMS = 18;
-            produto.ICMS.modBCST = DeterminacaoBaseIcmsST.dbisMargemValorAgregado;
-
-            //PIS
-            produto.PIS.CST = CSTPIS.pis98;
-
-            //COFINS
-            produto.COFINS.CST = CSTCofins.cof98;
-
-            notaFiscal.Produtos.Add(produto);
+            await Produto(saida, notaFiscal, empresa);
 
             notaFiscal.Total.vBC = 100;
             notaFiscal.Total.vICMS = 18;
@@ -247,6 +235,91 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             notaFiscal.Pagamentos.Add(pagamento);
 
             return notaFiscal;
+        }
+
+        private async Task Produto(Saida saida, NotaFiscal notaFiscal, Empresa empresa)
+        {
+            if (saida.ProdutoSaida == null || saida.ProdutoSaida.Count() == 0)
+            {
+                throw new Exception("Nenhum produto encontrado.");
+            }
+            int TOTAL_DE_ITENS = saida.ProdutoSaida.Count();
+            var produto = new ProdutoNFe();
+
+            saidaCalculationService.CalculateTotals(saida);
+
+            decimal totalDescontoItens = 0;
+
+            int i = 1;
+
+            foreach (ProdutoSaidum ps in saida.ProdutoSaida)
+            {
+                decimal descontoItem = 0;
+                var pe = ps.ProdutoEstoque;
+
+                #region Rateio de Valores
+                decimal razaoMultiplicadora = (ps.Quant * ps.VlVenda - ps.Desconto)
+                        / Convert.ToDecimal(saida.ValorTotalProdutos ?? 1);
+                if (eUltimoItem(TOTAL_DE_ITENS, i))
+                {
+                    descontoItem = Convert.ToDecimal(saida.ValorTotalDesconto ?? 0) - totalDescontoItens;
+                }
+                else
+                {
+                    descontoItem = ps.Desconto +
+                        razaoMultiplicadora
+                        * (saida.VlDescGlobal ?? 0);
+                    totalDescontoItens = totalDescontoItens + descontoItem;
+                }
+                #endregion
+
+                produto.nItem = i;
+                produto.cProd = ps.CdProduto.ToString();
+                produto.cEAN = ps.CdBarra;
+                produto.xProd = pe.NmProduto;
+                produto.NCM = ps.Ncm;
+                produto.EXTIPI = "";
+                produto.CFOP = ps.Cfop;
+                produto.uCom = ps.Un;
+                produto.qCom = ps.Quant;
+                produto.vUnCom = ps.VlVenda;
+                produto.vProd = ps.VlVenda;
+                produto.cEANTrib = "7896523206646";
+                produto.uTrib = ps.Un;
+                produto.qTrib = ps.Quant;
+                produto.vUnTrib = ps.VlVenda;
+                produto.vOutro = 0;
+                produto.vFrete = 0;
+                produto.vSeg = 0;
+                produto.vDesc = descontoItem;
+                produto.infAdProd = "Informacao Adicional do Produto";
+                produto.indTot = IndicadorTotal.itSomaTotalNFe;
+
+                //ICMS
+                produto.ICMS.orig = 0;
+                produto.ICMS.CSOSN = CSOSNIcms.csosn900;
+                produto.ICMS.modBC = DeterminacaoBaseIcms.dbiPrecoTabelado;
+                produto.ICMS.pRedBC = 0;
+                produto.ICMS.vBC = 100;
+                produto.ICMS.pICMS = 18;
+                produto.ICMS.vICMS = 18;
+                produto.ICMS.modBCST = DeterminacaoBaseIcmsST.dbisMargemValorAgregado;
+
+                //PIS
+                produto.PIS.CST = CSTPIS.pis98;
+
+                //COFINS
+                produto.COFINS.CST = CSTCofins.cof98;
+
+                notaFiscal.Produtos.Add(produto);
+                i++;
+            }
+
+        }
+
+        private bool eUltimoItem(int tOTAL_DE_ITENS, int i)
+        {
+            return tOTAL_DE_ITENS == i;
         }
 
         private async Task Destinatario(Saida saida, NotaFiscal notaFiscal)
