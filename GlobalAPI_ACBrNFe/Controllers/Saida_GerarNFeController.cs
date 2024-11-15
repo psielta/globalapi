@@ -28,16 +28,16 @@ namespace GlobalAPI_ACBrNFe.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class GerarNFeController : ControllerBase
+    public class Saida_GerarNFeController : ControllerBase
     {
-        private readonly ILogger<GerarNFeController> _logger;
+        private readonly ILogger<Saida_GerarNFeController> _logger;
         protected IMapper mapper;
         private readonly IHubContext<ImportProgressHub> _hubContext;
         protected GlobalErpFiscalBaseContext db;
         private readonly IConfiguration _config;
         private readonly NFeGlobalService nFeGlobalService;
-        public GerarNFeController(IConfiguration config,
-            ILogger<GerarNFeController> logger,
+        public Saida_GerarNFeController(IConfiguration config,
+            ILogger<Saida_GerarNFeController> logger,
             IMapper mapper,
             IHubContext<ImportProgressHub> hubContext,
             GlobalErpFiscalBaseContext db,

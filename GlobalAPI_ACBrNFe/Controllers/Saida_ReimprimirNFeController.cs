@@ -12,16 +12,16 @@ namespace GlobalAPI_ACBrNFe.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class ReimprimirController : ControllerBase
+    public class Saida_ReimprimirNFeController : ControllerBase
     {
-        private readonly ILogger<GerarNFeController> _logger;
+        private readonly ILogger<Saida_GerarNFeController> _logger;
         protected IMapper mapper;
         private readonly IHubContext<ImportProgressHub> _hubContext;
         protected GlobalErpFiscalBaseContext db;
         private readonly IConfiguration _config;
         private readonly NFeGlobalService nFeGlobalService;
-        public ReimprimirController(IConfiguration config,
-            ILogger<GerarNFeController> logger,
+        public Saida_ReimprimirNFeController(IConfiguration config,
+            ILogger<Saida_GerarNFeController> logger,
             IMapper mapper,
             IHubContext<ImportProgressHub> hubContext,
             GlobalErpFiscalBaseContext db,
