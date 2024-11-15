@@ -85,6 +85,10 @@ public partial class Cliente : IIdentifiable<int>
     [Column("tp_regime")]
     public int? TpRegime { get; set; }
 
+    [Column("complemento")]
+    [StringLength(255)]
+    public string? Complemento { get; set; }
+
     [JsonPropertyName("nmCidade")]
     [NotMapped]
     public string NmCidade => CdCidadeNavigation?.NmCidade ?? string.Empty;
@@ -134,4 +138,12 @@ public partial class Cliente : IIdentifiable<int>
     [JsonIgnore]
     [InverseProperty("ClienteNavigation")]
     public virtual ICollection<Saida> Saida { get; set; } = new List<Saida>();
+
+    [JsonIgnore]
+    [InverseProperty("IdClienteNavigation")]
+    public virtual ICollection<RetiradaNfe> RetiradaNves { get; set; } = new List<RetiradaNfe>();
+
+    [JsonIgnore]
+    [InverseProperty("IdClienteNavigation")]
+    public virtual ICollection<EntregaNfe> EntregaNves { get; set; } = new List<EntregaNfe>();
 }

@@ -381,4 +381,12 @@ public partial class Empresa : IIdentifiable<int>
     [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ControleNumeracaoNfe? ControleNumeracaoNfe { get; set; }
+
+    [JsonIgnore]
+    [InverseProperty("IdEmpresaNavigation")]
+    public virtual ICollection<EntregaNfe> EntregaNves { get; set; } = new List<EntregaNfe>();
+
+    [JsonIgnore]
+    [InverseProperty("IdEmpresaNavigation")]
+    public virtual ICollection<RetiradaNfe> RetiradaNves { get; set; } = new List<RetiradaNfe>();
 }

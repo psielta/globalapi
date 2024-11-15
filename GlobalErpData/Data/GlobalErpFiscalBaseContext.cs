@@ -15,6 +15,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         : base(options)
     {
     }
+    public virtual DbSet<EntregaNfe> EntregaNves { get; set; }
+    public virtual DbSet<RetiradaNfe> RetiradaNves { get; set; }
     public virtual DbSet<Category> Categories { get; set; }
 
     public virtual DbSet<Certificado> Certificados { get; set; }
@@ -817,6 +819,21 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.Fornecedor).WithMany(p => p.Entrada)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("entradas_fk");
+        });
+
+        modelBuilder.Entity<EntregaNfe>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("entrega_nfe_pkey");
+
+            entity.Property(e => e.Uf).IsFixedLength();
+
+            entity.HasOne(d => d.IdClienteNavigation).WithMany(p => p.EntregaNves)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("entrega_nfe_fk");
+
+            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.EntregaNves)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("entrega_nfe_fk1");
         });
 
         modelBuilder.Entity<EnvioEmailAutomatico>(entity =>
@@ -1800,6 +1817,21 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.ReferenciaEstoques)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("referencia_estoque_fk");
+        });
+
+        modelBuilder.Entity<RetiradaNfe>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("retirada_nfe_pkey");
+
+            entity.Property(e => e.Uf).IsFixedLength();
+
+            entity.HasOne(d => d.IdClienteNavigation).WithMany(p => p.RetiradaNves)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("retirada_nfe_fk");
+
+            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.RetiradaNves)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("retirada_nfe_fk1");
         });
 
         modelBuilder.Entity<Saida>(entity =>

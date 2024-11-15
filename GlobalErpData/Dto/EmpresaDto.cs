@@ -35,17 +35,14 @@ namespace GlobalErpData.Dto
         public string? EMail { get; set; }
 
         public string? Idcsc { get; set; }
-
         public string? Csc { get; set; }
-
         public string? AutorizoXml { get; set; }
-
         public string? CpfcnpfAutorizado { get; set; }
-
         public string? NomeFantasia { get; set; }
-
         public int? TipoRegime { get; set; }
-
         public string? MailContador { get; set; }
+        public string? Iest { get; set; }
+        public string? Complemento { get; set; }
+        public string? Cnae { get; set; }
     }
 }

@@ -6,6 +6,7 @@ using AutoMapper;
 using GlobalAPI_ACBrNFe.Lib.ACBr.NFe.Utils;
 using GlobalErpData.Data;
 using GlobalErpData.Models;
+using GlobalLib.Strings;
 using GlobalLib.Utils;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -169,24 +170,7 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             await Emitente(saida, notaFiscal, empresa);
 
             //Destinatario
-            notaFiscal.Destinatario.idEstrangeiro = "";
-            notaFiscal.Destinatario.CNPJCPF = "99999999999999";
-            notaFiscal.Destinatario.xNome = "Nome Destinatario";
-            notaFiscal.Destinatario.indIEDest = IndicadorIE.inIsento;
-            notaFiscal.Destinatario.IE = "ISENTO";
-            notaFiscal.Destinatario.ISUF = "";
-            notaFiscal.Destinatario.Email = "acbr@projetoacbr.com.br";
-            notaFiscal.Destinatario.xLgr = "Rua das Flores";
-            notaFiscal.Destinatario.nro = "973";
-            notaFiscal.Destinatario.xCpl = "";
-            notaFiscal.Destinatario.xBairro = "Centro";
-            notaFiscal.Destinatario.cMun = 3550308;
-            notaFiscal.Destinatario.xMun = "São Paulo";
-            notaFiscal.Destinatario.UF = "SP";
-            notaFiscal.Destinatario.CEP = "04615000";
-            notaFiscal.Destinatario.cPais = 1058;
-            notaFiscal.Destinatario.xPais = "BRASIL";
-            notaFiscal.Destinatario.Fone = "(11)9999-9999";
+            await Destinatario(saida, notaFiscal);
 
             //Produto
             var produto = new ProdutoNFe();
@@ -265,6 +249,74 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             return notaFiscal;
         }
 
+        private async Task Destinatario(Saida saida, NotaFiscal notaFiscal)
+        {
+            notaFiscal.Destinatario.idEstrangeiro = "";
+            notaFiscal.Destinatario.CNPJCPF = "99999999999999";
+            notaFiscal.Destinatario.xNome = "Nome Destinatario";
+            notaFiscal.Destinatario.indIEDest = IndicadorIE.inIsento;
+            notaFiscal.Destinatario.IE = "ISENTO";
+            notaFiscal.Destinatario.ISUF = "";
+            notaFiscal.Destinatario.Email = "acbr@projetoacbr.com.br";
+            notaFiscal.Destinatario.xLgr = "Rua das Flores";
+            notaFiscal.Destinatario.nro = "973";
+            notaFiscal.Destinatario.xCpl = "";
+            notaFiscal.Destinatario.xBairro = "Centro";
+            notaFiscal.Destinatario.cMun = 3550308;
+            notaFiscal.Destinatario.xMun = "São Paulo";
+            notaFiscal.Destinatario.UF = "SP";
+            notaFiscal.Destinatario.CEP = "04615000";
+            notaFiscal.Destinatario.cPais = 1058;
+            notaFiscal.Destinatario.xPais = "BRASIL";
+            notaFiscal.Destinatario.Fone = "(11)9999-9999";
+
+            notaFiscal.Destinatario.CNPJCPF = UtlStrings.OnlyInteger(saida.ClienteNavigation.NrDoc ?? "");
+            if (!string.IsNullOrEmpty(saida.ClienteNavigation.InscricaoEstadual ?? ""))
+            {
+                if ((saida.ClienteNavigation.InscricaoEstadual ?? "").Trim().ToUpper().Equals("ISENTO"))
+                {
+                    var ListaUFNaoPermiteIsento = new List<string> { "AM", "BA", "BA", "GO", "MG", "MS", "MT", "PE", "RN", "SE", "SP" };
+                    if (ListaUFNaoPermiteIsento.Contains(saida.ClienteNavigation.CdCidadeNavigation.Uf.ToUpper()))
+                    {
+                        notaFiscal.Destinatario.indIEDest = IndicadorIE.inNaoContribuinte;
+                        notaFiscal.Destinatario.IE = "";
+                    }
+                    else
+                    {
+                        notaFiscal.Destinatario.indIEDest = IndicadorIE.inIsento;
+                        notaFiscal.Destinatario.IE = "";
+                    }
+                }
+                else
+                {
+                    notaFiscal.Destinatario.indIEDest = IndicadorIE.inContribuinte;
+                    notaFiscal.Destinatario.IE = (saida.ClienteNavigation.InscricaoEstadual ?? "").Trim();
+                }
+            }
+            else
+            {
+                notaFiscal.Destinatario.indIEDest = IndicadorIE.inNaoContribuinte;
+                notaFiscal.Destinatario.IE = "";
+            }
+
+            notaFiscal.Destinatario.xNome = saida.ClienteNavigation.NmCliente;
+            notaFiscal.Destinatario.Fone = UtlStrings.OnlyInteger(saida.ClienteNavigation.Telefone??"");
+            notaFiscal.Destinatario.ISUF = "";
+            notaFiscal.Destinatario.IM = "";
+            if ((saida.ClienteNavigation.EMail ?? "").Length > 10)
+                notaFiscal.Destinatario.Email = saida.ClienteNavigation.EMail;
+            notaFiscal.Destinatario.CEP = saida.ClienteNavigation.Cep;
+            notaFiscal.Destinatario.xLgr = saida.ClienteNavigation.NmEndereco;
+            //notaFiscal.Destinatario.xCpl = saida.ClienteNavigation.Com;
+            notaFiscal.Destinatario.nro = saida.ClienteNavigation.Numero ?? "";
+            notaFiscal.Destinatario.xBairro = saida.ClienteNavigation.NmBairro;
+            notaFiscal.Destinatario.cMun = Convert.ToInt32(saida.ClienteNavigation.CdCidade);
+            notaFiscal.Destinatario.xMun = saida.ClienteNavigation.CdCidadeNavigation.NmCidade;
+            notaFiscal.Destinatario.UF = saida.ClienteNavigation.CdCidadeNavigation.Uf;
+            notaFiscal.Destinatario.cPais = 1058;
+            notaFiscal.Destinatario.xPais = "BRASIL";
+        }
+
         private async Task Emitente(Saida saida, NotaFiscal notaFiscal, Empresa empresa)
         {
             notaFiscal.Emitente.CNPJCPF = empresa.CdCnpj;
@@ -274,8 +326,8 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             notaFiscal.Emitente.Fone = empresa.Telefone;
             notaFiscal.Emitente.CEP = empresa.CdCep;
             notaFiscal.Emitente.xLgr = empresa.NmEndereco;
+            notaFiscal.Emitente.xCpl = empresa.Complemento;
             notaFiscal.Emitente.nro = empresa.Numero.ToString();
-            notaFiscal.Emitente.xCpl = "";
             notaFiscal.Emitente.xBairro = empresa.NmBairro;
             notaFiscal.Emitente.cMun = Convert.ToInt32(empresa.CdCidade);
             notaFiscal.Emitente.xMun = empresa.CdCidadeNavigation.NmCidade;
@@ -302,8 +354,8 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             }
 
             notaFiscal.Emitente.IM = empresa.NrInscrMunicipal;
-            //notaFiscal.Emitente.CNAE = empresa.Cnae;
-            //notaFiscal.Emitente.IEST = "";
+            notaFiscal.Emitente.CNAE = empresa.Cnae;
+            notaFiscal.Emitente.IEST = empresa.Iest;
             if (((empresa.CpfcnpfAutorizado ?? "").Length > 0) && ((empresa.AutorizoXml ?? "").Equals("S")))
             {
                 var aut = new AutXML();

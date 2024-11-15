@@ -96,6 +96,9 @@ namespace GlobalErpData.Repository
             CreateMap<Icm, IcmDto>().ReverseMap();
             CreateMap<ControleNumeracaoNfe, ControleNumeracaoNfeDto>().ReverseMap();
 
+            CreateMap<RetiradaNfe, RetiradaNfeDto>().ReverseMap();
+            CreateMap<EntregaNfe, EntregaNfeDto>().ReverseMap();
+
         }
     }
 }

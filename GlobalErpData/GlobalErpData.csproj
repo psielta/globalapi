@@ -41,8 +41,4 @@
 		<ProjectReference Include="..\GlobalLib\GlobalLib.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<Folder Include="Data\" />
-	</ItemGroup>
-
 </Project>
