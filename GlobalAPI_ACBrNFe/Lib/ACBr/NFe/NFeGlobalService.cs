@@ -208,7 +208,7 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
 
             //Totais
             Totais(notaFiscal, saida);
-            
+
 
 
 
@@ -234,15 +234,20 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             notaFiscal.Total.vSeg = notaFiscal.Produtos.Sum(p => p.vSeg ?? 0);
             notaFiscal.Total.vDesc = notaFiscal.Produtos.Sum(p => p.vDesc ?? 0);
             notaFiscal.Total.vII = 0;
+            notaFiscal.Total.vICMSDeson = 0;
+            notaFiscal.Total.vFCPST = 0;
             notaFiscal.Total.vIPI = notaFiscal.Produtos.Sum(p => p.IPI.vIPI ?? 0);
             notaFiscal.Total.vPIS = notaFiscal.Produtos.Sum(p => p.PIS.vPIS ?? 0);
             notaFiscal.Total.vCOFINS = notaFiscal.Produtos.Sum(p => p.COFINS.vCOFINS ?? 0);
             notaFiscal.Total.vOutro = notaFiscal.Produtos.Sum(p => p.vOutro ?? 0);
-            notaFiscal.Total.vNF = Convert.ToDecimal(saida.ValorTotalNfe ?? 0);
             notaFiscal.Total.vTotTrib = notaFiscal.Produtos.Sum(p => p.vTotTrib ?? 0);
             notaFiscal.Total.vFCPUFDest = notaFiscal.Produtos.Sum(p => p.ICMSUFDEST.vFCPUFDest ?? 0);
             notaFiscal.Total.vICMSUFDest = notaFiscal.Produtos.Sum(p => p.ICMSUFDEST.vICMSUFDest ?? 0);
             notaFiscal.Total.vICMSUFRemet = notaFiscal.Produtos.Sum(p => p.ICMSUFDEST.vICMSUFRemet ?? 0);
+            notaFiscal.Total.vNF = notaFiscal.Produtos.Sum(p =>
+            p.vProd - (p.vDesc ?? 0) + (p.ICMS.vICMSST ?? 0) + (p.vOutro ?? 0) + (p.vFrete ?? 0) + (p.vSeg ?? 0)
+            + (p.IPI.vIPI ?? 0)
+            );
         }
 
         private async Task Produto(Saida saida, NotaFiscal notaFiscal, Empresa empresa)
@@ -645,7 +650,7 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
                 /************GGGGGGG***GGGGGGG***GGGGGGG***GGGGGGG***G*****G***GGGGGGG************/
                 /*********************************************************************************/
             }
-            
+
         }
 
         private CSTCofins GetCstCofins(ProdutoSaidum ps)
