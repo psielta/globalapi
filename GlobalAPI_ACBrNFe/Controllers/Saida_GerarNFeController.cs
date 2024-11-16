@@ -68,7 +68,8 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 #region Validações
                 await _hubContext.Clients.Group(sessionHubDto.sessionId).SendAsync("ReceiveProgress", "Iniciando validações...");
                 Saida? saida = await db.Saidas
-                    .Include(f => f.Fretes)
+                    .Include(f => f.Fretes).ThenInclude(f => f.Transportadora).ThenInclude(f => f.CdCidadeNavigation)
+                    .Include(s => s.SaidasVolumes)
                     .Include(p => p.CdGrupoEstoqueNavigation)
                     .Include(p => p.ProdutoSaida).ThenInclude(p => p.ProdutoEstoque)
                     .Include(e => e.ClienteNavigation).ThenInclude(cliente => cliente.CdCidadeNavigation)

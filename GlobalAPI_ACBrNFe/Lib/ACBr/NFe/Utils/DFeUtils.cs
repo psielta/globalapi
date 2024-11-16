@@ -61,4 +61,50 @@
             return UFs.TryGetValue(uf, out int codigo) ? codigo : (int?)null;
         }
     }
+
+    public enum TTipoAmarracaoTranportadora
+    {
+        tatOpcional,
+        tatObrigatorio,
+        tatNaoAmarra
+    }
+
+    public struct TTipoFrete
+    {
+        public ACBrLib.NFe.ModalidadeFrete Modalidade;
+        public TTipoAmarracaoTranportadora TipoAmarracaoTranportadora;
+
+        public TTipoFrete(ACBrLib.NFe.ModalidadeFrete modalidade, TTipoAmarracaoTranportadora tipoAmarracaoTranportadora)
+        {
+            Modalidade = modalidade;
+            TipoAmarracaoTranportadora = tipoAmarracaoTranportadora;
+        }
+    }
+
+    public class FreteHelper
+    {
+        private static readonly TTipoFrete[] CasosDeFrete =
+        {
+            new TTipoFrete(ACBrLib.NFe.ModalidadeFrete.mfContaEmitente, TTipoAmarracaoTranportadora.tatObrigatorio),
+            new TTipoFrete(ACBrLib.NFe.ModalidadeFrete.mfContaDestinatario, TTipoAmarracaoTranportadora.tatOpcional),
+            new TTipoFrete(ACBrLib.NFe.ModalidadeFrete.mfContaTerceiros, TTipoAmarracaoTranportadora.tatOpcional),
+            new TTipoFrete(ACBrLib.NFe.ModalidadeFrete.mfProprioRemetente, TTipoAmarracaoTranportadora.tatNaoAmarra),
+            new TTipoFrete(ACBrLib.NFe.ModalidadeFrete.mfProprioDestinatario, TTipoAmarracaoTranportadora.tatNaoAmarra),
+            new TTipoFrete(ACBrLib.NFe.ModalidadeFrete.mfSemFrete, TTipoAmarracaoTranportadora.tatNaoAmarra)
+        };
+
+        public static TTipoAmarracaoTranportadora EncontrarTipoAmarracao(ACBrLib.NFe.ModalidadeFrete modalidadeFrete)
+        {
+            foreach (var caso in CasosDeFrete)
+            {
+                if (caso.Modalidade == modalidadeFrete)
+                {
+                    return caso.TipoAmarracaoTranportadora;
+                }
+            }
+
+            return TTipoAmarracaoTranportadora.tatNaoAmarra;
+        }
+    }
+
 }

@@ -192,22 +192,25 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             notaFiscal.InfNFe.Versao = "4.0";
 
             //Identificação
-            await Ide(saida, notaFiscal, empresa, cer, isContingencia);
+            await GrupoIde(saida, notaFiscal, empresa, cer, isContingencia);
 
             //Emitente
-            await Emitente(saida, notaFiscal, empresa);
+            await GrupoEmitente(saida, notaFiscal, empresa);
 
             //Destinatario
-            await Destinatario(saida, notaFiscal);
+            await GrupoDestinatario(saida, notaFiscal);
 
             //Observação
             notaFiscal.DadosAdicionais.infCpl = saida.TxtObsNf ?? "";
 
             //Produto
-            await Produto(saida, notaFiscal, empresa);
+            await GrupoProduto(saida, notaFiscal, empresa);
 
             //Totais
-            Totais(notaFiscal, saida);
+            GrupoTotais(notaFiscal, saida);
+
+            //Frete
+            await GrupoTransportadora(saida, notaFiscal);
 
 
 
@@ -223,7 +226,153 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             return notaFiscal;
         }
 
-        private void Totais(NotaFiscal notaFiscal, Saida saida)
+        private async Task GrupoTransportadora(Saida saida, NotaFiscal notaFiscal)
+        {
+            if (saida.Fretes == null || !saida.Fretes.Any())
+            {
+                // No freight data, set modFrete to mfSemFrete
+                notaFiscal.Transportador.modFrete = ACBrLib.NFe.ModalidadeFrete.mfSemFrete;
+            }
+            else
+            {
+                var frete = saida.Fretes.First();
+                var modalidadeFrete = (ACBrLib.NFe.ModalidadeFrete)frete.FretePorConta;
+                var tipoAmarracaoTranportadora = FreteHelper.EncontrarTipoAmarracao(modalidadeFrete);
+
+                switch (tipoAmarracaoTranportadora)
+                {
+                    case TTipoAmarracaoTranportadora.tatOpcional:
+                        {
+                            if (frete.CdTransp == null)
+                            {
+                                notaFiscal.Transportador.modFrete = modalidadeFrete;
+                                notaFiscal.Transportador.CNPJCPF = "";
+                                notaFiscal.Transportador.xNome = "";
+                                notaFiscal.Transportador.IE = "";
+                                notaFiscal.Transportador.xEnder = "";
+                                notaFiscal.Transportador.xMun = "";
+                                notaFiscal.Transportador.UF = "";
+
+                                if (notaFiscal.Identificacao.idDest != ACBrLib.NFe.DestinoOperacao.doInterestadual)
+                                {
+                                    if (notaFiscal.Emitente.cMun == notaFiscal.Destinatario.cMun)
+                                    {
+                                        notaFiscal.Transportador.Placa = frete.Transportadora?.PlacaVeiculo ?? "";
+                                        notaFiscal.Transportador.UFPlaca = frete.Transportadora?.Uf ?? "";
+                                        notaFiscal.Transportador.RNTC = "";
+                                    }
+                                }
+
+                                await InserirVolumesSaidas(saida, notaFiscal);
+                            }
+                            else
+                            {
+                                // Transporter provided
+                                notaFiscal.Transportador.modFrete = modalidadeFrete;
+                                var transportadora = frete.Transportadora;
+
+                                if (transportadora != null)
+                                {
+                                    notaFiscal.Transportador.CNPJCPF = (transportadora.CdCnpj?? "").Length > 0 ? UtlStrings.OnlyInteger(transportadora.CdCnpj  ?? "") : "";
+                                    notaFiscal.Transportador.xNome = transportadora.NmTransportadora;
+                                    notaFiscal.Transportador.IE = transportadora.CdIe;
+                                    notaFiscal.Transportador.xEnder = $"{transportadora.NmEndereco},{transportadora.Numero}";
+                                    notaFiscal.Transportador.xMun = transportadora.NmCidade;
+                                    notaFiscal.Transportador.UF = transportadora.Uf;
+
+                                    if (notaFiscal.Identificacao.idDest != ACBrLib.NFe.DestinoOperacao.doInterestadual)
+                                    {
+                                        if (!string.IsNullOrEmpty(transportadora.PlacaVeiculo))
+                                        {
+                                            // Set vehicle data from transportadora
+                                            notaFiscal.Transportador.Placa = transportadora.PlacaVeiculo;
+                                            notaFiscal.Transportador.UFPlaca = transportadora.Uf;
+                                            notaFiscal.Transportador.RNTC = "";
+                                        }
+                                    }
+                                }
+
+                                await InserirVolumesSaidas(saida, notaFiscal);
+                            }
+                            break;
+                        }
+                    case TTipoAmarracaoTranportadora.tatObrigatorio:
+                        {
+                            notaFiscal.Transportador.modFrete = modalidadeFrete;
+                            var transportadora = frete.Transportadora;
+
+                            if (transportadora != null)
+                            {
+                                notaFiscal.Transportador.CNPJCPF = (transportadora.CdCnpj ?? "").Length > 0 ? UtlStrings.OnlyInteger(transportadora.CdCnpj ?? "") : "";
+                                notaFiscal.Transportador.xNome = transportadora.NmTransportadora;
+                                notaFiscal.Transportador.IE = transportadora.CdIe;
+                                notaFiscal.Transportador.xEnder = $"{transportadora.NmEndereco},{transportadora.Numero}";
+                                notaFiscal.Transportador.xMun = transportadora.NmCidade;
+                                notaFiscal.Transportador.UF = transportadora.Uf;
+
+                                if (notaFiscal.Identificacao.idDest != ACBrLib.NFe.DestinoOperacao.doInterestadual)
+                                {
+                                    if (!string.IsNullOrEmpty(transportadora.PlacaVeiculo))
+                                    {
+                                        // Set vehicle data from transportadora
+                                        notaFiscal.Transportador.Placa = transportadora.PlacaVeiculo;
+                                        notaFiscal.Transportador.UFPlaca = transportadora.Uf;
+                                        notaFiscal.Transportador.RNTC = "";
+                                    }
+                                }
+                            }
+
+                            await InserirVolumesSaidas(saida, notaFiscal);
+                            break;
+                        }
+                    case TTipoAmarracaoTranportadora.tatNaoAmarra:
+                        {
+                            notaFiscal.Transportador.modFrete = modalidadeFrete;
+                            notaFiscal.Transportador.CNPJCPF = "";
+                            notaFiscal.Transportador.xNome = "";
+                            notaFiscal.Transportador.IE = "";
+                            notaFiscal.Transportador.xEnder = "";
+                            notaFiscal.Transportador.xMun = "";
+                            notaFiscal.Transportador.UF = "";
+
+                            if (notaFiscal.Identificacao.idDest != ACBrLib.NFe.DestinoOperacao.doInterestadual)
+                            {
+                                if (notaFiscal.Emitente.cMun == notaFiscal.Destinatario.cMun)
+                                {
+                                    // Set vehicle data from frete
+                                    notaFiscal.Transportador.Placa = frete.Transportadora?.PlacaVeiculo ?? "";
+                                    notaFiscal.Transportador.UFPlaca = frete.Transportadora?.Uf ?? "";
+                                    notaFiscal.Transportador.RNTC = "";
+                                }
+                            }
+
+                            await InserirVolumesSaidas(saida, notaFiscal);
+                            break;
+                        }
+                }
+            }
+        }
+
+        private async Task InserirVolumesSaidas(Saida saida, NotaFiscal notaFiscal)
+        {
+            if (saida.SaidasVolumes != null && saida.SaidasVolumes.Count > 0)
+            {
+                foreach (var volume in saida.SaidasVolumes)
+                {
+                    var vol = new VolumeNFe();
+                    vol.qVol = volume.QVol;
+                    vol.esp = volume.Esp;
+                    vol.Marca = volume.Marca;
+                    vol.nVol = volume.NVol;
+                    vol.pesoL = volume.PesoL;
+                    vol.pesoB = volume.PesoB;
+                    //vol.Lacres= volume.Lacres;
+                    notaFiscal.Volumes.Add(vol);
+                }
+            }
+        }
+
+        private void GrupoTotais(NotaFiscal notaFiscal, Saida saida)
         {
             notaFiscal.Total.vBC = notaFiscal.Produtos.Sum(p => p.ICMS.vBC ?? 0);
             notaFiscal.Total.vICMS = notaFiscal.Produtos.Sum(p => p.ICMS.vICMS ?? 0);
@@ -250,7 +399,7 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             );
         }
 
-        private async Task Produto(Saida saida, NotaFiscal notaFiscal, Empresa empresa)
+        private async Task GrupoProduto(Saida saida, NotaFiscal notaFiscal, Empresa empresa)
         {
             if (saida.ProdutoSaida == null || saida.ProdutoSaida.Count() == 0)
             {
@@ -936,7 +1085,7 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             return tOTAL_DE_ITENS == i;
         }
 
-        private async Task Destinatario(Saida saida, NotaFiscal notaFiscal)
+        private async Task GrupoDestinatario(Saida saida, NotaFiscal notaFiscal)
         {
             notaFiscal.Destinatario.CNPJCPF = UtlStrings.OnlyInteger(saida.ClienteNavigation.NrDoc ?? "");
             if (!string.IsNullOrEmpty(saida.ClienteNavigation.InscricaoEstadual ?? ""))
@@ -1026,7 +1175,7 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             }
         }
 
-        private async Task Emitente(Saida saida, NotaFiscal notaFiscal, Empresa empresa)
+        private async Task GrupoEmitente(Saida saida, NotaFiscal notaFiscal, Empresa empresa)
         {
             notaFiscal.Emitente.CNPJCPF = empresa.CdCnpj;
             notaFiscal.Emitente.IE = empresa.NrInscrEstadual;
@@ -1073,7 +1222,7 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             }
         }
 
-        private async Task Ide(Saida saida, NotaFiscal notaFiscal, Empresa empresa, Certificado certificado, bool isContigencia = false)
+        private async Task GrupoIde(Saida saida, NotaFiscal notaFiscal, Empresa empresa, Certificado certificado, bool isContigencia = false)
         {
             notaFiscal.Identificacao.cNF = 400;
 
