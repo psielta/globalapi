@@ -168,6 +168,10 @@ namespace GlobalAPI_ACBrNFe.Controllers
                         {
                             saida.Pdf = System.IO.File.ReadAllBytes(responseGerar.pathPdf);
                         }
+                        else
+                        {
+                            throw new Exception($"PDF não registrado (SAIDA: {saida.NrLanc})");
+                        }
 
                         HttpClient client = new HttpClient();
 

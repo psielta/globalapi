@@ -152,7 +152,7 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             nfe.ConfigGravar();
         }
 
-        public async Task<ResponseGerarDto > GerarNFeAsync(NotaFiscal notaFiscal, Saida saida, Empresa empresa, Certificado cer)
+        public async Task<ResponseGerarDto> GerarNFeAsync(NotaFiscal notaFiscal, Saida saida, Empresa empresa, Certificado cer)
         {
             ResponseGerarDto responseGerarDto = new ResponseGerarDto();
 
@@ -201,8 +201,163 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             notaFiscal.DadosAdicionais.infCpl = saida.TxtObsNf ?? "";
 
             //Produto
-            await Produto(saida, notaFiscal, empresa);
+            await Produto_Totais(saida, notaFiscal, empresa);
 
+
+
+            var pagamento = new PagamentoNFe();
+            pagamento.indPag = IndicadorPagamento.ipVista;
+            pagamento.tPag = FormaPagamento.fpDinheiro;
+            pagamento.xPag = "";
+            pagamento.vPag = 100;
+
+            notaFiscal.Pagamentos.Add(pagamento);
+
+            return notaFiscal;
+        }
+
+        private async Task Produto_Totais(Saida saida, NotaFiscal notaFiscal, Empresa empresa)
+        {
+            if (saida.ProdutoSaida == null || saida.ProdutoSaida.Count() == 0)
+            {
+                throw new Exception("Nenhum produto encontrado.");
+            }
+            int TOTAL_DE_ITENS = saida.ProdutoSaida.Count();
+            var produto = new ProdutoNFe();
+
+            saidaCalculationService.CalculateTotals(saida);
+
+            decimal totalDescontoItens = 0;
+            decimal totalFreteItens = 0;
+            decimal totalSeguroItens = 0;
+            decimal totalOutroItens = 0;
+
+            int i = 1;
+
+            foreach (ProdutoSaidum ps in saida.ProdutoSaida)
+            {
+                decimal descontoItem = 0;
+                decimal vlOutroItem = 0;
+                decimal vlFreteItem = 0;
+                decimal vlSeguroItem = 0;
+                var pe = ps.ProdutoEstoque;
+
+                #region Rateio de Valores
+                decimal Φ = (ps.Quant * ps.VlVenda - ps.Desconto)
+                        / Convert.ToDecimal(saida.ValorTotalProdutos ?? 1);
+                if (eUltimoItem(TOTAL_DE_ITENS, i))
+                {
+                    descontoItem = Convert.ToDecimal(saida.ValorTotalDesconto ?? 0) - totalDescontoItens;
+                    vlOutroItem = Convert.ToDecimal(saida.VlOutro ?? 0) - totalOutroItens;
+                    vlFreteItem = Convert.ToDecimal((saida.Fretes != null && saida.Fretes.Count() > 0) ? saida.Fretes.First().VlFrete : 0) - totalFreteItens;
+                    vlSeguroItem = Convert.ToDecimal(saida.VlSeguro ?? 0) - totalSeguroItens;
+                }
+                else
+                {
+                    descontoItem = ps.Desconto +
+                        Φ
+                        * (saida.VlDescGlobal ?? 0);
+                    totalDescontoItens = totalDescontoItens + descontoItem;
+
+                    vlOutroItem = Φ * (saida.VlOutro ?? 0);
+                    totalOutroItens = totalOutroItens + vlOutroItem;
+
+                    vlFreteItem = Φ * Convert.ToDecimal((saida.Fretes != null && saida.Fretes.Count() > 0) ? saida.Fretes.First().VlFrete : 0);
+                    totalFreteItens = totalFreteItens + vlFreteItem;
+
+                    vlSeguroItem = Φ * (saida.VlSeguro ?? 0);
+                    totalSeguroItens = totalSeguroItens + vlSeguroItem;
+                }
+                #endregion
+
+                produto.nItem = i;
+                produto.cProd = ps.CdProduto.ToString();
+                produto.cEAN = ps.CdBarra;
+                produto.xProd = pe.NmProduto.Length > 120 ? pe.NmProduto.Substring(0, 120) : pe.NmProduto;
+                produto.NCM = ps.Ncm;
+                produto.EXTIPI = "";
+                produto.CFOP = ps.Cfop;
+                produto.uCom = ps.Un;
+                produto.qCom = ps.Quant;
+                produto.vUnCom = ps.VlVenda;
+                produto.vProd = ps.VlVenda;
+                produto.cEANTrib = ps.CdBarra;
+                produto.uTrib = ps.Un;
+                produto.qTrib = ps.Quant;
+                produto.vUnTrib = ps.VlVenda;
+                produto.vOutro = vlOutroItem;
+                produto.vFrete = vlFreteItem;
+                produto.vSeg = vlSeguroItem;
+                produto.vDesc = descontoItem;
+                produto.infAdProd = "";
+                produto.indTot = IndicadorTotal.itSomaTotalNFe;
+
+                if (pe.ExTipi.Length > 0)
+                {
+                    produto.EXTIPI = pe.ExTipi;
+                }
+
+                var listaCfopAnp = new List<string>
+                {
+                    "1651", "1652", "1653", "1658", "1659", "1660", "1661", "1662", "1663", "1664",
+                    "2651", "2652", "2653", "2658", "2659", "2660", "2661", "2662", "2663", "2664",
+                    "3651", "3652", "3653",
+                    "5651", "5652", "5653", "5654", "5655", "5656", "5657", "5658", "5659", "5660",
+                    "5661", "5662", "5663", "5664", "5665", "5666", "5667",
+                    "6651", "6652", "6653", "6654", "6655", "6656", "6657", "6658", "6659", "6660",
+                    "6661", "6662", "6663", "6664", "6665", "6666", "6667",
+                    "7651", "7654", "7667"
+                };
+                if (listaCfopAnp.Contains(ps.Cfop ?? ""))
+                {
+                    if (pe.CdAnp != null)
+                    {
+                        var tblAnp = await db.TabelaAnps.Where(t => t.Codigo == pe.CdAnp).FirstOrDefaultAsync();
+                        if (tblAnp != null)
+                        {
+                            produto.Combustivel.cProdANP = pe.CdAnp ?? 0;
+                            produto.Combustivel.CODIF = "";
+                            produto.Combustivel.descANP = tblAnp.Produto;
+                            produto.Combustivel.qTemp = ps.Quant;
+                            produto.Combustivel.UFCons = empresa.CdCidadeNavigation.Uf;
+
+                            if (pe.CdAnp == 210203001)
+                            {
+                                produto.Combustivel.pGLP = 100;
+                                produto.Combustivel.vPart = produto.vUnTrib;
+                            }
+                        }
+                    }
+                }
+
+
+                //produto.xPed
+                //produto.nItemPed
+
+                if (VerificaAplicacaoCEST(ps, saida, empresa))
+                {
+                    produto.CEST = ps.Cest;
+                }
+
+                //ICMS
+                produto.ICMS.orig = 0;
+                produto.ICMS.CSOSN = CSOSNIcms.csosn900;
+                produto.ICMS.modBC = DeterminacaoBaseIcms.dbiPrecoTabelado;
+                produto.ICMS.pRedBC = 0;
+                produto.ICMS.vBC = 100;
+                produto.ICMS.pICMS = 18;
+                produto.ICMS.vICMS = 18;
+                produto.ICMS.modBCST = DeterminacaoBaseIcmsST.dbisMargemValorAgregado;
+
+                //PIS
+                produto.PIS.CST = CSTPIS.pis98;
+
+                //COFINS
+                produto.COFINS.CST = CSTCofins.cof98;
+
+                notaFiscal.Produtos.Add(produto);
+                i++;
+            }
             notaFiscal.Total.vBC = 100;
             notaFiscal.Total.vICMS = 18;
             notaFiscal.Total.vBCST = 0;
@@ -225,96 +380,45 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             notaFiscal.Total.vFCPUFDest = 0;
             notaFiscal.Total.vICMSUFDest = 0;
             notaFiscal.Total.vICMSUFRemet = 0;
-
-            var pagamento = new PagamentoNFe();
-            pagamento.indPag = IndicadorPagamento.ipVista;
-            pagamento.tPag = FormaPagamento.fpDinheiro;
-            pagamento.xPag = "";
-            pagamento.vPag = 100;
-
-            notaFiscal.Pagamentos.Add(pagamento);
-
-            return notaFiscal;
         }
 
-        private async Task Produto(Saida saida, NotaFiscal notaFiscal, Empresa empresa)
+        private bool VerificaAplicacaoCEST(ProdutoSaidum ps, Saida saida, Empresa empresa)
         {
-            if (saida.ProdutoSaida == null || saida.ProdutoSaida.Count() == 0)
+            if (string.IsNullOrEmpty(ps.Cst) && string.IsNullOrEmpty(ps.CdCsosn))
             {
-                throw new Exception("Nenhum produto encontrado.");
+                return false;
             }
-            int TOTAL_DE_ITENS = saida.ProdutoSaida.Count();
-            var produto = new ProdutoNFe();
-
-            saidaCalculationService.CalculateTotals(saida);
-
-            decimal totalDescontoItens = 0;
-
-            int i = 1;
-
-            foreach (ProdutoSaidum ps in saida.ProdutoSaida)
+            else
+            if (saida.TpSaida.Equals("V") && empresa.TipoRegime <= 1 && string.IsNullOrEmpty(ps.CdCsosn))
             {
-                decimal descontoItem = 0;
-                var pe = ps.ProdutoEstoque;
-
-                #region Rateio de Valores
-                decimal razaoMultiplicadora = (ps.Quant * ps.VlVenda - ps.Desconto)
-                        / Convert.ToDecimal(saida.ValorTotalProdutos ?? 1);
-                if (eUltimoItem(TOTAL_DE_ITENS, i))
-                {
-                    descontoItem = Convert.ToDecimal(saida.ValorTotalDesconto ?? 0) - totalDescontoItens;
-                }
-                else
-                {
-                    descontoItem = ps.Desconto +
-                        razaoMultiplicadora
-                        * (saida.VlDescGlobal ?? 0);
-                    totalDescontoItens = totalDescontoItens + descontoItem;
-                }
-                #endregion
-
-                produto.nItem = i;
-                produto.cProd = ps.CdProduto.ToString();
-                produto.cEAN = ps.CdBarra;
-                produto.xProd = pe.NmProduto;
-                produto.NCM = ps.Ncm;
-                produto.EXTIPI = "";
-                produto.CFOP = ps.Cfop;
-                produto.uCom = ps.Un;
-                produto.qCom = ps.Quant;
-                produto.vUnCom = ps.VlVenda;
-                produto.vProd = ps.VlVenda;
-                produto.cEANTrib = "7896523206646";
-                produto.uTrib = ps.Un;
-                produto.qTrib = ps.Quant;
-                produto.vUnTrib = ps.VlVenda;
-                produto.vOutro = 0;
-                produto.vFrete = 0;
-                produto.vSeg = 0;
-                produto.vDesc = descontoItem;
-                produto.infAdProd = "Informacao Adicional do Produto";
-                produto.indTot = IndicadorTotal.itSomaTotalNFe;
-
-                //ICMS
-                produto.ICMS.orig = 0;
-                produto.ICMS.CSOSN = CSOSNIcms.csosn900;
-                produto.ICMS.modBC = DeterminacaoBaseIcms.dbiPrecoTabelado;
-                produto.ICMS.pRedBC = 0;
-                produto.ICMS.vBC = 100;
-                produto.ICMS.pICMS = 18;
-                produto.ICMS.vICMS = 18;
-                produto.ICMS.modBCST = DeterminacaoBaseIcmsST.dbisMargemValorAgregado;
-
-                //PIS
-                produto.PIS.CST = CSTPIS.pis98;
-
-                //COFINS
-                produto.COFINS.CST = CSTCofins.cof98;
-
-                notaFiscal.Produtos.Add(produto);
-                i++;
+                return false;
             }
-
+            else
+            if ((!saida.TpSaida.Equals("V")) && empresa.TipoRegime <= 1 && string.IsNullOrEmpty(ps.Cst))
+            {
+                return false;
+            }
+            else
+            if (empresa.TipoRegime > 1 && string.IsNullOrEmpty(ps.Cst))
+            {
+                return false;
+            }
+            else if (empresa.TipoRegime > 1 || (!saida.TpSaida.Equals("V")))
+            {
+                string cstSemOrigem = (ps.Cst ?? "").Substring(1);
+                List<string> listaCst = new List<string> { "10", "30", "60", "70", "90" };
+                return listaCst.Contains(cstSemOrigem);
+            }
+            else if (empresa.TipoRegime <= 1)
+            {
+                string csosnSemOrigem = (ps.CdCsosn ?? "").Substring(1);
+                List<string> listaCsosn = new List<string> { "500", "900", "201", "202", "203" };
+                return listaCsosn.Contains(csosnSemOrigem);
+            }
+            else
+            {
+                return false;
+            }
         }
 
         private bool eUltimoItem(int tOTAL_DE_ITENS, int i)

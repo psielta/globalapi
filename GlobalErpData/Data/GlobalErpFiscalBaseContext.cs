@@ -18,6 +18,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
     public virtual DbSet<EntregaNfe> EntregaNves { get; set; }
     public virtual DbSet<RetiradaNfe> RetiradaNves { get; set; }
     public virtual DbSet<Category> Categories { get; set; }
+    public virtual DbSet<TabelaAnp> TabelaAnps { get; set; }
 
     public virtual DbSet<Certificado> Certificados { get; set; }
 
@@ -1952,6 +1953,13 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.Section).WithMany(p => p.SectionItems)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("section_items_section_id_fkey");
+        });
+
+        modelBuilder.Entity<TabelaAnp>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("tabela_anp_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("nextval(('public.gen_tabela_anp_id'::text)::regclass)");
         });
 
         modelBuilder.Entity<Transportadora>(entity =>
