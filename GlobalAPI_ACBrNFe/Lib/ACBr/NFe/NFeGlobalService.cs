@@ -188,42 +188,90 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
         {
             var notaFiscal = new NotaFiscal();
 
-            //infNFe
             notaFiscal.InfNFe.Versao = "4.0";
-
-            //Identificação
             await GrupoIde(saida, notaFiscal, empresa, cer, isContingencia);
-
-            //Emitente
             await GrupoEmitente(saida, notaFiscal, empresa);
-
-            //Destinatario
             await GrupoDestinatario(saida, notaFiscal);
-
-            //Observação
             notaFiscal.DadosAdicionais.infCpl = saida.TxtObsNf ?? "";
-
-            //Produto
             await GrupoProduto(saida, notaFiscal, empresa);
-
-            //Totais
             GrupoTotais(notaFiscal, saida);
-
-            //Frete
             await GrupoTransportadora(saida, notaFiscal);
-
-
-
-
-            var pagamento = new PagamentoNFe();
-            pagamento.indPag = IndicadorPagamento.ipVista;
-            pagamento.tPag = FormaPagamento.fpDinheiro;
-            pagamento.xPag = "";
-            pagamento.vPag = 100;
-
-            notaFiscal.Pagamentos.Add(pagamento);
+            await GrupoFatura(saida, notaFiscal);
+            await GrupoDuplicata(saida, notaFiscal);
+            await GrupoPagamento(saida, notaFiscal);
 
             return notaFiscal;
+        }
+
+        private async Task GrupoDuplicata(Saida saida, NotaFiscal notaFiscal)
+        {
+            int k = 1;
+            var contas = await db.ContasARecebers.AsNoTracking().Where(car => car.NrSaida == saida.NrLanc).ToListAsync();
+            if (contas != null && contas.Count > 0)
+            {
+                foreach (var duplicata in contas)
+                {
+                    var dup = new DuplicataNFe();
+                    dup.nDup = k.ToString();// duplicata.NrDuplicata;
+                    dup.dVenc = DateUtils.DateOnlyToDateTime(duplicata.DtVencimento);
+                    dup.vDup = duplicata.VlConta;
+                    notaFiscal.Duplicatas.Add(dup);
+
+                    k++;
+                }
+            }
+        }
+
+        private async Task GrupoFatura(Saida saida, NotaFiscal notaFiscal)
+        {
+            var fat = notaFiscal.Fatura;
+            fat.nFat = notaFiscal.Identificacao.cNF.ToString();
+            fat.vOrig = notaFiscal.Total.vNF;
+            fat.vDesc = notaFiscal.Total.vDesc;
+            fat.vLiq = notaFiscal.Total.vNF;
+        }
+
+        private async Task GrupoPagamento(Saida saida, NotaFiscal notaFiscal)
+        {
+            var pagamento = new PagamentoNFe();
+            if (notaFiscal.Identificacao.finNFe == FinalidadeNFe.fnDevolucao)
+            {
+                pagamento.tPag = FormaPagamento.fpSemPagamento;
+                pagamento.vPag = 0;
+            }
+            else
+            {
+                if (saida.TpPagt.Equals("V"))
+                    pagamento.indPag = IndicadorPagamento.ipVista;
+                else
+                    pagamento.indPag = IndicadorPagamento.ipPrazo;
+                pagamento.tpIntegra = TpIntegra.tiNaoInformado;
+                switch (saida.TpPagt)
+                {
+                    case "V":
+                        pagamento.tPag = FormaPagamento.fpDinheiro;
+                        break;
+                    case "P":
+                        pagamento.tPag = FormaPagamento.fpCreditoLoja;
+                        break;
+                    case "C":
+                        pagamento.tPag = FormaPagamento.fpCartaoCredito;
+                        break;
+                    case "D":
+                        pagamento.tPag = FormaPagamento.fpCartaoDebito;
+                        break;
+                    case "B":
+                        pagamento.tPag = FormaPagamento.fpBoletoBancario;
+                        break;
+                    default:
+                        pagamento.tPag = FormaPagamento.fpDinheiro;
+                        break;
+                }
+                pagamento.vPag = notaFiscal.Total.vNF;
+            }
+
+            pagamento.vTroco = 0;
+            notaFiscal.Pagamentos.Add(pagamento);
         }
 
         private async Task GrupoTransportadora(Saida saida, NotaFiscal notaFiscal)
@@ -273,7 +321,7 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
 
                                 if (transportadora != null)
                                 {
-                                    notaFiscal.Transportador.CNPJCPF = (transportadora.CdCnpj?? "").Length > 0 ? UtlStrings.OnlyInteger(transportadora.CdCnpj  ?? "") : "";
+                                    notaFiscal.Transportador.CNPJCPF = (transportadora.CdCnpj ?? "").Length > 0 ? UtlStrings.OnlyInteger(transportadora.CdCnpj ?? "") : "";
                                     notaFiscal.Transportador.xNome = transportadora.NmTransportadora;
                                     notaFiscal.Transportador.IE = transportadora.CdIe;
                                     notaFiscal.Transportador.xEnder = $"{transportadora.NmEndereco},{transportadora.Numero}";
