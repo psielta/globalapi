@@ -92,6 +92,7 @@ builder.Services.AddScoped<IQueryRepositoryNoCache<SaldoEstoque, int, SaldoEstoq
 builder.Services.AddScoped<IQueryRepository<CfopImportacao, int, CfopImportacaoDto>, CfopImportacaoPagedRepository>();
 builder.Services.AddScoped<EntradaCalculationService>();
 builder.Services.AddScoped<NFeGlobalService>();
+builder.Services.AddScoped<SaidaCalculationService>();
 
 builder.Services.AddTransient<EmailService>();
 builder.Services.AddScoped<IUserStore<Usuario>, CustomUserStore>();
