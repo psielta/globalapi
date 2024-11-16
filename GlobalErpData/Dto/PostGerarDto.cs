@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace GlobalErpData.Dto
 {
-    public class SessionHubDto
+    public class PostGerarDto
     {
         public string sessionId { get; set; }
+        public bool Gerar { get; set; } = false;
     }
 }

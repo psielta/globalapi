@@ -14,14 +14,14 @@ namespace GlobalAPI_ACBrNFe.Controllers
     [ApiController]
     public class Saida_ReimprimirNFeController : ControllerBase
     {
-        private readonly ILogger<Saida_GerarNFeController> _logger;
+        private readonly ILogger<Saida_GerarValidarNFeController> _logger;
         protected IMapper mapper;
         private readonly IHubContext<ImportProgressHub> _hubContext;
         protected GlobalErpFiscalBaseContext db;
         private readonly IConfiguration _config;
         private readonly NFeGlobalService nFeGlobalService;
         public Saida_ReimprimirNFeController(IConfiguration config,
-            ILogger<Saida_GerarNFeController> logger,
+            ILogger<Saida_GerarValidarNFeController> logger,
             IMapper mapper,
             IHubContext<ImportProgressHub> hubContext,
             GlobalErpFiscalBaseContext db,

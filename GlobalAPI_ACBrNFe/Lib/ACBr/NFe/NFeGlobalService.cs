@@ -1409,6 +1409,24 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
                 }
             }
         }
+
+        public async Task<string> ValidarNFeAsync(NotaFiscal notaFiscal, Saida saida, Empresa empresa, Certificado cer)
+        {
+            this.SetConfiguracaoNfe(saida.Empresa, empresa, cer);
+            try
+            {
+                string nota = notaFiscal.ToString();
+                nfe.LimparLista();
+                nfe.CarregarINI(nota);
+                nfe.Assinar();
+                nfe.Validar();
+                return "Success";
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
+        }
     }
 
 
