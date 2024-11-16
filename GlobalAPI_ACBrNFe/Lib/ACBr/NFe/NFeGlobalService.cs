@@ -15,6 +15,7 @@ using Microsoft.IdentityModel.Tokens;
 using NFe.Classes;
 using NFe.Classes.Informacoes.Detalhe;
 using NFe.Classes.Informacoes.Detalhe.Tributacao.Estadual;
+using NFe.Classes.Informacoes.Detalhe.Tributacao.Federal;
 using System;
 
 namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
@@ -203,7 +204,11 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             notaFiscal.DadosAdicionais.infCpl = saida.TxtObsNf ?? "";
 
             //Produto
-            await Produto_Totais(saida, notaFiscal, empresa);
+            await Produto(saida, notaFiscal, empresa);
+
+            //Totais
+            Totais(notaFiscal, saida);
+            
 
 
 
@@ -218,7 +223,29 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             return notaFiscal;
         }
 
-        private async Task Produto_Totais(Saida saida, NotaFiscal notaFiscal, Empresa empresa)
+        private void Totais(NotaFiscal notaFiscal, Saida saida)
+        {
+            notaFiscal.Total.vBC = notaFiscal.Produtos.Sum(p => p.ICMS.vBC ?? 0);
+            notaFiscal.Total.vICMS = notaFiscal.Produtos.Sum(p => p.ICMS.vICMS ?? 0);
+            notaFiscal.Total.vBCST = notaFiscal.Produtos.Sum(p => p.ICMS.vBCST ?? 0);
+            notaFiscal.Total.vST = notaFiscal.Produtos.Sum(p => p.ICMS.vICMSST ?? 0);
+            notaFiscal.Total.vProd = notaFiscal.Produtos.Sum(p => p.vProd);
+            notaFiscal.Total.vFrete = notaFiscal.Produtos.Sum(p => p.vFrete ?? 0);
+            notaFiscal.Total.vSeg = notaFiscal.Produtos.Sum(p => p.vSeg ?? 0);
+            notaFiscal.Total.vDesc = notaFiscal.Produtos.Sum(p => p.vDesc ?? 0);
+            notaFiscal.Total.vII = 0;
+            notaFiscal.Total.vIPI = notaFiscal.Produtos.Sum(p => p.IPI.vIPI ?? 0);
+            notaFiscal.Total.vPIS = notaFiscal.Produtos.Sum(p => p.PIS.vPIS ?? 0);
+            notaFiscal.Total.vCOFINS = notaFiscal.Produtos.Sum(p => p.COFINS.vCOFINS ?? 0);
+            notaFiscal.Total.vOutro = notaFiscal.Produtos.Sum(p => p.vOutro ?? 0);
+            notaFiscal.Total.vNF = Convert.ToDecimal(saida.ValorTotalNfe ?? 0);
+            notaFiscal.Total.vTotTrib = notaFiscal.Produtos.Sum(p => p.vTotTrib ?? 0);
+            notaFiscal.Total.vFCPUFDest = notaFiscal.Produtos.Sum(p => p.ICMSUFDEST.vFCPUFDest ?? 0);
+            notaFiscal.Total.vICMSUFDest = notaFiscal.Produtos.Sum(p => p.ICMSUFDEST.vICMSUFDest ?? 0);
+            notaFiscal.Total.vICMSUFRemet = notaFiscal.Produtos.Sum(p => p.ICMSUFDEST.vICMSUFRemet ?? 0);
+        }
+
+        private async Task Produto(Saida saida, NotaFiscal notaFiscal, Empresa empresa)
         {
             if (saida.ProdutoSaida == null || saida.ProdutoSaida.Count() == 0)
             {
@@ -300,7 +327,7 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
                 produto.vSeg = vlSeguroItem;
                 produto.vDesc = descontoItem;
                 produto.infAdProd = "";
-                produto.indTot = IndicadorTotal.itSomaTotalNFe;
+                produto.indTot = ACBrLib.NFe.IndicadorTotal.itSomaTotalNFe;
 
                 if (pe.ExTipi.Length > 0)
                 {
@@ -537,13 +564,78 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
 
 
                 //PIS
-                produto.PIS.CST = CSTPIS.pis98;
+                if ((ps.CstPis ?? "").Length > 0)
+                {
+                    produto.PIS.CST = GetCstPis(ps);
+                    if (ps.VlPis > 0 || ps.VlPisSt > 0)
+                    {
+                        produto.PIS.qBCProd = 0;
+                        produto.PIS.vAliqProd = 0;
+
+                        bool ePisSt = (int.Parse((ps.CstPis ?? "").Substring(1, 2)) == 5);
+
+                        if (ePisSt)
+                        {
+                            produto.PIS.vBC = ps.VlBasePisSt;
+                            produto.PIS.pPIS = ps.PorcPisSt;
+                            produto.PIS.vPIS = ps.VlPisSt;
+                        }
+                        else
+                        {
+                            produto.PIS.vBC = ps.VlBasePis;
+                            produto.PIS.pPIS = ps.PorcPis;
+                            produto.PIS.vPIS = ps.VlPis;
+                        }
+                    }
+                }
+                else
+                {
+                    produto.PIS.CST = CSTPIS.pis99;
+                    produto.PIS.qBCProd = 0;
+                    produto.PIS.vAliqProd = 0;
+                }
 
                 //COFINS
-                produto.COFINS.CST = CSTCofins.cof98;
+                if ((ps.CstCofins ?? "").Length > 0)
+                {
+                    produto.COFINS.CST = GetCstCofins(ps);
+                    if (ps.VlCofins > 0 || ps.VlCofinsSt > 0)
+                    {
+                        produto.COFINS.qBCProd = 0;
+                        produto.COFINS.vAliqProd = 0;
+
+                        bool eCofinsSt = (int.Parse((ps.CstCofins ?? "").Substring(1, 2)) == 5);
+
+                        if (eCofinsSt)
+                        {
+                            produto.COFINS.vBC = ps.VlBaseCofinsSt;
+                            produto.COFINS.pCOFINS = ps.PorcCofinsSt;
+                            produto.COFINS.vCOFINS = ps.VlCofinsSt;
+                        }
+                        else
+                        {
+                            produto.COFINS.vBC = ps.VlBaseCofins;
+                            produto.COFINS.pCOFINS = ps.PorcCofins;
+                            produto.COFINS.vCOFINS = ps.VlCofins;
+                        }
+                    }
+                }
+                else
+                {
+                    produto.COFINS.CST = CSTCofins.cof99;
+                    produto.COFINS.qBCProd = 0;
+                    produto.COFINS.vAliqProd = 0;
+                }
+                if (ps.VlBaseIpi > 0)
+                {
+                    produto.IPI.vBC = ps.VlBaseIpi;
+                    produto.IPI.pIPI = ps.PorcIpi;
+                    produto.IPI.vIPI = ps.VlIpi;
+                }
+
+                produto.vTotTrib = ps.VlAproxImposto;
 
                 notaFiscal.Produtos.Add(produto);
-
                 i++;
                 /*********************************************************************************/
                 /************GGGGGGG***G*********GGGGGGG***GGGGGGG***GGGGGGG***G******************/
@@ -553,29 +645,120 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
                 /************GGGGGGG***GGGGGGG***GGGGGGG***GGGGGGG***G*****G***GGGGGGG************/
                 /*********************************************************************************/
             }
-            notaFiscal.Total.vBC = 100;
-            notaFiscal.Total.vICMS = 18;
-            notaFiscal.Total.vBCST = 0;
-            notaFiscal.Total.vST = 0;
-            notaFiscal.Total.vProd = 100;
-            notaFiscal.Total.vFrete = 0;
-            notaFiscal.Total.vSeg = 0;
-            notaFiscal.Total.vDesc = 0;
-            notaFiscal.Total.vII = 0;
-            notaFiscal.Total.vIPI = 0;
-            notaFiscal.Total.vPIS = 0;
-            notaFiscal.Total.vCOFINS = 0;
-            notaFiscal.Total.vOutro = 0;
-            notaFiscal.Total.vNF = 100;
-
-            // lei da transparencia de impostos
-            notaFiscal.Total.vTotTrib = 0;
-
-            // partilha do icms e fundo de probreza
-            notaFiscal.Total.vFCPUFDest = 0;
-            notaFiscal.Total.vICMSUFDest = 0;
-            notaFiscal.Total.vICMSUFRemet = 0;
+            
         }
+
+        private CSTCofins GetCstCofins(ProdutoSaidum ps)
+        {
+            try
+            {
+                int cst = Convert.ToInt32(ps.CstCofins ?? "");
+
+                switch (cst)
+                {
+                    case 1: return CSTCofins.cof01;
+                    case 2: return CSTCofins.cof02;
+                    case 3: return CSTCofins.cof03;
+                    case 4: return CSTCofins.cof04;
+                    case 5: return CSTCofins.cof05;
+                    case 6: return CSTCofins.cof06;
+                    case 7: return CSTCofins.cof07;
+                    case 8: return CSTCofins.cof08;
+                    case 9: return CSTCofins.cof09;
+                    case 49: return CSTCofins.cof49;
+                    case 50: return CSTCofins.cof50;
+                    case 51: return CSTCofins.cof51;
+                    case 52: return CSTCofins.cof52;
+                    case 53: return CSTCofins.cof53;
+                    case 54: return CSTCofins.cof54;
+                    case 55: return CSTCofins.cof55;
+                    case 56: return CSTCofins.cof56;
+                    case 60: return CSTCofins.cof60;
+                    case 61: return CSTCofins.cof61;
+                    case 62: return CSTCofins.cof62;
+                    case 63: return CSTCofins.cof63;
+                    case 64: return CSTCofins.cof64;
+                    case 65: return CSTCofins.cof65;
+                    case 66: return CSTCofins.cof66;
+                    case 67: return CSTCofins.cof67;
+                    case 70: return CSTCofins.cof70;
+                    case 71: return CSTCofins.cof71;
+                    case 72: return CSTCofins.cof72;
+                    case 73: return CSTCofins.cof73;
+                    case 74: return CSTCofins.cof74;
+                    case 75: return CSTCofins.cof75;
+                    case 98: return CSTCofins.cof98;
+                    case 99: return CSTCofins.cof99;
+                    default:
+                        throw new Exception("CST Cofins inválido: " + cst);
+                }
+            }
+            catch (FormatException)
+            {
+                throw new Exception("CST Cofins não é um número válido.");
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Erro ao converter CST Cofins: " + e.Message);
+            }
+        }
+
+
+        private CSTPIS GetCstPis(ProdutoSaidum ps)
+        {
+            try
+            {
+                int cst = Convert.ToInt32(ps.CstPis ?? "");
+
+                switch (cst)
+                {
+                    case 1: return CSTPIS.pis01;
+                    case 2: return CSTPIS.pis02;
+                    case 3: return CSTPIS.pis03;
+                    case 4: return CSTPIS.pis04;
+                    case 5: return CSTPIS.pis05;
+                    case 6: return CSTPIS.pis06;
+                    case 7: return CSTPIS.pis07;
+                    case 8: return CSTPIS.pis08;
+                    case 9: return CSTPIS.pis09;
+                    case 49: return CSTPIS.pis49;
+                    case 50: return CSTPIS.pis50;
+                    case 51: return CSTPIS.pis51;
+                    case 52: return CSTPIS.pis52;
+                    case 53: return CSTPIS.pis53;
+                    case 54: return CSTPIS.pis54;
+                    case 55: return CSTPIS.pis55;
+                    case 56: return CSTPIS.pis56;
+                    case 60: return CSTPIS.pis60;
+                    case 61: return CSTPIS.pis61;
+                    case 62: return CSTPIS.pis62;
+                    case 63: return CSTPIS.pis63;
+                    case 64: return CSTPIS.pis64;
+                    case 65: return CSTPIS.pis65;
+                    case 66: return CSTPIS.pis66;
+                    case 67: return CSTPIS.pis67;
+                    case 70: return CSTPIS.pis70;
+                    case 71: return CSTPIS.pis71;
+                    case 72: return CSTPIS.pis72;
+                    case 73: return CSTPIS.pis73;
+                    case 74: return CSTPIS.pis74;
+                    case 75: return CSTPIS.pis75;
+                    case 98: return CSTPIS.pis98;
+                    case 99: return CSTPIS.pis99;
+                    default:
+                        throw new Exception("CST Pis inválido: " + cst);
+                }
+            }
+            catch (FormatException)
+            {
+                throw new Exception("CST Pis não é um número válido.");
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Erro ao converter CST Pis: " + e.Message);
+            }
+        }
+
 
         private CSTIcms GetCst(ProdutoSaidum ps)
         {
