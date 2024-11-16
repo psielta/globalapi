@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using NFe.Classes;
+using NFe.Classes.Informacoes.Detalhe;
 using NFe.Classes.Informacoes.Detalhe.Tributacao.Estadual;
 using System;
 
@@ -367,15 +368,98 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
                 #endregion
                 string origem = (RegimeNormal || DevolucaoSimplesNacional) ? ps.Cst.Substring(0, 1) : ps.CdCsosn.Substring(0, 1);
                 produto.ICMS.orig = GetOrigem(origem);
+                bool configuracaoRetidoSaida = await GetConfiguracaoRetido();
 
                 if (RegimeNormal || DevolucaoSimplesNacional)
                 {
                     produto.ICMS.CST = GetCst(ps);
-                    //PIS
-                    produto.PIS.CST = CSTPIS.pis98;
+                    switch (produto.ICMS.CST)
+                    {
+                        case CSTIcms.cst00:
+                            produto.ICMS.modBC = DeterminacaoBaseIcms.dbiValorOperacao;
+                            produto.ICMS.vBC = ps.VlBaseIcms;
+                            produto.ICMS.pICMS = ps.PocIcms;
+                            produto.ICMS.vICMS = ps.VlIcms;
+                            break;
+                        case CSTIcms.cst10:
+                            produto.ICMS.modBCST = DeterminacaoBaseIcmsST.dbisMargemValorAgregado;
+                            produto.ICMS.modBC = DeterminacaoBaseIcms.dbiValorOperacao;
+                            produto.ICMS.pMVAST = ps.MvaSt;
+                            produto.ICMS.pRedBCST = 0;
+                            produto.ICMS.vBCST = ps.VlBaseSt;
+                            produto.ICMS.pICMSST = ps.PorcSt;
+                            produto.ICMS.vICMSST = ps.VlSt;
+                            produto.ICMS.vBC = 0;
+                            produto.ICMS.pICMS = 0;
+                            produto.ICMS.vICMS = 0;
+                            break;
+                        case CSTIcms.cst20:
+                            produto.ICMS.modBC = DeterminacaoBaseIcms.dbiValorOperacao;
+                            produto.ICMS.pRedBC = ps.PocReducao;
+                            produto.ICMS.vBC = ps.VlBaseIcms;
+                            produto.ICMS.pICMS = ps.PocIcms;
+                            produto.ICMS.vICMS = ps.VlIcms;
 
-                    //COFINS
-                    produto.COFINS.CST = CSTCofins.cof98;
+                            break;
+                        case CSTIcms.cst30:
+                            produto.ICMS.pMVAST = ps.MvaSt;
+                            produto.ICMS.pRedBCST = ps.PorcSt;
+                            produto.ICMS.vBCST = ps.VlBaseSt;
+                            produto.ICMS.pICMSST = ps.PorcSt;
+                            produto.ICMS.vICMSST = ps.VlSt;
+                            produto.ICMS.modBCST = DeterminacaoBaseIcmsST.dbisMargemValorAgregado;
+
+                            break;
+                        case CSTIcms.cst40:
+                            break;
+                        case CSTIcms.cst41:
+                            break;
+                        case CSTIcms.cst50:
+                            break;
+                        case CSTIcms.cst60:
+                            if (produto.Combustivel.cProdANP == 210203001)
+                                produto.ICMS.CST = CSTIcms.cstRep60;
+                            if (configuracaoRetidoSaida)
+                            {
+                                produto.ICMS.pST = ps.St;
+                                produto.ICMS.vICMSSubstituto = ps.IcmsSubstituto;
+
+                                produto.ICMS.vBCST = ps.VlBaseSt;
+                                produto.ICMS.vICMSST = ps.VlSt;
+                                produto.ICMS.vBCSTRet = ps.VlBaseRetido;
+                                produto.ICMS.vICMSSTRet = ps.VlIcmsRet;
+                            }
+                            break;
+                        case CSTIcms.cst70:
+                            produto.ICMS.modBC = DeterminacaoBaseIcms.dbiValorOperacao;
+                            produto.ICMS.modBCST = DeterminacaoBaseIcmsST.dbisMargemValorAgregado;
+                            produto.ICMS.pMVAST = ps.MvaSt;
+                            produto.ICMS.pRedBCST = 0;
+                            produto.ICMS.vBCST = ps.VlBaseSt;
+                            produto.ICMS.pICMSST = ps.PocIcms;
+                            produto.ICMS.vICMSST = ps.VlSt;
+                            produto.ICMS.pRedBC = ps.PocReducao;
+                            produto.ICMS.vBC = ps.VlBaseIcms;
+                            produto.ICMS.pICMS = ps.PocIcms;
+                            produto.ICMS.vICMS = ps.VlIcms;
+
+                            break;
+                        case CSTIcms.cst90:
+                            produto.ICMS.modBC = DeterminacaoBaseIcms.dbiValorOperacao;
+                            produto.ICMS.modBCST = DeterminacaoBaseIcmsST.dbisMargemValorAgregado;
+                            produto.ICMS.pMVAST = ps.MvaSt;
+                            produto.ICMS.pRedBCST = 0;
+                            produto.ICMS.vBCST = ps.VlBaseSt;
+                            produto.ICMS.pICMSST = ps.PocIcms;
+                            produto.ICMS.vICMSST = ps.VlSt;
+                            produto.ICMS.pRedBC = ps.PocReducao;
+                            produto.ICMS.vBC = ps.VlBaseIcms;
+                            produto.ICMS.pICMS = ps.PocIcms;
+                            produto.ICMS.vICMS = ps.VlIcms;
+
+                            break;
+                    }
+
                 }
                 else if (RegimeSimplesNacional)
                 {
@@ -413,7 +497,7 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
                         case CSOSNIcms.csosn400:
                             break;
                         case CSOSNIcms.csosn500:
-                            if (await GetConfiguracaoRetido())
+                            if (configuracaoRetidoSaida)
                             {
                                 produto.ICMS.pST = ps.St;
                                 produto.ICMS.vICMSSubstituto = ps.IcmsSubstituto;
@@ -440,7 +524,23 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
                             break;
                     }
                 }
+                produto.ICMSUFDEST.vBCUFDest = ps.Vbcufdest;
+                produto.ICMSUFDEST.pICMSUFDest = ps.Picmsufdest;
+                produto.ICMSUFDEST.vICMSUFDest = ps.Vicmsufdest;
+                produto.ICMSUFDEST.vICMSUFRemet = ps.Vicmsufremt;
+                produto.ICMSUFDEST.vBCFCPUFDest = ps.Vbcfcpufdest;
+                produto.ICMSUFDEST.pFCPUFDest = ps.Pfcpufdest;
+                produto.ICMSUFDEST.vFCPUFDest = ps.Vfcpufdest;
+                produto.ICMSUFDEST.pICMSInter = ps.Picmsinter;
+                produto.ICMSUFDEST.pICMSInterPart = ps.Picmsinterpart;
+                produto.ICMSUFDEST.vICMSUFRemet = ps.Vicmsufremt;
 
+
+                //PIS
+                produto.PIS.CST = CSTPIS.pis98;
+
+                //COFINS
+                produto.COFINS.CST = CSTCofins.cof98;
 
                 notaFiscal.Produtos.Add(produto);
 
