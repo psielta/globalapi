@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using NFe.Classes;
+using NFe.Classes.Informacoes.Detalhe.Tributacao.Estadual;
 using System;
 
 namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
@@ -236,6 +237,14 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
 
             foreach (ProdutoSaidum ps in saida.ProdutoSaida)
             {
+                /*********************************************************************************/
+                /************GGGGGGG***G*********GGGGGGG***GGGGGGG***GGGGGGG***G******************/
+                /************G*********G*********G*****G***G*****G***G*****G***G******************/
+                /************G**GGGG***G*********G*****G***G**GGGG***GGGGGGG***G******************/
+                /************G*****G***G*********G*****G***G*****G***G*****G***G******************/
+                /************GGGGGGG***GGGGGGG***GGGGGGG***GGGGGGG***G*****G***GGGGGGG************/
+                /*********************************************************************************/
+
                 decimal descontoItem = 0;
                 decimal vlOutroItem = 0;
                 decimal vlFreteItem = 0;
@@ -329,34 +338,120 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
                         }
                     }
                 }
-
-
                 //produto.xPed
                 //produto.nItemPed
-
                 if (VerificaAplicacaoCEST(ps, saida, empresa))
                 {
                     produto.CEST = ps.Cest;
                 }
 
                 //ICMS
-                produto.ICMS.orig = 0;
-                produto.ICMS.CSOSN = CSOSNIcms.csosn900;
-                produto.ICMS.modBC = DeterminacaoBaseIcms.dbiPrecoTabelado;
-                produto.ICMS.pRedBC = 0;
-                produto.ICMS.vBC = 100;
-                produto.ICMS.pICMS = 18;
-                produto.ICMS.vICMS = 18;
-                produto.ICMS.modBCST = DeterminacaoBaseIcmsST.dbisMargemValorAgregado;
+                #region Validações
+                if (((ps.Cfop ?? "").Length <= 0))
+                {
+                    throw new Exception("Grupo Produto: CFOP é obrigatório.");
+                }
+                bool DevolucaoSimplesNacional = empresa.TipoRegime == 1 && (!saida.TpSaida.Equals("V"));
+                bool RegimeNormal = (empresa.TipoRegime > 1);
+                bool RegimeSimplesNacional = !RegimeNormal;
+                if ((RegimeNormal || DevolucaoSimplesNacional) &&
+                    ((ps.Cst ?? "").Length <= 0))
+                {
+                    throw new Exception("Grupo Produto: CST e CFOP são obrigatórios para empresas do regime normal.");
+                }
+                else if (RegimeSimplesNacional &&
+                    ((ps.CdCsosn ?? "").Length <= 0))
+                {
+                    throw new Exception("Grupo Produto: CSOSN e CFOP são obrigatórios para empresas do regime simples nacional.");
+                }
+                #endregion
+                string origem = (RegimeNormal || DevolucaoSimplesNacional) ? ps.Cst.Substring(0, 1) : ps.CdCsosn.Substring(0, 1);
+                produto.ICMS.orig = GetOrigem(origem);
 
-                //PIS
-                produto.PIS.CST = CSTPIS.pis98;
+                if (RegimeNormal || DevolucaoSimplesNacional)
+                {
+                    produto.ICMS.CST = GetCst(ps);
+                    //PIS
+                    produto.PIS.CST = CSTPIS.pis98;
 
-                //COFINS
-                produto.COFINS.CST = CSTCofins.cof98;
+                    //COFINS
+                    produto.COFINS.CST = CSTCofins.cof98;
+                }
+                else if (RegimeSimplesNacional)
+                {
+                    produto.ICMS.CSOSN = GetCsosn(ps);
+                    switch (produto.ICMS.CSOSN)
+                    {
+                        case CSOSNIcms.csosnVazio:
+                            break;
+                        case CSOSNIcms.csosn101:
+                            produto.ICMS.pCredSN = ps.PcreditoIcms;
+                            produto.ICMS.vCredICMSSN = ps.VlCreditoIcms;
+                            break;
+                        case CSOSNIcms.csosn102:
+                            break;
+                        case CSOSNIcms.csosn103:
+                            break;
+                        case CSOSNIcms.csosn201:
+                        case CSOSNIcms.csosn202:
+                        case CSOSNIcms.csosn203:
+                            if (produto.ICMS.CSOSN == CSOSNIcms.csosn201)
+                            {
+                                produto.ICMS.pCredSN = ps.PcreditoIcms;
+                                produto.ICMS.vCredICMSSN = ps.VlCreditoIcms;
+                            }
+                            produto.ICMS.modBCST = DeterminacaoBaseIcmsST.dbisMargemValorAgregado;
+                            produto.ICMS.pMVAST = ps.MvaSt;
+                            produto.ICMS.pRedBCST = 0;
+                            produto.ICMS.vBCST = ps.VlBaseSt;
+                            produto.ICMS.pICMSST = ps.PorcSt;
+                            produto.ICMS.vICMSST = ps.VlSt;
+                            produto.ICMS.modBC = DeterminacaoBaseIcms.dbiValorOperacao;
+                            break;
+                        case CSOSNIcms.csosn300:
+                            break;
+                        case CSOSNIcms.csosn400:
+                            break;
+                        case CSOSNIcms.csosn500:
+                            if (await GetConfiguracaoRetido())
+                            {
+                                produto.ICMS.pST = ps.St;
+                                produto.ICMS.vICMSSubstituto = ps.IcmsSubstituto;
+                                produto.ICMS.vBCSTRet = ps.VlBaseRetido;
+                                produto.ICMS.vICMSSTRet = ps.VlIcmsRet;
+                                produto.ICMS.vBCST = ps.VlBaseSt;
+                                produto.ICMS.vICMSST = ps.VlSt;
+                            }
+                            break;
+                        case CSOSNIcms.csosn900:
+                            produto.ICMS.modBC = DeterminacaoBaseIcms.dbiValorOperacao;
+                            produto.ICMS.modBCST = DeterminacaoBaseIcmsST.dbisMargemValorAgregado;
+                            produto.ICMS.pMVAST = ps.MvaSt;
+                            produto.ICMS.pRedBCST = 0;
+                            produto.ICMS.vBCST = ps.VlBaseSt;
+                            produto.ICMS.pICMSST = ps.PocIcms;
+                            produto.ICMS.vICMSST = ps.VlSt;
+                            produto.ICMS.pRedBC = ps.PocReducao;
+                            produto.ICMS.vBC = ps.VlBaseIcms;
+                            produto.ICMS.pICMS = ps.PocIcms;
+                            produto.ICMS.vICMS = ps.VlIcms;
+                            produto.ICMS.pCredSN = ps.PcreditoIcms;
+                            produto.ICMS.vCredICMSSN = ps.VlCreditoIcms;
+                            break;
+                    }
+                }
+
 
                 notaFiscal.Produtos.Add(produto);
+
                 i++;
+                /*********************************************************************************/
+                /************GGGGGGG***G*********GGGGGGG***GGGGGGG***GGGGGGG***G******************/
+                /************G*********G*********G*****G***G*****G***G*****G***G******************/
+                /************G**GGGG***G*********G*****G***G**GGGG***GGGGGGG***G******************/
+                /************G*****G***G*********G*****G***G*****G***G*****G***G******************/
+                /************GGGGGGG***GGGGGGG***GGGGGGG***GGGGGGG***G*****G***GGGGGGG************/
+                /*********************************************************************************/
             }
             notaFiscal.Total.vBC = 100;
             notaFiscal.Total.vICMS = 18;
@@ -380,6 +475,133 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             notaFiscal.Total.vFCPUFDest = 0;
             notaFiscal.Total.vICMSUFDest = 0;
             notaFiscal.Total.vICMSUFRemet = 0;
+        }
+
+        private CSTIcms GetCst(ProdutoSaidum ps)
+        {
+            string cst = (ps.Cst ?? "").Substring(1);
+            switch (cst)
+            {
+                case "00":
+                    return CSTIcms.cst00;
+                case "01":
+                    return CSTIcms.cst01;
+                case "10":
+                    return CSTIcms.cst10;
+                case "12":
+                    return CSTIcms.cst12;
+                case "13":
+                    return CSTIcms.cst13;
+                case "14":
+                    return CSTIcms.cst14;
+                case "20":
+                    return CSTIcms.cst20;
+                case "21":
+                    return CSTIcms.cst21;
+                case "30":
+                    return CSTIcms.cst30;
+                case "40":
+                    return CSTIcms.cst40;
+                case "41":
+                    return CSTIcms.cst41;
+                case "50":
+                    return CSTIcms.cst50;
+                case "51":
+                    return CSTIcms.cst51;
+                case "60":
+                    return CSTIcms.cst60;
+                case "70":
+                    return CSTIcms.cst70;
+                case "72":
+                    return CSTIcms.cst72;
+                case "73":
+                    return CSTIcms.cst73;
+                case "74":
+                    return CSTIcms.cst74;
+                case "80":
+                    return CSTIcms.cst80;
+                case "81":
+                    return CSTIcms.cst81;
+                case "90":
+                    return CSTIcms.cst90;
+                case "91":
+                    return CSTIcms.cstICMSOutraUF;
+                default:
+                    return CSTIcms.cst00;
+            }
+            throw new NotImplementedException();
+        }
+
+        private async Task<bool> GetConfiguracaoRetido()
+        {
+            ConfiguracoesEmpresa? configuracoesEmpresa =
+                                    await db.ConfiguracoesEmpresas.Where(c => c.CdEmpresa == saida.Empresa && c.Chave == "RETNFE").FirstOrDefaultAsync();
+            if (configuracoesEmpresa == null)
+            {
+                return false;
+            }
+            else if ((!string.IsNullOrEmpty(configuracoesEmpresa.Valor1)) && configuracoesEmpresa.Valor1.Equals("N"))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        private CSOSNIcms GetCsosn(ProdutoSaidum ps)
+        {
+            string csosn = (ps.CdCsosn ?? "").Substring(1);
+            switch (csosn)
+            {
+                case "101":
+                    return CSOSNIcms.csosn101;
+                case "102":
+                    return CSOSNIcms.csosn102;
+                case "103":
+                    return CSOSNIcms.csosn103;
+                case "201":
+                    return CSOSNIcms.csosn201;
+                case "202":
+                    return CSOSNIcms.csosn202;
+                case "203":
+                    return CSOSNIcms.csosn203;
+                case "300":
+                    return CSOSNIcms.csosn300;
+                case "400":
+                    return CSOSNIcms.csosn400;
+                case "500":
+                    return CSOSNIcms.csosn500;
+                case "900":
+                    return CSOSNIcms.csosn900;
+                default:
+                    return CSOSNIcms.csosnVazio;
+            }
+        }
+
+        private OrigemMercadoria GetOrigem(string origem)
+        {
+            switch (origem)
+            {
+                case "0":
+                    return OrigemMercadoria.oeNacional;
+                case "1":
+                    return OrigemMercadoria.oeEstrangeiraImportacaoDireta;
+                case "2":
+                    return OrigemMercadoria.oeEstrangeiraAdquiridaBrasil;
+                case "3":
+                    return OrigemMercadoria.oeNacionalConteudoImportacaoSuperior40;
+                case "4":
+                    return OrigemMercadoria.oeNacionalProcessosBasicos;
+                case "5":
+                    return OrigemMercadoria.oeNacionalConteudoImportacaoInferiorIgual40;
+                case "6":
+                    return OrigemMercadoria.oeEstrangeiraImportacaoDiretaSemSimilar;
+                case "7":
+                    return OrigemMercadoria.oeEstrangeiraAdquiridaBrasilSemSimilar;
+                case "8":
+                    return OrigemMercadoria.oeNacionalConteudoImportacaoSuperior70;
+                default:
+                    return OrigemMercadoria.oeNacional;
+            }
         }
 
         private bool VerificaAplicacaoCEST(ProdutoSaidum ps, Saida saida, Empresa empresa)
