@@ -531,7 +531,7 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
                 produto.infAdProd = "";
                 produto.indTot = ACBrLib.NFe.IndicadorTotal.itSomaTotalNFe;
 
-                if (pe.ExTipi.Length > 0)
+                if ((pe.ExTipi ?? "").Length > 0)
                 {
                     produto.EXTIPI = pe.ExTipi;
                 }
@@ -597,7 +597,7 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
                 #endregion
                 string origem = (RegimeNormal || DevolucaoSimplesNacional) ? ps.Cst.Substring(0, 1) : ps.CdCsosn.Substring(0, 1);
                 produto.ICMS.orig = GetOrigem(origem);
-                bool configuracaoRetidoSaida = await GetConfiguracaoRetido();
+                bool configuracaoRetidoSaida = await GetConfiguracaoRetido(saida);
 
                 if (RegimeNormal || DevolucaoSimplesNacional)
                 {
@@ -1017,7 +1017,7 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             throw new NotImplementedException();
         }
 
-        private async Task<bool> GetConfiguracaoRetido()
+        private async Task<bool> GetConfiguracaoRetido(Saida saida)
         {
             ConfiguracoesEmpresa? configuracoesEmpresa =
                                     await db.ConfiguracoesEmpresas.Where(c => c.CdEmpresa == saida.Empresa && c.Chave == "RETNFE").FirstOrDefaultAsync();

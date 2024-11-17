@@ -127,7 +127,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 catch (Exception ex)
                 {
                     string errorMessage = $"Erro ao buscar dados (nrLanc={nrLanc}, empresa={saida.Empresa}): {ex.Message}";
-                    _logger.LogError(errorMessage);
+                    _logger.LogError(ex, errorMessage);
                     response.Message = errorMessage;
                     response.StatusCode = 400;
                     response.success = false;
@@ -143,7 +143,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 catch (Exception ex)
                 {
                     string errorMessage = $"Erro ao montar Saida (nrLanc={nrLanc}, empresa={saida.Empresa}): {ex.Message}";
-                    _logger.LogError(errorMessage);
+                    _logger.LogError(ex, errorMessage);
                     response.Message = errorMessage;
                     response.success = false;
                     response.StatusCode = 400;
@@ -164,7 +164,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 catch (Exception ex)
                 {
                     string errorMessage = $"{ex.Message}";
-                    _logger.LogError(errorMessage);
+                    _logger.LogError(ex, errorMessage);
                     response.Message = errorMessage;
                     response.success = false;
                     response.StatusCode = 400;
@@ -190,7 +190,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     catch (Exception ex)
                     {
                         string errorMessage = $"Erro ao Gerar NFe (nrLanc={nrLanc}, empresa={saida.Empresa}): {ex.Message}";
-                        _logger.LogError(errorMessage);
+                        _logger.LogError(ex, errorMessage);
                         response.success = false;
                         response.Message = errorMessage;
                         response.StatusCode = 400;
@@ -233,7 +233,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     catch (Exception ex)
                     {
                         string errorMessage = $"Erro ao Alterar Situação (nrLanc={nrLanc}, empresa={saida.Empresa}): {ex.Message}";
-                        _logger.LogError(errorMessage);
+                        _logger.LogError(ex, errorMessage);
                         response.success = false;
                         response.Message = errorMessage;
                         response.StatusCode = 400;
