@@ -519,7 +519,7 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
                 produto.uCom = ps.Un;
                 produto.qCom = ps.Quant;
                 produto.vUnCom = ps.VlVenda;
-                produto.vProd = ps.VlVenda;
+                produto.vProd = ps.VlVenda * ps.Quant;
                 produto.cEANTrib = ps.CdBarra;
                 produto.uTrib = ps.Un;
                 produto.qTrib = ps.Quant;
