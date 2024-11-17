@@ -2,14 +2,15 @@
 using GlobalAPI_ACBrNFe.Lib.ACBr.NFe;
 using GlobalAPI_ACBrNFe.Lib;
 using GlobalErpData.Data;
+using GlobalErpData.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Net.Http.Headers;
 using GlobalErpData.Dto;
-using GlobalErpData.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Net.Http.Headers;
 using GlobalLib.Utils;
+using System.Net.Http.Headers;
 
 namespace GlobalAPI_ACBrNFe.Controllers
 {
@@ -170,6 +171,36 @@ namespace GlobalAPI_ACBrNFe.Controllers
             }
 
             return Ok(new ConsultaNFeDto(vret));
+        }
+
+        [HttpGet("Imprimir/{id}")]
+        [Produces("application/pdf")]
+        [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Imprimir(int id)
+        {
+            Saida? saida = await db.Saidas.FindAsync(id);
+            if (saida == null || saida.Pdf == null)
+            {
+                return NotFound(new NotFound("Nota não encontrada"));
+            }
+            if (saida.CdSituacao != "11")
+            {
+                return BadRequest(new BadRequest("Nota não cancelada"));
+            }
+            if(saida.PdfCnc == null)
+            {
+                return NotFound(new NotFound("PDF não encontrado."));
+            }
+
+            string contentType = "application/pdf";
+            string fileName = $"cancelamento_{id}.pdf";
+            Response.Headers[HeaderNames.ContentDisposition] = new Microsoft.Net.Http.Headers.ContentDispositionHeaderValue("inline")
+            {
+                FileName = fileName
+            }.ToString();
+
+            return File(saida.PdfCnc, contentType);
         }
     }
 }

@@ -106,6 +106,8 @@ namespace GlobalErpData.Dto
         public decimal? VlSeguro { get; set; }
 
         public byte[]? Pdf { get; set; }
+        public byte[]? PdfCnc { get; set; }
+
 
     }
 }
