@@ -4,7 +4,10 @@ using ACBrLib.Core.NFe;
 using ACBrLib.NFe;
 using AutoMapper;
 using GlobalAPI_ACBrNFe.Lib.ACBr.NFe.Utils;
+using GlobalAPI_ACBrNFe.Lib.Enum;
+using GlobalAPI_ACBrNFe.Lib.Xml;
 using GlobalErpData.Data;
+using GlobalErpData.Dto;
 using GlobalErpData.Models;
 using GlobalErpData.Services;
 using GlobalLib.Strings;
@@ -16,7 +19,10 @@ using NFe.Classes;
 using NFe.Classes.Informacoes.Detalhe;
 using NFe.Classes.Informacoes.Detalhe.Tributacao.Estadual;
 using NFe.Classes.Informacoes.Detalhe.Tributacao.Federal;
+using Org.BouncyCastle.Ocsp;
 using System;
+using System.ComponentModel;
+using System.Globalization;
 
 namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
 {
@@ -1451,7 +1457,94 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
 
             return responseGerarDto;
         }
+
+        public async Task<ResponseConsultaAcbr> ConsultaNFe(Saida saida, Empresa empresa, Certificado cer, string sessionId)
+        {
+            ResponseConsultaAcbr response = new ResponseConsultaAcbr();
+            this.SetConfiguracaoNfe(saida.Empresa, empresa, cer);
+            nfe.LimparLista();
+            ConsultaNFeResposta resposta = nfe.Consultar(saida.ChaveAcessoNfe);
+            if (resposta != null)
+            {
+                try
+                {
+                    await TratarRespostaConsulta(resposta, Enum.EnumConverter.GetStatus(resposta.CStat), saida, empresa, cer);
+                    response.Message = $"Situação do CTe: {resposta.XMotivo}. Data/Hora Situação: {resposta.DhRecbto.ToString("dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture)}";
+                }
+                catch (Exception e)
+                {
+                    response.Message = e.Message;
+                }
+                return response;
+            }
+            else
+            {
+                throw new Exception("Ocorreu uma falha ao consulta situação.");
+            }
+        }
+
+        private async Task TratarRespostaConsulta(ConsultaNFeResposta pResposta, Status status, Saida saida, Empresa empresa, Certificado cer)
+        {
+            switch (pResposta.CStat)
+            {
+                case (int)SituacaoNFe.AutorizadoUso:
+                case (int)SituacaoNFe.Cancelado:
+                    SalvarGrupoAutorizacao(pResposta, status, saida, empresa, cer);
+                    break;
+                case (int)SituacaoNFe.Inutilizado:
+                    saida.CdSituacao = "70";
+                    break;
+                case (int)SituacaoNFe.Denegado:
+
+                    break;
+                case (int)SituacaoNFe.NaoConstaNaSEFAZ:
+                    saida.CdSituacao = "01";
+                    break;
+
+            }
+        }
+
+        private void SalvarGrupoAutorizacao(ConsultaNFeResposta resposta, Status status, Saida saida, Empresa empresa, Certificado cer)
+        {
+            if (string.IsNullOrEmpty(saida.XmNf))
+            {
+                throw new Exception("XML da NFe não encontrado. Valide a nota para prosseguir.");
+            }
+            var xmlAntigo = saida.XmNf ?? "";
+
+            if (!XmlPossuiGrupoAutorizacao(xmlAntigo))
+            {
+                saida.XmNf = XmlTools.AdicionarGrupoAutorizacao(xmlAntigo, resposta);
+            }
+            saida.CdSituacao = GetCdSituacao(status);
+            if (!saida.CdSituacao.Equals("11"))
+            {
+                saida.NrAutorizacaoNfe = resposta.NProt;
+            }
+            else
+            {
+                saida.NrProtoCancelamento = resposta.NProt;
+            }
+        }
+
+        private string? GetCdSituacao(Status status)
+        {
+            switch (status)
+            {
+                case Status.Pendente:
+                    return "01";
+                case Status.Autorizado:
+                    return "02";
+                case Status.Cancelado:
+                    return "11";
+                default:
+                    return "01";
+            }
+        }
+
+        private bool XmlPossuiGrupoAutorizacao(string xmlAntigo)
+        {
+            return xmlAntigo.Contains("protNFe");
+        }
     }
-
-
 }

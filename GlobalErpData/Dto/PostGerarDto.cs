@@ -11,4 +11,9 @@ namespace GlobalErpData.Dto
         public string sessionId { get; set; }
         public bool Gerar { get; set; } = false;
     }
+    
+    public class PostConsultaDto
+    {
+        public string sessionId { get; set; }
+    }
 }

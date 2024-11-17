@@ -205,6 +205,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                         await _hubContext.Clients.Group(sessionHubDto.sessionId).SendAsync("ReceiveProgress", "Atualizando dados Saida.");
                         saida.CdSituacao = "02";
                         saida.NrAutorizacaoNfe = response.envioRetornoResposta.Envio.NRec;
+                        saida.ChaveAcessoNfe = response.envioRetornoResposta.Envio.ItemResposta.chDFe.Trim();
                         saida.XmNf = response.xml;
 
                         if (System.IO.File.Exists(response.pathPdf))
