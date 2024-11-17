@@ -1588,6 +1588,30 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
                 }
                 else if (!string.IsNullOrEmpty(resposta.nProt))
                 {
+                    string arquivo = resposta.Arquivo;
+
+                    string xmlContent = File.ReadAllText(arquivo);
+                    saida.XmNfCnc = xmlContent;
+
+                    string xmlNFe = saida.XmNf ?? "";
+
+                    // ...
+
+                    string directoryPath = @"C:\Global\NFE\Temp\XMLs";
+                    string fileName = $"{saida?.ChaveAcessoNfe}-nfe.xml";
+                    string filePath = System.IO.Path.Combine(directoryPath, fileName);
+
+                    Directory.CreateDirectory(directoryPath);
+                    File.WriteAllText(filePath, xmlNFe);
+
+                    nfe.Config.DANFe.NomeDocumento = $"EVENTO{saida.NrLanc}";
+                    string pathCompletoPDFEvento = System.IO.Path.Combine(nfe.Config.DANFe.PathPDF, $"EVENTO{saida.NrLanc}.pdf");
+                    nfe.ImprimirEventoPDF(filePath, resposta.Arquivo);
+                    if(System.IO.File.Exists(pathCompletoPDFEvento))
+                    {
+                        saida.PdfCnc = System.IO.File.ReadAllBytes(pathCompletoPDFEvento);
+                    }
+
                     saida.CdSituacao = "11";
                     saida.NrProtoCancelamento = resposta.nProt;
                     response.Message = $"Cancelamento efetuado com sucesso. Data/Hora Situação: {resposta.DhRecbto.ToString("dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture)}";

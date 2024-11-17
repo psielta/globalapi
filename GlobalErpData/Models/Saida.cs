@@ -204,6 +204,9 @@ public partial class Saida : IIdentifiable<int>
     [Column("pdf")]
     public byte[]? Pdf { get; set; }
 
+    [Column("pdf_cnc")]
+    public byte[]? PdfCnc { get; set; }
+
     [JsonIgnore]
     [ForeignKey("CdGrupoEstoque")]
     [InverseProperty("Saida")]
