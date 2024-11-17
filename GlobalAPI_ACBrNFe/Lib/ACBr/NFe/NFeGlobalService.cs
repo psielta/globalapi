@@ -1464,7 +1464,7 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             this.SetConfiguracaoNfe(saida.Empresa, empresa, cer);
             nfe.LimparLista();
             ConsultaNFeResposta resposta = nfe.Consultar(saida.ChaveAcessoNfe);
-                    response.Message = $"Situação do CTe: {resposta.XMotivo}. Data/Hora Situação: {resposta.DhRecbto.ToString("dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture)}";
+            response.Message = $"Situação do CTe: {resposta.XMotivo}. Data/Hora Situação: {resposta.DhRecbto.ToString("dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture)}";
             if (resposta != null)
             {
                 try
@@ -1473,6 +1473,7 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
                 }
                 catch (Exception e)
                 {
+                    _logger.LogError(e, $"Erro Consulta {saida.NrLanc}");
                     response.Message = e.Message;
                 }
                 return response;
@@ -1564,6 +1565,41 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
         private bool XmlPossuiGrupoAutorizacao(string xmlAntigo)
         {
             return xmlAntigo.Contains("protNFe");
+        }
+
+        public async Task<ResponseConsultaAcbr> CancelarNFe(Saida saida, Empresa empresa, Certificado cer, PostCancelamentoDto sessionHubDto)
+        {
+            ResponseConsultaAcbr response = new ResponseConsultaAcbr();
+            try
+            {
+                this.SetConfiguracaoNfe(saida.Empresa, empresa, cer);
+                nfe.LimparLista();
+                CancelamentoNFeResposta resposta = nfe.Cancelar(saida.ChaveAcessoNfe, sessionHubDto.justificativa, empresa.CdCnpj, 1);
+                response.Message = $"Cancelamento do NFe: {resposta.XMotivo}. Data/Hora Situação: {resposta.DhRecbto.ToString("dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture)}";
+                const int CSTAT_DUPLICIDADE_EVENTO = 631;
+                if (resposta.CStat == CSTAT_DUPLICIDADE_EVENTO)
+                {
+                    saida.CdSituacao = "11";
+                    if (!string.IsNullOrEmpty(resposta.nProt))
+                    {
+                        saida.NrProtoCancelamento = resposta.nProt;
+                    }
+                    response.Message = $"Cancelamento já efetuado. Data. Data/Hora Situação: {resposta.DhRecbto.ToString("dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture)}";
+                }
+                else if (!string.IsNullOrEmpty(resposta.nProt))
+                {
+                    saida.CdSituacao = "11";
+                    saida.NrProtoCancelamento = resposta.nProt;
+                    response.Message = $"Cancelamento efetuado com sucesso. Data/Hora Situação: {resposta.DhRecbto.ToString("dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture)}";
+                }
+            }
+
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Erro cancelamento {saida.NrLanc}");
+                response.Message = e.Message;
+            }
+            return response;
         }
     }
 }

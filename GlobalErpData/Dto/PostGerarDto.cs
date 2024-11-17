@@ -16,4 +16,9 @@ namespace GlobalErpData.Dto
     {
         public string sessionId { get; set; }
     }
+    public class PostCancelamentoDto
+    {
+        public string sessionId { get; set; }
+        public string justificativa { get; set; }
+    }
 }
