@@ -1427,6 +1427,30 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
                 return e.Message;
             }
         }
+
+        public async Task<ResponseGerarDto> GetXmlAsync(NotaFiscal notaFiscal, Saida saida, Empresa empresa, Certificado cer)
+        {
+            ResponseGerarDto responseGerarDto = new ResponseGerarDto();
+
+            this.SetConfiguracaoNfe(saida.Empresa, empresa, cer);
+            string nota = notaFiscal.ToString();
+            string doc = $"S{saida.NrLanc}";
+            responseGerarDto.pathPdf = System.IO.Path.Combine(nfe.Config.DANFe.PathPDF, doc + ".pdf");
+            if (System.IO.File.Exists(responseGerarDto.pathPdf))
+            {
+                System.IO.File.Delete(responseGerarDto.pathPdf);
+            }
+
+            nfe.LimparLista();
+            nfe.Config.DANFe.NomeDocumento = doc;
+            nfe.CarregarINI(nota);
+            nfe.Assinar();
+            nfe.Validar();
+            responseGerarDto.xml = nfe.ObterXml(0);
+            nfe.ImprimirPDF();
+
+            return responseGerarDto;
+        }
     }
 
 

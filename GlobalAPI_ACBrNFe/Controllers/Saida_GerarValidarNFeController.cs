@@ -242,6 +242,63 @@ namespace GlobalAPI_ACBrNFe.Controllers
 
                     #endregion
                 }
+                else if (reponseValidacao.Equals("Success"))
+                {
+                    #region Gerar NFe
+                    try
+                    {
+                        await _hubContext.Clients.Group(sessionHubDto.sessionId).SendAsync("ReceiveProgress", "Obtendo dados do XML NFe");
+                        response = await nFeGlobalService.GetXmlAsync(notaFiscal, saida, empresa, cer);
+                    }
+                    catch (Exception ex)
+                    {
+                        string errorMessage = $"Erro ao obter dados do XML NFe (nrLanc={nrLanc}, empresa={saida.Empresa}): {ex.Message}";
+                        _logger.LogError(ex, errorMessage);
+                        response.success = false;
+                        response.Message = errorMessage;
+                        response.StatusCode = 400;
+                        return BadRequest(response);
+                    }
+                    try
+                    {
+                        await _hubContext.Clients.Group(sessionHubDto.sessionId).SendAsync("ReceiveProgress", "Atualizando dados Saida.");
+                        saida.CdSituacao = "01";
+                        saida.XmNf = response.xml;
+
+                        if (System.IO.File.Exists(response.pathPdf))
+                        {
+                            saida.Pdf = System.IO.File.ReadAllBytes(response.pathPdf);
+                        }
+                        else
+                        {
+                            throw new Exception($"PDF não registrado (SAIDA: {saida.NrLanc})");
+                        }
+
+                        HttpClient client = new HttpClient();
+
+                        string url = Constants.URL_API_NFE + "/api/Saida/" + saida.NrLanc;
+                        SaidaDto saidaDto = mapper.Map<SaidaDto>(saida);
+                        client.BaseAddress = new Uri(url);
+                        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                        HttpResponseMessage responseEndpoint = await client.PutAsJsonAsync(url, saidaDto);
+                        if (!responseEndpoint.IsSuccessStatusCode)
+                        {
+                            throw new Exception($"Erro ao atualizar Saida ({saida.NrLanc}) HTTP {responseEndpoint.StatusCode}: {responseEndpoint.Content}.");
+                        }
+                        await _hubContext.Clients.Group(sessionHubDto.sessionId).SendAsync("ReceiveProgress", "Validado com sucesso.");
+                        return Ok(response);
+                    }
+                    catch (Exception ex)
+                    {
+                        string errorMessage = $"Erro ao Alterar Situação (nrLanc={nrLanc}, empresa={saida.Empresa}): {ex.Message}";
+                        _logger.LogError(ex, errorMessage);
+                        response.success = false;
+                        response.Message = errorMessage;
+                        response.StatusCode = 400;
+                        return BadRequest(response);
+                    }
+                    #endregion
+                }
                 return Ok(response);
             }
             catch (Exception ex)
