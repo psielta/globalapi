@@ -12,6 +12,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using X.PagedList.Extensions;
 using GlobalLib.Dto;
+using static HotChocolate.ErrorCodes;
+using Microsoft.EntityFrameworkCore;
 
 namespace GlobalAPINFe.Controllers
 {
@@ -19,8 +21,14 @@ namespace GlobalAPINFe.Controllers
     [ApiController]
     public class CertificadoController : GenericPagedController<Certificado, int, CertificadoDto>
     {
-        public CertificadoController(IQueryRepository<Certificado, int, CertificadoDto> repo, ILogger<GenericPagedController<Certificado, int, CertificadoDto>> logger) : base(repo, logger)
+        private readonly IConfiguration _config;
+        private readonly GlobalErpFiscalBaseContext _context;
+
+        public CertificadoController(IQueryRepository<Certificado, int, CertificadoDto> repo, ILogger<GenericPagedController<Certificado, int, CertificadoDto>> logger,
+            IConfiguration config, GlobalErpFiscalBaseContext _context) : base(repo, logger)
         {
+            _config = config;
+            this._context = _context;
         }
 
         // Sobrescrevendo os métodos herdados e adicionando os atributos [ProducesResponseType]
@@ -114,5 +122,80 @@ namespace GlobalAPINFe.Controllers
                 return StatusCode(500, "An error occurred while retrieving entities. Please try again later.");
             }
         }
+
+        [HttpPost("upload")]
+        [ProducesResponseType(typeof(Certificado), 200)]
+        [ProducesResponseType(400)]
+        public async Task<ActionResult<Certificado>> UploadCertificado([FromForm] UploadCertificadoRequest request)
+        {
+            if (string.IsNullOrEmpty(_config["Certificado:Path"]))
+            {
+                throw new Exception("Path não configurado");
+            }
+
+            if (!Directory.Exists(_config["Certificado:Path"]))
+            {
+                Directory.CreateDirectory(_config["Certificado:Path"]);
+            }
+
+            if (request.ArquivoPfx == null || request.ArquivoPfx.Length == 0)
+            {
+                return BadRequest("Nenhum arquivo foi enviado.");
+            }
+
+            var certificadoExistente = await _context.Certificados
+                .FirstOrDefaultAsync(c => c.IdEmpresa == request.Dados.IdEmpresa);
+
+            var caminhoDestino = System.IO.Path.Combine(_config["Certificado:Path"], $"CERT_EMPRESA_{request.Dados.IdEmpresa}.pfx");
+            if (System.IO.File.Exists(caminhoDestino))
+            {
+                System.IO.File.Delete(caminhoDestino);
+            }
+            // Salvar o arquivo no sistema de arquivos
+            using (var stream = new FileStream(caminhoDestino, FileMode.Create))
+            {
+                await request.ArquivoPfx.CopyToAsync(stream);
+            }
+
+            if (certificadoExistente == null)
+            {
+                certificadoExistente = new Certificado
+                {
+                    IdEmpresa = request.Dados.IdEmpresa,
+                    CaminhoCertificado = caminhoDestino,
+                    SerialCertificado = request.Dados.SerialCertificado,
+                    Senha = request.Dados.Senha,
+                    ValidadeCert = request.Dados.ValidadeCert,
+                    Tipo = request.Dados.Tipo,
+                    Certificado1 = request.Dados.Certificado1,
+                    CertificadoByte = await System.IO.File.ReadAllBytesAsync(caminhoDestino)
+                };
+
+                _context.Certificados.Add(certificadoExistente);
+            }
+            else
+            {
+                if (System.IO.File.Exists(certificadoExistente.CaminhoCertificado) && 
+                    (!certificadoExistente.CaminhoCertificado.Equals(caminhoDestino)))
+                {
+                    System.IO.File.Delete(certificadoExistente.CaminhoCertificado);
+                }
+
+                certificadoExistente.CaminhoCertificado = caminhoDestino;
+                certificadoExistente.SerialCertificado = request.Dados.SerialCertificado;
+                certificadoExistente.Senha = request.Dados.Senha;
+                certificadoExistente.ValidadeCert = request.Dados.ValidadeCert;
+                certificadoExistente.Tipo = request.Dados.Tipo;
+                certificadoExistente.Certificado1 = request.Dados.Certificado1;
+                certificadoExistente.CertificadoByte = await System.IO.File.ReadAllBytesAsync(caminhoDestino);
+
+                _context.Certificados.Update(certificadoExistente);
+            }
+
+            await _context.SaveChangesAsync();
+            ((CertificadoPagedRepository)repo).UpdateCache(certificadoExistente.Id, certificadoExistente);
+            return Ok(certificadoExistente);
+        }
+
     }
 }

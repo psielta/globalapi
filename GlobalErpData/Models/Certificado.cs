@@ -44,6 +44,9 @@ public partial class Certificado: IIdentifiable<int>
     [StringLength(1)]
     public string? Tipo { get; set; }
 
+    [Column("certificado_byte")]
+    public byte[]? CertificadoByte { get; set; }
+
     [JsonIgnore]
     [ForeignKey("IdEmpresa")]
     [InverseProperty("Certificados")]

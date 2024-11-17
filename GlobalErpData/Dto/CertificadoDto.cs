@@ -23,5 +23,7 @@ namespace GlobalErpData.Dto
         public string? Certificado1 { get; set; }
 
         public string? Tipo { get; set; }
+
+        public byte[]? CertificadoByte { get; set; }
     }
 }
