@@ -1464,12 +1464,12 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             this.SetConfiguracaoNfe(saida.Empresa, empresa, cer);
             nfe.LimparLista();
             ConsultaNFeResposta resposta = nfe.Consultar(saida.ChaveAcessoNfe);
+                    response.Message = $"Situação do CTe: {resposta.XMotivo}. Data/Hora Situação: {resposta.DhRecbto.ToString("dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture)}";
             if (resposta != null)
             {
                 try
                 {
                     await TratarRespostaConsulta(resposta, Enum.EnumConverter.GetStatus(resposta.CStat), saida, empresa, cer);
-                    response.Message = $"Situação do CTe: {resposta.XMotivo}. Data/Hora Situação: {resposta.DhRecbto.ToString("dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture)}";
                 }
                 catch (Exception e)
                 {
@@ -1515,6 +1515,25 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             if (!XmlPossuiGrupoAutorizacao(xmlAntigo))
             {
                 saida.XmNf = XmlTools.AdicionarGrupoAutorizacao(xmlAntigo, resposta);
+                string doc = $"S{saida.NrLanc}";
+                string pathPdf = System.IO.Path.Combine(nfe.Config.DANFe.PathPDF, doc + ".pdf");
+                if (System.IO.File.Exists(pathPdf))
+                {
+                    System.IO.File.Delete(pathPdf);
+                }
+                nfe.LimparLista();
+                nfe.Config.DANFe.NomeDocumento = doc;
+                nfe.CarregarXML(saida.XmNf);
+                nfe.ImprimirPDF();
+
+                if (System.IO.File.Exists(pathPdf))
+                {
+                    saida.Pdf = System.IO.File.ReadAllBytes(pathPdf);
+                }
+                else
+                {
+                    throw new Exception($"PDF não registrado (SAIDA: {saida.NrLanc})");
+                }
             }
             saida.CdSituacao = GetCdSituacao(status);
             if (!saida.CdSituacao.Equals("11"))

@@ -13,6 +13,7 @@ using GlobalErpData.Repository.Repositories;
 using GlobalErpData.Services;
 using GlobalLib.Database;
 using GlobalLib.Repository;
+using GlobalLib.Strings;
 using GlobalLib.Utils;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -265,6 +266,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                         await _hubContext.Clients.Group(sessionHubDto.sessionId).SendAsync("ReceiveProgress", "Atualizando dados Saida.");
                         saida.CdSituacao = "01";
                         saida.XmNf = response.xml;
+                        //saida.ChaveAcessoNfe = UtlStrings.OnlyInteger(notaFiscal.InfNFe.ID ?? "");
 
                         if (System.IO.File.Exists(response.pathPdf))
                         {

@@ -57,7 +57,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 #region Validações Iniciais
                 try
                 {
-                    await _hubContext.Clients.Group(sessionHubDto.sessionId).SendAsync("ReceiveProgress", "Iniciando validações...");
+                    await _hubContext.Clients.Group(sessionHubDto.sessionId).SendAsync("ReceiveProgress", "Buscando dados NFe...");
                     saida = await db.Saidas
                         .Include(f => f.Fretes).ThenInclude(f => f.Transportadora).ThenInclude(f => f.CdCidadeNavigation)
                         .Include(s => s.SaidasVolumes)
@@ -143,7 +143,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     {
                         throw new Exception($"Erro ao atualizar Saida ({saida.NrLanc}) HTTP {responseEndpoint.StatusCode}: {responseEndpoint.Content}.");
                     }
-                    await _hubContext.Clients.Group(sessionHubDto.sessionId).SendAsync("ReceiveProgress", "Gerado com sucesso.");
+                    await _hubContext.Clients.Group(sessionHubDto.sessionId).SendAsync("ReceiveProgress", "Finalizado com sucesso");
                 }
                 catch (Exception ex)
                 {
