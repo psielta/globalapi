@@ -173,9 +173,9 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             nfe.CarregarINI(nota);
             nfe.Assinar();
             nfe.Validar();
-            EnvioRetornoResposta? rep = nfe.Enviar(saida.NrLanc);
+            EnvioRetornoResposta? rep = nfe.Enviar(saida.NrLanc, false, true);
             responseGerarDto.envioRetornoResposta = rep;
-            if (rep.Envio.CStat.Equals(100))
+            if (rep.Envio.CStat.Equals(100) || rep.Envio.CStat.Equals(103))
             {
                 responseGerarDto.xml = nfe.ObterXml(0);
                 nfe.ImprimirPDF();
