@@ -46,7 +46,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
         [HttpPost("{nrLanc}")]
         [ProducesResponseType(typeof(ConsultaNFeDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<ConsultaNFeDto>> Get(int nrLanc, [FromBody] PostConsultaDto sessionHubDto)
+        public async Task<ActionResult<ConsultaNFeDto>> Post(int nrLanc, [FromBody] PostConsultaDto sessionHubDto)
         {
             Saida? saida = null;
             Certificado? cer = null;
