@@ -1625,5 +1625,66 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             }
             return response;
         }
+
+        public async Task<ResponseConsultaAcbr> InutilizacaoNFe(Saida saida, Empresa empresa, Certificado cer, PostCancelamentoDto sessionHubDto)
+        {
+            ResponseConsultaAcbr response = new ResponseConsultaAcbr();
+            var date = saida.Data ?? DateUtils.DateTimeToDateOnly(DateTime.Now);
+            int year = date.Year;
+            try
+            {
+                this.SetConfiguracaoNfe(saida.Empresa, empresa, cer);
+                nfe.LimparLista();
+                InutilizarNFeResposta resposta = nfe.Inutilizar(empresa.CdCnpj,sessionHubDto.justificativa, year, 55, Convert.ToInt32(saida.SerieNf), Convert.ToInt32(saida.NrNotaFiscal), Convert.ToInt32(saida.NrNotaFiscal));
+                response.Message = $"Cancelamento do NFe: {resposta.XMotivo}. Data/Hora Situação: {resposta.DhRecbto.ToString("dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture)}";
+                const int CSTAT_DUPLICIDADE_EVENTO = 631;
+                if (resposta.CStat == CSTAT_DUPLICIDADE_EVENTO)
+                {
+                    saida.CdSituacao = "70";
+                    if (!string.IsNullOrEmpty(resposta.NProt))
+                    {
+                        saida.NrProtoInu = resposta.NProt;
+                    }
+                    response.Message = $"Inutilização já efetuada. Data. Data/Hora Situação: {resposta.DhRecbto.ToString("dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture)}";
+                }
+                else if (!string.IsNullOrEmpty(resposta.NProt))
+                {
+                    string arquivo = resposta.NomeArquivo;
+
+                    string xmlContent = File.ReadAllText(arquivo);
+                    saida.XmNfInu = xmlContent;
+
+                    string xmlNFe = saida.XmNf ?? "";
+
+                    // ...
+
+                    string directoryPath = @"C:\Global\NFE\Temp\XMLs";
+                    string fileName = $"{saida?.ChaveAcessoNfe}-nfe.xml";
+                    string filePath = System.IO.Path.Combine(directoryPath, fileName);
+
+                    Directory.CreateDirectory(directoryPath);
+                    File.WriteAllText(filePath, xmlNFe);
+
+                    nfe.Config.DANFe.NomeDocumento = $"INU{saida.NrLanc}";
+                    string pathCompletoPDFEvento = System.IO.Path.Combine(nfe.Config.DANFe.PathPDF, $"INU{saida.NrLanc}.pdf");
+                    nfe.ImprimirInutilizacaoPDF(resposta.NomeArquivo);
+                    if (System.IO.File.Exists(pathCompletoPDFEvento))
+                    {
+                        saida.PdfInu = System.IO.File.ReadAllBytes(pathCompletoPDFEvento);
+                    }
+
+                    saida.CdSituacao = "70";
+                    saida.NrProtoInu = resposta.NProt;
+                    response.Message = $"Inutilização efetuada com sucesso. Data/Hora Situação: {resposta.DhRecbto.ToString("dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture)}";
+                }
+            }
+
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Erro cancelamento {saida.NrLanc}");
+                response.Message = e.Message;
+            }
+            return response;
+        }
     }
 }

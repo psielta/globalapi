@@ -107,6 +107,9 @@ namespace GlobalErpData.Dto
 
         public byte[]? Pdf { get; set; }
         public byte[]? PdfCnc { get; set; }
+        public byte[]? PdfInu { get; set; }
+        public string? XmNfInu { get; set; }
+        public string? NrProtoInu { get; set; }
 
 
     }

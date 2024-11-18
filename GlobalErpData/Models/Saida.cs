@@ -207,6 +207,16 @@ public partial class Saida : IIdentifiable<int>
     [Column("pdf_cnc")]
     public byte[]? PdfCnc { get; set; }
 
+    [Column("pdf_inu")]
+    public byte[]? PdfInu { get; set; }
+
+    [Column("xm_nf_inu")]
+    public string? XmNfInu { get; set; }
+
+    [Column("nr_proto_inu")]
+    [StringLength(62)]
+    public string? NrProtoInu { get; set; }
+
     [JsonIgnore]
     [ForeignKey("CdGrupoEstoque")]
     [InverseProperty("Saida")]
