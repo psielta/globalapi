@@ -212,6 +212,11 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
     public virtual DbSet<UsuarioPermissao> UsuarioPermissaos { get; set; }
 
+    /************************************************************/
+    /* DBSET PERSONALIZADOS => Triggers & Views => NAO APAGAR */
+    /************************************************************/
+    public DbSet<DashboardEstoqueTotalEntradas> cdsDashboardEstoqueTotalEntradas { get; set; }
+    public DbSet<DashboardEstoqueTotalSaidas> cdsDashboardEstoqueTotalSaidas { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -2023,7 +2028,43 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         modelBuilder.HasSequence("seq_produto_geral_2");
         modelBuilder.HasSequence("seq_transportadora_geral_1");
 
+        /************************************************************/
+        /* MODELOS PERSONALIZADOS => Triggers & Views => NAO APAGAR */
+        /************************************************************/
+        ConfigFunctionGetDashboardEstoqueTotalEntradas(modelBuilder);
+        ConfigFunctionGetDashboardEstoqueTotalSaidas(modelBuilder);
+
         OnModelCreatingPartial(modelBuilder);
+    }
+
+    private void ConfigFunctionGetDashboardEstoqueTotalEntradas(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<DashboardEstoqueTotalEntradas>(entity =>
+        {
+            entity.HasNoKey();
+            entity.ToFunction("get_dashboard_estoque_total_entradas");
+        });
+    }
+    
+    private void ConfigFunctionGetDashboardEstoqueTotalSaidas(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<DashboardEstoqueTotalSaidas>(entity =>
+        {
+            entity.HasNoKey(); // A função retorna um resultado sem chave primária
+            entity.ToFunction("get_dashboard_estoque_total_saidas"); // Nome da função no banco de dados
+        });
+    }
+
+    public IQueryable<DashboardEstoqueTotalEntradas> GetDashboardEstoqueTotalEntradas(int pid_empresa)
+    {
+        return cdsDashboardEstoqueTotalEntradas
+            .FromSqlInterpolated($"SELECT * FROM public.get_dashboard_estoque_total_entradas({pid_empresa})");
+    }
+
+    public IQueryable<DashboardEstoqueTotalSaidas> GetDashboardEstoqueTotalSaidas(int pid_empresa)
+    {
+        return cdsDashboardEstoqueTotalSaidas
+            .FromSqlInterpolated($"SELECT * FROM public.get_dashboard_estoque_total_saidas({pid_empresa})");
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
