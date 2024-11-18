@@ -1173,7 +1173,7 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             notaFiscal.Destinatario.xNome = saida.ClienteNavigation.NmCliente;
             notaFiscal.Destinatario.Fone = UtlStrings.OnlyInteger(saida.ClienteNavigation.Telefone ?? "");
             notaFiscal.Destinatario.ISUF = "";
-            notaFiscal.Destinatario.IM = "";
+            // ***************************************** notaFiscal.Destinatario.IM = "";
             if ((saida.ClienteNavigation.EMail ?? "").Length > 10)
                 notaFiscal.Destinatario.Email = saida.ClienteNavigation.EMail;
             notaFiscal.Destinatario.CEP = saida.ClienteNavigation.Cep;
@@ -1242,6 +1242,7 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             notaFiscal.Emitente.nro = empresa.Numero.ToString();
             notaFiscal.Emitente.xBairro = empresa.NmBairro;
             notaFiscal.Emitente.cMun = Convert.ToInt32(empresa.CdCidade);
+            notaFiscal.Emitente.cMunFG = Convert.ToInt32(empresa.CdCidade);
             notaFiscal.Emitente.xMun = empresa.CdCidadeNavigation.NmCidade;
             notaFiscal.Emitente.UF = empresa.CdCidadeNavigation.Uf;
             notaFiscal.Emitente.cPais = 1058;
@@ -1307,7 +1308,7 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             if (saida.TpPagt.Equals("V"))
                 notaFiscal.Identificacao.indPag = IndicadorPagamento.ipVista;
             else notaFiscal.Identificacao.indPag = IndicadorPagamento.ipPrazo;
-            notaFiscal.Identificacao.modelo = ModeloNFe.moNFe;
+            notaFiscal.Identificacao.mod = ModeloNFe.moNFe;
             notaFiscal.Identificacao.Serie = saida.SerieNf;
             notaFiscal.Identificacao.nNF = Convert.ToInt32(saida.NrNotaFiscal);
             notaFiscal.Identificacao.dhEmi = DateTime.Now;
@@ -1393,7 +1394,7 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             else
                 notaFiscal.Identificacao.tpEmis = TipoEmissao.teNormal;
             notaFiscal.Identificacao.cUF = DFeUtils.GetCodigoUF(empresa.CdCidadeNavigation.Uf ?? "") ?? 0;
-            notaFiscal.Identificacao.cMunFG = Convert.ToInt32(empresa.CdCidadeNavigation.CdCidade);
+            // ****************** notaFiscal.Identificacao.cMunFG = Convert.ToInt32(empresa.CdCidadeNavigation.CdCidade);
             //notaFiscal.Identificacao.finNFe = FinalidadeNFe.fnNormal;
             if (saida.ClienteNavigation.ConsumidorFinal)
                 notaFiscal.Identificacao.indFinal = ConsumidorFinal.cfConsumidorFinal;
