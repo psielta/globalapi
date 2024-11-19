@@ -31,11 +31,11 @@ public partial class PagtosParciaisCp : IIdentifiable<int>
 
     [Column("acrescimo")]
     [Precision(18, 4)]
-    public decimal? Acrescimo { get; set; }
+    public decimal? Acrescimo { get; set; } = 0;
 
     [Column("desconto")]
     [Precision(18, 4)]
-    public decimal? Desconto { get; set; }
+    public decimal? Desconto { get; set; } = 0;
 
     [Column("cd_empresa")]
     public int CdEmpresa { get; set; }

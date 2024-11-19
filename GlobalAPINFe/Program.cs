@@ -136,6 +136,9 @@ builder.Services.AddScoped<IQueryRepository<Icm, int, IcmDto>, IcmRepository>();
 builder.Services.AddScoped<IQueryRepository<ControleNumeracaoNfe, int, ControleNumeracaoNfeDto>, ControleNumeracaoNfeRepository>();
 builder.Services.AddScoped<IQueryRepository<RetiradaNfe, int, RetiradaNfeDto>, RetiradaNfeRepository>();
 builder.Services.AddScoped<IQueryRepository<EntregaNfe, int, EntregaNfeDto>, EntregaNfeRepository>();
+builder.Services.AddScoped<IQueryRepository<LivroCaixa, long, LivroCaixaDto>, LivroCaixaRepository>();
+builder.Services.AddScoped<IQueryRepository<PagtosParciaisCr, int, PagtosParciaisCrDto>, PagtosParciaisCrRepository>();
+builder.Services.AddScoped<IQueryRepository<PagtosParciaisCp, int, PagtosParciaisCpDto>, PagtosParciaisCpRepository>();
 
 builder.Services.AddScoped<EntradaCalculationService>();
 builder.Services.AddScoped<SaidaCalculationService>();
