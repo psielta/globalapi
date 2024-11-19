@@ -223,7 +223,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
     public DbSet<DashboardEstoqueTotalEntradasPorDia> cdsDashboardEstoqueTotalEntradasPorDia { get; set; }
     public DbSet<DashboardEstoqueTotalSaidasPorDia> cdsDashboardEstoqueTotalSaidasPorDia { get; set; }
 
-   
+    public DbSet<TotalPorGrupo> cdsTotalPorGrupo { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -2062,6 +2062,12 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.ToFunction("get_dashboard_estoque_total_saidas_por_dia");
         });
 
+        modelBuilder.Entity<TotalPorGrupo>(entity =>
+        {
+            entity.HasNoKey();
+            entity.ToFunction("get_total_por_grupo");
+        });
+
         OnModelCreatingPartial(modelBuilder);
     }
 
@@ -2125,6 +2131,12 @@ public partial class GlobalErpFiscalBaseContext : DbContext
     {
         return cdsDashboardEstoqueTotalSaidasPorDia
             .FromSqlInterpolated($"SELECT * FROM public.get_dashboard_estoque_total_saidas_por_dia({pid_empresa})");
+    }
+
+    public IQueryable<TotalPorGrupo> GetTotalPorGrupo(int pid_empresa)
+    {
+        return cdsTotalPorGrupo
+            .FromSqlInterpolated($"SELECT * FROM public.get_total_por_grupo({pid_empresa})");
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);

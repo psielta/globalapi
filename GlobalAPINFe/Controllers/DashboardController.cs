@@ -163,5 +163,29 @@ namespace GlobalAPINFe.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Erro ao processar a solicitação.");
             }
         }
+
+        [HttpGet("GetTotalPorGrupo/{id}")]
+        [ProducesResponseType(typeof(IEnumerable<TotalPorGrupo>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<IEnumerable<TotalPorGrupo>>> GetTotalPorGrupo(int id)
+        {
+            try
+            {
+                var resultados = await _context.GetTotalPorGrupo(id).ToListAsync();
+
+                if (resultados == null || !resultados.Any())
+                {
+                    _log.LogWarning("Nenhum resultado encontrado para o ID {Id}", id);
+                    return NotFound();
+                }
+
+                return Ok(resultados);
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "Erro ao obter total por grupo para o ID {Id}", id);
+                return StatusCode(StatusCodes.Status500InternalServerError, "Erro ao processar a solicitação.");
+            }
+        }
     }
 }
