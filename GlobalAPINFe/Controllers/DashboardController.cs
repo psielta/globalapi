@@ -116,7 +116,52 @@ namespace GlobalAPINFe.Controllers
             }
         }
 
+        [HttpGet("GetDashboardEstoqueTotalEntradasPorDia/{id}")]
+        [ProducesResponseType(typeof(IEnumerable<DashboardEstoqueTotalEntradasPorDia>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<IEnumerable<DashboardEstoqueTotalEntradasPorDia>>> GetDashboardEstoqueTotalEntradasPorDia(int id)
+        {
+            try
+            {
+                var resultados = await _context.GetDashboardEstoqueTotalEntradasPorDia(id).ToListAsync();
 
+                if (resultados == null || !resultados.Any())
+                {
+                    _log.LogWarning("Nenhum resultado encontrado para o ID {Id}", id);
+                    return NotFound();
+                }
 
+                return Ok(resultados);
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "Erro ao obter o total de entradas por dia para o ID {Id}", id);
+                return StatusCode(StatusCodes.Status500InternalServerError, "Erro ao processar a solicitação.");
+            }
+        }
+
+        [HttpGet("GetDashboardEstoqueTotalSaidasPorDia/{id}")]
+        [ProducesResponseType(typeof(IEnumerable<DashboardEstoqueTotalSaidasPorDia>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<IEnumerable<DashboardEstoqueTotalSaidasPorDia>>> GetDashboardEstoqueTotalSaidasPorDia(int id)
+        {
+            try
+            {
+                var resultados = await _context.GetDashboardEstoqueTotalSaidasPorDia(id).ToListAsync();
+
+                if (resultados == null || !resultados.Any())
+                {
+                    _log.LogWarning("Nenhum resultado encontrado para o ID {Id}", id);
+                    return NotFound();
+                }
+
+                return Ok(resultados);
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "Erro ao obter o total de saídas por dia para o ID {Id}", id);
+                return StatusCode(StatusCodes.Status500InternalServerError, "Erro ao processar a solicitação.");
+            }
+        }
     }
 }
