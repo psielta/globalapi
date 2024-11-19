@@ -44,6 +44,12 @@ namespace GlobalNfeGraphql.GraphQL
         }
         [UseFiltering]
         [UseSorting]
+        public IQueryable<Cliente> GetClientes(GlobalErpFiscalBaseContext context)
+        {
+            return context.Clientes;
+        }
+        [UseFiltering]
+        [UseSorting]
         public IQueryable<UsuarioPermissao> GetUsuarioPermissaos(GlobalErpFiscalBaseContext context)
         {
             return context.UsuarioPermissaos;

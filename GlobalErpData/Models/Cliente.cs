@@ -67,7 +67,7 @@ public partial class Cliente : IIdentifiable<int>
     public string? TxtObs { get; set; }
 
     [Column("dt_cadastro")]
-    public DateOnly? DtCadastro { get; set; }
+    public DateOnly? DtCadastro { get; set; } = new DateOnly(DateTime.Now.Year,DateTime.Now.Month,DateTime.Now.Day);
 
     [Column("id_usuario_cad")]
     public int IdUsuarioCad { get; set; }
