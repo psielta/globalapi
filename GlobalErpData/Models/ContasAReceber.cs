@@ -218,4 +218,13 @@ public partial class ContasAReceber : IIdentifiable<int>
     {
         return "NrConta";
     }
+
+    [JsonIgnore]
+    [InverseProperty("NrCrNavigation")]
+    public virtual ICollection<LivroCaixa> LivroCaixas { get; set; } = new List<LivroCaixa>();
+
+    [JsonIgnore]
+    [InverseProperty("NrContaNavigation")]
+    public virtual ICollection<PagtosParciaisCr> PagtosParciaisCrs { get; set; } = new List<PagtosParciaisCr>();
+
 }

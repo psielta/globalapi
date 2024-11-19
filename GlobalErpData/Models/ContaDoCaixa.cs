@@ -67,6 +67,10 @@ public partial class ContaDoCaixa : IIdentifiable<int>
     [InverseProperty("ContaDoCaixas")]
     public virtual Empresa CdEmpresaNavigation { get; set; } = null!;
 
+    [JsonIgnore]
+    [InverseProperty("NrContaNavigation")]
+    public virtual ICollection<LivroCaixa> LivroCaixas { get; set; } = new List<LivroCaixa>();
+
     [GraphQLIgnore]
     public int GetId()
     {

@@ -297,6 +297,18 @@ public partial class Empresa : IIdentifiable<int>
     [InverseProperty("CdEmpresaNavigation")]
     public virtual ICollection<ContasAReceber> ContasARecebers { get; set; } = new List<ContasAReceber>();
 
+    [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<LivroCaixa> LivroCaixas { get; set; } = new List<LivroCaixa>();
+
+    [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<PagtosParciaisCp> PagtosParciaisCps { get; set; } = new List<PagtosParciaisCp>();
+
+    [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<PagtosParciaisCr> PagtosParciaisCrs { get; set; } = new List<PagtosParciaisCr>();
+
     [GraphQLIgnore]
     public int GetId()
     {

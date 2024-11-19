@@ -200,6 +200,10 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
     public virtual DbSet<SaldoEstoque> SaldoEstoques { get; set; }
 
+    public virtual DbSet<LivroCaixa> LivroCaixas { get; set; }
+    public virtual DbSet<PagtosParciaisCp> PagtosParciaisCps { get; set; }
+    public virtual DbSet<PagtosParciaisCr> PagtosParciaisCrs { get; set; }
+
     public virtual DbSet<Section> Sections { get; set; }
 
     public virtual DbSet<SectionItem> SectionItems { get; set; }
@@ -1047,6 +1051,30 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .HasConstraintName("item_details_fk1");
         });
 
+        modelBuilder.Entity<LivroCaixa>(entity =>
+        {
+            entity.HasKey(e => e.NrLanc).HasName("livro_caixa_pkey");
+
+            entity.Property(e => e.DtLanc).HasDefaultValueSql("now()");
+            entity.Property(e => e.TxtObs).HasDefaultValueSql("''::text");
+
+            entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.LivroCaixas).HasConstraintName("livro_caixa_fk");
+
+            entity.HasOne(d => d.NrContaNavigation).WithMany(p => p.LivroCaixas)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("livro_caixa_fk1");
+
+            entity.HasOne(d => d.NrCpNavigation).WithMany(p => p.LivroCaixas).HasConstraintName("livro_caixa_fk4");
+
+            entity.HasOne(d => d.NrCrNavigation).WithMany(p => p.LivroCaixas).HasConstraintName("livro_caixa_fk3");
+
+            entity.HasOne(d => d.HistoricoCaixa).WithMany(p => p.LivroCaixas)
+                .HasPrincipalKey(p => new { p.CdEmpresa, p.CdSubPlano, p.CdPlano })
+                .HasForeignKey(d => new { d.CdEmpresa, d.CdHistorico, d.CdPlano })
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("livro_caixa_fk2");
+        });
+
         modelBuilder.Entity<Mdfe>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("mdfe_pkey");
@@ -1430,6 +1458,38 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         modelBuilder.Entity<OrigemCst>(entity =>
         {
             entity.HasKey(e => e.Codigo).HasName("origem_cst_pkey");
+        });
+
+        modelBuilder.Entity<PagtosParciaisCp>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("pagtos_parciais_cp_pkey");
+
+            entity.Property(e => e.Acrescimo).HasDefaultValueSql("0.00");
+            entity.Property(e => e.Desconto).HasDefaultValueSql("0.00");
+            entity.Property(e => e.ValorPago).HasDefaultValueSql("0");
+            entity.Property(e => e.ValorRestante).HasDefaultValueSql("0");
+
+            entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.PagtosParciaisCps)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("pagtos_parciais_cp_fk");
+
+            entity.HasOne(d => d.IdContasPagarNavigation).WithMany(p => p.PagtosParciaisCps).HasConstraintName("pagtos_parciais_cp_fk1");
+        });
+
+        modelBuilder.Entity<PagtosParciaisCr>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("pagtos_parciais_cr_pkey");
+
+            entity.Property(e => e.Acrescimo).HasDefaultValueSql("0.00");
+            entity.Property(e => e.Desconto).HasDefaultValueSql("0.00");
+            entity.Property(e => e.ValorPago).HasDefaultValueSql("0");
+            entity.Property(e => e.ValorRestante).HasDefaultValueSql("0");
+
+            entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.PagtosParciaisCrs)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("pagtos_parciais_cr_fk");
+
+            entity.HasOne(d => d.NrContaNavigation).WithMany(p => p.PagtosParciaisCrs).HasConstraintName("pagtos_parciais_cr_fk1");
         });
 
         modelBuilder.Entity<PerfilLoja>(entity =>

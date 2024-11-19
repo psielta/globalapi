@@ -163,6 +163,15 @@ public partial class ContasAPagar : IIdentifiable<int>
     [NotMapped]
     public string NmHistoricoCaixa => HistoricoCaixa?.Descricao ?? "";
 
+    [JsonIgnore]
+    [InverseProperty("NrCpNavigation")]
+    public virtual ICollection<LivroCaixa> LivroCaixas { get; set; } = new List<LivroCaixa>();
+
+    [JsonIgnore]
+    [InverseProperty("IdContasPagarNavigation")]
+    public virtual ICollection<PagtosParciaisCp> PagtosParciaisCps { get; set; } = new List<PagtosParciaisCp>();
+
+
     [GraphQLIgnore]
     public int GetId()
     {

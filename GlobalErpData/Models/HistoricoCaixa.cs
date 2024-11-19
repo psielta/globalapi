@@ -53,6 +53,10 @@ public partial class HistoricoCaixa : IIdentifiable<int>
     [InverseProperty("HistoricoCaixa")]
     public virtual ICollection<ContasAPagar> ContasAPagars { get; set; } = new List<ContasAPagar>();
 
+    [JsonIgnore]
+    [InverseProperty("HistoricoCaixa")]
+    public virtual ICollection<LivroCaixa> LivroCaixas { get; set; } = new List<LivroCaixa>();
+
     [GraphQLIgnore]
     public int GetId()
     {
