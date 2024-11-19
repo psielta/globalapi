@@ -63,6 +63,7 @@ public partial class Cliente : IIdentifiable<int>
     public int IdEmpresa { get; set; }
 
     [Column("txt_obs")]
+
     [StringLength(16384)]
     public string? TxtObs { get; set; }
 
