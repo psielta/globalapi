@@ -218,6 +218,9 @@ public partial class GlobalErpFiscalBaseContext : DbContext
     public DbSet<DashboardEstoqueTotalEntradas> cdsDashboardEstoqueTotalEntradas { get; set; }
     public DbSet<DashboardEstoqueTotalSaidas> cdsDashboardEstoqueTotalSaidas { get; set; }
 
+    public DbSet<DashboardEstoqueTotalSaidasPorMes> cdsDashboardEstoqueTotalSaidasPorMes { get; set; }
+    public DbSet<DashboardEstoqueTotalEntradasPorMes> cdsDashboardEstoqueTotalEntradasPorMes { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
@@ -2033,6 +2036,16 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         /************************************************************/
         ConfigFunctionGetDashboardEstoqueTotalEntradas(modelBuilder);
         ConfigFunctionGetDashboardEstoqueTotalSaidas(modelBuilder);
+        modelBuilder.Entity<DashboardEstoqueTotalSaidasPorMes>(entity =>
+        {
+            entity.HasNoKey();
+            entity.ToFunction("get_dashboard_estoque_total_saidas_por_mes");
+        });
+        modelBuilder.Entity<DashboardEstoqueTotalEntradasPorMes>(entity =>
+        {
+            entity.HasNoKey();
+            entity.ToFunction("get_dashboard_estoque_total_entradas_por_mes");
+        });
 
         OnModelCreatingPartial(modelBuilder);
     }
@@ -2073,6 +2086,18 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
         return cdsDashboardEstoqueTotalSaidas
             .FromSqlInterpolated($"SELECT * FROM public.get_dashboard_estoque_total_saidas({pid_empresa}, {p_month}, {p_year})");
+    }
+
+    public IQueryable<DashboardEstoqueTotalSaidasPorMes> GetDashboardEstoqueTotalSaidasPorMes(int pid_empresa)
+    {
+        return cdsDashboardEstoqueTotalSaidasPorMes
+            .FromSqlInterpolated($"SELECT * FROM public.get_dashboard_estoque_total_saidas_por_mes({pid_empresa})");
+    }
+
+    public IQueryable<DashboardEstoqueTotalEntradasPorMes> GetDashboardEstoqueTotalEntradasPorMes(int pid_empresa)
+    {
+        return cdsDashboardEstoqueTotalEntradasPorMes
+            .FromSqlInterpolated($"SELECT * FROM public.get_dashboard_estoque_total_entradas_por_mes({pid_empresa})");
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
