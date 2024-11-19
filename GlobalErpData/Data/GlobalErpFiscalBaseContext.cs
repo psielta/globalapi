@@ -2050,21 +2050,29 @@ public partial class GlobalErpFiscalBaseContext : DbContext
     {
         modelBuilder.Entity<DashboardEstoqueTotalSaidas>(entity =>
         {
-            entity.HasNoKey(); // A função retorna um resultado sem chave primária
-            entity.ToFunction("get_dashboard_estoque_total_saidas"); // Nome da função no banco de dados
+            entity.HasNoKey();
+            entity.ToFunction("get_dashboard_estoque_total_saidas");
         });
     }
 
-    public IQueryable<DashboardEstoqueTotalEntradas> GetDashboardEstoqueTotalEntradas(int pid_empresa)
+    public IQueryable<DashboardEstoqueTotalEntradas> GetDashboardEstoqueTotalEntradas(int pid_empresa, int? p_month = null, int? p_year = null)
     {
+        // Se os parâmetros não forem fornecidos, usa o mês e ano atuais
+        p_month ??= DateTime.Now.Month;
+        p_year ??= DateTime.Now.Year;
+
         return cdsDashboardEstoqueTotalEntradas
-            .FromSqlInterpolated($"SELECT * FROM public.get_dashboard_estoque_total_entradas({pid_empresa})");
+            .FromSqlInterpolated($"SELECT * FROM public.get_dashboard_estoque_total_entradas({pid_empresa}, {p_month}, {p_year})");
     }
 
-    public IQueryable<DashboardEstoqueTotalSaidas> GetDashboardEstoqueTotalSaidas(int pid_empresa)
+    public IQueryable<DashboardEstoqueTotalSaidas> GetDashboardEstoqueTotalSaidas(int pid_empresa, int? p_month = null, int? p_year = null)
     {
+        // Se os parâmetros não forem fornecidos, usa o mês e ano atuais
+        p_month ??= DateTime.Now.Month;
+        p_year ??= DateTime.Now.Year;
+
         return cdsDashboardEstoqueTotalSaidas
-            .FromSqlInterpolated($"SELECT * FROM public.get_dashboard_estoque_total_saidas({pid_empresa})");
+            .FromSqlInterpolated($"SELECT * FROM public.get_dashboard_estoque_total_saidas({pid_empresa}, {p_month}, {p_year})");
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);

@@ -23,11 +23,11 @@ namespace GlobalAPINFe.Controllers
         [HttpGet("GetDashboardEstoqueTotalEntradas/{id}")]
         [ProducesResponseType(typeof(DashboardEstoqueTotalEntradas), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<DashboardEstoqueTotalEntradas>> GetDashboardEstoqueTotalEntradas(int id)
+        public async Task<ActionResult<DashboardEstoqueTotalEntradas>> GetDashboardEstoqueTotalEntradas(int id, int? month = null, int? year = null)
         {
             try
             {
-                var resultado = await _context.GetDashboardEstoqueTotalEntradas(id).FirstOrDefaultAsync();
+                var resultado = await _context.GetDashboardEstoqueTotalEntradas(id, month, year).FirstOrDefaultAsync();
 
                 if (resultado == null)
                 {
@@ -47,11 +47,11 @@ namespace GlobalAPINFe.Controllers
         [HttpGet("GetDashboardEstoqueTotalSaidas/{id}")]
         [ProducesResponseType(typeof(DashboardEstoqueTotalSaidas), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<DashboardEstoqueTotalSaidas>> GetDashboardEstoqueTotalSaidas(int id)
+        public async Task<ActionResult<DashboardEstoqueTotalSaidas>> GetDashboardEstoqueTotalSaidas(int id, int? month = null, int? year = null)
         {
             try
             {
-                var resultado = await _context.GetDashboardEstoqueTotalSaidas(id).FirstOrDefaultAsync();
+                var resultado = await _context.GetDashboardEstoqueTotalSaidas(id, month, year).FirstOrDefaultAsync();
 
                 if (resultado == null)
                 {
@@ -67,5 +67,6 @@ namespace GlobalAPINFe.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Erro ao processar a solicitação.");
             }
         }
+
     }
 }
