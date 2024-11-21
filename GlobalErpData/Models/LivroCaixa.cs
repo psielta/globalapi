@@ -56,6 +56,10 @@ public partial class LivroCaixa : IIdentifiable<long>
     [InverseProperty("LivroCaixas")]
     public virtual HistoricoCaixa HistoricoCaixa { get; set; } = null!;
 
+    [JsonPropertyName("tipo")]
+    [NotMapped]
+    public string Tipo => HistoricoCaixa.Tipo ?? string.Empty;
+
     [JsonIgnore]
     [ForeignKey("NrConta")]
     [InverseProperty("LivroCaixas")]
