@@ -14,7 +14,7 @@ namespace GlobalLib.Repository
         where TEntity : class, IIdentifiable<TKey>
         where TContext : DbContext
     {
-        protected static ConcurrentDictionary<TKey, TEntity>? EntityCache;
+        public static ConcurrentDictionary<TKey, TEntity>? EntityCache;
         protected TContext db;
         protected IMapper mapper;
         protected readonly ILogger<GenericRepositoryDto<TEntity, TContext, TKey, TDto>> logger;
@@ -75,6 +75,13 @@ namespace GlobalLib.Repository
             {
                 logger.LogError(ex, "Error occurred while retrieving entity with ID: {Id}", id);
                 return Task.FromResult<TEntity?>(null);
+            }
+        }
+        public void RemoveFromCache(TKey id)
+        {
+            if (EntityCache != null)
+            {
+                EntityCache.TryRemove(id, out _);
             }
         }
 

@@ -133,5 +133,125 @@ namespace GlobalAPINFe.Controllers
                 return StatusCode(500, "An error occurred while retrieving entities. Please try again later.");
             }
         }
+        
+        [HttpGet("GetHistoricoCaixaPorEmpresaDebito", Name = nameof(GetHistoricoCaixaPorEmpresaDebito))]
+        [ProducesResponseType(typeof(PagedResponse<HistoricoCaixa>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<PagedResponse<HistoricoCaixa>>> GetHistoricoCaixaPorEmpresaDebito(int idEmpresa, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        {
+            try
+            {
+                var query = ((HistoricoCaixaRepository)repo).GetHistoricoCaixaPorEmpresa(idEmpresa).Result.AsQueryable();
+                if (query == null)
+                {
+                    return NotFound("Entities not found."); // 404 Resource not found
+                }
+                query = query.Where(p => p.Tipo.Equals("D"));
+                query = query.OrderByDescending(x => x.Id);
+                var pagedList = await query.ToPagedListAsync(pageNumber, pageSize);
+                var response = new PagedResponse<HistoricoCaixa>(pagedList);
+
+                if (response.Items == null || response.Items.Count == 0)
+                {
+                    return NotFound("Entities not found."); // 404 Resource not found
+                }
+                return Ok(response); // 200 OK
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while retrieving paged entities.");
+                return StatusCode(500, "An error occurred while retrieving entities. Please try again later.");
+            }
+        }
+
+        [HttpGet("GetHistoricoCaixaPorEmpresa_ALLDebito", Name = nameof(GetHistoricoCaixaPorEmpresa_ALLDebito))]
+        [ProducesResponseType(typeof(IEnumerable<HistoricoCaixa>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<IEnumerable<HistoricoCaixa>>> GetHistoricoCaixaPorEmpresa_ALLDebito(int idEmpresa)
+        {
+            try
+            {
+                var query = ((HistoricoCaixaRepository)repo).GetHistoricoCaixaPorEmpresa(idEmpresa).Result.AsQueryable();
+                if (query == null)
+                {
+                    return NotFound("Entities not found."); // 404 Resource not found
+                }
+                query = query.Where(p => p.Tipo.Equals("D"));
+                query = query.OrderByDescending(x => x.Id);
+
+                var list = await query.AsNoTracking().ToListAsync();
+
+                if (list == null || list.Count == 0)
+                {
+                    return NotFound("Entities not found."); // 404 Resource not found
+                }
+                return Ok(list); // 200 OK
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while retrieving paged entities.");
+                return StatusCode(500, "An error occurred while retrieving entities. Please try again later.");
+            }
+        }
+        
+        [HttpGet("GetHistoricoCaixaPorEmpresaCredito", Name = nameof(GetHistoricoCaixaPorEmpresaCredito))]
+        [ProducesResponseType(typeof(PagedResponse<HistoricoCaixa>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<PagedResponse<HistoricoCaixa>>> GetHistoricoCaixaPorEmpresaCredito(int idEmpresa, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        {
+            try
+            {
+                var query = ((HistoricoCaixaRepository)repo).GetHistoricoCaixaPorEmpresa(idEmpresa).Result.AsQueryable();
+                if (query == null)
+                {
+                    return NotFound("Entities not found."); // 404 Resource not found
+                }
+                query = query.Where(p => p.Tipo.Equals("C"));
+                query = query.OrderByDescending(x => x.Id);
+                var pagedList = await query.ToPagedListAsync(pageNumber, pageSize);
+                var response = new PagedResponse<HistoricoCaixa>(pagedList);
+
+                if (response.Items == null || response.Items.Count == 0)
+                {
+                    return NotFound("Entities not found."); // 404 Resource not found
+                }
+                return Ok(response); // 200 OK
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while retrieving paged entities.");
+                return StatusCode(500, "An error occurred while retrieving entities. Please try again later.");
+            }
+        }
+
+        [HttpGet("GetHistoricoCaixaPorEmpresa_ALLCredito", Name = nameof(GetHistoricoCaixaPorEmpresa_ALLCredito))]
+        [ProducesResponseType(typeof(IEnumerable<HistoricoCaixa>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<IEnumerable<HistoricoCaixa>>> GetHistoricoCaixaPorEmpresa_ALLCredito(int idEmpresa)
+        {
+            try
+            {
+                var query = ((HistoricoCaixaRepository)repo).GetHistoricoCaixaPorEmpresa(idEmpresa).Result.AsQueryable();
+                if (query == null)
+                {
+                    return NotFound("Entities not found."); // 404 Resource not found
+                }
+                query = query.Where(p => p.Tipo.Equals("C"));
+                query = query.OrderByDescending(x => x.Id);
+
+                var list = await query.AsNoTracking().ToListAsync();
+
+                if (list == null || list.Count == 0)
+                {
+                    return NotFound("Entities not found."); // 404 Resource not found
+                }
+                return Ok(list); // 200 OK
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while retrieving paged entities.");
+                return StatusCode(500, "An error occurred while retrieving entities. Please try again later.");
+            }
+        }
     }
 }
