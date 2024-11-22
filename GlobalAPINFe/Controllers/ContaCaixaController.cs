@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using X.PagedList.EF;
 using GlobalLib.Dto;
+using Microsoft.EntityFrameworkCore;
 
 namespace GlobalAPINFe.Controllers
 {
@@ -92,6 +93,34 @@ namespace GlobalAPINFe.Controllers
                     return NotFound("Entities not found."); // 404 Resource not found
                 }
                 return Ok(response); // 200 OK
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while retrieving paged entities.");
+                return StatusCode(500, "An error occurred while retrieving entities. Please try again later.");
+            }
+        }
+
+        [HttpGet("GetContaDoCaixaPorEmpresa_ALL", Name = nameof(GetContaDoCaixaPorEmpresa_ALL))]
+        [ProducesResponseType(typeof(IEnumerable<ContaDoCaixa>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<IEnumerable<ContaDoCaixa>>> GetContaDoCaixaPorEmpresa_ALL(int idEmpresa)
+        {
+            try
+            {
+                var query = ((ContaCaixaRepository)repo).GetContaDoCaixaAsyncPorEmpresa(idEmpresa).Result.AsQueryable();
+                if (query == null)
+                {
+                    return NotFound("Entities not found."); // 404 Resource not found
+                }
+
+                var list = await query.AsNoTracking().ToListAsync();
+
+                if (list == null || list.Count == 0)
+                {
+                    return NotFound("Entities not found."); // 404 Resource not found
+                }
+                return Ok(list); // 200 OK
             }
             catch (Exception ex)
             {
