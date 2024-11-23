@@ -32,10 +32,11 @@ namespace GlobalErpData.Services
         /// <summary>
         /// Método principal para processar o pagamento de contas a pagar.
         /// </summary>
-        public async Task Core(ListCRDto listCRDto)
+        public async Task<List<ContasAPagar>> Core(ListCRDto listCRDto)
         {
+            List<ContasAPagar> contasAPagars = null;
             // Passo 1: Recupere as contas selecionadas, ordenadas por data de vencimento.
-            var contasAPagars = await _context.ContasAPagars
+            contasAPagars = await _context.ContasAPagars
                 .Where(c => listCRDto.Contas.Contains(c.Id) && c.CdEmpresa == listCRDto.CdEmpresa)
                 .OrderBy(c => c.DtVencimento)
                 .ToListAsync();
@@ -100,29 +101,30 @@ namespace GlobalErpData.Services
                 if (valorRestante >= valorConta)
                 {
                     // Pagamento total.
-                    await BaixaTotal(cp, valorConta);
+                    await BaixaTotal(cp, valorConta, listCRDto);
                     valorRestante -= valorConta;
                 }
                 else
                 {
                     // Pagamento parcial.
-                    await BaixaParcial(cp, valorRestante);
+                    await BaixaParcial(cp, valorRestante, listCRDto);
                     valorRestante = 0;
                 }
             }
 
             // Passo 8: Salve as alterações no banco de dados.
             await _context.SaveChangesAsync();
+            return contasAPagars;
         }
 
         /// <summary>
         /// Processa um pagamento total para a conta especificada.
         /// </summary>
-        private async Task BaixaTotal(ContasAPagar cp, decimal valorPago)
+        private async Task BaixaTotal(ContasAPagar cp, decimal valorPago, ListCRDto listCRDto)
         {
             // Atualiza ContasAPagar.
             cp.VlPagoFinal = cp.VlTotal;
-            cp.DtPagou = DateOnly.FromDateTime(DateTime.Now);
+            cp.DtPagou = listCRDto.DataPagamento;
             cp.Pagou = "S";
 
             // Atualiza o cache de ContasAPagar.
@@ -137,7 +139,7 @@ namespace GlobalErpData.Services
                 VlLancamento = cp.VlTotal,// - cp.VlTotal, // Negativo, pois é uma despesa.
                 NrCp = cp.Id,
                 TxtObs = cp.TxtObs,
-                NrConta = cp.NrConta ?? 0,
+                NrConta = listCRDto.NrContaCaixa,
                 CdPlano = cp.CdPlanoCaixa,
             };
             _context.LivroCaixas.Add(livroCaixa);
@@ -150,7 +152,7 @@ namespace GlobalErpData.Services
         /// <summary>
         /// Processa um pagamento parcial para a conta especificada.
         /// </summary>
-        private async Task BaixaParcial(ContasAPagar cp, decimal valorPago)
+        private async Task BaixaParcial(ContasAPagar cp, decimal valorPago, ListCRDto listCRDto)
         {
             // Atualiza ContasAPagar.
             cp.VlPagoFinal = (cp.VlPagoFinal ?? 0) + valorPago;
@@ -162,7 +164,7 @@ namespace GlobalErpData.Services
             PagtosParciaisCp pagamentoParcial = new PagtosParciaisCp
             {
                 IdContasPagar = cp.Id,
-                DtPagto = DateOnly.FromDateTime(DateTime.Now),
+                DtPagto = listCRDto.DataPagamento,
                 ValorPago = valorPago,
                 ValorRestante = cp.VlTotal - cp.VlPagoFinal,
                 Acrescimo = cp.VlAcrescimo ?? 0,
@@ -184,7 +186,7 @@ namespace GlobalErpData.Services
                 VlLancamento = valorPago,// -valorPago, // Negativo, pois é uma despesa.
                 NrCp = cp.Id,
                 TxtObs = cp.TxtObs,
-                NrConta = cp.NrConta ?? 0,
+                NrConta = listCRDto.NrContaCaixa,
                 CdPlano = cp.CdPlanoCaixa,
             };
             _context.LivroCaixas.Add(livroCaixa);
@@ -197,7 +199,7 @@ namespace GlobalErpData.Services
             if (cp.VlPagoFinal >= cp.VlTotal)
             {
                 cp.Pagou = "S";
-                cp.DtPagou = DateOnly.FromDateTime(DateTime.Now);
+                cp.DtPagou = listCRDto.DataPagamento;
 
                 // Atualiza o cache de ContasAPagar novamente.
                 ((ContasAPagarRepository)repCp).UpdateCache(cp.Id, cp);

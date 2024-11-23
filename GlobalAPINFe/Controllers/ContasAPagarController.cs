@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 using X.PagedList.Extensions;
 using GlobalLib.Dto;
+using GlobalErpData.Services;
 
 namespace GlobalAPINFe.Controllers
 {
@@ -16,8 +17,12 @@ namespace GlobalAPINFe.Controllers
     [ApiController]
     public class ContasAPagarController : GenericPagedController<ContasAPagar, int, ContasAPagarDto>
     {
-        public ContasAPagarController(IQueryRepository<ContasAPagar, int, ContasAPagarDto> repo, ILogger<GenericPagedController<ContasAPagar, int, ContasAPagarDto>> logger) : base(repo, logger)
+        private readonly BaixaCPService _baixaCPService;
+        public ContasAPagarController(IQueryRepository<ContasAPagar, int, ContasAPagarDto> repo,
+            ILogger<GenericPagedController<ContasAPagar, int, ContasAPagarDto>> logger,
+            BaixaCPService baixaCPService) : base(repo, logger)
         {
+            _baixaCPService = baixaCPService;
         }
 
         [HttpGet]
@@ -84,6 +89,26 @@ namespace GlobalAPINFe.Controllers
             TDC_Lancamento = 0,
             TDC_Vencimento = 1,
             TDC_Pagamento = 2,
+        }
+
+        [HttpPost("BaixarCP", Name = nameof(BaixarCP))]
+        [ProducesResponseType(typeof(List<ContasAPagar>), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<List<ContasAPagar>>> BaixarCP([FromBody] ListCRDto dto)
+        {
+            try
+            {
+                var CpAtt = await _baixaCPService.Core(dto);
+                return Ok(CpAtt);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while updating entity.");
+                return StatusCode(500, new ErrorMessage(500,
+                    "An error occurred while updating entity. Please try again later."
+                    ));
+            }
         }
 
 

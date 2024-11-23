@@ -10,6 +10,9 @@ namespace GlobalErpData.Dto
     {
         public List<int> Contas { get; set; } 
         public int CdEmpresa { get; set; }
+
+        public DateOnly DataPagamento { get; set; }
+        public int NrContaCaixa { get; set; }
         public decimal ValorDesconto { get; set; }
         public decimal ValorAcrescimo { get; set; }
         public decimal ValorPago { get; set; }

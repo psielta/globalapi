@@ -10,13 +10,17 @@ using static GlobalAPINFe.Controllers.ContasAPagarController;
 using System.Globalization;
 using X.PagedList.Extensions;
 using GlobalLib.Dto;
+using GlobalErpData.Services;
 
 namespace GlobalAPINFe.Controllers
 {
     public class ContasAReceberController : GenericPagedController<ContasAReceber, int, ContasAReceberDto>
     {
-        public ContasAReceberController(IQueryRepository<ContasAReceber, int, ContasAReceberDto> repo, ILogger<GenericPagedController<ContasAReceber, int, ContasAReceberDto>> logger) : base(repo, logger)
+        private readonly BaixaCRService _baixaCRService;
+        public ContasAReceberController(IQueryRepository<ContasAReceber, int, ContasAReceberDto> repo, ILogger<GenericPagedController<ContasAReceber, int, ContasAReceberDto>> logger,
+            BaixaCRService baixaCRService) : base(repo, logger)
         {
+            _baixaCRService = baixaCRService;
         }
 
         [HttpGet]
@@ -67,6 +71,26 @@ namespace GlobalAPINFe.Controllers
         public override async Task<ActionResult<IEnumerable<ContasAReceber>>> CreateBulk([FromBody] IEnumerable<ContasAReceberDto> dtos)
         {
             return await base.CreateBulk(dtos);
+        }
+
+        [HttpPost("BaixarCR", Name = nameof(BaixarCR))]
+        [ProducesResponseType(typeof(List<ContasAReceber>), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<List<ContasAReceber>>> BaixarCR([FromBody] ListCRDto dto)
+        {
+            try
+            {
+                var CrAtt = await _baixaCRService.Core(dto);
+                return Ok(CrAtt);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while updating entity.");
+                return StatusCode(500, new ErrorMessage(500,
+                    "An error occurred while updating entity. Please try again later."
+                    ));
+            }
         }
 
         public enum TipoPeriodoCAR

@@ -143,6 +143,9 @@ builder.Services.AddScoped<IQueryRepository<PagtosParciaisCp, int, PagtosParciai
 builder.Services.AddScoped<EntradaCalculationService>();
 builder.Services.AddScoped<SaidaCalculationService>();
 
+builder.Services.AddScoped<BaixaCRService>();
+builder.Services.AddScoped<BaixaCPService>();
+
 builder.Services.AddScoped<ProdutoSaidumService>();
 builder.Services.AddTransient<EmailService>();
 builder.Services.AddScoped<IUserStore<Usuario>, CustomUserStore>();

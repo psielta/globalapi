@@ -32,10 +32,11 @@ namespace GlobalErpData.Services
         /// <summary>
         /// Método principal para processar o pagamento de contas a receber.
         /// </summary>
-        public async Task Core(ListCRDto listCRDto)
+        public async Task<List<ContasAReceber>> Core(ListCRDto listCRDto)
         {
+            List<ContasAReceber> contasARecebers = null;
             // Passo 1: Recupere as contas selecionadas, ordenadas por data de vencimento.
-            var contasARecebers = await _context.ContasARecebers
+            contasARecebers = await _context.ContasARecebers
                 .Where(c => listCRDto.Contas.Contains(c.NrConta) && c.CdEmpresa == listCRDto.CdEmpresa)
                 .OrderBy(c => c.DtVencimento)
                 .ToListAsync();
@@ -100,29 +101,30 @@ namespace GlobalErpData.Services
                 if (valorRestante >= valorConta)
                 {
                     // Pagamento total.
-                    await BaixaTotal(cr, valorConta);
+                    await BaixaTotal(cr, valorConta,listCRDto);
                     valorRestante -= valorConta;
                 }
                 else
                 {
                     // Pagamento parcial.
-                    await BaixaParcial(cr, valorRestante);
+                    await BaixaParcial(cr, valorRestante, listCRDto);
                     valorRestante = 0;
                 }
             }
 
             // Passo 8: Salve as alterações no banco de dados.
             await _context.SaveChangesAsync();
+            return contasARecebers;
         }
 
         /// <summary>
         /// Processa um pagamento total para a conta especificada.
         /// </summary>
-        private async Task BaixaTotal(ContasAReceber cr, decimal valorPago)
+        private async Task BaixaTotal(ContasAReceber cr, decimal valorPago, ListCRDto listCRDto)
         {
             // Atualiza ContasAReceber.
             cr.VlPago = cr.VlTotal;
-            cr.DtPagamento = DateOnly.FromDateTime(DateTime.Now);
+            cr.DtPagamento = listCRDto.DataPagamento;
             cr.Recebeu = "S";
 
             // Atualiza o cache de ContasAReceber.
@@ -137,7 +139,7 @@ namespace GlobalErpData.Services
                 VlLancamento = cr.VlTotal,
                 NrCr = cr.NrConta,
                 TxtObs = cr.TxtObs,
-                NrConta = cr.NrContaCaixa ?? 0,
+                NrConta = listCRDto.NrContaCaixa,
                 CdPlano = cr.CdPlanoCaixa,
             };
             _context.LivroCaixas.Add(livroCaixa);
@@ -150,7 +152,7 @@ namespace GlobalErpData.Services
         /// <summary>
         /// Processa um pagamento parcial para a conta especificada.
         /// </summary>
-        private async Task BaixaParcial(ContasAReceber cr, decimal valorPago)
+        private async Task BaixaParcial(ContasAReceber cr, decimal valorPago, ListCRDto listCRDto)
         {
             // Atualiza ContasAReceber.
             cr.VlPago = (cr.VlPago ?? 0) + valorPago;
@@ -162,7 +164,7 @@ namespace GlobalErpData.Services
             PagtosParciaisCr pagamentoParcial = new PagtosParciaisCr
             {
                 NrConta = cr.NrConta,
-                DtPagto = DateOnly.FromDateTime(DateTime.Now),
+                DtPagto = listCRDto.DataPagamento,
                 ValorPago = valorPago,
                 ValorRestante = cr.VlTotal - cr.VlPago,
                 Acrescimo = cr.VlAcrescimo,
@@ -184,7 +186,7 @@ namespace GlobalErpData.Services
                 VlLancamento = valorPago,
                 NrCr = cr.NrConta,
                 TxtObs = cr.TxtObs,
-                NrConta = cr.NrContaCaixa ?? 0,
+                NrConta = listCRDto.NrContaCaixa,
                 CdPlano = cr.CdPlanoCaixa,
             };
             _context.LivroCaixas.Add(livroCaixa);
@@ -197,7 +199,7 @@ namespace GlobalErpData.Services
             if (cr.VlPago >= cr.VlTotal)
             {
                 cr.Recebeu = "S";
-                cr.DtPagamento = DateOnly.FromDateTime(DateTime.Now);
+                cr.DtPagamento = listCRDto.DataPagamento;
 
                 // Atualiza o cache de ContasAReceber novamente.
                 ((ContasAReceberRepository)repCr).UpdateCache(cr.NrConta, cr);
