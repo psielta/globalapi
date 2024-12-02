@@ -93,6 +93,25 @@ namespace GlobalAPINFe.Controllers
             }
         }
 
+        [HttpPost("Revert/{nrConta}", Name = nameof(RevertCR))]
+        [ProducesResponseType(typeof(ApiResponse), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<ApiResponse>> RevertCR(int nrConta)
+        {
+            try
+            {
+                await _baixaCRService.Revert(nrConta);
+                return Ok(new Success());
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while updating entity.");
+                return StatusCode(500, new InternalServerError(
+                    "An error occurred while updating entity. Please try again later."
+                    ));
+            }
+        }
         public enum TipoPeriodoCAR
         {
             TPC_Geral = 0,

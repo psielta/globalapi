@@ -111,6 +111,26 @@ namespace GlobalAPINFe.Controllers
             }
         }
 
+        [HttpPost("Revert/{nrConta}", Name = nameof(RevertCP))]
+        [ProducesResponseType(typeof(ApiResponse), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<ApiResponse>> RevertCP(int nrConta)
+        {
+            try
+            {
+                await _baixaCPService.Revert(nrConta);
+                return Ok(new Success());
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while updating entity.");
+                return StatusCode(500, new InternalServerError(
+                    "An error occurred while updating entity. Please try again later."
+                    ));
+            }
+        }
+
 
         [HttpGet("GetContasAPagarPorEmpresa", Name = nameof(GetContasAPagarPorEmpresa))]
         [ProducesResponseType(typeof(PagedResponse<ContasAPagar>), 200)]
