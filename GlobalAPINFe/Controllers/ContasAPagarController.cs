@@ -77,19 +77,7 @@ namespace GlobalAPINFe.Controllers
 
 
 
-        public enum TipoPeriodoCAP
-        {
-            TPC_Geral = 0,
-            TPC_Periodo = 1,
-            TPC_Ate_Data = 2,
-        }
-
-        public enum TipoDataCap
-        {
-            TDC_Lancamento = 0,
-            TDC_Vencimento = 1,
-            TDC_Pagamento = 2,
-        }
+        
 
         [HttpPost("BaixarCP", Name = nameof(BaixarCP))]
         [ProducesResponseType(typeof(List<ContasAPagar>), 200)]
@@ -130,7 +118,19 @@ namespace GlobalAPINFe.Controllers
                     ));
             }
         }
+        public enum TipoPeriodoCAP
+        {
+            TPC_Geral = 0,
+            TPC_Periodo = 1,
+            TPC_Ate_Data = 2,
+        }
 
+        public enum TipoDataCap
+        {
+            TDC_Lancamento = 0,
+            TDC_Vencimento = 1,
+            TDC_Pagamento = 2,
+        }
 
         [HttpGet("GetContasAPagarPorEmpresa", Name = nameof(GetContasAPagarPorEmpresa))]
         [ProducesResponseType(typeof(PagedResponse<ContasAPagar>), 200)]
