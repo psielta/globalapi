@@ -16,7 +16,7 @@ public partial class LivroCaixa : IIdentifiable<long>
     public long NrLanc { get; set; }
 
     [Column("dt_lanc", TypeName = "timestamp without time zone")]
-    public DateTime DtLanc { get; set; }
+    public DateTime DtLanc { get; set; } = DateTime.Now;
 
     [Column("cd_empresa")]
     public int CdEmpresa { get; set; }
