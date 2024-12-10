@@ -97,13 +97,11 @@ namespace GlobalAPINFe.Controllers
 
                 if (!string.IsNullOrEmpty(CdHistorico))
                 {
-                    var normalizedCdHistorico = UtlStrings.RemoveDiacritics(CdHistorico.ToLower().Trim());
-                    query = query.Where(p => UtlStrings.RemoveDiacritics((p.CdHistorico == null) ? "" : p.CdHistorico.ToLower()).Contains(normalizedCdHistorico));
+                    query = query.Where(p => p.CdHistorico.ToLower().Contains(CdHistorico));
                 }
                 if (!string.IsNullOrEmpty(CdPlano))
                 {
-                    var normalizedCdPlano = UtlStrings.RemoveDiacritics(CdPlano.ToLower().Trim());
-                    query = query.Where(p => UtlStrings.RemoveDiacritics((p.CdPlano == null) ? "" : p.CdPlano.ToLower()).Contains(normalizedCdPlano));
+                    query = query.Where(p => p.CdPlano.ToLower().Contains(CdPlano));
                 }
                 if (NrCp.HasValue)
                 {
