@@ -4,9 +4,11 @@ using GlobalErpData.Repository.PagedRepositories;
 using GlobalLib.Dto;
 using GlobalLib.GenericControllers;
 using GlobalLib.Repository;
+using GlobalLib.Strings;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NFe.Classes.Informacoes.Transporte;
 using X.PagedList.EF;
 
 namespace GlobalAPINFe.Controllers
@@ -74,7 +76,16 @@ namespace GlobalAPINFe.Controllers
         [HttpGet("GetLivroCaixaPorEmpresa", Name = nameof(GetLivroCaixaPorEmpresa))]
         [ProducesResponseType(typeof(PagedResponse<LivroCaixa>), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<PagedResponse<LivroCaixa>>> GetLivroCaixaPorEmpresa(int idEmpresa, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        public async Task<ActionResult<PagedResponse<LivroCaixa>>> GetLivroCaixaPorEmpresa(
+            int idEmpresa,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] int? NrCp = null,
+            [FromQuery] int? NrCr = null,
+            [FromQuery] int? NrConta = null,
+            [FromQuery] string? CdHistorico = null,
+            [FromQuery] string? CdPlano = null
+        )
         {
             try
             {
@@ -83,6 +94,30 @@ namespace GlobalAPINFe.Controllers
                 {
                     return NotFound("Entities not found."); // 404 Resource not found
                 }
+
+                if (!string.IsNullOrEmpty(CdHistorico))
+                {
+                    var normalizedCdHistorico = UtlStrings.RemoveDiacritics(CdHistorico.ToLower().Trim());
+                    query = query.Where(p => UtlStrings.RemoveDiacritics((p.CdHistorico == null) ? "" : p.CdHistorico.ToLower()).Contains(normalizedCdHistorico));
+                }
+                if (!string.IsNullOrEmpty(CdPlano))
+                {
+                    var normalizedCdPlano = UtlStrings.RemoveDiacritics(CdPlano.ToLower().Trim());
+                    query = query.Where(p => UtlStrings.RemoveDiacritics((p.CdPlano == null) ? "" : p.CdPlano.ToLower()).Contains(normalizedCdPlano));
+                }
+                if (NrCp.HasValue)
+                {
+                    query = query.Where(p => p.NrCp == NrCp.Value);
+                }
+                if (NrCr.HasValue)
+                {
+                    query = query.Where(p => p.NrCr == NrCr.Value);
+                }
+                if (NrConta.HasValue)
+                {
+                    query = query.Where(p => p.NrConta == NrConta.Value);
+                }
+
                 var pagedList = await query.ToPagedListAsync(pageNumber, pageSize);
                 var response = new PagedResponse<LivroCaixa>(pagedList);
 
