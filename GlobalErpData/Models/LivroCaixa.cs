@@ -58,7 +58,7 @@ public partial class LivroCaixa : IIdentifiable<long>
 
     [JsonPropertyName("tipo")]
     [NotMapped]
-    public string Tipo => HistoricoCaixa.Tipo ?? string.Empty;
+    public string Tipo => (HistoricoCaixa == null) ? string.Empty : HistoricoCaixa.Tipo ;
 
     [JsonIgnore]
     [ForeignKey("NrConta")]
