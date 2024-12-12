@@ -10,17 +10,24 @@ using System.Globalization;
 using GlobalLib.Dto;
 using X.PagedList.Extensions;
 using GlobalErpData.Services;
+using AutoMapper;
+using GlobalErpData.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace GlobalAPINFe.Controllers
 {
     public class SaidaController : GenericPagedController<Saida, int, SaidaDto>
     {
         private readonly SaidaCalculationService _calculationService;
+        private readonly IMapper mapper;
+        private readonly GlobalErpFiscalBaseContext context;
         public SaidaController(IQueryRepository<Saida, int, SaidaDto> repo,
             ILogger<GenericPagedController<Saida, int, SaidaDto>> logger,
-            SaidaCalculationService calculationService) : base(repo, logger)
+            SaidaCalculationService calculationService, IMapper mapper, GlobalErpFiscalBaseContext _context) : base(repo, logger)
         {
             _calculationService = calculationService;
+            this.mapper = mapper;
+            context = _context;
         }
 
         [HttpGet]
@@ -238,5 +245,104 @@ namespace GlobalAPINFe.Controllers
             TPS_Periodo = 1,
             TPS_AteData = 2
         }
+        [HttpGet("CreateReportSaida", Name = nameof(CreateReportSaida))]
+        [ProducesResponseType(200)]
+        public async Task<IActionResult> CreateReportSaida()
+        {
+                var projectRootPath = Environment.CurrentDirectory;
+            var reportFilePath = System.IO.Path.Combine(projectRootPath, "reports", "ReportMvcSaida.frx");
+            if (!System.IO.Directory.Exists(System.IO.Path.Combine(projectRootPath, "reports")))
+            {
+                System.IO.Directory.CreateDirectory(System.IO.Path.Combine(projectRootPath, "reports"));
+            }
+            var freport = new FastReport.Report();
+            //Saida
+            //Produtos Saida
+            //Empresa
+            Saida? saida = await context.Saidas.
+                Include(p => p.ProdutoSaida)
+                .Include(p => p.EmpresaNavigation)
+                .OrderByDescending(p => p.NrLanc)
+                .LastOrDefaultAsync();
+            if (saida == null)
+            {
+                return BadRequest();
+            }
+            var SaidaMapped = mapper.Map<SaidaGetDto>(saida);
+            var EmpresaMapper = mapper.Map<EmpresaGetDto>(saida.EmpresaNavigation);
+            var ProdutosDaSaida = mapper.Map<List<ProdutoSaidum>>(saida.ProdutoSaida);
+
+            // Registra os objetos no dicionário do relatório
+            freport.Dictionary.RegisterBusinessObject(new List<EmpresaGetDto>() { EmpresaMapper }, "Empresa", 1, true);
+            freport.Dictionary.RegisterBusinessObject(new List<SaidaGetDto>() { SaidaMapped }, "Saida", 1, true);
+            freport.Dictionary.RegisterBusinessObject(ProdutosDaSaida, "ProdutoSaida", 1, true);
+
+            // Habilita os datasources
+            freport.GetDataSource("Empresa").Enabled = true;
+            freport.GetDataSource("Saida").Enabled = true;
+            freport.GetDataSource("ProdutoSaida").Enabled = true;
+
+            freport.Report.Save(reportFilePath);
+
+            return Ok($" Relatorio gerado : {reportFilePath}");
+        }
+
+        [HttpGet("GetSaidaReport", Name = nameof(GetSaidaReport))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetSaidaReport([FromQuery] int nrLanc)
+        {
+            try
+            {
+                var projectRootPath = Environment.CurrentDirectory;
+                var reportFilePath = System.IO.Path.Combine(projectRootPath, "reports", "ReportMvcSaida.frx");
+
+                if (!System.IO.File.Exists(reportFilePath))
+                {
+                    return NotFound("Template de relatório não encontrado no servidor.");
+                }
+
+                var saida = await context.Saidas
+                    .Include(p => p.ProdutoSaida).ThenInclude(prods => prods.ProdutoEstoque)
+                    .Include(p => p.EmpresaNavigation).ThenInclude(cidade => cidade.CdCidadeNavigation)
+                    .FirstOrDefaultAsync(s => s.NrLanc == nrLanc);
+
+                if (saida == null)
+                {
+                    return NotFound($"Nenhuma saída encontrada para o NrLanc = {nrLanc}.");
+                }
+
+                var SaidaMapped = mapper.Map<SaidaGetDto>(saida);
+                var EmpresaMapped = mapper.Map<EmpresaGetDto>(saida.EmpresaNavigation);
+                var ProdutosDaSaida = mapper.Map<List<ProdutoSaidum>>(saida.ProdutoSaida);
+
+                using var freport = new FastReport.Report();
+                freport.Load(reportFilePath);
+
+                freport.RegisterData(new List<EmpresaGetDto>() { EmpresaMapped }, "Empresa");
+                freport.RegisterData(new List<SaidaGetDto>() { SaidaMapped }, "Saida");
+                freport.RegisterData(ProdutosDaSaida, "ProdutoSaida");
+
+                freport.GetDataSource("Empresa").Enabled = true;
+                freport.GetDataSource("Saida").Enabled = true;
+                freport.GetDataSource("ProdutoSaida").Enabled = true;
+
+                freport.Prepare();
+
+                using var ms = new MemoryStream();
+                var pdfExport = new FastReport.Export.PdfSimple.PDFSimpleExport();
+                freport.Export(pdfExport, ms);
+                ms.Position = 0;
+
+                return File(ms.ToArray(), "application/pdf", $"Saida_{nrLanc}.pdf");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Erro ao gerar relatório da saída {NrLanc}", nrLanc);
+                return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um erro ao gerar o relatório.");
+            }
+        }
+
     }
 }

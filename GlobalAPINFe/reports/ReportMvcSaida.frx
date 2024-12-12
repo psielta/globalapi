@@ -1,0 +1,230 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" ReportInfo.Created="12/12/2024 17:53:15" ReportInfo.Modified="12/12/2024 18:00:28" ReportInfo.CreatorVersion="2025.1.0.0">
+  <Dictionary>
+    <BusinessObjectDataSource Name="Empresa" ReferenceName="Empresa" DataType="System.Int32" Enabled="true">
+      <Column Name="CdEmpresa" DataType="System.Int32"/>
+      <Column Name="NmEmpresa" DataType="System.String"/>
+      <Column Name="NmEndereco" DataType="System.String"/>
+      <Column Name="Numero" DataType="System.Int32"/>
+      <Column Name="CdCidade" DataType="System.String"/>
+      <Column Name="CdCep" DataType="System.String"/>
+      <Column Name="CdCnpj" DataType="System.String"/>
+      <Column Name="NmBairro" DataType="System.String"/>
+      <Column Name="Telefone" DataType="System.String"/>
+      <Column Name="NrInscrMunicipal" DataType="System.String"/>
+      <Column Name="NrInscrEstadual" DataType="System.String"/>
+      <Column Name="TxtObs" DataType="System.String"/>
+      <Column Name="EMail" DataType="System.String"/>
+      <Column Name="Idcsc" DataType="System.String"/>
+      <Column Name="Csc" DataType="System.String"/>
+      <Column Name="AutorizoXml" DataType="System.String"/>
+      <Column Name="CpfcnpfAutorizado" DataType="System.String"/>
+      <Column Name="NomeFantasia" DataType="System.String"/>
+      <Column Name="TipoRegime" DataType="System.Int32"/>
+      <Column Name="MailContador" DataType="System.String"/>
+      <Column Name="Iest" DataType="System.String"/>
+      <Column Name="Complemento" DataType="System.String"/>
+      <Column Name="Cnae" DataType="System.String"/>
+      <Column Name="NmCidade" DataType="System.String"/>
+    </BusinessObjectDataSource>
+    <BusinessObjectDataSource Name="Saida" ReferenceName="Saida" DataType="System.Int32" Enabled="true">
+      <Column Name="NrLanc" DataType="System.Int32"/>
+      <Column Name="Data" DataType="System.Int32"/>
+      <Column Name="Empresa" DataType="System.Int32"/>
+      <Column Name="Cliente" DataType="System.Int32"/>
+      <Column Name="Requisicao" DataType="System.String"/>
+      <Column Name="Observacao" DataType="System.String"/>
+      <Column Name="TpSaida" DataType="System.String"/>
+      <Column Name="TpPagt" DataType="System.String"/>
+      <Column Name="DtSaida" DataType="System.Int32"/>
+      <Column Name="DtPedido" DataType="System.Int32"/>
+      <Column Name="TabelaVenda" DataType="System.String"/>
+      <Column Name="Pagou" DataType="System.String"/>
+      <Column Name="Cfop" DataType="System.String"/>
+      <Column Name="CdCarga" DataType="System.Int32"/>
+      <Column Name="TxtObsNf" DataType="System.String"/>
+      <Column Name="CdVendedor" DataType="System.Int32"/>
+      <Column Name="PagaComissao" DataType="System.String"/>
+      <Column Name="NrNotaFiscal" DataType="System.String"/>
+      <Column Name="ChaveAcessoNfe" DataType="System.String"/>
+      <Column Name="CdUf" DataType="System.String"/>
+      <Column Name="CdSituacao" DataType="System.String"/>
+      <Column Name="TxtJustificativaCancelamento" DataType="System.String"/>
+      <Column Name="NrProtoCancelamento" DataType="System.String"/>
+      <Column Name="DtPagouComis" DataType="System.Int32"/>
+      <Column Name="XmNf" DataType="System.String"/>
+      <Column Name="VlOutro" DataType="System.Int32"/>
+      <Column Name="VlDescGlobal" DataType="System.Int32"/>
+      <Column Name="NrAutorizacaoNfe" DataType="System.String"/>
+      <Column Name="IdPontoVenda" DataType="System.Int32"/>
+      <Column Name="ChaveNfeSaida" DataType="System.String"/>
+      <Column Name="IdConvenio" DataType="System.Int32"/>
+      <Column Name="IdMedico" DataType="System.Int32"/>
+      <Column Name="IdPaciente" DataType="System.Int32"/>
+      <Column Name="DtCirugia" DataType="System.Int32"/>
+      <Column Name="HrSaida" DataType="System.Int32"/>
+      <Column Name="IdEndEntrega" DataType="System.Int32"/>
+      <Column Name="IdEndRetirada" DataType="System.Int32"/>
+      <Column Name="NrCnf" DataType="System.Int32"/>
+      <Column Name="IdTabelaPrecos" DataType="System.Int32"/>
+      <Column Name="IdTipoOperacaoIntermediador" DataType="System.Int32"/>
+      <Column Name="IdTipoIndicador" DataType="System.Int32"/>
+      <Column Name="SerieNf" DataType="System.String"/>
+      <Column Name="CnpjMarket" DataType="System.String"/>
+      <Column Name="NmMarket" DataType="System.String"/>
+      <Column Name="LocalSalvoNota" DataType="System.String"/>
+      <Column Name="TpOperacao" DataType="System.String"/>
+      <Column Name="XmNfCnc" DataType="System.String"/>
+      <Column Name="CdGrupoEstoque" DataType="System.Int32"/>
+      <Column Name="VlSeguro" DataType="System.Int32"/>
+      <Column Name="ValorTotalNfe" DataType="System.Int32"/>
+      <Column Name="SubTotal" DataType="System.Int32"/>
+      <Column Name="ValorTotalDesconto" DataType="System.Int32"/>
+      <Column Name="ValorTotalProdutos" DataType="System.Int32"/>
+      <Column Name="Pdf" DataType="System.Byte[]" BindableControl="Picture"/>
+      <Column Name="PdfCnc" DataType="System.Byte[]" BindableControl="Picture"/>
+      <Column Name="PdfInu" DataType="System.Byte[]" BindableControl="Picture"/>
+      <Column Name="XmNfInu" DataType="System.String"/>
+      <Column Name="NrProtoInu" DataType="System.String"/>
+      <Column Name="NmPlano" DataType="System.String"/>
+      <Column Name="NmCliente" DataType="System.String"/>
+    </BusinessObjectDataSource>
+    <BusinessObjectDataSource Name="ProdutoSaida" ReferenceName="ProdutoSaida" DataType="System.Int32" Enabled="true">
+      <Column Name="Nr" DataType="System.Int32"/>
+      <Column Name="NrSaida" DataType="System.Int32"/>
+      <Column Name="CdProduto" DataType="System.Int32"/>
+      <Column Name="CdPlano" DataType="System.Int32"/>
+      <Column Name="Quant" DataType="System.Decimal"/>
+      <Column Name="VlVenda" DataType="System.Decimal"/>
+      <Column Name="Desconto" DataType="System.Decimal"/>
+      <Column Name="VlTotal" DataType="System.Decimal"/>
+      <Column Name="Lote" DataType="System.String"/>
+      <Column Name="DtValidade" DataType="System.Int32"/>
+      <Column Name="CdEmpresa" DataType="System.Int32"/>
+      <Column Name="Pagou" DataType="System.String"/>
+      <Column Name="VlCusto" DataType="System.Int32"/>
+      <Column Name="QuantEstorno" DataType="System.Int32"/>
+      <Column Name="Cst" DataType="System.String"/>
+      <Column Name="Cfop" DataType="System.String"/>
+      <Column Name="Un" DataType="System.String"/>
+      <Column Name="Ncm" DataType="System.String"/>
+      <Column Name="VlComissao" DataType="System.Int32"/>
+      <Column Name="PocIcms" DataType="System.Int32"/>
+      <Column Name="VlBaseIcms" DataType="System.Int32"/>
+      <Column Name="VlIcms" DataType="System.Int32"/>
+      <Column Name="IpiSiTribut" DataType="System.String"/>
+      <Column Name="IpiClasEnqua" DataType="System.String"/>
+      <Column Name="CdSeloIpi" DataType="System.String"/>
+      <Column Name="QtdeSeloIpi" DataType="System.Int32"/>
+      <Column Name="CdEnquadraIpi" DataType="System.String"/>
+      <Column Name="VlUnid" DataType="System.Int32"/>
+      <Column Name="CnpjProd" DataType="System.String"/>
+      <Column Name="VlBaseIpi" DataType="System.Int32"/>
+      <Column Name="PorcIpi" DataType="System.Int32"/>
+      <Column Name="VlIpi" DataType="System.Int32"/>
+      <Column Name="VlBaseSt" DataType="System.Int32"/>
+      <Column Name="PorcSt" DataType="System.Int32"/>
+      <Column Name="VlSt" DataType="System.Int32"/>
+      <Column Name="PocReducao" DataType="System.Int32"/>
+      <Column Name="MvaSt" DataType="System.Int32"/>
+      <Column Name="NrItem" DataType="System.Int32"/>
+      <Column Name="Cancelou" DataType="System.String"/>
+      <Column Name="EOrOs" DataType="System.String"/>
+      <Column Name="VlBaseRetido" DataType="System.Int32"/>
+      <Column Name="VlIcmsRet" DataType="System.Int32"/>
+      <Column Name="CdCsosn" DataType="System.String"/>
+      <Column Name="PcreditoIcms" DataType="System.Int32"/>
+      <Column Name="VlCreditoIcms" DataType="System.Int32"/>
+      <Column Name="VlAproxImposto" DataType="System.Int32"/>
+      <Column Name="PorcIbpt" DataType="System.Int32"/>
+      <Column Name="QtTotal" DataType="System.Int32"/>
+      <Column Name="CdTipSt" DataType="System.String"/>
+      <Column Name="VlBasePis" DataType="System.Int32"/>
+      <Column Name="VlPis" DataType="System.Int32"/>
+      <Column Name="PorcPis" DataType="System.Int32"/>
+      <Column Name="CstPis" DataType="System.String"/>
+      <Column Name="CdContSocialApPis" DataType="System.String"/>
+      <Column Name="VlBaseCofins" DataType="System.Int32"/>
+      <Column Name="VlCofins" DataType="System.Int32"/>
+      <Column Name="PorcCofins" DataType="System.Int32"/>
+      <Column Name="CstCofins" DataType="System.String"/>
+      <Column Name="CdContSocialApCofins" DataType="System.String"/>
+      <Column Name="VlBasePisSt" DataType="System.Int32"/>
+      <Column Name="VlPisSt" DataType="System.Int32"/>
+      <Column Name="PorcPisSt" DataType="System.Int32"/>
+      <Column Name="VlBaseCofinsSt" DataType="System.Int32"/>
+      <Column Name="VlCofinsSt" DataType="System.Int32"/>
+      <Column Name="PorcCofinsSt" DataType="System.Int32"/>
+      <Column Name="Cest" DataType="System.String"/>
+      <Column Name="Vbcufdest" DataType="System.Int32"/>
+      <Column Name="Picmsufdest" DataType="System.Int32"/>
+      <Column Name="Vicmsufdest" DataType="System.Int32"/>
+      <Column Name="Vicmsufremt" DataType="System.Int32"/>
+      <Column Name="Vbcfcpufdest" DataType="System.Int32"/>
+      <Column Name="Pfcpufdest" DataType="System.Int32"/>
+      <Column Name="Vfcpufdest" DataType="System.Int32"/>
+      <Column Name="Picmsinter" DataType="System.Int32"/>
+      <Column Name="Picmsinterpart" DataType="System.Int32"/>
+      <Column Name="CdInterno" DataType="System.String"/>
+      <Column Name="SequenciaItem" DataType="System.Int32"/>
+      <Column Name="ItemPedido" DataType="System.String"/>
+      <Column Name="Pedido" DataType="System.String"/>
+      <Column Name="St" DataType="System.Int32"/>
+      <Column Name="IcmsSubstituto" DataType="System.Int32"/>
+      <Column Name="Coo" DataType="System.Int32"/>
+      <Column Name="QuantEntregue" DataType="System.Int32"/>
+      <Column Name="QuantDevolvido" DataType="System.Int32"/>
+      <Column Name="PorcDesc" DataType="System.Int32"/>
+      <Column Name="DescRateio" DataType="System.Int32"/>
+      <Column Name="IdSerieProduto" DataType="System.String"/>
+      <Column Name="DescComplementoNome" DataType="System.String"/>
+      <Column Name="UtilizarIdInternoNfe" DataType="System.String"/>
+      <Column Name="IdSerieKit" DataType="System.String"/>
+      <Column Name="TpOperacaoVeic" DataType="System.Int32"/>
+      <Column Name="ChasiVeic" DataType="System.String"/>
+      <Column Name="CorVeic" DataType="System.String"/>
+      <Column Name="DescCorVeic" DataType="System.String"/>
+      <Column Name="PotenciaMotorVeic" DataType="System.String"/>
+      <Column Name="CilindradasVeic" DataType="System.String"/>
+      <Column Name="PesoLiquidoVeic" DataType="System.Int32"/>
+      <Column Name="PesoBrutoVeic" DataType="System.Int32"/>
+      <Column Name="SerialVeic" DataType="System.String"/>
+      <Column Name="TpCombustVeic" DataType="System.String"/>
+      <Column Name="NrMotorVeic" DataType="System.String"/>
+      <Column Name="CapcMaxTracVeic" DataType="System.Int32"/>
+      <Column Name="DistEixosVeic" DataType="System.String"/>
+      <Column Name="AnoVeic" DataType="System.String"/>
+      <Column Name="AnoFabVeic" DataType="System.String"/>
+      <Column Name="TpPinturaVeic" DataType="System.String"/>
+      <Column Name="TpVeic" DataType="System.String"/>
+      <Column Name="EspecVeic" DataType="System.String"/>
+      <Column Name="IdVinVeic" DataType="System.String"/>
+      <Column Name="CondVeic" DataType="System.String"/>
+      <Column Name="IdMarcaVeic" DataType="System.String"/>
+      <Column Name="IdCorVeic" DataType="System.String"/>
+      <Column Name="CapcMaxLotVeic" DataType="System.String"/>
+      <Column Name="RestricaoVeic" DataType="System.String"/>
+      <Column Name="BaixaEstoque" DataType="System.String"/>
+      <Column Name="Cor" DataType="System.String"/>
+      <Column Name="Tamanho" DataType="System.String"/>
+      <Column Name="Genero" DataType="System.String"/>
+      <Column Name="CdBarra" DataType="System.String"/>
+      <Column Name="CdEmpresaNavigation" DataType="System.Int32"/>
+      <Column Name="NrSaidaNavigation" DataType="System.Int32"/>
+      <Column Name="ProdutoEstoque" DataType="System.Int32"/>
+      <Column Name="NmProduto" DataType="System.String"/>
+      <Column Name="CdPlanoNavigation" DataType="System.Int32"/>
+    </BusinessObjectDataSource>
+  </Dictionary>
+  <ReportPage Name="Page1" Watermark.Font="Arial, 60pt">
+    <ReportTitleBand Name="ReportTitle1" Width="718.2" Height="66.15">
+      <TextObject Name="Text1" Left="28.35" Top="6.45" Width="670.95" Height="56.7" Text="[Empresa.NmEmpresa], CNPJ [Empresa.CdCnpj], I. E. [Empresa.NrInscrEstadual], [Empresa.NmEndereco], n.º [Empresa.Numero], [Empresa.NmCidade], CEP [Empresa.CdCep]" HorzAlign="Center" Font="Arial, 12pt, style=Bold"/>
+      <LineObject Name="Line1" Top="66.15" Width="718.2"/>
+    </ReportTitleBand>
+    <PageHeaderBand Name="PageHeader1" Top="70.15" Width="718.2" Height="47.25">
+      <TextObject Name="Text2" Left="28.35" Top="9.45" Width="519.75" Height="18.9" Text="Saida n.º[Saida.NrLanc], Data de lançamento [Saida.Data]." Font="Arial, 12pt"/>
+    </PageHeaderBand>
+    <DataBand Name="Data1" Top="121.4" Width="718.2" Height="75.6"/>
+    <PageFooterBand Name="PageFooter1" Top="201" Width="718.2" Height="18.9"/>
+  </ReportPage>
+</Report>
