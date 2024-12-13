@@ -260,10 +260,12 @@ namespace GlobalAPINFe.Controllers
             //Produtos Saida
             //Empresa
             Saida? saida = await context.Saidas.
+                Include(p=> p.ClienteNavigation).
                 Include(p => p.ProdutoSaida)
                 .Include(p => p.EmpresaNavigation)
                 .OrderByDescending(p => p.NrLanc)
                 .LastOrDefaultAsync();
+            
             if (saida == null)
             {
                 return BadRequest();
@@ -288,7 +290,7 @@ namespace GlobalAPINFe.Controllers
         }
 
         [HttpGet("GetSaidaReport", Name = nameof(GetSaidaReport))]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(FileContentResult), 200)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetSaidaReport([FromQuery] int nrLanc)
@@ -303,10 +305,11 @@ namespace GlobalAPINFe.Controllers
                     return NotFound("Template de relatório não encontrado no servidor.");
                 }
 
-                var saida = await context.Saidas
+                var saida = await context.Saidas.Include(p => p.ClienteNavigation)
                     .Include(p => p.ProdutoSaida).ThenInclude(prods => prods.ProdutoEstoque)
                     .Include(p => p.EmpresaNavigation).ThenInclude(cidade => cidade.CdCidadeNavigation)
                     .FirstOrDefaultAsync(s => s.NrLanc == nrLanc);
+                _calculationService.CalculateTotals(saida);
 
                 if (saida == null)
                 {
