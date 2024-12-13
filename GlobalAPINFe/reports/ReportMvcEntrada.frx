@@ -1,0 +1,238 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" ReportInfo.Created="12/13/2024 09:36:22" ReportInfo.Modified="12/13/2024 10:18:04" ReportInfo.CreatorVersion="2025.1.0.0">
+  <Dictionary>
+    <BusinessObjectDataSource Name="Empresa" ReferenceName="Empresa" DataType="System.Int32" Enabled="true">
+      <Column Name="CdEmpresa" DataType="System.Int32"/>
+      <Column Name="NmEmpresa" DataType="System.String"/>
+      <Column Name="NmEndereco" DataType="System.String"/>
+      <Column Name="Numero" DataType="System.Int32"/>
+      <Column Name="CdCidade" DataType="System.String"/>
+      <Column Name="CdCep" DataType="System.String"/>
+      <Column Name="CdCnpj" DataType="System.String"/>
+      <Column Name="NmBairro" DataType="System.String"/>
+      <Column Name="Telefone" DataType="System.String"/>
+      <Column Name="NrInscrMunicipal" DataType="System.String"/>
+      <Column Name="NrInscrEstadual" DataType="System.String"/>
+      <Column Name="TxtObs" DataType="System.String"/>
+      <Column Name="EMail" DataType="System.String"/>
+      <Column Name="Idcsc" DataType="System.String"/>
+      <Column Name="Csc" DataType="System.String"/>
+      <Column Name="AutorizoXml" DataType="System.String"/>
+      <Column Name="CpfcnpfAutorizado" DataType="System.String"/>
+      <Column Name="NomeFantasia" DataType="System.String"/>
+      <Column Name="TipoRegime" DataType="System.Int32"/>
+      <Column Name="MailContador" DataType="System.String"/>
+      <Column Name="Iest" DataType="System.String"/>
+      <Column Name="Complemento" DataType="System.String"/>
+      <Column Name="Cnae" DataType="System.String"/>
+      <Column Name="NmCidade" DataType="System.String"/>
+    </BusinessObjectDataSource>
+    <BusinessObjectDataSource Name="Entrada" ReferenceName="Entrada" DataType="System.Int32" Enabled="true">
+      <Column Name="Nr" DataType="System.Int32"/>
+      <Column Name="Data" DataType="System.Int32"/>
+      <Column Name="CdForn" DataType="System.Int32"/>
+      <Column Name="CdEmpresa" DataType="System.Int32"/>
+      <Column Name="NrNf" DataType="System.String"/>
+      <Column Name="DtSaida" DataType="System.Int32"/>
+      <Column Name="HrSaida" DataType="System.Int32"/>
+      <Column Name="HrChegada" DataType="System.Int32"/>
+      <Column Name="CdCfop" DataType="System.String"/>
+      <Column Name="VlFrete" DataType="System.Int32"/>
+      <Column Name="Transferiu" DataType="System.String"/>
+      <Column Name="NrPedidoCompra" DataType="System.Int32"/>
+      <Column Name="VlOutras" DataType="System.Int32"/>
+      <Column Name="VlSeguro" DataType="System.Int32"/>
+      <Column Name="VlDescontoNf" DataType="System.Int32"/>
+      <Column Name="VlAcrescimoNf" DataType="System.Int32"/>
+      <Column Name="TxtObs" DataType="System.String"/>
+      <Column Name="CdGrupoEstoque" DataType="System.Int32"/>
+      <Column Name="TpPagt" DataType="System.String"/>
+      <Column Name="Transp" DataType="System.Int32"/>
+      <Column Name="CdTipoNf" DataType="System.String"/>
+      <Column Name="ModeloNf" DataType="System.String"/>
+      <Column Name="SerieNf" DataType="System.String"/>
+      <Column Name="EmitendeNf" DataType="System.String"/>
+      <Column Name="CdSituacao" DataType="System.String"/>
+      <Column Name="CdChaveNfe" DataType="System.String"/>
+      <Column Name="TpFrete" DataType="System.Int32"/>
+      <Column Name="TpEntrada" DataType="System.String"/>
+      <Column Name="XmlNf" DataType="System.String"/>
+      <Column Name="DtEmissao" DataType="System.Int32"/>
+      <Column Name="VlGuiaSt" DataType="System.Int32"/>
+      <Column Name="PorcDifAlig" DataType="System.Int32"/>
+      <Column Name="VlStNf" DataType="System.Int32"/>
+      <Column Name="CdClienteDevolucao" DataType="System.Int32"/>
+      <Column Name="RespRetIcmsSt" DataType="System.String"/>
+      <Column Name="CodModDocArrec" DataType="System.String"/>
+      <Column Name="NumDocArrec" DataType="System.String"/>
+      <Column Name="TPag" DataType="System.String"/>
+      <Column Name="VIcmsDeson" DataType="System.Int32"/>
+      <Column Name="IcmstotVBc" DataType="System.Int32"/>
+      <Column Name="IcmstotVIcms" DataType="System.Int32"/>
+      <Column Name="IcmstotVIcmsDeson" DataType="System.Int32"/>
+      <Column Name="IcmstotVFcp" DataType="System.Int32"/>
+      <Column Name="IcmstotVBcst" DataType="System.Int32"/>
+      <Column Name="IcmstotVSt" DataType="System.Int32"/>
+      <Column Name="IcmstotVFcpst" DataType="System.Int32"/>
+      <Column Name="IcmstotVFcpstRet" DataType="System.Int32"/>
+      <Column Name="IcmstotVProd" DataType="System.Int32"/>
+      <Column Name="IcmstotVFrete" DataType="System.Int32"/>
+      <Column Name="IcmstotVSeg" DataType="System.Int32"/>
+      <Column Name="IcmstotVDesc" DataType="System.Int32"/>
+      <Column Name="IcmstotVIi" DataType="System.Int32"/>
+      <Column Name="IcmstotVIpi" DataType="System.Int32"/>
+      <Column Name="IcmstotVIpiDevol" DataType="System.Int32"/>
+      <Column Name="IcmstotVPis" DataType="System.Int32"/>
+      <Column Name="IcmstotVCofins" DataType="System.Int32"/>
+      <Column Name="IcmstotVOutro" DataType="System.Int32"/>
+      <Column Name="IcmstotVNf" DataType="System.Int32"/>
+      <Column Name="NmPlano" DataType="System.String"/>
+      <Column Name="NmForn" DataType="System.String"/>
+      <Column Name="ValorTotalNfe" DataType="System.Int32"/>
+      <Column Name="SubTotal" DataType="System.Int32"/>
+      <Column Name="ValorTotalDesconto" DataType="System.Int32"/>
+      <Column Name="ValorTotalProdutos" DataType="System.Int32"/>
+    </BusinessObjectDataSource>
+    <BusinessObjectDataSource Name="ProdutoEntrada" ReferenceName="ProdutoEntrada" DataType="System.Int32" Enabled="true">
+      <Column Name="Nr" DataType="System.Int32"/>
+      <Column Name="NrEntrada" DataType="System.Int32"/>
+      <Column Name="CdEmpresa" DataType="System.Int32"/>
+      <Column Name="CdProduto" DataType="System.Int32"/>
+      <Column Name="CdBarra" DataType="System.String"/>
+      <Column Name="Quant" DataType="System.Decimal"/>
+      <Column Name="VlUnitario" DataType="System.Decimal"/>
+      <Column Name="BIcms" DataType="System.Int32"/>
+      <Column Name="PorcIcms" DataType="System.Int32"/>
+      <Column Name="VlIcms" DataType="System.Decimal"/>
+      <Column Name="CdPlano" DataType="System.Int32"/>
+      <Column Name="Lote" DataType="System.String"/>
+      <Column Name="DtValidade" DataType="System.Int32"/>
+      <Column Name="BaseIpi" DataType="System.Int32"/>
+      <Column Name="PorcIpi" DataType="System.Int32"/>
+      <Column Name="VlIpi" DataType="System.Decimal"/>
+      <Column Name="VlOutras" DataType="System.Int32"/>
+      <Column Name="Transferiu" DataType="System.String"/>
+      <Column Name="Unidade" DataType="System.String"/>
+      <Column Name="CdClassFiscal" DataType="System.String"/>
+      <Column Name="CodSubTrib" DataType="System.String"/>
+      <Column Name="CdCfop" DataType="System.String"/>
+      <Column Name="NrItem" DataType="System.Int32"/>
+      <Column Name="VlPis" DataType="System.Int32"/>
+      <Column Name="VlConfins" DataType="System.Int32"/>
+      <Column Name="Cst" DataType="System.String"/>
+      <Column Name="VlIcmsSt" DataType="System.Int32"/>
+      <Column Name="QtTotal" DataType="System.Int32"/>
+      <Column Name="VlBaseSt" DataType="System.Int32"/>
+      <Column Name="PorcSt" DataType="System.Int32"/>
+      <Column Name="PorcPis" DataType="System.Int32"/>
+      <Column Name="PorcConfins" DataType="System.Int32"/>
+      <Column Name="VlBasePis" DataType="System.Int32"/>
+      <Column Name="VlBaseConfins" DataType="System.Int32"/>
+      <Column Name="CstPis" DataType="System.String"/>
+      <Column Name="CstConfins" DataType="System.String"/>
+      <Column Name="CdTipSt" DataType="System.String"/>
+      <Column Name="CdContSocialApPis" DataType="System.String"/>
+      <Column Name="CdContSocialApCofins" DataType="System.String"/>
+      <Column Name="VlBasePisSt" DataType="System.Int32"/>
+      <Column Name="VlPisSt" DataType="System.Int32"/>
+      <Column Name="PorcPisSt" DataType="System.Int32"/>
+      <Column Name="VlBaseCofinsSt" DataType="System.Int32"/>
+      <Column Name="VlCofinsSt" DataType="System.Int32"/>
+      <Column Name="PorcCofinsSt" DataType="System.Int32"/>
+      <Column Name="CstIpi" DataType="System.String"/>
+      <Column Name="CdEnquadraIpi" DataType="System.String"/>
+      <Column Name="FreteProduto" DataType="System.Int32"/>
+      <Column Name="MovEstoque" DataType="System.String"/>
+      <Column Name="VlDespAcess" DataType="System.Int32"/>
+      <Column Name="FcpBase" DataType="System.Int32"/>
+      <Column Name="FcpPorc" DataType="System.Int32"/>
+      <Column Name="FcpValor" DataType="System.Int32"/>
+      <Column Name="ImpBaseStRet" DataType="System.Int32"/>
+      <Column Name="ImpBaseIcmsStRet" DataType="System.Int32"/>
+      <Column Name="ImpPst" DataType="System.Int32"/>
+      <Column Name="ImpIcmsPropSubs" DataType="System.Int32"/>
+      <Column Name="FreteRateio" DataType="System.Int32"/>
+      <Column Name="TpOperacaoVeic" DataType="System.Int32"/>
+      <Column Name="ChasiVeic" DataType="System.String"/>
+      <Column Name="CorVeic" DataType="System.String"/>
+      <Column Name="DescCorVeic" DataType="System.String"/>
+      <Column Name="PotenciaMotorVeic" DataType="System.String"/>
+      <Column Name="CilindradasVeic" DataType="System.String"/>
+      <Column Name="PesoLiquidoVeic" DataType="System.Int32"/>
+      <Column Name="PesoBrutoVeic" DataType="System.Int32"/>
+      <Column Name="SerialVeic" DataType="System.String"/>
+      <Column Name="TpCombustVeic" DataType="System.String"/>
+      <Column Name="NrMotorVeic" DataType="System.String"/>
+      <Column Name="CapcMaxTracVeic" DataType="System.Int32"/>
+      <Column Name="DistEixosVeic" DataType="System.String"/>
+      <Column Name="AnoVeic" DataType="System.String"/>
+      <Column Name="AnoFabVeic" DataType="System.String"/>
+      <Column Name="TpPinturaVeic" DataType="System.String"/>
+      <Column Name="TpVeic" DataType="System.String"/>
+      <Column Name="EspecVeic" DataType="System.String"/>
+      <Column Name="IdVinVeic" DataType="System.String"/>
+      <Column Name="CondVeic" DataType="System.String"/>
+      <Column Name="IdMarcaVeic" DataType="System.String"/>
+      <Column Name="IdCorVeic" DataType="System.String"/>
+      <Column Name="CapcMaxLotVeic" DataType="System.String"/>
+      <Column Name="RestricaoVeic" DataType="System.String"/>
+      <Column Name="VIcmsDeson" DataType="System.Int32"/>
+      <Column Name="Tamanho" DataType="System.String"/>
+      <Column Name="Cor" DataType="System.String"/>
+      <Column Name="Genero" DataType="System.String"/>
+      <Column Name="VlSeguro" DataType="System.Int32"/>
+      <Column Name="CustoAtualizado" DataType="System.Int32"/>
+      <Column Name="PrecoAtualizado" DataType="System.Int32"/>
+      <Column Name="NmProduto" DataType="System.String"/>
+      <Column Name="VlCustoAntigo" DataType="System.Int32"/>
+      <Column Name="VlPrecoAntigo" DataType="System.Int32"/>
+      <Column Name="PercentualImpostos" DataType="System.Int32"/>
+      <Column Name="PercentualComissao" DataType="System.Int32"/>
+      <Column Name="PercentualCustoFixo" DataType="System.Int32"/>
+      <Column Name="PercentualLucrroLiquidoFiscal" DataType="System.Int32"/>
+      <Column Name="IndiceMarkupFiscal" DataType="System.Int32"/>
+      <Column Name="LucroPor" DataType="System.Int32"/>
+      <Column Name="VlTotal" DataType="System.Decimal"/>
+    </BusinessObjectDataSource>
+  </Dictionary>
+  <ReportPage Name="Page1" Watermark.Font="Arial, 60pt">
+    <ReportTitleBand Name="ReportTitle1" Width="718.2" Height="61.7">
+      <TextObject Name="Text1" Left="23.35" Top="4.45" Width="670.95" Height="56.7" Text="[Empresa.NmEmpresa], CNPJ [Empresa.CdCnpj], I. E. [Empresa.NrInscrEstadual], [Empresa.NmEndereco], n.º [Empresa.Numero], [Empresa.NmCidade], CEP [Empresa.CdCep]" HorzAlign="Center" Font="Arial, 12pt, style=Bold"/>
+      <LineObject Name="Line1" Top="61.7" Width="718.2"/>
+    </ReportTitleBand>
+    <PageHeaderBand Name="PageHeader1" Top="65.7" Width="718.2" Height="84.15">
+      <TextObject Name="Text2" Left="-4.45" Top="6.45" Width="727.65" Height="37.8" Text="Entrada n.º[Entrada.Nr], Data de lançamento [Entrada.Data].&#13;&#10;Fornecedor: [Entrada.CdForn] - [Entrada.NmForn]" Font="Arial, 12pt"/>
+      <TextObject Name="Text3" Top="65.25" Width="75.6" Height="18.9" Text="Item" Font="Arial, 10pt"/>
+      <TextObject Name="Text4" Left="77.85" Top="65.25" Width="66.15" Height="18.9" Text="Código" Font="Arial, 10pt"/>
+      <TextObject Name="Text5" Left="146" Top="65.25" Width="122.85" Height="18.9" Text="Nome" Font="Arial, 10pt"/>
+      <TextObject Name="Text6" Left="415.4" Top="65.25" Width="85.05" Height="18.9" Text="Quantidade" HorzAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text7" Left="500.45" Top="65.25" Width="75.6" Height="18.9" Text="Vl. unitário" HorzAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text8" Left="647.05" Top="65.25" Width="75.6" Height="18.9" Text="Total" HorzAlign="Center" Font="Arial, 10pt"/>
+      <LineObject Name="Line2" Top="64.25" Width="718.2"/>
+      <LineObject Name="Line6" Top="47.25" Width="718.2"/>
+      <TextObject Name="Text22" Top="47.25" Width="718.2" Height="18.9" Text="Itens" HorzAlign="Center" Font="Arial, 10pt, style=Bold"/>
+      <TextObject Name="Text23" Left="578.9" Top="64.15" Width="75.6" Height="18.9" Text="Desconto" HorzAlign="Center" Font="Arial, 10pt"/>
+      <LineObject Name="Line3" Top="83.16" Width="718.2"/>
+    </PageHeaderBand>
+    <DataBand Name="Data1" Top="153.85" Width="718.2" Height="18.9" DataSource="ProdutoEntrada">
+      <TextObject Name="Text9" Width="75.6" Height="18.9" Text="[ProdutoEntrada.Nr]" Font="Arial, 10pt"/>
+      <TextObject Name="Text10" Left="77.85" Width="66.15" Height="18.9" Text="[ProdutoEntrada.CdProduto]" Font="Arial, 10pt"/>
+      <TextObject Name="Text11" Left="146.55" Width="264.6" Height="18.9" Text="[ProdutoEntrada.NmProduto]" Font="Arial, 10pt"/>
+      <TextObject Name="Text12" Left="414.95" Width="85.05" Height="18.9" Text="[ProdutoEntrada.Quant]" HorzAlign="Right" Font="Arial, 10pt"/>
+      <TextObject Name="Text13" Left="496" Width="75.6" Height="18.9" Text="[ProdutoEntrada.VlUnitario]" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" Font="Arial, 10pt"/>
+      <TextObject Name="Text14" Left="642.6" Width="75.6" Height="18.9" Text="[ProdutoEntrada.VlTotal]" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" Font="Arial, 10pt"/>
+      <TextObject Name="Text24" Left="574.45" Width="75.6" Height="18.9" Text="[ProdutoEntrada.VlOutras]" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" Font="Arial, 10pt"/>
+    </DataBand>
+    <PageFooterBand Name="PageFooter1" Top="176.75" Width="718.2" Height="76.95">
+      <TextObject Name="Text15" Top="58.05" Width="718.2" Height="18.9" Text="pág. [Page]" HorzAlign="Center" Font="Arial, 10pt"/>
+      <LineObject Name="Line4" Width="718.2"/>
+      <LineObject Name="Line5" Top="57.6" Width="718.2"/>
+      <TextObject Name="Text16" Width="170.1" Height="18.9" Text="Subtotal: " Font="Arial, 10pt, style=Bold"/>
+      <TextObject Name="Text17" Left="548.1" Width="170.1" Height="18.9" Text="[Entrada.ValorTotalProdutos]" Format="Currency" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" Font="Arial, 10pt, style=Bold"/>
+      <TextObject Name="Text18" Top="18.9" Width="170.1" Height="18.9" Text="Desconto:" Font="Arial, 10pt, style=Bold"/>
+      <TextObject Name="Text19" Top="37.8" Width="170.1" Height="18.9" Text="Total: " Font="Arial, 10pt, style=Bold"/>
+      <TextObject Name="Text20" Left="548.1" Top="18.9" Width="170.1" Height="18.9" Text="[Entrada.ValorTotalDesconto]" Format="Currency" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" Font="Arial, 10pt, style=Bold"/>
+      <TextObject Name="Text21" Left="548.1" Top="37.8" Width="170.1" Height="18.9" Text="[Entrada.ValorTotalNfe]" Format="Currency" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" Font="Arial, 10pt, style=Bold"/>
+    </PageFooterBand>
+  </ReportPage>
+</Report>
