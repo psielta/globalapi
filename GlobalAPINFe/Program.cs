@@ -73,7 +73,7 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddDbContext<GlobalErpFiscalBaseContext>(options => 
     options.UseNpgsql(IniFile.GetConnectionString())
-     .EnableSensitiveDataLogging() // Para mostrar parâmetros
+     .EnableSensitiveDataLogging() 
            .LogTo(Console.WriteLine, LogLevel.Information)
 
 );
