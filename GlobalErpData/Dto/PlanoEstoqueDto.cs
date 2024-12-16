@@ -14,5 +14,6 @@ namespace GlobalErpData.Dto
 
         public bool Ativo { get; set; }
 
+        public bool? EFiscal { get; set; }
     }
 }

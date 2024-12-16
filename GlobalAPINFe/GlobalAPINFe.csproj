@@ -53,6 +53,18 @@
 	  </Content>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <None Update="reports\ReportMvc.frx">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="reports\ReportMvcEntrada.frx">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="reports\ReportMvcSaida.frx">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
+
 	  
 
 </Project>

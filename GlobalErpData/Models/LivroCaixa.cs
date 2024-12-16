@@ -15,8 +15,8 @@ public partial class LivroCaixa : IIdentifiable<long>
     [Column("nr_lanc")]
     public long NrLanc { get; set; }
 
-    [Column("dt_lanc", TypeName = "timestamp without time zone")]
-    public DateTime DtLanc { get; set; }
+    [Column("dt_lanc", TypeName = "timestamp with time zone")]
+    public DateTime DtLanc { get; set; } = DateTime.Now;
 
     [Column("cd_empresa")]
     public int CdEmpresa { get; set; }
@@ -58,7 +58,7 @@ public partial class LivroCaixa : IIdentifiable<long>
 
     [JsonPropertyName("tipo")]
     [NotMapped]
-    public string Tipo => HistoricoCaixa.Tipo ?? string.Empty;
+    public string Tipo => (HistoricoCaixa == null) ? string.Empty : HistoricoCaixa.Tipo ;
 
     [JsonIgnore]
     [ForeignKey("NrConta")]

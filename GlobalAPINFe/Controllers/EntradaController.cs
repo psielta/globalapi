@@ -15,6 +15,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using GlobalErpData.Services;
 using GlobalLib.Dto;
+using AutoMapper;
+using GlobalErpData.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace GlobalAPINFe.Controllers
 {
@@ -22,14 +25,18 @@ namespace GlobalAPINFe.Controllers
     [ApiController]
     public class EntradaController : GenericPagedControllerMultiKey<Entrada, int, int, EntradaDto>
     {
-        private readonly EntradaCalculationService _calculationService;
+        private readonly EntradaCalculationService _calculationService; 
+        private readonly IMapper mapper;
+        private readonly GlobalErpFiscalBaseContext context;
         public EntradaController(
             IQueryRepositoryMultiKey<Entrada, int, int, EntradaDto> repo,
             ILogger<GenericPagedControllerMultiKey<Entrada, int, int, EntradaDto>> logger,
-            EntradaCalculationService calculationService
+            EntradaCalculationService calculationService, IMapper mapper, GlobalErpFiscalBaseContext _context
         ) : base(repo, logger)
         {
             _calculationService = calculationService;
+            this.mapper = mapper;
+            context = _context;
         }
 
         // Sobrescrevendo os métodos herdados e adicionando os atributos [ProducesResponseType]
@@ -236,6 +243,106 @@ namespace GlobalAPINFe.Controllers
             TPE_AteData = 2
         }
 
+        [HttpGet("CreateReportEntrada", Name = nameof(CreateReportEntrada))]
+        [ProducesResponseType(200)]
+        public async Task<IActionResult> CreateReportEntrada()
+        {
+            var projectRootPath = Environment.CurrentDirectory;
+            var reportFilePath = System.IO.Path.Combine(projectRootPath, "reports", "ReportMvcEntrada.frx");
+            if (!System.IO.Directory.Exists(System.IO.Path.Combine(projectRootPath, "reports")))
+            {
+                System.IO.Directory.CreateDirectory(System.IO.Path.Combine(projectRootPath, "reports"));
+            }
+            var freport = new FastReport.Report();
+            //Entrada
+            //Produtos Entrada
+            //Empresa
+            Entrada? saida = await context.Entradas.
+                Include(p => p.Fornecedor).
+                Include(p => p.ProdutoEntrada)
+                .Include(p => p.CdEmpresaNavigation)
+                .OrderByDescending(p => p.Nr)
+                .LastOrDefaultAsync();
 
+            if (saida == null)
+            {
+                return BadRequest();
+            }
+            var EntradaMapped = mapper.Map<EntradaGetDto>(saida);
+            var EmpresaMapper = mapper.Map<EmpresaGetDto>(saida.CdEmpresaNavigation);
+            var ProdutosDaEntrada = mapper.Map<List<ProdutoEntradaGetDto>>(saida.ProdutoEntrada);
+
+            // Registra os objetos no dicionário do relatório
+            freport.Dictionary.RegisterBusinessObject(new List<EmpresaGetDto>() { EmpresaMapper }, "Empresa", 1, true);
+            freport.Dictionary.RegisterBusinessObject(new List<EntradaGetDto>() { EntradaMapped }, "Entrada", 1, true);
+            freport.Dictionary.RegisterBusinessObject(ProdutosDaEntrada, "ProdutoEntrada", 1, true);
+
+            // Habilita os datasources
+            freport.GetDataSource("Empresa").Enabled = true;
+            freport.GetDataSource("Entrada").Enabled = true;
+            freport.GetDataSource("ProdutoEntrada").Enabled = true;
+
+            freport.Report.Save(reportFilePath);
+
+            return Ok($" Relatorio gerado : {reportFilePath}");
+        }
+
+        [HttpGet("GetEntradaReport", Name = nameof(GetEntradaReport))]
+        [ProducesResponseType(typeof(FileContentResult), 200)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetEntradaReport([FromQuery] int nrLanc)
+        {
+            try
+            {
+                var projectRootPath = Environment.CurrentDirectory;
+                var reportFilePath = System.IO.Path.Combine(projectRootPath, "reports", "ReportMvcEntrada.frx");
+
+                if (!System.IO.File.Exists(reportFilePath))
+                {
+                    return NotFound("Template de relatório não encontrado no servidor.");
+                }
+
+                var entrada = await context.Entradas.Include(p => p.Fornecedor)
+                    .Include(p => p.ProdutoEntrada).ThenInclude(prods => prods.ProdutoEstoque)
+                    .Include(p => p.CdEmpresaNavigation).ThenInclude(cidade => cidade.CdCidadeNavigation)
+                    .FirstOrDefaultAsync(s => s.Nr == nrLanc);
+                _calculationService.CalculateTotals(entrada);
+
+                if (entrada == null)
+                {
+                    return NotFound($"Nenhuma saída encontrada para o NrLanc = {nrLanc}.");
+                }
+
+                var EntradaMapped = mapper.Map<EntradaGetDto>(entrada);
+                var EmpresaMapped = mapper.Map<EmpresaGetDto>(entrada.CdEmpresaNavigation);
+                var ProdutosDaEntrada = mapper.Map<List<ProdutoEntradaGetDto>>(entrada.ProdutoEntrada);
+
+                using var freport = new FastReport.Report();
+                freport.Load(reportFilePath);
+
+                freport.RegisterData(new List<EmpresaGetDto>() { EmpresaMapped }, "Empresa");
+                freport.RegisterData(new List<EntradaGetDto>() { EntradaMapped }, "Entrada");
+                freport.RegisterData(ProdutosDaEntrada, "ProdutoEntrada");
+
+                freport.GetDataSource("Empresa").Enabled = true;
+                freport.GetDataSource("Entrada").Enabled = true;
+                freport.GetDataSource("ProdutoEntrada").Enabled = true;
+
+                freport.Prepare();
+
+                using var ms = new MemoryStream();
+                var pdfExport = new FastReport.Export.PdfSimple.PDFSimpleExport();
+                freport.Export(pdfExport, ms);
+                ms.Position = 0;
+
+                return File(ms.ToArray(), "application/pdf", $"Entrada_{nrLanc}.pdf");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Erro ao gerar relatório da saída {NrLanc}", nrLanc);
+                return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um erro ao gerar o relatório.");
+            }
+        }
     }
 }

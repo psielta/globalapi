@@ -313,7 +313,7 @@ namespace GlobalErpData.Services
                                                     inner join produto_entrada x on x.nr_entrada = e.nr
                                                     and x.cd_empresa = e.cd_empresa
                                             where
-                                                    e.tp_entrada = 'C'
+                                                    e.tp_entrada = 'C' and
                                                     x.cd_produto = {produto.CdProduto}  and 
                                                     e.cd_empresa = {empresa.CdEmpresa}
                                     )
@@ -373,7 +373,7 @@ namespace GlobalErpData.Services
                         decimal vicmsret = 0;
                         decimal vpst = 0;
                         decimal vicmspsubs = 0;
-                        if (configuracoesEmpresa.Valor2.Equals("S"))
+                        if (configuracoesEmpresa != null && configuracoesEmpresa.Valor2 != null && configuracoesEmpresa.Valor2.Equals("S"))
                         {
                             vbaseret = produtoEntradum.ImpBaseStRet ?? 0;
                             vicmsret = produtoEntradum.ImpBaseIcmsStRet ?? 0;

@@ -104,6 +104,11 @@ public partial class Empresa : IIdentifiable<int>
     [ForeignKey("CdCidade")]
     [InverseProperty("Empresas")]
     public virtual Cidade CdCidadeNavigation { get; set; } = null!;
+
+    [JsonPropertyName("nmCidade")]
+    [NotMapped]
+    public string NmCidade => (CdCidadeNavigation == null) ? "" : (CdCidadeNavigation.NmCidade?? "");
+
     [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<Certificado> Certificados { get; set; } = new List<Certificado>();

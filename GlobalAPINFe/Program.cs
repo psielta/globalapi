@@ -71,7 +71,12 @@ builder.Services.AddAuthentication(options =>
     });
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
-builder.Services.AddDbContext<GlobalErpFiscalBaseContext>(options => options.UseNpgsql(IniFile.GetConnectionString()));
+builder.Services.AddDbContext<GlobalErpFiscalBaseContext>(options => 
+    options.UseNpgsql(IniFile.GetConnectionString())
+     .EnableSensitiveDataLogging() 
+           .LogTo(Console.WriteLine, LogLevel.Information)
+
+);
 
 builder.Services.AddScoped<IRepositoryDto<Empresa, int, EmpresaDto>, EmpresaRepositoryDto>();
 builder.Services.AddScoped<IRepositoryDto<Cidade, string, CidadeDto>, CidadeRepositoryDto>();

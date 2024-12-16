@@ -1522,6 +1522,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasKey(e => e.CdPlano).HasName("plano_estoque_pkey");
 
             entity.Property(e => e.Ativo).HasDefaultValue(true);
+            entity.Property(e => e.EFiscal).HasDefaultValue(false);
 
             entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.PlanoEstoques)
                 .OnDelete(DeleteBehavior.ClientSetNull)

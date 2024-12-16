@@ -1,12 +1,15 @@
-﻿using GlobalErpData.Dto;
+﻿using System.Globalization;
+using GlobalErpData.Dto;
 using GlobalErpData.Models;
 using GlobalErpData.Repository.PagedRepositories;
 using GlobalLib.Dto;
 using GlobalLib.GenericControllers;
 using GlobalLib.Repository;
+using GlobalLib.Strings;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NFe.Classes.Informacoes.Transporte;
 using X.PagedList.EF;
 
 namespace GlobalAPINFe.Controllers
@@ -69,28 +72,93 @@ namespace GlobalAPINFe.Controllers
             return await base.Delete(id);
         }
 
-        // Métodos personalizados ajustados
+        public enum TipoPeriodoLC
+        {
+            TPC_Geral = 0,
+            TPC_Periodo = 1,
+            TPC_Ate_Data = 2,
+        }
 
         [HttpGet("GetLivroCaixaPorEmpresa", Name = nameof(GetLivroCaixaPorEmpresa))]
         [ProducesResponseType(typeof(PagedResponse<LivroCaixa>), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<PagedResponse<LivroCaixa>>> GetLivroCaixaPorEmpresa(int idEmpresa, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        public async Task<ActionResult<PagedResponse<LivroCaixa>>> GetLivroCaixaPorEmpresa(
+            int idEmpresa,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] int? NrCp = null,
+            [FromQuery] int? NrCr = null,
+            [FromQuery] int? NrConta = null,
+            [FromQuery] string? CdHistorico = null,
+            [FromQuery] string? CdPlano = null,
+            [FromQuery] int tipoPeriodoLC = 0,
+            [FromQuery] string? periodoInicial = null,
+            [FromQuery] string? periodoFinal = null
+        )
         {
             try
             {
                 var query = ((LivroCaixaRepository)repo).GetLivroCaixaAsyncPorEmpresa(idEmpresa).Result.AsQueryable();
+
                 if (query == null)
                 {
-                    return NotFound("Entities not found."); // 404 Resource not found
+                    return NotFound("Entities not found.");
                 }
-                var pagedList = await query.ToPagedListAsync(pageNumber, pageSize);
+
+                if (!string.IsNullOrEmpty(CdHistorico))
+                {
+                    query = query.Where(p => p.CdHistorico.ToLower().Contains(CdHistorico.ToLower()));
+                }
+                if (!string.IsNullOrEmpty(CdPlano))
+                {
+                    query = query.Where(p => p.CdPlano.ToLower().Contains(CdPlano.ToLower()));
+                }
+                if (NrCp.HasValue)
+                {
+                    query = query.Where(p => p.NrCp == NrCp.Value);
+                }
+                if (NrCr.HasValue)
+                {
+                    query = query.Where(p => p.NrCr == NrCr.Value);
+                }
+                if (NrConta.HasValue)
+                {
+                    query = query.Where(p => p.NrConta == NrConta.Value);
+                }
+
+                TipoPeriodoLC enumPeriodoLC = (TipoPeriodoLC)tipoPeriodoLC;
+
+                switch (enumPeriodoLC)
+                {
+                    case TipoPeriodoLC.TPC_Periodo:
+                        if (!string.IsNullOrEmpty(periodoInicial) && !string.IsNullOrEmpty(periodoFinal))
+                        {
+                            var dtInicial = DateOnly.ParseExact(periodoInicial, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                            var dtFinal = DateOnly.ParseExact(periodoFinal, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                            query = query.Where(p => DateOnly.FromDateTime(p.DtLanc) >= dtInicial && DateOnly.FromDateTime(p.DtLanc) <= dtFinal);
+                        }
+                        break;
+                    case TipoPeriodoLC.TPC_Ate_Data:
+                        if (!string.IsNullOrEmpty(periodoFinal))
+                        {
+                            var dtFinal = DateOnly.ParseExact(periodoFinal, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                            query = query.Where(p => DateOnly.FromDateTime(p.DtLanc) <= dtFinal);
+                        }
+                        break;
+                    case TipoPeriodoLC.TPC_Geral:
+                    default:
+                        // Nenhum filtro de data
+                        break;
+                }
+
+                var pagedList = await query.OrderByDescending(x => x.NrLanc).ToPagedListAsync(pageNumber, pageSize);
                 var response = new PagedResponse<LivroCaixa>(pagedList);
 
                 if (response.Items == null || response.Items.Count == 0)
                 {
-                    return NotFound("Entities not found."); // 404 Resource not found
+                    return NotFound("Entities not found.");
                 }
-                return Ok(response); // 200 OK
+                return Ok(response);
             }
             catch (Exception ex)
             {

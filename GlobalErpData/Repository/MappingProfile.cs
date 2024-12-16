@@ -102,6 +102,13 @@ namespace GlobalErpData.Repository
             CreateMap<PagtosParciaisCp, PagtosParciaisCpDto>().ReverseMap();
             CreateMap<PagtosParciaisCr, PagtosParciaisCrDto>().ReverseMap();
 
+            CreateMap<Empresa, EmpresaGetDto>().ReverseMap();
+            CreateMap<Saida, SaidaGetDto>().ReverseMap();
+            CreateMap<ProdutoSaidum, ProdutoSaidumGetDto>().ReverseMap();
+            CreateMap<ContasAReceber, ContasAReceberGetDto>().ReverseMap();
+            CreateMap<Entrada, EntradaGetDto>().ReverseMap();
+            CreateMap<ProdutoEntradum, ProdutoEntradaGetDto>().ReverseMap();
+
         }
     }
 }

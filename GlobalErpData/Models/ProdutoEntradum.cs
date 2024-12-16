@@ -396,6 +396,9 @@ public partial class ProdutoEntradum : IIdentifiable<int>
     [NotMapped]
     public decimal LucroPor => ProdutoEstoque?.LucroPor ?? 0;
 
+    [JsonPropertyName("vlTotal")]
+    [NotMapped]
+    public decimal VlTotal => this.Quant * this.VlUnitario - (this.VlOutras ?? 0);
 
     [JsonIgnore]
     [ForeignKey("CdEmpresa")]
