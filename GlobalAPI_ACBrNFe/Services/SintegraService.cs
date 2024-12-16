@@ -38,8 +38,10 @@ namespace GlobalAPI_ACBrNFe.Services
 
         public async Task<string> Core(SintegraDto sintegraDto) {
             await SetDados(sintegraDto);
-            var registro10 = await GetRegistro10();
-            return $"{registro10}\n";
+            string SintegraTxt = string.Empty;
+            SintegraTxt += await GetRegistro10();
+            SintegraTxt += await GetRegistro11();
+            return SintegraTxt;
         }
 
         private async Task SetDados(SintegraDto sintegraDto)
@@ -79,6 +81,21 @@ namespace GlobalAPI_ACBrNFe.Services
              );
             return r10.EscreverCampos();
 
+        }
+
+        private async Task<string> GetRegistro11()
+        {
+            await _hubContext.Clients.Group(sessionId).SendAsync("ReceiveProgress", $"Gerando registro 11.");
+            var r11 = new Registro11(
+                Logradouro: empresa.NmEndereco,
+                Numero: empresa.Numero.ToString(),
+                Complemento: empresa.Complemento,
+                Bairro: empresa.NmBairro,
+                Cep: empresa.CdCep,
+                NomeContato: "",
+                NumeroContato: UtlStrings.OnlyInteger(empresa.Telefone ?? "")
+                );
+            return r11.EscreverCampos();
         }
     }
 }
