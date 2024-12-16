@@ -25,6 +25,9 @@ public partial class PlanoEstoque : IIdentifiable<int>
     [Column("ativo")]
     public bool Ativo { get; set; }
 
+    [Column("e_fiscal")]
+    public bool? EFiscal { get; set; }
+
     [JsonIgnore]
     [ForeignKey("CdEmpresa")]
     [InverseProperty("PlanoEstoques")]
