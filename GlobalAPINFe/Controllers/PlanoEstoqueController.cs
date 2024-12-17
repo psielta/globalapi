@@ -12,6 +12,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using X.PagedList.EF;
 using X.PagedList.Extensions;
+using GlobalErpData.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace GlobalAPINFe.Controllers
 {
@@ -19,8 +21,10 @@ namespace GlobalAPINFe.Controllers
     [ApiController]
     public class PlanoEstoqueController : GenericPagedController<PlanoEstoque, int, PlanoEstoqueDto>
     {
-        public PlanoEstoqueController(IQueryRepository<PlanoEstoque, int, PlanoEstoqueDto> repo, ILogger<GenericPagedController<PlanoEstoque, int, PlanoEstoqueDto>> logger) : base(repo, logger)
+        private readonly GlobalErpFiscalBaseContext _context;
+        public PlanoEstoqueController(IQueryRepository<PlanoEstoque, int, PlanoEstoqueDto> repo, ILogger<GenericPagedController<PlanoEstoque, int, PlanoEstoqueDto>> logger, GlobalErpFiscalBaseContext fiscalBaseContext) : base(repo, logger)
         {
+            _context = fiscalBaseContext;
         }
 
         // Sobrescrevendo os métodos herdados e adicionando os atributos [ProducesResponseType]
@@ -75,6 +79,30 @@ namespace GlobalAPINFe.Controllers
             return await base.Delete(id);
         }
 
+
+        [HttpGet("PossuiPlanoFiscal", Name = nameof(PossuiPlanoFiscal))]
+        [ProducesResponseType(typeof(PossuiPlanoFiscalDto), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<PossuiPlanoFiscalDto>> PossuiPlanoFiscal(
+            int idEmpresa)
+        {
+            var possuiPlanoFiscal = await _context.PlanoEstoques.AnyAsync(p => p.CdEmpresa == idEmpresa && p.EFiscal == true);
+
+            if (possuiPlanoFiscal)
+            {
+                var planoEstoque = await _context.PlanoEstoques.FirstOrDefaultAsync(p => p.CdEmpresa == idEmpresa && p.EFiscal == true);
+                var possuiPlanoFiscalDto = new PossuiPlanoFiscalDto
+                {
+                    Possui = true,
+                    Id = planoEstoque.CdPlano
+                };
+                return possuiPlanoFiscalDto;
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
         // Método personalizado ajustado
 
         [HttpGet("GetPlanoEstoquePorEmpresa", Name = nameof(GetPlanoEstoquePorEmpresa))]
