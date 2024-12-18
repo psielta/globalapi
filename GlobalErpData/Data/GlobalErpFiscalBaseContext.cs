@@ -228,7 +228,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
     public DbSet<DashboardEstoqueTotalSaidasPorDia> cdsDashboardEstoqueTotalSaidasPorDia { get; set; }
 
     public DbSet<TotalPorGrupo> cdsTotalPorGrupo { get; set; }
-
+    public DbSet<ProcReg50EntradaResult> ProcReg50EntradaResults { get; set; }
+    public DbSet<ProcReg54EntradaResult> ProcReg54EntradaResults { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
@@ -2143,7 +2144,39 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.ToFunction("get_total_por_grupo");
         });
 
+        setProcReg50(modelBuilder);
+        setProcReg54(modelBuilder);
+
         OnModelCreatingPartial(modelBuilder);
+    }
+
+    private void setProcReg54(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<ProcReg54EntradaResult>().HasNoKey();
+        /*DateTime pdt1 = new DateTime(2024, 01, 01);
+        DateTime pdt2 = new DateTime(2024, 12, 31);
+        int pcd_empresa = 1;
+        int pcd_plano = -1;
+
+        var resultados = await context.ProcReg54EntradaResults
+            .FromSqlRaw("SELECT * FROM public.proc_reg_54_entrada({0}, {1}, {2}, {3})", pdt1, pdt2, pcd_empresa, pcd_plano)
+            .ToListAsync();
+*/
+    }
+
+    private void setProcReg50(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<ProcReg50EntradaResult>().HasNoKey();
+        /*// Exemplo de uso:
+            DateTime pdt1 = new DateTime(2024, 01, 01);
+            DateTime pdt2 = new DateTime(2024, 12, 31);
+            int pcd_empresa = 1;
+            int pcd_plano = -1;
+
+            var resultados = await context.ProcReg50EntradaResults
+                .FromSqlRaw("SELECT * FROM public.proc_reg_50_entrada({0}, {1}, {2}, {3})", pdt1, pdt2, pcd_empresa, pcd_plano)
+                .ToListAsync();
+        */
     }
 
     private void ConfigFunctionGetDashboardEstoqueTotalEntradas(ModelBuilder modelBuilder)
