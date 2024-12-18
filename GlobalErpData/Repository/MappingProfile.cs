@@ -79,12 +79,12 @@ namespace GlobalErpData.Repository
             CreateMap<Saida, SaidaDto>().ReverseMap();
             CreateMap<ProdutoSaidum, ProdutoSaidumDto>().ReverseMap();
             CreateMap<OrigemCst, OrigemCstDto>().ReverseMap();
-            CreateMap<Cst,CstDto>().ReverseMap();
+            CreateMap<Cst, CstDto>().ReverseMap();
             CreateMap<Csosn, CsosnDto>().ReverseMap();
             CreateMap<Cfop, CfopDto>().ReverseMap();
             CreateMap<Ibpt, IbptDto>().ReverseMap();
             CreateMap<Ncm, NcmDto>().ReverseMap();
-            CreateMap<CestNcm,CestNcmDto>().ReverseMap();
+            CreateMap<CestNcm, CestNcmDto>().ReverseMap();
             CreateMap<ObsNf, ObsNfDto>().ReverseMap();
             CreateMap<SaidasVolume, SaidasVolumeDto>().ReverseMap();
             CreateMap<Frete, FreteDto>().ReverseMap();
@@ -108,6 +108,7 @@ namespace GlobalErpData.Repository
             CreateMap<ContasAReceber, ContasAReceberGetDto>().ReverseMap();
             CreateMap<Entrada, EntradaGetDto>().ReverseMap();
             CreateMap<ProdutoEntradum, ProdutoEntradaGetDto>().ReverseMap();
+            CreateMap<DistribuicaoDfe, DistribuicaoDfeDto>().ReverseMap();
 
         }
     }

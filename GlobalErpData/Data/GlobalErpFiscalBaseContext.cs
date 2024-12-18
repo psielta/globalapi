@@ -241,6 +241,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder
+            .HasPostgresExtension("pgcrypto")
             .HasPostgresExtension("unaccent")
             .HasPostgresExtension("uuid-ossp");
 
@@ -784,6 +785,19 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.CteVeiculos)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("cte_veiculo_fkey");
+        });
+
+        modelBuilder.Entity<DistribuicaoDfe>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("distribuicao_dfe_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
+            entity.Property(e => e.DtInclusao).HasDefaultValueSql("CURRENT_DATE");
+            entity.Property(e => e.Xml).HasDefaultValueSql("''::text");
+
+            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.DistribuicaoDves)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("distribuicao_dfe_fk");
         });
 
         modelBuilder.Entity<Diverso>(entity =>
