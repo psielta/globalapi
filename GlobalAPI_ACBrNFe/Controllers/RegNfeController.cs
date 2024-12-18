@@ -686,7 +686,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 FROM 
                   public.cfop_importacao 
                 WHERE
-                  id = {idEmpresa}
+                  id_empresa = {idEmpresa}
                 AND cd_cfop_s = '{item.Cfop}'
                  "
                 ).FirstOrDefaultAsync();
