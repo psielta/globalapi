@@ -232,6 +232,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
     public DbSet<ProcReg54EntradaResult> ProcReg54EntradaResults { get; set; }
     public DbSet<ProcReg50SaidaResult> ProcReg50SaidaResults { get; set; }
     public DbSet<ProcReg54SaidaResult> ProcReg54SaidaResults { get; set; }
+    public DbSet<ProcReg75SaidaResult> ProcReg75SaidaResults { get; set; }
+    public DbSet<ProcReg75EntradaResult> ProcReg75EntradaResults { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
@@ -2150,6 +2152,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         setProcReg54(modelBuilder);
         modelBuilder.Entity<ProcReg50SaidaResult>().HasNoKey();
         modelBuilder.Entity<ProcReg54SaidaResult>().HasNoKey();
+        modelBuilder.Entity<ProcReg75SaidaResult>().HasNoKey();
+        modelBuilder.Entity<ProcReg75EntradaResult>().HasNoKey();
 
         OnModelCreatingPartial(modelBuilder);
     }

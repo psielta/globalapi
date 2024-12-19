@@ -51,9 +51,91 @@ namespace GlobalAPI_ACBrNFe.Services
             SintegraTxt += await GetRegistro50SaidasAsync();
             SintegraTxt += await GetRegistro54EntradaAsync();
             SintegraTxt += await GetRegistro54SaidaAsync();
+
+            SintegraTxt += await GetRegistro75SaidaAsync();
+            SintegraTxt += await GetRegistro75EntradaAsync();
+
             SintegraTxt += await GetRegistro90Async(SintegraTxt); // Adicionando o registro 90
 
             return SintegraTxt;
+        }
+
+        private async Task<string> GetRegistro75EntradaAsync()
+        {
+            await _hubContext.Clients.Group(sessionId).SendAsync("ReceiveProgress", "Gerando registro 75 Entradas.");
+            int pcd_empresa = empresa.CdEmpresa;
+            int pcd_plano = this.idPlano;
+
+            var resultados = await db.ProcReg75EntradaResults
+                .FromSqlRaw($"SELECT * FROM public.proc_reg_75_entrada('{dataInicialPtbrFormat}', '{dataFinalPtbrFormat}', {pcd_empresa}, {pcd_plano})")
+                .ToListAsync();
+
+            string resultString = string.Empty;
+            if (resultados == null || resultados.Count <= 0)
+                return resultString;
+
+            var listRegistro75 = new List<Registro75>();
+            foreach (var item in resultados)
+            {
+                var r75 = new Registro75();
+                r75.DataFinal = dataFinal;
+                r75.DataInicial = dataInicial;
+                r75.CodItem = item.CodigoProduto.ToString();
+                r75.CodNcm = UtlStrings.OnlyInteger(item.Ncm);
+                r75.Descricao = item.NomeProduto;
+                r75.UnidadeMedida = item.Un;
+                r75.AliquotaIpi = item.PorcentagemIPI;
+                r75.AliquotaIcms = item.PorcentagemICMS;
+                r75.BaseCalculoSt = 0;
+                r75.ReducaoBaseIcms = 0;
+
+                listRegistro75.Add(r75);
+            }
+
+            foreach (var r75 in listRegistro75)
+            {
+                resultString += r75.EscreverCampos();
+            }
+            return resultString;
+        }
+
+        private async Task<string> GetRegistro75SaidaAsync()
+        {
+            await _hubContext.Clients.Group(sessionId).SendAsync("ReceiveProgress", "Gerando registro 75 Saidas.");
+            int pcd_empresa = empresa.CdEmpresa;
+            int pcd_plano = this.idPlano;
+
+            var resultados = await db.ProcReg75SaidaResults
+                .FromSqlRaw($"SELECT * FROM public.proc_reg_75_saida('{dataInicialPtbrFormat}', '{dataFinalPtbrFormat}', {pcd_empresa}, {pcd_plano})")
+                .ToListAsync();
+
+            string resultString = string.Empty;
+            if (resultados == null || resultados.Count <= 0)
+                return resultString;
+
+            var listRegistro75 = new List<Registro75>();
+            foreach (var item in resultados)
+            {
+                var r75 = new Registro75();
+                r75.DataFinal = dataFinal;
+                r75.DataInicial = dataInicial;
+                r75.CodItem = item.CodigoProduto.ToString();
+                r75.CodNcm = UtlStrings.OnlyInteger(item.NCM);
+                r75.Descricao = item.NomeProduto;
+                r75.UnidadeMedida = item.UnidadeMedida;
+                r75.AliquotaIpi = item.PorcentagemIPI;
+                r75.AliquotaIcms = item.PorcentagemICMS;
+                r75.BaseCalculoSt = item.ValorBaseST;
+                r75.ReducaoBaseIcms = item.PorcentagemReducao;
+
+                listRegistro75.Add(r75);
+            }
+
+            foreach (var r75 in listRegistro75)
+            {
+                resultString += r75.EscreverCampos();
+            }
+            return resultString;
         }
 
         private async Task<string> GetRegistro90Async(string sintegraTxt)
