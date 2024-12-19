@@ -10,6 +10,8 @@ namespace GlobalErpData.Dto
     {
         public string SessionId { get; set; }
         public int IdEmpresa { get; set; }
+
+        public int Plano { get; set; }
         public int Mes { get; set; }
         public int Ano { get; set; }
         public int CodFinalidadeArquivo { get; set; }
