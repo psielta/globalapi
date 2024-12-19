@@ -12,7 +12,7 @@ namespace GlobalErpData.Models
         public string suf { get; set; }
         public string snr_nota_fiscal { get; set; }
         public string scfop { get; set; }
-        public int snr_item { get; set; }
+        public int? snr_item { get; set; }
         public int scd_produto { get; set; }
         public decimal squant { get; set; }
         public string scst { get; set; }

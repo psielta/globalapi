@@ -56,12 +56,13 @@ namespace GlobalAPI_ACBrNFe.Services
 
         private async Task<string> GetRegistro54SaidaAsync()
         {
+            var i = 0;
             await _hubContext.Clients.Group(sessionId).SendAsync("ReceiveProgress", "Gerando registro 54 Saidas.");
             int pcd_empresa = empresa.CdEmpresa;
             int pcd_plano = this.idPlano;
 
             var resultados = await db.ProcReg54SaidaResults
-                .FromSqlRaw($"SELECT * FROM public.proc_reg_54_saida({dataInicialPtbrFormat}, {dataFinalPtbrFormat}, {pcd_empresa}, {pcd_plano})")
+                .FromSqlRaw($"SELECT * FROM public.proc_reg_54_saida('{dataInicialPtbrFormat}', '{dataFinalPtbrFormat}', {pcd_empresa}, {pcd_plano})")
                 .ToListAsync();
 
             string resultString = string.Empty;
@@ -70,12 +71,13 @@ namespace GlobalAPI_ACBrNFe.Services
             var listRegistro54 = new List<Registro54>();
             foreach (var item in resultados)
             {
+                ++i;
                 var r54 = new Registro54();
                 r54.Cnpj = UtlStrings.OnlyInteger(item.scnpj ?? "");
                 r54.Modelo = int.Parse(item.ssmodelo);
                 r54.Serie = item.sserie_nf;
                 r54.Numero = int.Parse(item.snr_nota_fiscal);
-                r54.NumeroItem = item.snr_item;
+                r54.NumeroItem = item.snr_item ?? i;
                 if (string.IsNullOrEmpty(item.scfop))
                     throw new Exception($"CFOP não informado (Saida Nr: {item.snr_nota_fiscal}, serie {item.sserie_nf})");
                 r54.Cfop = int.Parse(item.scfop);
@@ -124,7 +126,7 @@ namespace GlobalAPI_ACBrNFe.Services
             int pcd_plano = this.idPlano;
 
             var resultados = await db.ProcReg50SaidaResults
-                .FromSqlRaw($"SELECT * FROM public.proc_reg_50_saida({dataInicialPtbrFormat}, {dataFinalPtbrFormat}, {cd_empresa}, {pcd_plano})")
+                .FromSqlRaw($"SELECT * FROM public.proc_reg_50_saida('{dataInicialPtbrFormat}', '{dataFinalPtbrFormat}', {cd_empresa}, {pcd_plano})")
                 .ToListAsync();
 
             string resultString = string.Empty;
@@ -136,7 +138,7 @@ namespace GlobalAPI_ACBrNFe.Services
             {
                 Registro50 registro50 = new Registro50();
                 registro50.Cnpj = UtlStrings.OnlyInteger(item.scnpj ?? "");
-                registro50.InscrEstadual = item.snr_insc_esta;
+                registro50.InscrEstadual = item.snr_insc_esta ?? "ISENTO";
                 registro50.DataEmissaoRecebimento = item.sdata;
                 registro50.Modelo = int.Parse(item.smodelo);
                 registro50.Serie = item.sserie_nf;

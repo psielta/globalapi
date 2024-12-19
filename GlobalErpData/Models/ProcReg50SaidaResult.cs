@@ -9,7 +9,7 @@ namespace GlobalErpData.Models
     public class ProcReg50SaidaResult
     {
         public string scnpj { get; set; }
-        public string snr_insc_esta { get; set; }
+        public string? snr_insc_esta { get; set; }
         public DateTime sdata { get; set; }
         public string suf { get; set; }
         public string snr_nota_fiscal { get; set; }
