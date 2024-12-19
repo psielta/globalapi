@@ -230,6 +230,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
     public DbSet<TotalPorGrupo> cdsTotalPorGrupo { get; set; }
     public DbSet<ProcReg50EntradaResult> ProcReg50EntradaResults { get; set; }
     public DbSet<ProcReg54EntradaResult> ProcReg54EntradaResults { get; set; }
+    public DbSet<ProcReg50SaidaResult> ProcReg50SaidaResults { get; set; }
+    public DbSet<ProcReg54SaidaResult> ProcReg54SaidaResults { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
@@ -2146,6 +2148,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
         setProcReg50(modelBuilder);
         setProcReg54(modelBuilder);
+        modelBuilder.Entity<ProcReg50SaidaResult>().HasNoKey();
+        modelBuilder.Entity<ProcReg54SaidaResult>().HasNoKey();
 
         OnModelCreatingPartial(modelBuilder);
     }
