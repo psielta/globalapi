@@ -51,8 +51,35 @@ namespace GlobalAPI_ACBrNFe.Services
             SintegraTxt += await GetRegistro50SaidasAsync();
             SintegraTxt += await GetRegistro54EntradaAsync();
             SintegraTxt += await GetRegistro54SaidaAsync();
+            SintegraTxt += await GetRegistro90Async(SintegraTxt); // Adicionando o registro 90
+
             return SintegraTxt;
         }
+
+        private async Task<string> GetRegistro90Async(string sintegraTxt)
+        {
+            await _hubContext.Clients.Group(sessionId).SendAsync("ReceiveProgress", "Gerando registro 90.");
+
+            // Aqui assumimos que você já tem todos os registros anteriores concatenados em SintegraTxt.
+            // Transformamos isso em uma lista de linhas:
+            var linhas = sintegraTxt.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+
+            // Obter CNPJ e IE da empresa
+            string cnpj = UtlStrings.OnlyInteger(empresa.CdCnpj ?? "");
+            string ie = UtlStrings.OnlyInteger(empresa.NrInscrEstadual ?? "");
+
+            // Instanciar o Registro90 passando CNPJ, IE e a lista de linhas já geradas
+            var registro90 = new Registro90(cnpj, ie, linhas);
+
+            // Escrever registro 90
+            string linhaRegistro90 = registro90.EscreverRegistro90();
+
+            // Retornar a linha do registro 90, que será concatenada no SintegraTxt pelo método Core
+            return linhaRegistro90;
+        }
+
+
+
 
         private async Task<string> GetRegistro54SaidaAsync()
         {
@@ -387,8 +414,8 @@ namespace GlobalAPI_ACBrNFe.Services
                 Cnpj: UtlStrings.OnlyInteger(empresa.CdCnpj ?? ""),
                 Ie: UtlStrings.OnlyInteger(empresa.NrInscrEstadual ?? ""),
                 RazaoSocial: empresa.NmEmpresa,
-                Municipio: empresa.CdCidadeNavigation.NmCidade,
-                Uf: empresa.CdCidadeNavigation.Uf,
+                Municipio: empresa.CdCidadeNavigation.NmCidade.Trim(),
+                Uf: empresa.CdCidadeNavigation.Uf.Trim(),
                 Fax: UtlStrings.OnlyInteger(empresa.Telefone ?? ""),
                 DataInicial: dataInicial,
                 DataFinal: dataFinal,
@@ -406,8 +433,8 @@ namespace GlobalAPI_ACBrNFe.Services
                 Numero: empresa.Numero.ToString(),
                 Complemento: empresa.Complemento,
                 Bairro: empresa.NmBairro,
-                Cep: empresa.CdCep,
-                NomeContato: "",
+                Cep: UtlStrings.OnlyInteger(empresa.CdCep),
+                NomeContato: UtlStrings.OnlyInteger(empresa.CdCnpj),
                 NumeroContato: UtlStrings.OnlyInteger(empresa.Telefone ?? "")
                 );
             return r11.EscreverCampos();
