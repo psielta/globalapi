@@ -84,6 +84,7 @@ builder.Services.AddScoped<IRepositoryDto<Usuario, string, UsuarioDto>, UsuarioR
 builder.Services.AddScoped<IRepositoryDto<Permissao, int, PermissaoDto>, PermissaoRepositoryDto>();
 builder.Services.AddScoped<IRepositoryDto<UsuarioPermissao, int, UsuarioPermissaoDto>, UsuarioPermissaoRepositoryDto>();
 builder.Services.AddScoped<IRepositoryDto<Csosn, string, CsosnDto>, CsosnRepository>();
+builder.Services.AddScoped<IRepositoryDto<TipoNf, string, TipoNfDto>, TipoNfRepository>();
 builder.Services.AddScoped<IRepositoryDto<Cfop, string, CfopDto>, CfopRepository>();
 builder.Services.AddScoped<IRepositoryDto<Cst, string, CstDto>, CstRepository>();
 builder.Services.AddScoped<IRepositoryDto<OrigemCst, string, OrigemCstDto>, OrigemCstRepository>();
@@ -145,6 +146,7 @@ builder.Services.AddScoped<IQueryRepository<LivroCaixa, long, LivroCaixaDto>, Li
 builder.Services.AddScoped<IQueryRepository<PagtosParciaisCr, int, PagtosParciaisCrDto>, PagtosParciaisCrRepository>();
 builder.Services.AddScoped<IQueryRepository<PagtosParciaisCp, int, PagtosParciaisCpDto>, PagtosParciaisCpRepository>();
 builder.Services.AddScoped<IQueryRepository<DistribuicaoDfe, Guid, DistribuicaoDfeDto>, DistribuicaoDfeRepository>();
+builder.Services.AddScoped<IQueryRepository<EntradaOutrasDesp, int, EntradaOutrasDespDto>,  EntradaOutrasDespRepository>();
 
 builder.Services.AddScoped<EntradaCalculationService>();
 builder.Services.AddScoped<SaidaCalculationService>();

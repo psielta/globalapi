@@ -136,6 +136,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
     public virtual DbSet<MdfeCondutor> MdfeCondutors { get; set; }
 
+    public virtual DbSet<EntradaOutrasDesp> EntradaOutrasDesps { get; set; }
     public virtual DbSet<MdfeInfcarregamento> MdfeInfcarregamentos { get; set; }
 
     public virtual DbSet<MdfePercurso> MdfePercursos { get; set; }
@@ -215,6 +216,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
     public virtual DbSet<Usuario> Usuarios { get; set; }
 
     public virtual DbSet<UsuarioPermissao> UsuarioPermissaos { get; set; }
+    public virtual DbSet<TipoNf> TipoNfs { get; set; }
 
     /************************************************************/
     /* DBSET PERSONALIZADOS => Triggers & Views => NAO APAGAR */
@@ -855,6 +857,17 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.Fornecedor).WithMany(p => p.Entrada)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("entradas_fk");
+        });
+
+        modelBuilder.Entity<EntradaOutrasDesp>(entity =>
+        {
+            entity.HasKey(e => e.NrEntrada).HasName("entrada_outras_desp_pkey");
+
+            entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.EntradaOutrasDesps).HasConstraintName("entrada_outras_desp_fk1");
+
+            entity.HasOne(d => d.Fornecedor).WithMany(p => p.EntradaOutrasDesps)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("entrada_outras_desp_fk");
         });
 
         modelBuilder.Entity<EntregaNfe>(entity =>
@@ -2052,6 +2065,11 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasKey(e => e.Id).HasName("tabela_anp_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("nextval(('public.gen_tabela_anp_id'::text)::regclass)");
+        });
+
+        modelBuilder.Entity<TipoNf>(entity =>
+        {
+            entity.HasKey(e => e.CdTipoNf).HasName("tipo_nf_pkey");
         });
 
         modelBuilder.Entity<Transportadora>(entity =>

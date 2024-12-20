@@ -119,6 +119,9 @@ public partial class Empresa : IIdentifiable<int>
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<Cliente> Clientes { get; set; } = new List<Cliente>();
     [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<EntradaOutrasDesp> EntradaOutrasDesps { get; set; } = new List<EntradaOutrasDesp>();
+    [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<CfopCsosnV2> CfopCsosnV2s { get; set; } = new List<CfopCsosnV2>();
     [JsonIgnore]
