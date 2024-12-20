@@ -38,6 +38,9 @@ namespace GlobalAPINFe.Lib
                 new Permissao { Chave = "cad-forma-pagt", Modulo = "FI", Descricao = "Cadastro de Forma de Pagamento" },
                 new Permissao { Chave = "cad-historico-caixa", Modulo = "FI", Descricao = "Cadastro de Histórico" },
                 new Permissao { Chave = "cad-plano-caixa", Modulo = "FI", Descricao = "Cadastro de Plano de Caixa" },
+                new Permissao { Chave = "livro-caixa", Modulo = "FI", Descricao = "Livro de Caixa" },
+                new Permissao { Chave = "sintegra", Modulo = "ES", Descricao = "Sintegra" },
+                new Permissao { Chave = "relatorio-painel-cliente", Modulo = "ADM", Descricao = "Relatorio de Clientes" },
                 
             };
             try

@@ -24,7 +24,7 @@ namespace GlobalAPI_ACBrNFe.Services
             _logger.LogInformation("DistribuicaoDFeService running.");
             var nextRunTime = GetNextRunTime();
             _logger.LogInformation("DistribuicaoDFeService start [" + nextRunTime.ToString() + "].");
-            _timer = new Timer(DoWork, null, nextRunTime, TimeSpan.FromDays(1));
+            _timer = new Timer(DoWork, null, nextRunTime, TimeSpan.FromMinutes(1));
 
             return Task.CompletedTask;
         }
@@ -34,8 +34,8 @@ namespace GlobalAPI_ACBrNFe.Services
         /// <returns>O horário de execução do serviço.</returns>
         private static TimeSpan GetNextRunTime()
         {
-            var horaAtual = DateTime.Now;
-            var horaMarcada = new DateTime(horaAtual.Year, horaAtual.Month, horaAtual.Day, 11, 00, 10);
+            var horaAtual = DateTime.Now.AddMinutes(1);
+            var horaMarcada = new DateTime(horaAtual.Year, horaAtual.Month, horaAtual.Day, horaAtual.Hour, horaAtual.Minute, horaAtual.Second);
 
             if (horaAtual > horaMarcada)
             {
