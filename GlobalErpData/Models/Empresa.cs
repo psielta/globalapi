@@ -100,6 +100,13 @@ public partial class Empresa : IIdentifiable<int>
     [StringLength(50)]
     public string? Cnae { get; set; }
 
+    [Column("ultima_execucao_dfe", TypeName = "timestamp(0) without time zone")]
+    public DateTime? UltimaExecucaoDfe { get; set; }
+
+    [Column("ultimo_nsu")]
+    [StringLength(255)]
+    public string? UltimoNsu { get; set; }
+
     [JsonIgnore]
     [ForeignKey("CdCidade")]
     [InverseProperty("Empresas")]
