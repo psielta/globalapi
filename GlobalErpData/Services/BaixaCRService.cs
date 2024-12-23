@@ -133,7 +133,7 @@ namespace GlobalErpData.Services
             // Cria entrada no LivroCaixa.
             LivroCaixa livroCaixa = new LivroCaixa
             {
-                DtLanc = DateTime.Now,
+                DtLanc = DateTime.UtcNow,
                 CdEmpresa = cr.CdEmpresa,
                 CdHistorico = cr.CdHistoricoCaixa,
                 VlLancamento = cr.VlTotal,
@@ -180,7 +180,7 @@ namespace GlobalErpData.Services
             // Cria entrada no LivroCaixa.
             LivroCaixa livroCaixa = new LivroCaixa
             {
-                DtLanc = DateTime.Now,
+                DtLanc = DateTime.UtcNow,
                 CdEmpresa = cr.CdEmpresa,
                 CdHistorico = cr.CdHistoricoCaixa,
                 VlLancamento = valorPago,
