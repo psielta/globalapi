@@ -19,6 +19,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
     public virtual DbSet<RetiradaNfe> RetiradaNves { get; set; }
     public virtual DbSet<Category> Categories { get; set; }
     public virtual DbSet<TabelaAnp> TabelaAnps { get; set; }
+    public virtual DbSet<DistribuicaoDfe> DistribuicaoDfes { get; set; }
 
     public virtual DbSet<Certificado> Certificados { get; set; }
 

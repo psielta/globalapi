@@ -83,7 +83,7 @@ public class DistribuicaoDFeService : IHostedService, IDisposable
                 if (diferenca.TotalMinutes >= 61)
                 {
                     _logger.LogInformation($"Executando consulta SEFAZ para empresa {empresa.CdEmpresa}");
-                    await Core(empresa);
+                    await xCore(empresa);
                 }
                 else
                 {
@@ -215,7 +215,7 @@ public class DistribuicaoDFeService : IHostedService, IDisposable
         nfe.ConfigGravar(path);
     }
 
-    private async Task Core(Empresa empresa)
+    private async Task xCore(Empresa empresa)
     {
         var certificado = await context.Certificados.FirstOrDefaultAsync(x => x.IdEmpresa == empresa.CdEmpresa);
         if (certificado == null)
@@ -223,16 +223,94 @@ public class DistribuicaoDFeService : IHostedService, IDisposable
             _logger.LogError($"Certificado não encontrado para empresa {empresa.CdEmpresa}");
             return;
         }
+
         SetConfiguracaoNfe(empresa.CdEmpresa, empresa, certificado);
 
-        var distribuicao = nfe.DistribuicaoDFePorUltNSU(GetUf(empresa.CdCidadeNavigation), UtlStrings.OnlyInteger(empresa.CdCnpj), empresa.UltimoNsu ?? "0");
-        if (distribuicao == null)
-        {
-            _logger.LogError($"Erro ao executar DistribuicaoDFePorUltNSU para empresa {empresa.CdEmpresa}");
-            return;
-        }
+        string ultimoNSU = empresa.UltimoNsu ?? "0";
+        bool temMais = true;
 
+        while (temMais)
+        {
+            DistribuicaoDFeResposta<TipoEventoNFe> distribuicao = nfe.DistribuicaoDFePorUltNSU(GetUf(empresa.CdCidadeNavigation), UtlStrings.OnlyInteger(empresa.CdCnpj), ultimoNSU);
+
+            if (distribuicao == null)
+            {
+                _logger.LogError($"Erro ao executar DistribuicaoDFePorUltNSU para empresa {empresa.CdEmpresa}");
+                break;
+            }
+
+            // Verifica o status retornado
+            if (distribuicao.CStat == 137 || distribuicao.CStat == 656)
+            {
+                temMais = false;
+                _logger.LogInformation($"Consulta finalizada: {distribuicao.XMotivo}");
+                break;
+            }
+
+            // Atualiza o último NSU
+            if (!string.IsNullOrEmpty(distribuicao.ultNSU))
+            {
+                ultimoNSU = distribuicao.ultNSU;
+                empresa.UltimoNsu = ultimoNSU;
+                context.Empresas.Update(empresa);
+                await context.SaveChangesAsync();
+            }
+
+            // Processa os documentos retornados
+            if (distribuicao.CStat == 138)
+            {
+                foreach (var doc in distribuicao.ResDFeResposta)
+                {
+                    try
+                    {
+                        var distribDfe = MapearDistribuicaoDfe(empresa.CdEmpresa, doc, distribuicao.Resposta);
+                        await context.DistribuicaoDfes.AddAsync(distribDfe);
+                        await context.SaveChangesAsync();
+
+                        _logger.LogInformation($"Documento {doc.ChDFe} processado com sucesso.");
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, $"Erro ao processar documento NSU {doc.NSU}.");
+                    }
+                }
+            }
+            else
+            {
+                temMais = false;
+                _logger.LogWarning($"Consulta interrompida: {distribuicao.XMotivo}");
+            }
+        }
     }
+
+    /// <summary>
+    /// Mapeia um documento de resposta para o modelo de Distribuição DFe.
+    /// </summary>
+    private DistribuicaoDfe MapearDistribuicaoDfe(int idEmpresa, ResDFeResposta doc, string xml)
+    {
+        return new DistribuicaoDfe
+        {
+            Id = Guid.NewGuid(),
+            IdEmpresa = idEmpresa,
+            Serie = doc.ChDFe?.Substring(22, 3) ?? string.Empty,
+            NrNotaFiscal = doc.ChDFe?.Substring(25, 9) ?? string.Empty,
+            ChaveAcessoNfe = doc.ChDFe,
+            Cnpj = doc.CNPJCPF,
+            Nome = doc.xNome,
+            Ie = doc.IE,
+            TpNfe = doc.tpNF == TipoNFe.tnEntrada ? "tnEntrada" : "tnSaida",
+            Nsu = doc.NSU,
+            Emissao = doc.dhEmi.ToString("yyyy-MM-dd"),
+            Valor = doc.vNF,
+            Impresso = doc.cSitNFe == SituacaoDFe.snAutorizado ? "snAutorizado" :
+                       doc.cSitNFe == SituacaoDFe.snDenegado ? "snDenegado" : "snCancelado",
+            TpResposta = 'R',
+            DtRecebimento = DateOnly.FromDateTime(doc.dhRecbto),
+            Xml = xml,
+            DtInclusao = DateOnly.FromDateTime(DateTime.Now)
+        };
+    }
+
 
     private int GetUf(Cidade cdCidadeNavigation)
     {
