@@ -217,7 +217,8 @@ public class DistribuicaoDFeService : IHostedService, IDisposable
 
     private async Task xCore(Empresa empresa)
     {
-        var certificado = await context.Certificados.FirstOrDefaultAsync(x => x.IdEmpresa == empresa.CdEmpresa);
+        throw new NotImplementedException();
+        /*var certificado = await context.Certificados.FirstOrDefaultAsync(x => x.IdEmpresa == empresa.CdEmpresa);
         if (certificado == null)
         {
             _logger.LogError($"Certificado não encontrado para empresa {empresa.CdEmpresa}");
@@ -281,6 +282,7 @@ public class DistribuicaoDFeService : IHostedService, IDisposable
                 _logger.LogWarning($"Consulta interrompida: {distribuicao.XMotivo}");
             }
         }
+        */
     }
 
     /// <summary>
@@ -288,6 +290,8 @@ public class DistribuicaoDFeService : IHostedService, IDisposable
     /// </summary>
     private DistribuicaoDfe MapearDistribuicaoDfe(int idEmpresa, ResDFeResposta doc, string xml)
     {
+        throw new NotImplementedException();
+        /*
         return new DistribuicaoDfe
         {
             Id = Guid.NewGuid(),
@@ -308,7 +312,7 @@ public class DistribuicaoDFeService : IHostedService, IDisposable
             DtRecebimento = DateOnly.FromDateTime(doc.dhRecbto),
             Xml = xml,
             DtInclusao = DateOnly.FromDateTime(DateTime.Now)
-        };
+        };*/
     }
 
 

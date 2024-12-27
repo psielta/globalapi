@@ -61,15 +61,15 @@ public partial class DistribuicaoDfe : IIdentifiable<Guid>
 
     [Column("tp_resposta")]
     [MaxLength(1)]
-    public char? TpResposta { get; set; }
+    public string? TpResposta { get; set; }
 
     [Column("manifesto")]
     [MaxLength(1)]
-    public char? Manifesto { get; set; }
+    public string? Manifesto { get; set; }
 
     [Column("transferiu")]
     [MaxLength(1)]
-    public char? Transferiu { get; set; }
+    public string? Transferiu { get; set; }
 
     [Column("dt_recebimento")]
     public DateOnly? DtRecebimento { get; set; }
