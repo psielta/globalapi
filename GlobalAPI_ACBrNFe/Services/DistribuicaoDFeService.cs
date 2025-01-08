@@ -15,15 +15,13 @@ public class DistribuicaoDFeService : IHostedService, IDisposable
     private readonly ACBrNFe nfe;
     private readonly IConfiguration _config;
     private readonly ILogger<DistribuicaoDFeService> _logger;
-    private readonly GlobalErpFiscalBaseContext context;
 
-    public DistribuicaoDFeService(ILogger<DistribuicaoDFeService> logger, ACBrLib.NFe.ACBrNFe aCBrNFe, IConfiguration config, GlobalErpFiscalBaseContext context)
+    public DistribuicaoDFeService(ILogger<DistribuicaoDFeService> logger, ACBrLib.NFe.ACBrNFe aCBrNFe, IConfiguration config)
     {
         _logger = logger;
         nfe = aCBrNFe;
         _config = config;
         _timer = new PeriodicTimer(TimeSpan.FromMinutes(1));
-        this.context = context;
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
@@ -66,28 +64,31 @@ public class DistribuicaoDFeService : IHostedService, IDisposable
     {
         try
         {
-            _logger.LogInformation("Iniciando verificação de empresas...");
-
-            // 1) Carregar a lista de empresas do banco
-            List<Empresa> listaEmpresas = await CarregarEmpresasDoBanco();
-
-            // 2) Percorrer cada empresa
-            foreach (var empresa in listaEmpresas)
+            using (var context = new GlobalErpFiscalBaseContext())
             {
-                if (stoppingToken.IsCancellationRequested)
-                    break;
+                _logger.LogInformation("Iniciando verificação de empresas...");
 
-                DateTime dataUltimaExecucao = empresa.UltimaExecucaoDfe ?? DateTime.MinValue;
-                var diferenca = DateTime.Now - dataUltimaExecucao;
+                // 1) Carregar a lista de empresas do banco
+                List<Empresa> listaEmpresas = await CarregarEmpresasDoBanco(context);
 
-                if (diferenca.TotalMinutes >= 61)
+                // 2) Percorrer cada empresa
+                foreach (var empresa in listaEmpresas)
                 {
-                    _logger.LogInformation($"Executando consulta SEFAZ para empresa {empresa.CdEmpresa}");
-                    await xCore(empresa);
-                }
-                else
-                {
-                    _logger.LogInformation($"Menos de 61 minutos para a empresa {empresa.CdEmpresa}. Pulando...");
+                    if (stoppingToken.IsCancellationRequested)
+                        break;
+
+                    DateTime dataUltimaExecucao = empresa.UltimaExecucaoDfe ?? DateTime.MinValue;
+                    var diferenca = DateTime.Now - dataUltimaExecucao;
+
+                    if (diferenca.TotalMinutes >= 61)
+                    {
+                        _logger.LogInformation($"Executando consulta SEFAZ para empresa {empresa.CdEmpresa}");
+                        await xCore(empresa, context);
+                    }
+                    else
+                    {
+                        _logger.LogInformation($"Menos de 61 minutos para a empresa {empresa.CdEmpresa}. Pulando...");
+                    }
                 }
             }
         }
@@ -99,12 +100,17 @@ public class DistribuicaoDFeService : IHostedService, IDisposable
 
     private string GetPathIni()
     {
-        var diretorioPadrao = "C:\\Global\\NFE\\DistribuicaoDFe\\ACBrLib.ini";
-        if (!Directory.Exists(diretorioPadrao))
+        // Define apenas a pasta base
+        var pastaBase = "C:\\Global\\NFE\\DistribuicaoDFe";
+
+        // Se não existe a pasta, cria
+        if (!Directory.Exists(pastaBase))
         {
-            Directory.CreateDirectory(diretorioPadrao);
+            Directory.CreateDirectory(pastaBase);
         }
-        return diretorioPadrao;
+
+        // Depois retorna o caminho completo do arquivo INI
+        return System.IO.Path.Combine(pastaBase, "ACBrLib.ini");
     }
 
     private async void SetConfiguracaoNfe(int CdEmpresa, Empresa empresa, Certificado cer)
@@ -211,14 +217,20 @@ public class DistribuicaoDFeService : IHostedService, IDisposable
         nfe.Config.Email.SSL = false;
         nfe.Config.Email.TLS = false;
 
-        var path = GetPathIni();
-        nfe.ConfigGravar(path);
+        //var path = GetPathIni();
+        //nfe.ConfigGravar(path);
+
+        var pastaTeste = @"C:\Temp\ACBrTest";
+        Directory.CreateDirectory(pastaTeste);
+
+        var arquivoINI = System.IO.Path.Combine(pastaTeste, "ACBrLib.ini");
+        nfe.ConfigGravar(arquivoINI);
     }
 
-    private async Task xCore(Empresa empresa)
+    private async Task xCore(Empresa empresa, GlobalErpFiscalBaseContext context)
     {
-        throw new NotImplementedException();
-        /*var certificado = await context.Certificados.FirstOrDefaultAsync(x => x.IdEmpresa == empresa.CdEmpresa);
+
+        var certificado = await context.Certificados.FirstOrDefaultAsync(x => x.IdEmpresa == empresa.CdEmpresa);
         if (certificado == null)
         {
             _logger.LogError($"Certificado não encontrado para empresa {empresa.CdEmpresa}");
@@ -265,10 +277,10 @@ public class DistribuicaoDFeService : IHostedService, IDisposable
                     try
                     {
                         var distribDfe = MapearDistribuicaoDfe(empresa.CdEmpresa, doc, distribuicao.Resposta);
-                        await context.DistribuicaoDfes.AddAsync(distribDfe);
-                        await context.SaveChangesAsync();
+                        //await context.DistribuicaoDfes.AddAsync(distribDfe);
+                        //await context.SaveChangesAsync();
 
-                        _logger.LogInformation($"Documento {doc.ChDFe} processado com sucesso.");
+                        //_logger.LogInformation($"Documento {doc.ChDFe} processado com sucesso.");
                     }
                     catch (Exception ex)
                     {
@@ -282,7 +294,7 @@ public class DistribuicaoDFeService : IHostedService, IDisposable
                 _logger.LogWarning($"Consulta interrompida: {distribuicao.XMotivo}");
             }
         }
-        */
+
     }
 
     /// <summary>
@@ -290,15 +302,13 @@ public class DistribuicaoDFeService : IHostedService, IDisposable
     /// </summary>
     private DistribuicaoDfe MapearDistribuicaoDfe(int idEmpresa, ResDFeResposta doc, string xml)
     {
-        throw new NotImplementedException();
-        /*
         return new DistribuicaoDfe
         {
             Id = Guid.NewGuid(),
             IdEmpresa = idEmpresa,
-            Serie = doc.ChDFe?.Substring(22, 3) ?? string.Empty,
-            NrNotaFiscal = doc.ChDFe?.Substring(25, 9) ?? string.Empty,
-            ChaveAcessoNfe = doc.ChDFe,
+            //Serie = doc.ChDFe?.Substring(22, 3) ?? string.Empty,
+            //NrNotaFiscal = doc.ChDFe?.Substring(25, 9) ?? string.Empty,
+            //ChaveAcessoNfe = doc.ChDFe,
             Cnpj = doc.CNPJCPF,
             Nome = doc.xNome,
             Ie = doc.IE,
@@ -308,11 +318,11 @@ public class DistribuicaoDFeService : IHostedService, IDisposable
             Valor = doc.vNF,
             Impresso = doc.cSitNFe == SituacaoDFe.snAutorizado ? "snAutorizado" :
                        doc.cSitNFe == SituacaoDFe.snDenegado ? "snDenegado" : "snCancelado",
-            TpResposta = 'R',
+            //TpResposta = 'R',
             DtRecebimento = DateOnly.FromDateTime(doc.dhRecbto),
             Xml = xml,
             DtInclusao = DateOnly.FromDateTime(DateTime.Now)
-        };*/
+        };
     }
 
 
@@ -351,15 +361,16 @@ public class DistribuicaoDFeService : IHostedService, IDisposable
         };
     }
 
-    private async Task AtualizarUltimaExecucaoNoBanco(Empresa empresa, DateTime now)
+    private async Task AtualizarUltimaExecucaoNoBanco(Empresa empresa, DateTime now, GlobalErpFiscalBaseContext
+        context)
     {
         empresa.UltimaExecucaoDfe = now;
         await context.SaveChangesAsync();
     }
 
-    private async Task<List<Empresa>> CarregarEmpresasDoBanco()
+    private async Task<List<Empresa>> CarregarEmpresasDoBanco(GlobalErpFiscalBaseContext context)
     {
-        var empresas = await context.Empresas.Include(i => i.CdCidadeNavigation).ToListAsync();
+        var empresas = await context.Empresas.Include(i => i.CdCidadeNavigation).Where(p => p.NmEmpresa.ToUpper().Trim().Contains("GLOBAL")).ToListAsync();
         return empresas;
     }
 
