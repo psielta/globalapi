@@ -2,10 +2,14 @@
 using ACBrLib.Core.DFe;
 using ACBrLib.Core.NFe;
 using ACBrLib.NFe;
+using FiscalBr.Common.ValueObjects;
+using GlobalAPI_ACBrNFe.Lib;
 using GlobalErpData.Data;
+using GlobalErpData.Dto;
 using GlobalErpData.Models;
 using GlobalLib.Strings;
 using Microsoft.EntityFrameworkCore;
+using NFe.Classes;
 
 public class DistribuicaoDFeService : IHostedService, IDisposable
 {
@@ -69,7 +73,7 @@ public class DistribuicaoDFeService : IHostedService, IDisposable
                 _logger.LogInformation("Iniciando verificação de empresas...");
 
                 // 1) Carregar a lista de empresas do banco
-                List<Empresa> listaEmpresas = await CarregarEmpresasDoBanco(context);
+                List<GlobalErpData.Models.Empresa> listaEmpresas = await CarregarEmpresasDoBanco(context);
 
                 // 2) Percorrer cada empresa
                 foreach (var empresa in listaEmpresas)
@@ -113,7 +117,7 @@ public class DistribuicaoDFeService : IHostedService, IDisposable
         return System.IO.Path.Combine(pastaBase, "ACBrLib.ini");
     }
 
-    private async void SetConfiguracaoNfe(int CdEmpresa, Empresa empresa, Certificado cer)
+    private async void SetConfiguracaoNfe(int CdEmpresa, GlobalErpData.Models.Empresa empresa, Certificado cer)
     {
         nfe.Config.VersaoDF = VersaoNFe.ve400;
         nfe.Config.ModeloDF = ModeloNFe.moNFe;
@@ -227,7 +231,7 @@ public class DistribuicaoDFeService : IHostedService, IDisposable
         nfe.ConfigGravar(arquivoINI);
     }
 
-    private async Task xCore(Empresa empresa, GlobalErpFiscalBaseContext context)
+    private async Task xCore(GlobalErpData.Models.Empresa empresa, GlobalErpFiscalBaseContext context)
     {
 
         var certificado = await context.Certificados.FirstOrDefaultAsync(x => x.IdEmpresa == empresa.CdEmpresa);
@@ -276,11 +280,21 @@ public class DistribuicaoDFeService : IHostedService, IDisposable
                 {
                     try
                     {
-                        var distribDfe = MapearDistribuicaoDfe(empresa.CdEmpresa, doc, distribuicao.Resposta);
-                        //await context.DistribuicaoDfes.AddAsync(distribDfe);
-                        //await context.SaveChangesAsync();
+                        if (doc.schema == DistSchema.schprocNFe)
+                        {
+                            var nfeMapped = new nfeProc().CarregarDeXmlString(doc.XML);
+                            if (nfeMapped == null)
+                            {
+                                throw new Exception("Erro ao desserializar XML");
+                            }
+                            await MapearDistribuicaoDfe(empresa.CdEmpresa, doc, distribuicao.Resposta, nfeMapped, context);
 
-                        //_logger.LogInformation($"Documento {doc.ChDFe} processado com sucesso.");
+                            _logger.LogInformation($"Documento {nfeMapped.NFe.infNFe.Id.Substring(3, 44)} processado com sucesso.");
+                        } else
+                        {
+                            await MapearCabecalhoDfe(empresa.CdEmpresa, doc, distribuicao.Resposta, context);
+                            ManifestarCienciaOperacao(doc, nfe, empresa);
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -297,18 +311,15 @@ public class DistribuicaoDFeService : IHostedService, IDisposable
 
     }
 
-    /// <summary>
-    /// Mapeia um documento de resposta para o modelo de Distribuição DFe.
-    /// </summary>
-    private DistribuicaoDfe MapearDistribuicaoDfe(int idEmpresa, ResDFeResposta doc, string xml)
+    private async Task MapearCabecalhoDfe(int cdEmpresa, ResDFeResposta doc, string resposta, GlobalErpFiscalBaseContext context)
     {
-        return new DistribuicaoDfe
+        NFeInfo nFeInfo = NFeUtilsV3.ObterInformacoesDaChave(doc.chDFe);
+        DistribuicaoDfe distribDfe = new DistribuicaoDfe
         {
-            Id = Guid.NewGuid(),
-            IdEmpresa = idEmpresa,
-            //Serie = doc.ChDFe?.Substring(22, 3) ?? string.Empty,
-            //NrNotaFiscal = doc.ChDFe?.Substring(25, 9) ?? string.Empty,
-            //ChaveAcessoNfe = doc.ChDFe,
+            IdEmpresa = cdEmpresa,
+            Serie = nFeInfo.Serie,
+            NrNotaFiscal = nFeInfo.Numero,
+            ChaveAcessoNfe = doc.chDFe,
             Cnpj = doc.CNPJCPF,
             Nome = doc.xNome,
             Ie = doc.IE,
@@ -318,11 +329,57 @@ public class DistribuicaoDFeService : IHostedService, IDisposable
             Valor = doc.vNF,
             Impresso = doc.cSitNFe == SituacaoDFe.snAutorizado ? "snAutorizado" :
                        doc.cSitNFe == SituacaoDFe.snDenegado ? "snDenegado" : "snCancelado",
-            //TpResposta = 'R',
+            TpResposta = "R",
+            DtRecebimento = DateOnly.FromDateTime(doc.dhRecbto),
+            Xml = doc.XML,
+            DtInclusao = DateOnly.FromDateTime(DateTime.Now)
+        };
+
+        context.DistribuicaoDfes.Add(distribDfe);
+        await context.SaveChangesAsync();
+    }
+
+    private void ManifestarCienciaOperacao(ResDFeResposta doc, ACBrNFe nfe, GlobalErpData.Models.Empresa empresa)
+    {
+        var manif = new EventoManifDestCiencia();
+        manif.cOrgao = 91;
+        manif.chNFe = doc.chDFe;
+        manif.CNPJ = UtlStrings.OnlyInteger(empresa.CdCnpj ?? "-1");
+        manif.dhEvento = DateTime.Now;
+        manif.nSeqEvento = 1;
+        manif.versaoEvento = "1.00";
+        nfe.EnviarEvento(1);
+        var response = nfe.EnviarEvento(1);
+    }
+
+    /// <summary>
+    /// Mapeia um documento de resposta para o modelo de Distribuição DFe.
+    /// </summary>
+    private async Task MapearDistribuicaoDfe(int idEmpresa, ResDFeResposta doc, string xml, nfeProc nfe, GlobalErpFiscalBaseContext context)
+    {
+        DistribuicaoDfe distribDfe = new DistribuicaoDfe
+        {
+            IdEmpresa = idEmpresa,
+            Serie = nfe.NFe.infNFe.ide.serie.ToString() ?? string.Empty,
+            NrNotaFiscal = nfe.NFe.infNFe.ide.nNF.ToString() ?? string.Empty,
+            ChaveAcessoNfe = nfe.NFe.infNFe.Id.Substring(3, 44),
+            Cnpj = doc.CNPJCPF,
+            Nome = doc.xNome,
+            Ie = doc.IE,
+            TpNfe = doc.tpNF == TipoNFe.tnEntrada ? "tnEntrada" : "tnSaida",
+            Nsu = doc.NSU,
+            Emissao = doc.dhEmi.ToString("yyyy-MM-dd"),
+            Valor = doc.vNF,
+            Impresso = doc.cSitNFe == SituacaoDFe.snAutorizado ? "snAutorizado" :
+                       doc.cSitNFe == SituacaoDFe.snDenegado ? "snDenegado" : "snCancelado",
+            TpResposta = "C",
             DtRecebimento = DateOnly.FromDateTime(doc.dhRecbto),
             Xml = xml,
             DtInclusao = DateOnly.FromDateTime(DateTime.Now)
         };
+
+        context.DistribuicaoDfes.Add(distribDfe);
+        await context.SaveChangesAsync();
     }
 
 
@@ -361,14 +418,14 @@ public class DistribuicaoDFeService : IHostedService, IDisposable
         };
     }
 
-    private async Task AtualizarUltimaExecucaoNoBanco(Empresa empresa, DateTime now, GlobalErpFiscalBaseContext
+    private async Task AtualizarUltimaExecucaoNoBanco(GlobalErpData.Models.Empresa empresa, DateTime now, GlobalErpFiscalBaseContext
         context)
     {
         empresa.UltimaExecucaoDfe = now;
         await context.SaveChangesAsync();
     }
 
-    private async Task<List<Empresa>> CarregarEmpresasDoBanco(GlobalErpFiscalBaseContext context)
+    private async Task<List<GlobalErpData.Models.Empresa>> CarregarEmpresasDoBanco(GlobalErpFiscalBaseContext context)
     {
         var empresas = await context.Empresas.Include(i => i.CdCidadeNavigation).Where(p => p.NmEmpresa.ToUpper().Trim().Contains("GLOBAL")).ToListAsync();
         return empresas;
