@@ -100,7 +100,7 @@ builder.Services.AddTransient<EmailService>();
 builder.Services.AddScoped<IUserStore<Usuario>, CustomUserStore>();
 //builder.Services.AddScoped<IPasswordHasher<Usuario>, PasswordHasher<Usuario>>();
 builder.Services.AddScoped<IPasswordHasher<Usuario>, CustomPasswordHasher>();
-//builder.Services.AddHostedService<DistribuicaoDFeService>();
+builder.Services.AddHostedService<DistribuicaoDFeService>();
 builder.Services.AddIdentityCore<Usuario>(options =>
 {
     // Configurações de senha

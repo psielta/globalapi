@@ -427,7 +427,7 @@ public class DistribuicaoDFeService : IHostedService, IDisposable
 
     private async Task<List<GlobalErpData.Models.Empresa>> CarregarEmpresasDoBanco(GlobalErpFiscalBaseContext context)
     {
-        var empresas = await context.Empresas.Include(i => i.CdCidadeNavigation).Where(p => p.NmEmpresa.ToUpper().Trim().Contains("GLOBAL")).ToListAsync();
+        var empresas = await context.Empresas.Include(i => i.CdCidadeNavigation).Where(p => p.NmEmpresa.ToUpper().Trim().Contains("MIX")).ToListAsync();
         return empresas;
     }
 
