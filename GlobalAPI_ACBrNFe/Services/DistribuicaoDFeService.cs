@@ -290,10 +290,10 @@ public class DistribuicaoDFeService : IHostedService, IDisposable
                             await MapearDistribuicaoDfe(empresa.CdEmpresa, doc, distribuicao.Resposta, nfeMapped, context);
 
                             _logger.LogInformation($"Documento {nfeMapped.NFe.infNFe.Id.Substring(3, 44)} processado com sucesso.");
-                        } else
+                        } else if (doc.schema == DistSchema.schresNFe)
                         {
                             await MapearCabecalhoDfe(empresa.CdEmpresa, doc, distribuicao.Resposta, context);
-                            ManifestarCienciaOperacao(doc, nfe, empresa);
+                            ManifestarCienciaOperacao(doc, nfe, empresa, context);
                         }
                     }
                     catch (Exception ex)
@@ -339,7 +339,7 @@ public class DistribuicaoDFeService : IHostedService, IDisposable
         await context.SaveChangesAsync();
     }
 
-    private void ManifestarCienciaOperacao(ResDFeResposta doc, ACBrNFe nfe, GlobalErpData.Models.Empresa empresa)
+    private void ManifestarCienciaOperacao(ResDFeResposta doc, ACBrNFe nfe, GlobalErpData.Models.Empresa empresa, GlobalErpFiscalBaseContext context)
     {
         var manif = new EventoManifDestCiencia();
         manif.cOrgao = 91;
@@ -348,8 +348,27 @@ public class DistribuicaoDFeService : IHostedService, IDisposable
         manif.dhEvento = DateTime.Now;
         manif.nSeqEvento = 1;
         manif.versaoEvento = "1.00";
+        nfe.LimparListaEventos();
+        nfe.CarregarEvento(manif);
         nfe.EnviarEvento(1);
         var response = nfe.EnviarEvento(1);
+        try
+        {
+            int affect = context.Database.ExecuteSqlInterpolated(@$"
+                update distribuicao_dfe set cstat_ciencia = {response.CStat}, xmotivo_ciencia = '{response.XMotivo}'
+                where id in (select id from distribuicao_dfe d where d.chave_acesso_nfe = '{doc.chDFe.Trim()}' and tp_resposta = 'R')
+            ");
+            if (affect <= 0)
+            {
+                throw new Exception($"Registros nao atualizados {doc.chDFe}.");
+            }
+
+        }
+        catch (Exception e)
+        {
+            _logger.LogError("Erro ao Salvar resposto evento ciencia", e);
+        }
+        
     }
 
     /// <summary>

@@ -11,7 +11,7 @@
         /// <returns>Informações extraídas da chave de acesso.</returns>
         public static NFeInfo ObterInformacoesDaChave(string chaveAcesso)
         {
-            if (string.IsNullOrWhiteSpace(chaveAcesso) || chaveAcesso.Length != 44 || !long.TryParse(chaveAcesso, out _))
+            if (string.IsNullOrWhiteSpace(chaveAcesso) || chaveAcesso.Length != 44)
             {
                 throw new ArgumentException("A chave de acesso deve conter exatamente 44 dígitos numéricos.", nameof(chaveAcesso));
             }
