@@ -249,12 +249,20 @@ public class DistribuicaoDFeService : IHostedService, IDisposable
         while (temMais)
         {
             DistribuicaoDFeResposta<TipoEventoNFe> distribuicao = nfe.DistribuicaoDFePorUltNSU(GetUf(empresa.CdCidadeNavigation), UtlStrings.OnlyInteger(empresa.CdCnpj), ultimoNSU);
-
             if (distribuicao == null)
             {
                 _logger.LogError($"Erro ao executar DistribuicaoDFePorUltNSU para empresa {empresa.CdEmpresa}");
                 break;
             }
+            empresa.UltimaExecucaoDfe = DateTime.Now;
+            // Atualiza o último NSU
+            if (!string.IsNullOrEmpty(distribuicao.ultNSU))
+            {
+                ultimoNSU = distribuicao.ultNSU;
+                empresa.UltimoNsu = ultimoNSU;
+            }
+            context.Empresas.Update(empresa);
+            await context.SaveChangesAsync();
 
             // Verifica o status retornado
             if (distribuicao.CStat == 137 || distribuicao.CStat == 656)
@@ -262,15 +270,6 @@ public class DistribuicaoDFeService : IHostedService, IDisposable
                 temMais = false;
                 _logger.LogInformation($"Consulta finalizada: {distribuicao.XMotivo}");
                 break;
-            }
-
-            // Atualiza o último NSU
-            if (!string.IsNullOrEmpty(distribuicao.ultNSU))
-            {
-                ultimoNSU = distribuicao.ultNSU;
-                empresa.UltimoNsu = ultimoNSU;
-                context.Empresas.Update(empresa);
-                await context.SaveChangesAsync();
             }
 
             // Processa os documentos retornados
@@ -290,7 +289,8 @@ public class DistribuicaoDFeService : IHostedService, IDisposable
                             await MapearDistribuicaoDfe(empresa.CdEmpresa, doc, distribuicao.Resposta, nfeMapped, context);
 
                             _logger.LogInformation($"Documento {nfeMapped.NFe.infNFe.Id.Substring(3, 44)} processado com sucesso.");
-                        } else if (doc.schema == DistSchema.schresNFe)
+                        }
+                        else if (doc.schema == DistSchema.schresNFe)
                         {
                             await MapearCabecalhoDfe(empresa.CdEmpresa, doc, distribuicao.Resposta, context);
                             ManifestarCienciaOperacao(doc, nfe, empresa, context);
@@ -317,8 +317,8 @@ public class DistribuicaoDFeService : IHostedService, IDisposable
         DistribuicaoDfe distribDfe = new DistribuicaoDfe
         {
             IdEmpresa = cdEmpresa,
-            Serie = nFeInfo.Serie,
-            NrNotaFiscal = nFeInfo.Numero,
+            Serie = UtlStrings.OnlyInteger(nFeInfo.Serie),
+            NrNotaFiscal = UtlStrings.OnlyInteger(nFeInfo.Numero),
             ChaveAcessoNfe = doc.chDFe,
             Cnpj = doc.CNPJCPF,
             Nome = doc.xNome,
@@ -368,7 +368,7 @@ public class DistribuicaoDFeService : IHostedService, IDisposable
         {
             _logger.LogError("Erro ao Salvar resposto evento ciencia", e);
         }
-        
+
     }
 
     /// <summary>
@@ -393,7 +393,7 @@ public class DistribuicaoDFeService : IHostedService, IDisposable
                        doc.cSitNFe == SituacaoDFe.snDenegado ? "snDenegado" : "snCancelado",
             TpResposta = "C",
             DtRecebimento = DateOnly.FromDateTime(doc.dhRecbto),
-            Xml = xml,
+            Xml = doc.XML,
             DtInclusao = DateOnly.FromDateTime(DateTime.Now)
         };
 
