@@ -229,6 +229,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
     public DbSet<DashboardEstoqueTotalEntradasPorMes> cdsDashboardEstoqueTotalEntradasPorMes { get; set; }
     public DbSet<DashboardEstoqueTotalEntradasPorDia> cdsDashboardEstoqueTotalEntradasPorDia { get; set; }
     public DbSet<DashboardEstoqueTotalSaidasPorDia> cdsDashboardEstoqueTotalSaidasPorDia { get; set; }
+    public  DbSet<FnDistribuicaoDfeEntradasResult> FnDistribuicaoDfeEntradasResults { get; set; }
 
     public DbSet<TotalPorGrupo> cdsTotalPorGrupo { get; set; }
     public DbSet<ProcReg50EntradaResult> ProcReg50EntradaResults { get; set; }
@@ -2166,6 +2167,17 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasNoKey();
             entity.ToFunction("get_total_por_grupo");
         });
+        modelBuilder.Entity<FnDistribuicaoDfeEntradasResult>(entity =>
+        {
+            entity.HasNoKey();          // Indica que essa 'entidade' não tem PK
+            entity.ToView(null);        // Diz ao EF Core que não há uma view/tabela real
+
+            // Se os nomes das propriedades não baterem com as colunas do SELECT,
+            // precisamos usar .Property(...)...HasColumnName("coluna_do_banco") 
+            // Exemplo:
+            // entity.Property(e => e.Nr_Nota_Fiscal).HasColumnName("nr_nota_fiscal");
+        });
+
 
         setProcReg50(modelBuilder);
         setProcReg54(modelBuilder);
@@ -2272,6 +2284,13 @@ public partial class GlobalErpFiscalBaseContext : DbContext
     {
         return cdsTotalPorGrupo
             .FromSqlInterpolated($"SELECT * FROM public.get_total_por_grupo({pid_empresa})");
+    }
+
+    public IQueryable<FnDistribuicaoDfeEntradasResult> GetDistribuicaoDfeEntradas(int empresaId)
+    {
+        // Aqui, passamos o parâmetro para a função
+        return FnDistribuicaoDfeEntradasResults
+            .FromSqlRaw("SELECT * FROM fn_distribuicao_dfe_entradas({0})", empresaId);
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
