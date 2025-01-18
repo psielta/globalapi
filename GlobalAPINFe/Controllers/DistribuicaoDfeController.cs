@@ -77,18 +77,31 @@ namespace GlobalAPINFe.Controllers
         [HttpGet("GetDistri/{empresaId}")]
         [ProducesResponseType(typeof(PagedResponse<FnDistribuicaoDfeEntradasResult>), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<PagedResponse<FnDistribuicaoDfeEntradasResult>>> GetDistri(int empresaId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        public async Task<IActionResult> GetDistri(
+            int empresaId,
+            [FromQuery] string? nrNotaFiscal = null,
+            [FromQuery] string? nome = null,
+            [FromQuery] string? cnpj = null,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10
+)
         {
             try
             {
-                var query = _context.GetDistribuicaoDfeEntradas(empresaId);
-                var pagedList = await query.AsQueryable().ToPagedListAsync(pageNumber, pageSize);
+                var query = _context.GetDistribuicaoDfeEntradas(
+                    empresaId,
+                    nrNotaFiscal,
+                    nome,
+                    cnpj
+                );
+
+                var pagedList = await query.ToPagedListAsync(pageNumber, pageSize);
                 var response = new PagedResponse<FnDistribuicaoDfeEntradasResult>(pagedList);
+
                 if (response.Items == null || response.Items.Count == 0)
-                {
-                    return NotFound("Entities not found."); // 404 Resource not found
-                }
-                return Ok(response); // 200 OK
+                    return NotFound("Entities not found.");
+
+                return Ok(response);
             }
             catch (Exception ex)
             {

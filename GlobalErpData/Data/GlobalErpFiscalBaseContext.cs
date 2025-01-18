@@ -2286,11 +2286,23 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             .FromSqlInterpolated($"SELECT * FROM public.get_total_por_grupo({pid_empresa})");
     }
 
-    public IQueryable<FnDistribuicaoDfeEntradasResult> GetDistribuicaoDfeEntradas(int empresaId)
+    public IQueryable<FnDistribuicaoDfeEntradasResult> GetDistribuicaoDfeEntradas(
+        int empresaId,
+        string? nrNotaFiscal = null,
+        string? nome = null,
+        string? cnpj = null
+    )
     {
-        // Aqui, passamos o parâmetro para a função
         return FnDistribuicaoDfeEntradasResults
-            .FromSqlRaw("SELECT * FROM fn_distribuicao_dfe_entradas({0})", empresaId);
+            .FromSqlInterpolated(
+                $@"SELECT * 
+               FROM fn_distribuicao_dfe_entradas(
+                   {empresaId}, 
+                   {nrNotaFiscal}, 
+                   {nome},
+                   {cnpj}
+               )"
+            );
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
