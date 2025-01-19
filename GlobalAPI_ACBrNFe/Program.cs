@@ -23,13 +23,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll",
-        policy =>
-        {
-            policy.AllowAnyOrigin()
-                  .AllowAnyMethod()
-                  .AllowAnyHeader();
-        });
+    options.AddPolicy("AllowSpecificOrigin",
+        builder => builder
+            .WithOrigins("http://200.98.160.51:8104", "http://145.223.29.182:3006", "http://localhost:5127", "http://localhost:5129", "http://localhost:3006", "http://46.202.151.238:3006", "http://191.101.235.12:3006")
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials());
 });
 
 var Configuration = builder.Configuration;
@@ -127,7 +126,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseRouting();
 
-app.UseCors("AllowAll");
+app.UseCors("AllowSpecificOrigin");
 
 app.UseAuthentication();
 app.UseAuthorization();
