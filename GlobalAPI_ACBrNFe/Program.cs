@@ -108,8 +108,6 @@ builder.Services.AddIdentityCore<Usuario>(options =>
 .AddDefaultTokenProviders();
 builder.Services.AddHttpContextAccessor();
 
-//builder.Services.AddScoped<IRepository<TblAccessToken>, TblAccessTokenRepository>();
-//builder.Services.AddHostedService<AtualizarTokenService>();
 builder.Services.AddACBrNFe(o => o.UseMemory = false);
 
 
@@ -121,26 +119,19 @@ builder.Services.AddSignalR();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// Adicione o middleware de roteamento
 app.UseRouting();
 
-// Configure o CORS antes dos middlewares de autenticação e autorização
 app.UseCors("AllowAll");
-//app.UseCors("PermitirTodos");
-
-// app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Mapear controladores dentro do middleware de endpoints
 app.MapControllers();
 app.MapHub<ImportProgressHub>("/importProgressHub");
 
