@@ -110,6 +110,7 @@ namespace GlobalErpData.Repository
             CreateMap<ProdutoEntradum, ProdutoEntradaGetDto>().ReverseMap();
             CreateMap<DistribuicaoDfe, DistribuicaoDfeDto>().ReverseMap();
             CreateMap<EntradaOutrasDesp, EntradaOutrasDespDto>().ReverseMap();
+            CreateMap<Cte, CteDto>().ReverseMap();
 
         }
     }

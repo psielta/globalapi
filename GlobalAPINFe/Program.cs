@@ -147,6 +147,7 @@ builder.Services.AddScoped<IQueryRepository<PagtosParciaisCr, int, PagtosParciai
 builder.Services.AddScoped<IQueryRepository<PagtosParciaisCp, int, PagtosParciaisCpDto>, PagtosParciaisCpRepository>();
 builder.Services.AddScoped<IQueryRepository<DistribuicaoDfe, Guid, DistribuicaoDfeDto>, DistribuicaoDfeRepository>();
 builder.Services.AddScoped<IQueryRepository<EntradaOutrasDesp, int, EntradaOutrasDespDto>,  EntradaOutrasDespRepository>();
+builder.Services.AddScoped<IQueryRepository<Cte, int, CteDto>, CteRepository>();
 
 builder.Services.AddScoped<EntradaCalculationService>();
 builder.Services.AddScoped<SaidaCalculationService>();

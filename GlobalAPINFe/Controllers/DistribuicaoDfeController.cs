@@ -16,8 +16,8 @@ namespace GlobalAPINFe.Controllers
     public class DistribuicaoDfeController : GenericPagedController<DistribuicaoDfe, Guid, DistribuicaoDfeDto>
     {
         private readonly GlobalErpFiscalBaseContext _context;
-        private readonly ILogger<DashboardController> _log;
-        public DistribuicaoDfeController(IQueryRepository<DistribuicaoDfe, Guid, DistribuicaoDfeDto> repo, ILogger<GenericPagedController<DistribuicaoDfe, Guid, DistribuicaoDfeDto>> logger, GlobalErpFiscalBaseContext context, ILogger<DashboardController> log) : base(repo, logger)
+        private readonly ILogger<DistribuicaoDfeController> _log;
+        public DistribuicaoDfeController(IQueryRepository<DistribuicaoDfe, Guid, DistribuicaoDfeDto> repo, ILogger<GenericPagedController<DistribuicaoDfe, Guid, DistribuicaoDfeDto>> logger, GlobalErpFiscalBaseContext context, ILogger<DistribuicaoDfeController> log) : base(repo, logger)
         {
             _context = context;
             _log = log;

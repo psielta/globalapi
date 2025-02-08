@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
+using GlobalLib.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace GlobalErpData.Models;
 
 [Table("cte", Schema = "cte")]
 [Index("NrCte", "IdEmpresa", "Modelo", "Serie", Name = "cte_idx", IsUnique = true)]
-public partial class Cte
+public partial class Cte : IIdentifiable<int>
 {
     [Key]
     [Column("id")]
@@ -427,7 +429,20 @@ public partial class Cte
     [Column("id_empresa")]
     public int IdEmpresa { get; set; }
 
+    [JsonIgnore]
     [ForeignKey("IdEmpresa")]
     [InverseProperty("Ctes")]
     public virtual Empresa IdEmpresaNavigation { get; set; } = null!;
+
+    [GraphQLIgnore]
+    public int GetId()
+    {
+        return this.Id;
+    }
+
+    [GraphQLIgnore]
+    public string GetKeyName()
+    {
+        return "Id";
+    }
 }
