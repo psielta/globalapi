@@ -23,6 +23,7 @@ namespace GlobalErpData.Repository.PagedRepositories
         public Task<IQueryable<ContasAReceber>> GetContasAReceberAsyncPorEmpresa(int IdEmpresa)
         {
             return Task.FromResult(db.Set<ContasAReceber>().Where(e => e.CdEmpresa == IdEmpresa)
+                .Include(e => e.PagtosParciaisCrs)
                 .Include(p => p.CdClienteNavigation)
                 .AsQueryable());
         }
@@ -39,6 +40,7 @@ namespace GlobalErpData.Repository.PagedRepositories
                 EntityCache.AddOrUpdate(entity.GetId(), entity, UpdateCache);
 
                 return await db.Set<ContasAReceber>().Include(e => e.CdClienteNavigation)
+                    .Include(e => e.PagtosParciaisCrs)
                     .Include(e => e.HistoricoCaixa).ThenInclude(h => h.PlanoDeCaixa)
                     .FirstOrDefaultAsync(e => e.NrConta == entity.NrConta);
             }
@@ -59,6 +61,7 @@ namespace GlobalErpData.Repository.PagedRepositories
                 logger.LogInformation("Entity updated with ID: {Id}", id);
                 UpdateCache(id, entity);
                 return await db.Set<ContasAReceber>().Include(e => e.CdClienteNavigation)
+                    .Include(e => e.PagtosParciaisCrs)
                     .Include(e => e.HistoricoCaixa).ThenInclude(h => h.PlanoDeCaixa)
                     .FirstOrDefaultAsync(e => e.NrConta == id);
             }
@@ -88,6 +91,7 @@ namespace GlobalErpData.Repository.PagedRepositories
                 }
                 //return entities;
                 return await db.Set<ContasAReceber>().Include(e => e.CdClienteNavigation)
+                    .Include(e => e.PagtosParciaisCrs)
                     .Include(e => e.HistoricoCaixa).ThenInclude(h => h.PlanoDeCaixa)
                     .Where(e => entities.Select(x => x.NrConta).Contains(e.NrConta) && e.CdEmpresa == entities.First().CdEmpresa)
                     .ToListAsync();

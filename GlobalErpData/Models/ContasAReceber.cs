@@ -202,6 +202,14 @@ public partial class ContasAReceber : IIdentifiable<int>
     [InverseProperty("ContasARecebers")]
     public virtual Empresa CdEmpresaNavigation { get; set; } = null!;
 
+    [JsonPropertyName("possuiPagamentoParcial")]
+    [NotMapped]
+    public bool PossuiPagamentoParcial => PagtosParciaisCrs != null && PagtosParciaisCrs.Count > 0;
+    
+    [JsonPropertyName("valorRestante")]
+    [NotMapped]
+    public decimal ValorRestante => this.VlTotal - (this.VlPago ?? 0);
+
     [JsonIgnore]
     [ForeignKey("CdEmpresa, CdHistoricoCaixa, CdPlanoCaixa")]
     [InverseProperty("ContasARecebers")]
@@ -210,7 +218,7 @@ public partial class ContasAReceber : IIdentifiable<int>
     [GraphQLIgnore]
     public int GetId()
     {
-       return NrConta;
+        return NrConta;
     }
 
     [GraphQLIgnore]

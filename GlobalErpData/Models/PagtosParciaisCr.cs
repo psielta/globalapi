@@ -56,12 +56,12 @@ public partial class PagtosParciaisCr : IIdentifiable<int>
     [GraphQLIgnore]
     public int GetId()
     {
-        throw new NotImplementedException();
+        return this.Id;
     }
 
     [GraphQLIgnore]
     public string GetKeyName()
     {
-        throw new NotImplementedException();
+        return "Id";
     }
 }

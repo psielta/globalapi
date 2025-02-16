@@ -26,6 +26,7 @@ namespace GlobalErpData.Repository.PagedRepositories
             {
                 return Task.FromResult(db.Set<ContasAPagar>().Where(e => e.CdEmpresa == IdEmpresa)
                     .Include(e => e.Fornecedor)
+                    .Include(e=> e.PagtosParciaisCps)
                     .Include(e => e.HistoricoCaixa).ThenInclude(h => h.PlanoDeCaixa)
                     .AsQueryable());
             }
@@ -48,6 +49,7 @@ namespace GlobalErpData.Repository.PagedRepositories
                 EntityCache.AddOrUpdate(entity.GetId(), entity, UpdateCache);
 
                 return await db.Set<ContasAPagar>().Include(e => e.Fornecedor)
+                    .Include(e=> e.PagtosParciaisCps)
                     .Include(e => e.HistoricoCaixa).ThenInclude(h => h.PlanoDeCaixa)
                     .FirstOrDefaultAsync(e => e.Id == entity.Id);
             }
@@ -68,6 +70,7 @@ namespace GlobalErpData.Repository.PagedRepositories
                 logger.LogInformation("Entity updated with ID: {Id}", id);
                 UpdateCache(id, entity);
                 return await db.Set<ContasAPagar>().Include(e => e.Fornecedor)
+                    .Include(e=> e.PagtosParciaisCps)
                     .Include(e => e.HistoricoCaixa).ThenInclude(h => h.PlanoDeCaixa)
                     .FirstOrDefaultAsync(e => e.Id == id);
             }
@@ -97,6 +100,7 @@ namespace GlobalErpData.Repository.PagedRepositories
                 }
                 //return entities;
                 return await db.Set<ContasAPagar>().Include(e => e.Fornecedor)
+                    .Include(e=> e.PagtosParciaisCps)
                     .Include(e => e.HistoricoCaixa).ThenInclude(h => h.PlanoDeCaixa)
                     .Where(e => entities.Select(x => x.Id).Contains(e.Id) && e.CdEmpresa == entities.First().CdEmpresa)
                     .ToListAsync();

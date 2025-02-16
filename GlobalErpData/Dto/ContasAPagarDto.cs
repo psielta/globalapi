@@ -43,5 +43,10 @@ namespace GlobalErpData.Dto
         public int NumberOfPayments { get; set; }
         public int Type { get; set; }
         public int TypeRegister { get; set; }
+
+        public decimal VlPago { get; set; }
+        public bool PossuiPagamentoParcial { get; set; }
+            
+        public decimal ValorRestante { get; set; }
     }
 }

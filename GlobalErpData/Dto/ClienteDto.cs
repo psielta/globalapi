@@ -46,7 +46,9 @@ namespace GlobalErpData.Dto
         public int? TpRegime { get; set; }
         public bool ConsumidorFinal { get; set; }
         public string? Complemento { get; set; }
+        public bool PossuiPagamentoParcial { get; set; }
 
+        public decimal ValorRestante { get; set; }
 
     }
 

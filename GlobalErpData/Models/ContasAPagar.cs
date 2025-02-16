@@ -163,6 +163,18 @@ public partial class ContasAPagar : IIdentifiable<int>
     [NotMapped]
     public string NmHistoricoCaixa => HistoricoCaixa?.Descricao ?? "";
 
+    [JsonPropertyName("vlPago")]
+    [NotMapped]
+    public decimal VlPago => (PagtosParciaisCps != null && PagtosParciaisCps.Count > 0) ? PagtosParciaisCps.Sum(x=> x.ValorPago ?? 0) : 0;
+
+    [JsonPropertyName("possuiPagamentoParcial")]
+    [NotMapped]
+    public bool PossuiPagamentoParcial => PagtosParciaisCps != null && PagtosParciaisCps.Count > 0;
+
+    [JsonPropertyName("valorRestante")]
+    [NotMapped]
+    public decimal ValorRestante => this.VlTotal - ((PagtosParciaisCps != null && PagtosParciaisCps.Count > 0) ? PagtosParciaisCps.Sum(x => x.ValorPago ?? 0) : 0);
+
     [JsonIgnore]
     [InverseProperty("NrCpNavigation")]
     public virtual ICollection<LivroCaixa> LivroCaixas { get; set; } = new List<LivroCaixa>();
