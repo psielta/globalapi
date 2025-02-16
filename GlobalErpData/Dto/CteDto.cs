@@ -119,5 +119,7 @@ namespace GlobalErpData.Dto
         public string? NrCteReferenciado { get; set; }
         public string? RetemInss { get; set; }
         public int IdEmpresa { get; set; }
+        public string? TxtSit { get; set; }
+        public string? NmTomadorServico { get; set; }
     }
 }

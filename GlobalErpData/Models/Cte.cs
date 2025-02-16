@@ -429,6 +429,14 @@ public partial class Cte : IIdentifiable<int>
     [Column("id_empresa")]
     public int IdEmpresa { get; set; }
 
+    [JsonPropertyName("txtSit")]
+    [NotMapped]
+    public string? TxtSit { get; set; }    
+    
+    [JsonPropertyName("nmTomadorServico")]
+    [NotMapped]
+    public string? NmTomadorServico { get; set; }
+
     [JsonIgnore]
     [ForeignKey("IdEmpresa")]
     [InverseProperty("Ctes")]
