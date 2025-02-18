@@ -11,6 +11,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using GlobalLib.Dto;
+using GlobalErpData.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace GlobalAPINFe.Controllers
 {
@@ -19,10 +21,12 @@ namespace GlobalAPINFe.Controllers
     public class FeaturedController : GenericPagedControllerMultiKey<Featured, int, int, FeaturedDto>
     {
         private readonly IWebHostEnvironment _environment;
+        private readonly GlobalErpFiscalBaseContext _context;
 
-        public FeaturedController(IQueryRepositoryMultiKey<Featured, int, int, FeaturedDto> repo, ILogger<GenericPagedControllerMultiKey<Featured, int, int, FeaturedDto>> logger, IWebHostEnvironment environment) : base(repo, logger)
+        public FeaturedController(IQueryRepositoryMultiKey<Featured, int, int, FeaturedDto> repo, ILogger<GenericPagedControllerMultiKey<Featured, int, int, FeaturedDto>> logger, IWebHostEnvironment environment, GlobalErpFiscalBaseContext _context) : base(repo, logger)
         {
             _environment = environment;
+            this._context = _context;
         }
 
         // Sobrescrevendo os métodos herdados e adicionando os atributos [ProducesResponseType]
@@ -109,7 +113,9 @@ namespace GlobalAPINFe.Controllers
 
                 string relativePath = System.IO.Path.Combine("featured", dto.IdEmpresa.ToString(), dto.CategoryId.ToString(), fileName);
 
-                var existingFoto = await repo.RetrieveAsync(dto.IdEmpresa, dto.Id);
+                var existingFoto = await _context.Featureds.Where(f => f.IdEmpresa == dto.IdEmpresa && f.Id == dto.Id).FirstOrDefaultAsync();
+
+                //await repo.RetrieveAsync(dto.IdEmpresa, dto.Id);
 
                 if (existingFoto != null)
                 {
@@ -125,25 +131,15 @@ namespace GlobalAPINFe.Controllers
 
                     existingFoto.ImageSrc = relativePath;
                     existingFoto.ImageAlt = dto.ImageAlt;
+                    existingFoto.Name = dto.Name;
                     existingFoto.Excluiu = false;
 
-                    FeaturedDto uploadedFeaturedDto = new FeaturedDto()
-                    {
-                        Id = existingFoto.Id,
-                        IdEmpresa = existingFoto.IdEmpresa,
-                        CategoryId = existingFoto.CategoryId,
-                        ImageSrc = existingFoto.ImageSrc,
-                        ImageAlt = existingFoto.ImageAlt,
-                        Excluiu = existingFoto.Excluiu,
-                        Name = existingFoto.Name,
-                        Href = string.Empty
-                    };
-
-                    await repo.UpdateAsync(dto.IdEmpresa, dto.Id, uploadedFeaturedDto);
+                    //await repo.UpdateAsync(dto.IdEmpresa, dto.Id, uploadedFeaturedDto);
+                    await _context.SaveChangesAsync();
                 }
                 else
                 {
-                    FeaturedDto uploadedFeaturedDto = new FeaturedDto()
+                    Featured uploadedFeaturedDto = new Featured()
                     {
                         Id = dto.Id,
                         IdEmpresa = dto.IdEmpresa,
@@ -154,7 +150,9 @@ namespace GlobalAPINFe.Controllers
                         Href = string.Empty,
                         CategoryId = dto.CategoryId
                     };
-                    await repo.CreateAsync(uploadedFeaturedDto);
+                    //await repo.CreateAsync(uploadedFeaturedDto);
+                    _context.Featureds.Add(uploadedFeaturedDto);
+                    await _context.SaveChangesAsync();
                 }
 
                 return Ok("Foto enviada com sucesso.");
