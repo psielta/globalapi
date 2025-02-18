@@ -10,6 +10,8 @@ using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Threading.Tasks;
 using System;
+using GlobalErpData.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace GlobalAPINFe.Controllers
 {
@@ -17,11 +19,13 @@ namespace GlobalAPINFe.Controllers
     [ApiController]
     public class FotosProdutoController : GenericPagedControllerMultiKey<FotosProduto, int, int, FotosProdutoDto>
     {
+        private readonly GlobalErpFiscalBaseContext _context;
         private readonly IWebHostEnvironment _environment;
 
-        public FotosProdutoController(IQueryRepositoryMultiKey<FotosProduto, int, int, FotosProdutoDto> repo, ILogger<GenericPagedControllerMultiKey<FotosProduto, int, int, FotosProdutoDto>> logger, IWebHostEnvironment environment) : base(repo, logger)
+        public FotosProdutoController(IQueryRepositoryMultiKey<FotosProduto, int, int, FotosProdutoDto> repo, ILogger<GenericPagedControllerMultiKey<FotosProduto, int, int, FotosProdutoDto>> logger, IWebHostEnvironment environment, GlobalErpFiscalBaseContext _context) : base(repo, logger)
         {
             _environment = environment;
+            this._context = _context;
         }
 
         // Sobrescrevendo os métodos herdados e adicionando os atributos [ProducesResponseType]
@@ -96,7 +100,9 @@ namespace GlobalAPINFe.Controllers
 
                 string relativePath = System.IO.Path.Combine("imagens", dto.IdEmpresa.ToString(), dto.CdProduto.ToString(), fileName);
 
-                var existingFoto = await repo.RetrieveAsync(dto.IdEmpresa, dto.Id);
+                var existingFoto = 
+                    await this._context.FotosProdutos.Where(f => f.IdEmpresa == dto.IdEmpresa && f.Id == dto.Id).FirstOrDefaultAsync();
+                //await repo.RetrieveAsync(dto.IdEmpresa, dto.Id);
 
                 if (existingFoto != null)
                 {
@@ -110,21 +116,12 @@ namespace GlobalAPINFe.Controllers
                     existingFoto.DescricaoFoto = dto.DescricaoFoto;
                     existingFoto.Excluiu = false;
 
-                    FotosProdutoDto fotosProdutoDto = new FotosProdutoDto()
-                    {
-                        Id = existingFoto.Id,
-                        IdEmpresa = existingFoto.IdEmpresa,
-                        CdProduto = existingFoto.CdProduto,
-                        CaminhoFoto = existingFoto.CaminhoFoto,
-                        DescricaoFoto = existingFoto.DescricaoFoto,
-                        Excluiu = existingFoto.Excluiu
-                    };
-
-                    await repo.UpdateAsync(dto.IdEmpresa, dto.Id, fotosProdutoDto);
+                    //await repo.UpdateAsync(dto.IdEmpresa, dto.Id, fotosProdutoDto);
+                    await _context.SaveChangesAsync();
                 }
                 else
                 {
-                    FotosProdutoDto novaFoto = new FotosProdutoDto
+                    FotosProduto novaFoto = new FotosProduto
                     {
                         Id = dto.Id,
                         IdEmpresa = dto.IdEmpresa,
@@ -133,7 +130,9 @@ namespace GlobalAPINFe.Controllers
                         DescricaoFoto = dto.DescricaoFoto,
                         Excluiu = false
                     };
-                    await repo.CreateAsync(novaFoto);
+                    //await repo.CreateAsync(novaFoto);
+                    _context.FotosProdutos.Add(novaFoto);
+                    await _context.SaveChangesAsync();
                 }
 
                 return Ok("Foto enviada com sucesso.");
