@@ -15,6 +15,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using X.PagedList.Extensions;
 using GlobalLib.Dto;
+using Microsoft.EntityFrameworkCore;
+using GlobalErpData.Data;
 
 namespace GlobalAPINFe.Controllers
 {
@@ -23,10 +25,12 @@ namespace GlobalAPINFe.Controllers
     public class ClienteController : GenericPagedController<Cliente, int, ClienteDto>
     {
         private readonly IMapper mapper;
+        private readonly GlobalErpFiscalBaseContext _context;
 
-        public ClienteController(IQueryRepository<Cliente, int, ClienteDto> repo, ILogger<GenericPagedController<Cliente, int, ClienteDto>> logger, IMapper mapper) : base(repo, logger)
+        public ClienteController(IQueryRepository<Cliente, int, ClienteDto> repo, ILogger<GenericPagedController<Cliente, int, ClienteDto>> logger, IMapper mapper, GlobalErpFiscalBaseContext context) : base(repo, logger)
         {
             this.mapper = mapper;
+            _context = context;
         }
 
         // Sobrescrevendo os métodos herdados e adicionando os atributos [ProducesResponseType]
@@ -262,6 +266,90 @@ namespace GlobalAPINFe.Controllers
                 return NotFound("clientes não encontrada.");
             }
             return Ok(filter);
+        }
+
+        [HttpGet("SearchCliente")]
+        [ProducesResponseType(typeof(IEnumerable<Cliente>), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(400)]
+        public async Task<ActionResult<IEnumerable<Cliente>>> SearchCliente(int idEmpresa, string search)
+        {
+            if (string.IsNullOrWhiteSpace(search))
+            {
+                return BadRequest("A string de busca deve ser informada.");
+            }
+
+            // Remove caracteres não numéricos para identificar se a busca é por CPF/CNPJ ou código
+            var somenteDigitos = new string(search.Where(char.IsDigit).ToArray());
+            string sqlQuery;
+            object[] parametros;
+
+            // Caso a string contenha dígitos
+            if (!string.IsNullOrEmpty(somenteDigitos))
+            {
+                if (somenteDigitos.Length == 11)
+                {
+                    // Possivelmente um CPF
+                    sqlQuery = @"
+                        SELECT * FROM cliente 
+                        WHERE id_empresa = {0} 
+                          AND ativo = 'S'
+                          AND REPLACE(REPLACE(REPLACE(nr_doc, '.', ''), '-', ''), '/', '') LIKE {1}";
+                    parametros = new object[] { idEmpresa, $"%{somenteDigitos}%" };
+                }
+                else if (somenteDigitos.Length == 14)
+                {
+                    // Possivelmente um CNPJ
+                    sqlQuery = @"
+                        SELECT * FROM cliente 
+                        WHERE id_empresa = {0} 
+                          AND ativo = 'S'
+                          AND REPLACE(REPLACE(REPLACE(REPLACE(nr_doc, '.', ''), '-', ''), '/', ''), ' ', '') LIKE {1}";
+                    parametros = new object[] { idEmpresa, $"%{somenteDigitos}%" };
+                }
+                else if (int.TryParse(somenteDigitos, out int idCliente))
+                {
+                    // Se for numérico mas não corresponder a CPF/CNPJ, vamos buscar por id
+                    sqlQuery = @"
+                        SELECT * FROM cliente 
+                        WHERE id_empresa = {0} 
+                          AND ativo = 'S'
+                          AND id = {1}";
+                    parametros = new object[] { idEmpresa, idCliente };
+                }
+                else
+                {
+                    // Caso atinja essa condição (raro) – busca por nome
+                    sqlQuery = @"
+                        SELECT * FROM cliente 
+                        WHERE id_empresa = {0} 
+                          AND ativo = 'S'
+                          AND UPPER(TRIM(nm_cliente)) LIKE {1}";
+                    parametros = new object[] { idEmpresa, $"%{search.Trim().ToUpper()}%" };
+                }
+            }
+            else
+            {
+                // Se não houver dígitos, vamos buscar por nome
+                sqlQuery = @"
+                    SELECT * FROM cliente 
+                    WHERE id_empresa = {0} 
+                      AND ativo = 'S'
+                      AND UPPER(TRIM(nm_cliente)) LIKE {1}";
+                parametros = new object[] { idEmpresa, $"%{search.Trim().ToUpper()}%" };
+            }
+
+            // Executa a query utilizando FromSqlRaw (atenção à injeção de parâmetros)
+            var clientes = await _context.Clientes
+                .FromSqlRaw(sqlQuery, parametros)
+                .ToListAsync();
+
+            if (clientes == null || clientes.Count == 0)
+            {
+                return NotFound("Nenhum cliente encontrado para a busca informada.");
+            }
+
+            return Ok(clientes);
         }
     }
 }

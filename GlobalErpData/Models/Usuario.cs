@@ -77,22 +77,6 @@ public partial class Usuario : IIdentifiable<string>
     [InverseProperty("IdUsuarioNavigation")]
     public virtual ICollection<UsuarioPermissao> UsuarioPermissaos { get; set; } = new List<UsuarioPermissao>();
 
-    [JsonIgnore]
-    [InverseProperty("IdUsuarioNavigation")]
-    public virtual ICollection<NfceAberturaCaixa> NfceAberturaCaixas { get; set; } = new List<NfceAberturaCaixa>();
-
-    [JsonIgnore]
-    [InverseProperty("IdUsuarioNavigation")]
-    public virtual ICollection<NfceSaida> NfceSaida { get; set; } = new List<NfceSaida>();
-
-    [JsonIgnore]
-    [InverseProperty("IdUsuarioNavigation")]
-    public virtual ICollection<NfceSangriaCaixa> NfceSangriaCaixas { get; set; } = new List<NfceSangriaCaixa>();
-
-    [JsonIgnore]
-    [InverseProperty("IdUsuarioNavigation")]
-    public virtual ICollection<NfceSuprimentoCaixa> NfceSuprimentoCaixas { get; set; } = new List<NfceSuprimentoCaixa>();
-
     [GraphQLIgnore]
     public string GetId()
     {

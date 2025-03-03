@@ -116,9 +116,6 @@ public partial class Cliente : IIdentifiable<int>
     [InverseProperty("Clientes")]
     public virtual Usuario IdUsuarioCadNavigation { get; set; } = null!;
 
-    [JsonIgnore]
-    [InverseProperty("ClienteNavigation")]
-    public virtual ICollection<NfceSaida> NfceSaida { get; set; } = new List<NfceSaida>();
 
     [GraphQLIgnore]
     public int GetId()
