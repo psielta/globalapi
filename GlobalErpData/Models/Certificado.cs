@@ -35,6 +35,11 @@ public partial class Certificado: IIdentifiable<int>
 
     [Column("certificado")]
     public string? Certificado1 { get; set; }
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+    [Column("integrated")]
+    public int? Integrated { get; set; }
 
     /// <summary>
     /// H - Homologacao

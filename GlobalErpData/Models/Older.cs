@@ -103,6 +103,10 @@ public partial class Older : IIdentifiable<Guid>
     [Column("integrated")]
     public bool? Integrated { get; set; }
 
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+
     [JsonIgnore]
     [ForeignKey("IdEmpresa")]
     [InverseProperty("Olders")]

@@ -28,6 +28,12 @@ public partial class PlanoEstoque : IIdentifiable<int>
     [Column("e_fiscal")]
     public bool? EFiscal { get; set; }
 
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+    [Column("integrated")]
+    public int? Integrated { get; set; }
+
     [JsonIgnore]
     [ForeignKey("CdEmpresa")]
     [InverseProperty("PlanoEstoques")]

@@ -39,6 +39,12 @@ public partial class Category : IIdentifiable<int>
     [InverseProperty("Category")]
     public virtual ICollection<Section> Sections { get; set; } = new List<Section>();
 
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+    [Column("integrated")]
+    public int? Integrated { get; set; }
+
     [GraphQLIgnore]
     public int GetId()
     {

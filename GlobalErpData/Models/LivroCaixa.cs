@@ -46,6 +46,12 @@ public partial class LivroCaixa : IIdentifiable<long>
     [StringLength(25)]
     public string CdPlano { get; set; } = null!;
 
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+    [Column("integrated")]
+    public int? Integrated { get; set; }
+
     [JsonIgnore]
     [ForeignKey("CdEmpresa")]
     [InverseProperty("LivroCaixas")]

@@ -26,6 +26,12 @@ public partial class ProtocoloEstadoNcm : IIdentifiable<int>
     [StringLength(62)]
     public string Nome { get; set; } = null!;
 
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+    [Column("integrated")]
+    public int? Integrated { get; set; }
+
     [Column("uf")]
     [StringLength(2)]
     public string Uf { get; set; } = null!;

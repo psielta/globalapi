@@ -28,6 +28,12 @@ public partial class Impdupnfe: IIdentifiable<string>
     [StringLength(50)]
     public string? Valor { get; set; }
 
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+    [Column("integrated")]
+    public int? Integrated { get; set; }
+
     [GraphQLIgnore]
     public string GetId()
     {

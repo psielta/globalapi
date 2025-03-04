@@ -44,6 +44,12 @@ public partial class TabelaAnp
     [StringLength(5)]
     public string? UnidadeMedidaSimp { get; set; }
 
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+    [Column("integrated")]
+    public int? Integrated { get; set; }
+
     [Column("ramo")]
     [StringLength(50)]
     public string? Ramo { get; set; }

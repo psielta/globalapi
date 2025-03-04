@@ -19,7 +19,11 @@ public partial class Cidade : IIdentifiable<string>
     [Column("nm_cidade")]
     [StringLength(150)]
     public string NmCidade { get; set; } = null!;
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
 
+    [Column("integrated")]
+    public int? Integrated { get; set; }
     [Column("uf")]
     [StringLength(2)]
     public string Uf { get; set; } = null!;
@@ -38,6 +42,10 @@ public partial class Cidade : IIdentifiable<string>
     [JsonIgnore]
     [InverseProperty("CdCidadeNavigation")]
     public virtual ICollection<Transportadora> Transportadoras { get; set; } = new List<Transportadora>();
+
+    [JsonIgnore]
+    [InverseProperty("CidadeNavigation")]
+    public virtual ICollection<Funcionario> Funcionarios { get; set; } = new List<Funcionario>();
 
     [GraphQLIgnore]
     public string GetId()

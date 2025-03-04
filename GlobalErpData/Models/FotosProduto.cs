@@ -32,7 +32,11 @@ public partial class FotosProduto : IIdentifiableMultiKey<int, int>
     [Column("descricao_foto")]
     [StringLength(255)]
     public string? DescricaoFoto { get; set; }
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
 
+    [Column("integrated")]
+    public int? Integrated { get; set; }
     [JsonIgnore]
     [ForeignKey("IdEmpresa")]
     [InverseProperty("FotosProdutos")]

@@ -18,6 +18,13 @@ public partial class TipoNf : IIdentifiable<string>
     [Column("nm_tipo_nf")]
     [StringLength(62)]
     public string NmTipoNf { get; set; } = null!;
+
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+    [Column("integrated")]
+    public int? Integrated { get; set; }
+
     [GraphQLIgnore]
     public string GetId()
     {

@@ -22,6 +22,14 @@ public partial class UsuarioPermissao : IIdentifiable<int>
 
     [Column("id_permissao")]
     public int IdPermissao { get; set; }
+
+
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+    [Column("integrated")]
+    public int? Integrated { get; set; }
+
     [JsonIgnore]
     [ForeignKey("IdPermissao")]
     [InverseProperty("UsuarioPermissaos")]

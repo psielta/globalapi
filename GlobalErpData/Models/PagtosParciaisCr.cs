@@ -43,6 +43,12 @@ public partial class PagtosParciaisCr : IIdentifiable<int>
     [Column("pdf_recebimento")]
     public byte[]? PdfRecebimento { get; set; }
 
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+    [Column("integrated")]
+    public int? Integrated { get; set; }
+
     [JsonIgnore]
     [ForeignKey("CdEmpresa")]
     [InverseProperty("PagtosParciaisCrs")]

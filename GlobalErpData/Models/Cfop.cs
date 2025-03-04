@@ -27,7 +27,11 @@ public partial class Cfop : IIdentifiable<string>
     [Column("desc_nfe")]
     [StringLength(62)]
     public string? DescNfe { get; set; }
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
 
+    [Column("integrated")]
+    public int? Integrated { get; set; }
     public string GetId()
     {
         return CdCfop;

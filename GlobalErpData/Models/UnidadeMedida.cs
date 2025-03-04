@@ -25,6 +25,14 @@ public partial class UnidadeMedida: IIdentifiable<int>
 
     [Column("id_empresa")]
     public int IdEmpresa { get; set; }
+
+
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+    [Column("integrated")]
+    public int? Integrated { get; set; }
+
     [JsonIgnore]
     [ForeignKey("IdEmpresa")]
     [InverseProperty("UnidadeMedida")]

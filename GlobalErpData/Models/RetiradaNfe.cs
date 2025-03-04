@@ -25,6 +25,12 @@ public partial class RetiradaNfe : IIdentifiable<int>
     [StringLength(20)]
     public string? Cnpjcpf { get; set; }
 
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+    [Column("integrated")]
+    public int? Integrated { get; set; }
+
     [Column("ie")]
     [StringLength(20)]
     public string? Ie { get; set; }

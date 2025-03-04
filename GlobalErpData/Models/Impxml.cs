@@ -32,6 +32,12 @@ public partial class Impxml : IIdentifiableMultiKey<int, string>
     [InverseProperty("Impxmls")]
     public virtual Empresa IdEmpresaNavigation { get; set; } = null!;
 
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+    [Column("integrated")]
+    public int? Integrated { get; set; }
+
     [GraphQLIgnore]
     public (int, string) GetId()
     {

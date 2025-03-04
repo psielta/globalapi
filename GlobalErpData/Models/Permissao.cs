@@ -27,6 +27,12 @@ public partial class Permissao : IIdentifiable<int>
     [StringLength(255)]
     public string? Descricao { get; set; }
 
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+    [Column("integrated")]
+    public int? Integrated { get; set; }
+
     [JsonIgnore]
     [InverseProperty("IdPermissaoNavigation")]
     public virtual ICollection<UsuarioPermissao> UsuarioPermissaos { get; set; } = new List<UsuarioPermissao>();

@@ -35,6 +35,12 @@ public partial class HistoricoCaixa : IIdentifiable<int>
     [StringLength(62)]
     public string Descricao { get; set; } = null!;
 
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+    [Column("integrated")]
+    public int? Integrated { get; set; }
+
     [JsonIgnore]
     [ForeignKey("CdEmpresa")]
     [InverseProperty("HistoricoCaixas")]

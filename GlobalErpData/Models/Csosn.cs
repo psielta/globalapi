@@ -18,7 +18,11 @@ public partial class Csosn : IIdentifiable<string>
     [Column("descricao")]
     [StringLength(512)]
     public string? Descricao { get; set; }
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
 
+    [Column("integrated")]
+    public int? Integrated { get; set; }
     public string GetId()
     {
         return Codigo;

@@ -30,6 +30,12 @@ public partial class Ncm : IIdentifiable<int>
     [StringLength(255)]
     public string? Descricao { get; set; }
 
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+    [Column("integrated")]
+    public int? Integrated { get; set; }
+
     [GraphQLIgnore]
     public int GetId()
     {

@@ -25,6 +25,12 @@ public partial class SaldoEstoque : IIdentifiable<int>
     [Column("cd_plano")]
     public int CdPlano { get; set; }
 
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+    [Column("integrated")]
+    public int? Integrated { get; set; }
+
     [Column("quant_e")]
     [Precision(18, 4)]
     public decimal? QuantE { get; set; }

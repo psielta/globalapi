@@ -71,7 +71,11 @@ public partial class EntregaNfe : IIdentifiable<int>
     [Column("email")]
     [StringLength(255)]
     public string? Email { get; set; }
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
 
+    [Column("integrated")]
+    public int? Integrated { get; set; }
     [JsonIgnore]
     [ForeignKey("IdCliente")]
     [InverseProperty("EntregaNves")]

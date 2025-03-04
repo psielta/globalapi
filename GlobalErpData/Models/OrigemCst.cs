@@ -19,6 +19,12 @@ public partial class OrigemCst : IIdentifiable<string>
     [StringLength(256)]
     public string Nome { get; set; } = null!;
 
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+    [Column("integrated")]
+    public int? Integrated { get; set; }
+
     public string GetId()
     {
         return Codigo;

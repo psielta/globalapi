@@ -25,7 +25,11 @@ public partial class CfopCsosnV2 : IIdentifiable<int>
     [Column("csosn")]
     [StringLength(10)]
     public string Csosn { get; set; } = null!;
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
 
+    [Column("integrated")]
+    public int? Integrated { get; set; }
     [GraphQLIgnore]
     [ForeignKey("IdEmpresa")]
     [InverseProperty("CfopCsosnV2s")]

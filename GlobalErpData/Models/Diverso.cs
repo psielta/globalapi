@@ -44,4 +44,9 @@ public partial class Diverso
     [Column("observacao")]
     [StringLength(16384)]
     public string? Observacao { get; set; }
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+    [Column("integrated")]
+    public int? Integrated { get; set; }
 }

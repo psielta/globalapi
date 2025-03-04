@@ -79,7 +79,11 @@ public partial class FormaPagt : IIdentifiable<int>
     [Column("integrado")]
     [StringLength(1)]
     public string? Integrado { get; set; }
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
 
+    [Column("integrated")]
+    public int? Integrated { get; set; }
     [JsonIgnore]
     [ForeignKey("CdEmpresa")]
     [InverseProperty("FormaPagts")]

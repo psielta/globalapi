@@ -108,6 +108,9 @@ builder.Services.AddScoped<IRepositoryDto<Imptotalnfe, string, ImptotalnfeDto>, 
 builder.Services.AddScoped<IQueryRepositoryMultiKey<Impitensnfe, string, string, ImpitensnfeDto>, ImpitensnfeRepository>();
 builder.Services.AddScoped<IQueryRepositoryMultiKey<ConfiguracoesEmpresa, int, string, ConfiguracoesEmpresaDto>, ConfiguracoesEmpresaRepository>();
 builder.Services.AddScoped<IQueryRepositoryMultiKey<ConfiguracoesUsuario, int, string, ConfiguracoesUsuarioDto>, ConfiguracoesUsuarioRepository>();
+builder.Services.AddScoped<IQueryRepositoryMultiKey<UsuarioFuncionario, int, string, UsuarioFuncionarioDto>, UsuarioFuncionarioRepository>();
+builder.Services.AddScoped<IQueryRepositoryMultiKey<Vendedor, int, int, VendedorDto>, VendedorRepository>();
+builder.Services.AddScoped<IQueryRepositoryMultiKey<Funcionario, int, int, FuncionarioDto>, FuncionarioRepository>();
 builder.Services.AddScoped<IQueryRepository<ProdutosForn, int, ProdutosFornDto>, ProdutosFornRepository>();
 builder.Services.AddScoped<IQueryRepository<ProdutoEntradum, int, ProdutoEntradaDto>, ProdutoEntradaRepository>();
 builder.Services.AddScoped<IQueryRepositoryMultiKey<Entrada, int, int, EntradaDto>, EntradaPagedRepository>();

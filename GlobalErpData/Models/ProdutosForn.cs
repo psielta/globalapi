@@ -22,6 +22,12 @@ public partial class ProdutosForn : IIdentifiable<int>
     [Column("cd_forn")]
     public int CdForn { get; set; }
 
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+    [Column("integrated")]
+    public int? Integrated { get; set; }
+
     [Column("id_produto_externo")]
     [StringLength(62)]
     public string IdProdutoExterno { get; set; } = null!;

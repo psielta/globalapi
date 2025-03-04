@@ -47,6 +47,12 @@ public partial class Ibpt : IIdentifiable<int>
     [Precision(18, 2)]
     public decimal? Aliqmunicipal { get; set; }
 
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+    [Column("integrated")]
+    public int? Integrated { get; set; }
+
     [GraphQLIgnore]
     public int GetId()
     {

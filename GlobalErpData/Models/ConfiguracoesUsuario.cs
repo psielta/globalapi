@@ -28,7 +28,11 @@ public partial class ConfiguracoesUsuario : IIdentifiableMultiKey<int, string>
     [Column("valor_3")]
     [StringLength(16384)]
     public string? Valor3 { get; set; }
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
 
+    [Column("integrated")]
+    public int? Integrated { get; set; }
     [Key]
     [Column("id_usuario")]
     public int IdUsuario { get; set; }

@@ -25,6 +25,12 @@ public partial class ItemDetail : IIdentifiable<int>
     [StringLength(255)]
     public string Value { get; set; } = null!;
 
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+    [Column("integrated")]
+    public int? Integrated { get; set; }
+
     [JsonIgnore]
     [ForeignKey("IdEmpresa")]
     [InverseProperty("ItemDetails")]

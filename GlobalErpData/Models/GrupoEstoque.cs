@@ -22,6 +22,12 @@ public partial class GrupoEstoque : IIdentifiable<int>
     [Column("cd_empresa")]
     public int CdEmpresa { get; set; }
 
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+    [Column("integrated")]
+    public int? Integrated { get; set; }
+
     [JsonIgnore]
     [ForeignKey("CdEmpresa")]
     [InverseProperty("GrupoEstoques")]

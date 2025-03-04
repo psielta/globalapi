@@ -27,7 +27,11 @@ public partial class CestNcm : IIdentifiable<int>
     [Column("descricao")]
     [StringLength(16384)]
     public string? Descricao { get; set; }
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
 
+    [Column("integrated")]
+    public int? Integrated { get; set; }
     [GraphQLIgnore]
     public int GetId()
     {

@@ -60,6 +60,12 @@ public partial class Usuario : IIdentifiable<string>
     [NotMapped]
     public bool NeedPasswordHashUpdate { get; set; } = false;
 
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+    [Column("integrated")]
+    public int? Integrated { get; set; }
+
     [JsonIgnore]
     [ForeignKey("CdEmpresa")]
     [InverseProperty("Usuarios")]
@@ -76,6 +82,10 @@ public partial class Usuario : IIdentifiable<string>
     [JsonIgnore]
     [InverseProperty("IdUsuarioNavigation")]
     public virtual ICollection<UsuarioPermissao> UsuarioPermissaos { get; set; } = new List<UsuarioPermissao>();
+
+    [JsonIgnore]
+    [InverseProperty("NmUsuarioNavigation")]
+    public virtual ICollection<UsuarioFuncionario> UsuarioFuncionarios { get; set; } = new List<UsuarioFuncionario>();
 
     [GraphQLIgnore]
     public string GetId()

@@ -22,7 +22,11 @@ public partial class Cliente : IIdentifiable<int>
     [Column("ativo")]
     [StringLength(1)]
     public string? Ativo { get; set; }
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
 
+    [Column("integrated")]
+    public int? Integrated { get; set; }
     [Column("nm_endereco")]
     [StringLength(256)]
     public string? NmEndereco { get; set; }

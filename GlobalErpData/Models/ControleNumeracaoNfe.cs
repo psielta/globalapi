@@ -27,7 +27,11 @@ public partial class ControleNumeracaoNfe : IIdentifiable<int>
 
     [Column("padrao")]
     public bool Padrao { get; set; }
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
 
+    [Column("integrated")]
+    public int? Integrated { get; set; }
     [JsonIgnore]
     [ForeignKey("IdEmpresa")]
     [InverseProperty("ControleNumeracaoNfe")]

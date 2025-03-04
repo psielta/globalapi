@@ -42,6 +42,12 @@ public partial class OlderItem : IIdentifiable<Guid>
     [Column("cd_produto")]
     public int CdProduto { get; set; }
 
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+    [Column("integrated")]
+    public int? Integrated { get; set; }
+
     [JsonIgnore]
     [ForeignKey("OlderId")]
     [InverseProperty("OlderItems")]

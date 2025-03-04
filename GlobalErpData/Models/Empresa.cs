@@ -106,7 +106,11 @@ public partial class Empresa : IIdentifiable<int>
     [Column("ultimo_nsu")]
     [StringLength(255)]
     public string? UltimoNsu { get; set; }
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
 
+    [Column("integrated")]
+    public int? Integrated { get; set; }
     [JsonIgnore]
     [ForeignKey("CdCidade")]
     [InverseProperty("Empresas")]
@@ -141,6 +145,9 @@ public partial class Empresa : IIdentifiable<int>
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<CteDocAnterior> CteDocAnteriors { get; set; } = new List<CteDocAnterior>();
     [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<Funcionario> Funcionarios { get; set; } = new List<Funcionario>();
+    [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<CteDuplicatum> CteDuplicata { get; set; } = new List<CteDuplicatum>();
     [JsonIgnore]
@@ -158,6 +165,12 @@ public partial class Empresa : IIdentifiable<int>
     [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<Fornecedor> Fornecedors { get; set; } = new List<Fornecedor>();
+    [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<Vendedor> Vendedors { get; set; } = new List<Vendedor>();
+    [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<UsuarioFuncionario> UsuarioFuncionarios { get; set; } = new List<UsuarioFuncionario>();
     [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<CteOrdemColetum> CteOrdemColeta { get; set; } = new List<CteOrdemColetum>();

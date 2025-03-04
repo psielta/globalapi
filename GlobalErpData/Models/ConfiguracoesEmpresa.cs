@@ -60,7 +60,11 @@ public partial class ConfiguracoesEmpresa : IIdentifiableMultiKey<int, string>
     [Column("valor_10")]
     [StringLength(16384)]
     public string? Valor10 { get; set; }
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
 
+    [Column("integrated")]
+    public int? Integrated { get; set; }
     [JsonIgnore]
     [ForeignKey("CdEmpresa")]
     [InverseProperty("ConfiguracoesEmpresas")]

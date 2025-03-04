@@ -42,6 +42,12 @@ public partial class PerfilLoja : IIdentifiable<int>
     [StringLength(512)]
     public string? LinkWhatsapp { get; set; }
 
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+    [Column("integrated")]
+    public int? Integrated { get; set; }
+
     [JsonIgnore]
     [ForeignKey("IdEmpresa")]
     [InverseProperty("PerfilLojas")]

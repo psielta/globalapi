@@ -66,7 +66,11 @@ public partial class ContaDoCaixa : IIdentifiable<int>
     [ForeignKey("CdEmpresa")]
     [InverseProperty("ContaDoCaixas")]
     public virtual Empresa CdEmpresaNavigation { get; set; } = null!;
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
 
+    [Column("integrated")]
+    public int? Integrated { get; set; }
     [JsonIgnore]
     [InverseProperty("NrContaNavigation")]
     public virtual ICollection<LivroCaixa> LivroCaixas { get; set; } = new List<LivroCaixa>();

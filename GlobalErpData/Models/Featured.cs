@@ -41,7 +41,11 @@ public partial class Featured : IIdentifiableMultiKey<int, int>
 
     [Column("excluiu")]
     public bool? Excluiu { get; set; }
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
 
+    [Column("integrated")]
+    public int? Integrated { get; set; }
     [JsonIgnore]
     [ForeignKey("CategoryId")]
     [InverseProperty("Featureds")]

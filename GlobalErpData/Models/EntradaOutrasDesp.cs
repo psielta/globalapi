@@ -90,7 +90,11 @@ public partial class EntradaOutrasDesp : IIdentifiable<int>
     [Column("cd_cidade_destino")]
     [StringLength(10)]
     public string? CdCidadeDestino { get; set; }
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
 
+    [Column("integrated")]
+    public int? Integrated { get; set; }
     [JsonIgnore]
     [ForeignKey("CdEmpresa")]
     [InverseProperty("EntradaOutrasDesps")]

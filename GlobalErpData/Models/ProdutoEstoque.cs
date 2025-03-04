@@ -37,6 +37,12 @@ public partial class ProdutoEstoque : IIdentifiable<int>, IIdentifiableMultiKey<
     [StringLength(2)]
     public string? CodEspecie { get; set; }
 
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+    [Column("integrated")]
+    public int? Integrated { get; set; }
+
     [Column("lanc_livro")]
     [StringLength(1)]
     public string LancLivro { get; set; } = null!;

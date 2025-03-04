@@ -80,6 +80,12 @@ public partial class Transportadora : IIdentifiableMultiKey<int, int>
     [NotMapped]
     public string Uf => CdCidadeNavigation?.Uf ?? string.Empty;
 
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+    [Column("integrated")]
+    public int? Integrated { get; set; }
+
     [JsonIgnore]
     [ForeignKey("CdCidade")]
     [InverseProperty("Transportadoras")]

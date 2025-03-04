@@ -20,6 +20,9 @@ public partial class GlobalErpFiscalBaseContext : DbContext
     public virtual DbSet<Category> Categories { get; set; }
     public virtual DbSet<TabelaAnp> TabelaAnps { get; set; }
     public virtual DbSet<DistribuicaoDfe> DistribuicaoDfes { get; set; }
+    public virtual DbSet<Funcionario> Funcionarios { get; set; }
+    public virtual DbSet<UsuarioFuncionario> UsuarioFuncionarios { get; set; }
+    public virtual DbSet<Vendedor> Vendedors { get; set; }
 
     public virtual DbSet<Certificado> Certificados { get; set; }
 
@@ -246,6 +249,9 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("category_pkey");
 
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
+
             entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.Categories)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("category_fk");
@@ -255,6 +261,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("certificados_pkey");
 
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
             entity.Property(e => e.Tipo)
                 .HasDefaultValueSql("'H'::character varying")
                 .HasComment("H - Homologacao\r\nP - Producao");
@@ -267,6 +275,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasKey(e => e.Id).HasName("cest_ncm_pkey");
 
             entity.Property(e => e.Descricao).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
         });
 
         modelBuilder.Entity<Cfop>(entity =>
@@ -275,12 +285,17 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
             entity.Property(e => e.DescNfe).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.Descricao).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
             entity.Property(e => e.TipoCfop).HasDefaultValueSql("''::character varying");
         });
 
         modelBuilder.Entity<CfopCsosnV2>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("cfop_csosn_pkey");
+
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
             entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.CfopCsosnV2s)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -293,6 +308,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
             entity.Property(e => e.CfopDentro).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.CfopFora).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
             entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.CfopImportacaos)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -303,6 +320,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         {
             entity.HasKey(e => e.CdCidade).HasName("cidade_pkey");
 
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
             entity.Property(e => e.Uf).HasDefaultValueSql("'XX'::character varying");
         });
 
@@ -316,6 +335,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.DtCadastro).HasDefaultValueSql("('now'::text)::date");
             entity.Property(e => e.EMail).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.IdCteAntigo).HasDefaultValueSql("'-1'::integer");
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
             entity.Property(e => e.Mva).HasDefaultValue(false);
             entity.Property(e => e.NmBairro).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.NmEndereco).HasDefaultValueSql("''::character varying");
@@ -346,6 +367,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.ConexaoSegura).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.EMailCopia).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.EnviaAposEmitir).HasDefaultValue(false);
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
             entity.Property(e => e.Ssl).HasDefaultValueSql("'N'::character varying");
             entity.Property(e => e.Tsl).HasDefaultValueSql("'N'::character varying");
             entity.Property(e => e.TxtPadrao).HasDefaultValueSql("''::text");
@@ -359,6 +382,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         {
             entity.HasKey(e => new { e.Chave, e.CdEmpresa }).HasName("configuracoes_empresa_idx");
 
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
             entity.Property(e => e.Valor1).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.Valor2).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.Valor3).HasDefaultValueSql("''::character varying");
@@ -370,6 +395,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         {
             entity.HasKey(e => new { e.Chave, e.IdUsuario }).HasName("configuracoes_usuario_idx");
 
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
             entity.Property(e => e.Valor1).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.Valor2).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.Valor3).HasDefaultValueSql("''::character varying");
@@ -384,6 +411,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("conta_do_caixa_pkey");
 
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
             entity.Property(e => e.LimiteEspecial).HasDefaultValueSql("0");
             entity.Property(e => e.MostrarDadosImpressao).HasDefaultValueSql("'N'::character varying");
             entity.Property(e => e.NmBanco).HasDefaultValueSql("''::character varying");
@@ -404,6 +433,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
             entity.Property(e => e.DtLancamento).HasDefaultValueSql("('now'::text)::date");
             entity.Property(e => e.IdLancPrinc).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
             entity.Property(e => e.NrEntradaOutraDesp).HasDefaultValueSql("'-1'::integer");
             entity.Property(e => e.Pagou).HasDefaultValueSql("'N'::character varying");
             entity.Property(e => e.TxtObs).HasDefaultValueSql("''::text");
@@ -443,6 +474,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.IdGrupo).HasDefaultValue(0);
             entity.Property(e => e.IdLancPrincipal).HasDefaultValueSql("'-1'::integer");
             entity.Property(e => e.Imprimiu).HasDefaultValueSql("'N'::character varying");
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
             entity.Property(e => e.NrContaRenegociado).HasDefaultValueSql("'-1'::integer");
             entity.Property(e => e.NrFormaPagt).HasDefaultValueSql("'-1'::integer");
             entity.Property(e => e.NrOs).HasDefaultValueSql("'-1'::integer");
@@ -485,6 +518,9 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .IsUnique()
                 .HasFilter("(padrao = true)");
 
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
+
             entity.HasOne(d => d.IdEmpresaNavigation).WithOne(p => p.ControleNumeracaoNfe)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("controle_numeracao_nfe_fk");
@@ -493,11 +529,17 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         modelBuilder.Entity<Csosn>(entity =>
         {
             entity.HasKey(e => e.Codigo).HasName("csosn_pkey");
+
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
         });
 
         modelBuilder.Entity<Cst>(entity =>
         {
             entity.HasKey(e => e.Codigo).HasName("cst_pkey");
+
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
         });
 
         modelBuilder.Entity<Cte>(entity =>
@@ -790,6 +832,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("gen_random_uuid()");
             entity.Property(e => e.DtInclusao).HasDefaultValueSql("CURRENT_DATE");
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
             entity.Property(e => e.Xml).HasDefaultValueSql("''::text");
 
             entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.DistribuicaoDves)
@@ -804,6 +848,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.CdHistorico).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.CdPlanoCaixa).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.CdPlanoEstoque).HasDefaultValueSql("'-1'::integer");
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
             entity.Property(e => e.NrConta).HasDefaultValueSql("'-1'::integer");
             entity.Property(e => e.Observacao).HasDefaultValueSql("''::character varying");
         });
@@ -816,6 +862,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.CdCnpj).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.CpfcnpfAutorizado).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.EMail).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
             entity.Property(e => e.NmBairro).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.NrInscrEstadual).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.NrInscrMunicipal).HasDefaultValueSql("''::character varying");
@@ -835,6 +883,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.Nr).ValueGeneratedOnAdd();
             entity.Property(e => e.CdClienteDevolucao).HasDefaultValueSql("'-1'::integer");
             entity.Property(e => e.CdSituacao).HasDefaultValueSql("'01'::character varying");
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
             entity.Property(e => e.TxtObs).HasDefaultValueSql("''::text");
             entity.Property(e => e.VIcmsDeson).HasDefaultValueSql("0.0");
 
@@ -853,6 +903,9 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         {
             entity.HasKey(e => e.NrEntrada).HasName("entrada_outras_desp_pkey");
 
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
+
             entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.EntradaOutrasDesps).HasConstraintName("entrada_outras_desp_fk1");
 
             entity.HasOne(d => d.Fornecedor).WithMany(p => p.EntradaOutrasDesps)
@@ -864,6 +917,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("entrega_nfe_pkey");
 
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
             entity.Property(e => e.Uf).IsFixedLength();
 
             entity.HasOne(d => d.IdClienteNavigation).WithMany(p => p.EntregaNves)
@@ -881,6 +936,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
             entity.Property(e => e.DtLanc).HasDefaultValueSql("('now'::text)::date");
             entity.Property(e => e.HrLanc).HasDefaultValueSql("(now())::time without time zone");
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
         });
 
         modelBuilder.Entity<Featured>(entity =>
@@ -888,6 +945,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasKey(e => new { e.Id, e.IdEmpresa }).HasName("featured_pkey");
 
             entity.Property(e => e.Excluiu).HasDefaultValue(false);
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
             entity.HasOne(d => d.Category).WithMany(p => p.Featureds).HasConstraintName("featured_category_id_fkey");
 
@@ -903,6 +962,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.CdPlanoCaixa).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.CdPlanoCaixaD).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.Integrado).HasDefaultValueSql("'N'::character varying");
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
             entity.Property(e => e.Prz02).HasDefaultValue((short)0);
             entity.Property(e => e.Prz03).HasDefaultValue((short)0);
             entity.Property(e => e.Prz04).HasDefaultValue((short)0);
@@ -932,6 +993,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.Cpf).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.Email).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.IdCliente).HasDefaultValueSql("'-1'::integer");
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
             entity.Property(e => e.NmEndereco).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.NmFantasia).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.NmRepresentante).HasDefaultValueSql("''::character varying");
@@ -956,6 +1019,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasKey(e => new { e.Id, e.IdEmpresa }).HasName("fotos_produto_pkey");
 
             entity.Property(e => e.Excluiu).HasDefaultValue(false);
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
             entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.FotosProdutos)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -970,6 +1035,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         {
             entity.HasKey(e => e.NrLanc).HasName("frete_pkey");
 
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
             entity.Property(e => e.Quant).HasDefaultValueSql("0");
 
             entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.Fretes)
@@ -981,9 +1048,46 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.Transportadora).WithMany(p => p.Fretes).HasConstraintName("frete_fk2");
         });
 
+        modelBuilder.Entity<Funcionario>(entity =>
+        {
+            entity.HasKey(e => new { e.CdFuncionario, e.CdEmpresa }).HasName("funcionario_idx");
+
+            entity.Property(e => e.CdFuncionario).ValueGeneratedOnAdd();
+            entity.Property(e => e.Ativo).HasDefaultValueSql("'S'::character varying");
+            entity.Property(e => e.Bairro).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.CdCbo).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.CdInterno).HasDefaultValueSql("'-1'::character varying");
+            entity.Property(e => e.Cep).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.Cidade).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.Color).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.DtNascimento).HasDefaultValueSql("('now'::text)::date");
+            entity.Property(e => e.Endereco).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.EstadoCivil).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.IdServCentral).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.Integrado).HasDefaultValueSql("'N'::character varying");
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
+            entity.Property(e => e.Mecanico).HasDefaultValueSql("'N'::character varying");
+            entity.Property(e => e.NrCpf).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.NrRg).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.NrTelefone).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.NrTelefone2).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.Numero).HasDefaultValue(0);
+            entity.Property(e => e.Sexo).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.TxtObs).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.Vendedor).HasDefaultValueSql("'N'::character varying");
+
+            entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.Funcionarios).HasConstraintName("funcionario_fk");
+
+            entity.HasOne(d => d.CidadeNavigation).WithMany(p => p.Funcionarios).HasConstraintName("funcionario_fk1");
+        });
+
         modelBuilder.Entity<GrupoEstoque>(entity =>
         {
             entity.HasKey(e => e.CdGrupo).HasName("grupo_estoque_pkey");
+
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
             entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.GrupoEstoques)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -993,6 +1097,9 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         modelBuilder.Entity<HistoricoCaixa>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("historico_caixa_pkey");
+
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
             entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.HistoricoCaixas)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -1015,12 +1122,17 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.Aliqnac).HasDefaultValueSql("0");
             entity.Property(e => e.Descricao).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.Ex).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
             entity.Property(e => e.Tabela).HasDefaultValueSql("''::character varying");
         });
 
         modelBuilder.Entity<Icm>(entity =>
         {
             entity.HasKey(e => e.NrLanc).HasName("icms_pkey");
+
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
             entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.Icms)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -1030,27 +1142,41 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         modelBuilder.Entity<Impcabnfe>(entity =>
         {
             entity.HasKey(e => e.ChNfe).HasName("pkimpcabnfe");
+
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
         });
 
         modelBuilder.Entity<Impdupnfe>(entity =>
         {
             entity.HasKey(e => new { e.ChNfe, e.NrDup }).HasName("pkimpdupnfe");
+
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
         });
 
         modelBuilder.Entity<Impitensnfe>(entity =>
         {
             entity.HasKey(e => new { e.ChNfe, e.NrItem }).HasName("pkimpitensnfe_ch_nfenr_item");
+
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
         });
 
         modelBuilder.Entity<Imptotalnfe>(entity =>
         {
             entity.HasKey(e => e.ChNfe).HasName("pkimptotalnfe");
+
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
         });
 
         modelBuilder.Entity<Impxml>(entity =>
         {
             entity.HasKey(e => new { e.IdEmpresa, e.ChaveAcesso }).HasName("impxml_idx");
 
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
             entity.Property(e => e.Type).HasDefaultValue(0);
 
             entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.Impxmls)
@@ -1061,6 +1187,9 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         modelBuilder.Entity<ItemDetail>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("item_details_pkey");
+
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
             entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.ItemDetails)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -1076,6 +1205,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasKey(e => e.NrLanc).HasName("livro_caixa_pkey");
 
             entity.Property(e => e.DtLanc).HasDefaultValueSql("now()");
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
             entity.Property(e => e.TxtObs).HasDefaultValueSql("''::text");
 
             entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.LivroCaixas).HasConstraintName("livro_caixa_fk");
@@ -1201,11 +1332,17 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         modelBuilder.Entity<Ncm>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("ncm_pkey");
+
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
         });
 
         modelBuilder.Entity<NcmProtocoloEstado>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("ncm_protocolo_estado_pkey");
+
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
             entity.HasOne(d => d.IdCabProtocoloNavigation).WithMany(p => p.NcmProtocoloEstados).HasConstraintName("ncm_protocolo_estado_fk");
 
@@ -1218,6 +1355,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         {
             entity.HasKey(e => e.NrLanc).HasName("obs_nf_pkey");
 
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
             entity.Property(e => e.TxtObs).HasDefaultValueSql("''::character varying(1)");
 
             entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.ObsNfs)
@@ -1231,6 +1370,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
             entity.Property(e => e.Id).HasDefaultValueSql("uuid_generate_v4()");
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
             entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.Olders)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -1242,6 +1382,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasKey(e => e.Id).HasName("older_items_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("uuid_generate_v4()");
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
             entity.HasOne(d => d.Older).WithMany(p => p.OlderItems)
                 .OnDelete(DeleteBehavior.Cascade)
@@ -1255,6 +1397,9 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         modelBuilder.Entity<OrigemCst>(entity =>
         {
             entity.HasKey(e => e.Codigo).HasName("origem_cst_pkey");
+
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
         });
 
         modelBuilder.Entity<PagtosParciaisCp>(entity =>
@@ -1263,6 +1408,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
             entity.Property(e => e.Acrescimo).HasDefaultValueSql("0.00");
             entity.Property(e => e.Desconto).HasDefaultValueSql("0.00");
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
             entity.Property(e => e.ValorPago).HasDefaultValueSql("0");
             entity.Property(e => e.ValorRestante).HasDefaultValueSql("0");
 
@@ -1279,6 +1426,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
             entity.Property(e => e.Acrescimo).HasDefaultValueSql("0.00");
             entity.Property(e => e.Desconto).HasDefaultValueSql("0.00");
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
             entity.Property(e => e.ValorPago).HasDefaultValueSql("0");
             entity.Property(e => e.ValorRestante).HasDefaultValueSql("0");
 
@@ -1293,6 +1442,9 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("perfil_loja_pkey");
 
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
+
             entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.PerfilLojas)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("perfil_loja_fk");
@@ -1303,11 +1455,16 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasKey(e => e.Id).HasName("permissao_pkey");
 
             entity.Property(e => e.Descricao).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
         });
 
         modelBuilder.Entity<PlanoDeCaixa>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("plano_de_caixa_pkey");
+
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
             entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.PlanoDeCaixas)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -1320,6 +1477,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
             entity.Property(e => e.Ativo).HasDefaultValue(true);
             entity.Property(e => e.EFiscal).HasDefaultValue(false);
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
             entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.PlanoEstoques)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -1329,6 +1488,9 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         modelBuilder.Entity<ProductDetail>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("product_details_pkey");
+
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
             entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.ProductDetails)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -1370,6 +1532,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.ImpBaseStRet).HasDefaultValueSql("0");
             entity.Property(e => e.ImpIcmsPropSubs).HasDefaultValueSql("0");
             entity.Property(e => e.ImpPst).HasDefaultValueSql("0");
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
             entity.Property(e => e.MovEstoque).HasDefaultValueSql("'N'::character varying");
             entity.Property(e => e.NrMotorVeic).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.PesoBrutoVeic).HasDefaultValueSql("0");
@@ -1467,8 +1631,10 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.IcmsSubsReducao).HasDefaultValueSql("0");
             entity.Property(e => e.IcmsSubsReducaoAliq).HasDefaultValueSql("0");
             entity.Property(e => e.IdMarca).HasDefaultValueSql("'-1'::integer");
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
             entity.Property(e => e.Ippt).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.LancLivro).HasDefaultValueSql("'N'::character varying");
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
             entity.Property(e => e.LetraCurvaabc).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.LucroPor).HasDefaultValueSql("0");
             entity.Property(e => e.Mva).HasDefaultValueSql("0");
@@ -1580,6 +1746,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.IdSerieKit).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.IdSerieProduto).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.IdVinVeic).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
             entity.Property(e => e.MvaSt).HasDefaultValueSql("0");
             entity.Property(e => e.NrMotorVeic).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.Pagou).HasDefaultValueSql("'N'::character varying");
@@ -1659,6 +1827,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
             entity.Property(e => e.CdBarra).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.IdProdutoExterno).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
             entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.ProdutosForns).HasConstraintName("produtos_forn_fk1");
 
@@ -1671,7 +1841,9 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("protocolo_estado_ncm_pkey");
 
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
             entity.Property(e => e.Iva).HasDefaultValueSql("0");
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
             entity.Property(e => e.RedIcms).HasDefaultValueSql("0");
             entity.Property(e => e.RedSt).HasDefaultValueSql("0");
             entity.Property(e => e.St).HasDefaultValueSql("0");
@@ -1685,6 +1857,9 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         {
             entity.HasKey(e => e.CdRef).HasName("referencia_estoque_pkey");
 
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
+
             entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.ReferenciaEstoques)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("referencia_estoque_fk");
@@ -1694,6 +1869,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("retirada_nfe_pkey");
 
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
             entity.Property(e => e.Uf).IsFixedLength();
 
             entity.HasOne(d => d.IdClienteNavigation).WithMany(p => p.RetiradaNves)
@@ -1726,6 +1903,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.IdPontoVenda).HasDefaultValueSql("'-1'::integer");
             entity.Property(e => e.IdTipoIndicador).HasDefaultValueSql("'-1'::integer");
             entity.Property(e => e.IdTipoOperacaoIntermediador).HasDefaultValueSql("'-1'::integer");
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
             entity.Property(e => e.LocalSalvoNota).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.NmMarket).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.NrAutorizacaoNfe).HasDefaultValueSql("''::character varying");
@@ -1763,6 +1942,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasKey(e => e.Id).HasName("saida_notas_devolucao_pkey");
 
             entity.Property(e => e.ChaveAcesso).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
             entity.HasOne(d => d.NrSaidaNavigation).WithMany(p => p.SaidaNotasDevolucaos)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -1772,6 +1953,9 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         modelBuilder.Entity<SaidasVolume>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("saidas_volumes_pkey");
+
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
             entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.SaidasVolumes)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -1786,6 +1970,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("saldo_estoque_pk");
 
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
             entity.Property(e => e.QuantE).HasDefaultValueSql("0");
             entity.Property(e => e.QuantF).HasDefaultValueSql("0");
             entity.Property(e => e.QuantV).HasDefaultValueSql("0");
@@ -1807,6 +1993,9 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("sections_pkey");
 
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
+
             entity.HasOne(d => d.Category).WithMany(p => p.Sections)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("sections_category_id_fkey");
@@ -1817,6 +2006,9 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         modelBuilder.Entity<SectionItem>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("section_items_pkey");
+
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
             entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.SectionItems).HasConstraintName("section_items_id_empresa_fkey");
 
@@ -1830,11 +2022,16 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasKey(e => e.Id).HasName("tabela_anp_pkey");
 
             entity.Property(e => e.Id).HasDefaultValueSql("nextval(('public.gen_tabela_anp_id'::text)::regclass)");
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
         });
 
         modelBuilder.Entity<TipoNf>(entity =>
         {
             entity.HasKey(e => e.CdTipoNf).HasName("tipo_nf_pkey");
+
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
         });
 
         modelBuilder.Entity<Transportadora>(entity =>
@@ -1842,6 +2039,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasKey(e => new { e.CdTransportadora, e.IdEmpresa }).HasName("transportadora_idx1");
 
             entity.Property(e => e.CdTransportadora).ValueGeneratedOnAdd();
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
             entity.HasOne(d => d.CdCidadeNavigation).WithMany(p => p.Transportadoras).HasConstraintName("transportadora_fk1");
 
@@ -1854,6 +2053,9 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("unidade_medida_pkey");
 
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
+
             entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.UnidadeMedida)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("unidade_medida_fk2");
@@ -1865,13 +2067,35 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
             entity.Property(e => e.Ativo).HasDefaultValueSql("'S'::character varying");
             entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
             entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.Usuarios).HasConstraintName("usuario_fk");
+        });
+
+        modelBuilder.Entity<UsuarioFuncionario>(entity =>
+        {
+            entity.HasKey(e => new { e.CdFuncionario, e.NmUsuario }).HasName("usuario_funcionario_idx");
+
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
+
+            entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.UsuarioFuncionarios)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("usuario_funcionario_fk2");
+
+            entity.HasOne(d => d.NmUsuarioNavigation).WithMany(p => p.UsuarioFuncionarios).HasConstraintName("usuario_funcionario_fk1");
+
+            entity.HasOne(d => d.Funcionario).WithMany(p => p.UsuarioFuncionarios).HasConstraintName("usuario_funcionario_fk");
         });
 
         modelBuilder.Entity<UsuarioPermissao>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("usuario_permissao_pkey");
+
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
             entity.HasOne(d => d.IdPermissaoNavigation).WithMany(p => p.UsuarioPermissaos)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -1880,6 +2104,22 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.UsuarioPermissaos)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("usuario_permissao_fk");
+        });
+
+        modelBuilder.Entity<Vendedor>(entity =>
+        {
+            entity.HasKey(e => new { e.CdFuncionario, e.CdEmpresa }).HasName("vendedor_pkey");
+
+            entity.Property(e => e.ComissaoAPrazo).HasDefaultValueSql("0");
+            entity.Property(e => e.ComissaoAVista).HasDefaultValueSql("0");
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
+            entity.Property(e => e.TipoPagamento).HasDefaultValueSql("'V'::character varying");
+
+            entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.Vendedors).HasConstraintName("vendedor_fk_empresa");
+
+            entity.HasOne(d => d.Funcionario).WithOne(p => p.VendedorNavigation).HasConstraintName("vendedor_fk");
         });
         modelBuilder.HasSequence("cte_doc_anterior_nfe_id_cte_doc_anterior_nfe_seq", "cte");
         modelBuilder.HasSequence("mdfe_chaves_id_seq", "mdfe");

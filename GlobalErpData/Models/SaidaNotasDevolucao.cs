@@ -23,6 +23,12 @@ public partial class SaidaNotasDevolucao : IIdentifiable<int>
     [StringLength(44)]
     public string? ChaveAcesso { get; set; }
 
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+    [Column("integrated")]
+    public int? Integrated { get; set; }
+
     [JsonIgnore]
     [ForeignKey("NrSaida")]
     [InverseProperty("SaidaNotasDevolucaos")]

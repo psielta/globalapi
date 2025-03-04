@@ -34,6 +34,12 @@ public partial class NcmProtocoloEstado : IIdentifiable<int>
     [NotMapped]
     public string NmProtocolo => IdCabProtocoloNavigation?.Nome ?? "";
 
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+    [Column("integrated")]
+    public int? Integrated { get; set; }
+
     [JsonIgnore]
     [ForeignKey("IdEmpresa")]
     [InverseProperty("NcmProtocoloEstados")]

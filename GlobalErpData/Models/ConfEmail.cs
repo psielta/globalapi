@@ -55,7 +55,11 @@ public partial class ConfEmail
     [Column("tsl")]
     [StringLength(1)]
     public string? Tsl { get; set; }
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
 
+    [Column("integrated")]
+    public int? Integrated { get; set; }
     [Column("envia_apos_emitir")]
     public bool? EnviaAposEmitir { get; set; }
 

@@ -24,6 +24,13 @@ public partial class ProdutoSaidum : IIdentifiable<int>
     [Column("cd_plano")]
     public int CdPlano { get; set; }
 
+
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+    [Column("integrated")]
+    public int? Integrated { get; set; }
+
     [Column("quant")]
     [Precision(18, 4)]
     public decimal Quant { get; set; }

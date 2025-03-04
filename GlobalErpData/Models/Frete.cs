@@ -54,7 +54,11 @@ public partial class Frete : IIdentifiable<int>
     [Column("pliq")]
     [Precision(18, 4)]
     public decimal? Pliq { get; set; }
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
 
+    [Column("integrated")]
+    public int? Integrated { get; set; }
     [JsonIgnore]
     [ForeignKey("CdEmpresa")]
     [InverseProperty("Fretes")]

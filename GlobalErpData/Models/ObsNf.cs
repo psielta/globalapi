@@ -26,6 +26,12 @@ public partial class ObsNf : IIdentifiable<int>
     [StringLength(16384)]
     public string? TxtObs { get; set; }
 
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+    [Column("integrated")]
+    public int? Integrated { get; set; }
+
     [JsonIgnore]
     [ForeignKey("IdEmpresa")]
     [InverseProperty("ObsNfs")]

@@ -24,6 +24,12 @@ public partial class Saida : IIdentifiable<int>
     [Column("cliente")]
     public int Cliente { get; set; }
 
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+    [Column("integrated")]
+    public int? Integrated { get; set; }
+
     [Column("requisicao")]
     [StringLength(10)]
     public string? Requisicao { get; set; }

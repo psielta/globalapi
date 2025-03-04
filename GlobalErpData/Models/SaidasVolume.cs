@@ -24,6 +24,12 @@ public partial class SaidasVolume : IIdentifiable<int>
     [Column("q_vol")]
     public int? QVol { get; set; }
 
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+    [Column("integrated")]
+    public int? Integrated { get; set; }
+
     [Column("esp")]
     [StringLength(60)]
     public string? Esp { get; set; }

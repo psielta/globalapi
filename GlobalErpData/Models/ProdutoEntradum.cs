@@ -360,6 +360,12 @@ public partial class ProdutoEntradum : IIdentifiable<int>
     [Precision(18, 4)]
     public decimal? PrecoAtualizado { get; set; }
 
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+    [Column("integrated")]
+    public int? Integrated { get; set; }
+
     [JsonPropertyName("nmProduto")]
     [NotMapped]
     public string NmProduto => ProdutoEstoque?.NmProduto ?? "";
