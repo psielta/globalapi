@@ -18,12 +18,12 @@ namespace GlobalAPINFe.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class FeaturedController : GenericPagedControllerMultiKey<Featured, int, int, FeaturedDto>
+    public class FeaturedController : GlobalLib.GenericControllers.GenericPagedControllerMultiKey<Featured, int, int, FeaturedDto>
     {
         private readonly IWebHostEnvironment _environment;
         private readonly GlobalErpFiscalBaseContext _context;
 
-        public FeaturedController(IQueryRepositoryMultiKey<Featured, int, int, FeaturedDto> repo, ILogger<GenericPagedControllerMultiKey<Featured, int, int, FeaturedDto>> logger, IWebHostEnvironment environment, GlobalErpFiscalBaseContext _context) : base(repo, logger)
+        public FeaturedController(IQueryRepositoryMultiKey<Featured, int, int, FeaturedDto> repo, ILogger<GlobalLib.GenericControllers.GenericPagedControllerMultiKey<Featured, int, int, FeaturedDto>> logger, IWebHostEnvironment environment, GlobalErpFiscalBaseContext _context) : base(repo, logger)
         {
             _environment = environment;
             this._context = _context;

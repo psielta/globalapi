@@ -117,6 +117,11 @@ builder.Services.AddScoped<IQueryRepositoryMultiKey<Entrada, int, int, EntradaDt
 builder.Services.AddScoped<IQueryRepositoryMultiKey<Transportadora, int, int, TransportadoraDto>, TransportadoraPagedRepository>();
 builder.Services.AddScoped<IQueryRepositoryMultiKey<FotosProduto, int, int, FotosProdutoDto>, FotosProdutoRepository>();
 builder.Services.AddScoped<IQueryRepositoryMultiKey<Featured, int, int, FeaturedDto>, FeaturedRepository>();
+builder.Services.AddScoped<IQueryRepositoryMultiKey<NfceFormaPgt, int, int, NfceFormaPgtDto>, NfceFormaPgtRepository>();
+builder.Services.AddScoped<IQueryRepositoryMultiKey<NfceProdutoSaidum, int, int, NfceProdutoSaidumDto>, NfceProdutoSaidumRepository>();
+builder.Services.AddScoped<IQueryRepositoryMultiKey<NfceSaida, int, int, NfceSaidaDto>, NfceSaidaRepository>();
+builder.Services.AddScoped<IQueryRepositoryMultiKey<NfceAberturaCaixa, int, int, NfceAberturaCaixaDto>, NfceAberturaCaixaRepository>();
+builder.Services.AddScoped<IQueryRepositoryMultiKey<SangriaCaixa, int, int, SangriaCaixaDto>, SangriaCaixaRepository>();
 builder.Services.AddScoped<IRepositoryDto<Section, int, SectionDto>, SectionRepository>();
 builder.Services.AddScoped<IRepositoryDto<SectionItem, int, SectionItemDto>, SectionItemRepository>();
 builder.Services.AddScoped<IRepositoryDto<ProductDetail, int, ProductDetailDto>, ProductDetailRepository>();

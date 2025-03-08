@@ -413,4 +413,24 @@ public partial class Empresa : IIdentifiable<int>
     [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<DistribuicaoDfe> DistribuicaoDves { get; set; } = new List<DistribuicaoDfe>();
+
+    [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<NfceAberturaCaixa> NfceAberturaCaixas { get; set; } = new List<NfceAberturaCaixa>();
+
+    [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<NfceFormaPgt> NfceFormaPgts { get; set; } = new List<NfceFormaPgt>();
+
+    [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<NfceProdutoSaidum> NfceProdutoSaida { get; set; } = new List<NfceProdutoSaidum>();
+
+    [JsonIgnore]
+    [InverseProperty("EmpresaNavigation")]
+    public virtual ICollection<NfceSaida> NfceSaida { get; set; } = new List<NfceSaida>();
+
+    [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<SangriaCaixa> SangriaCaixas { get; set; } = new List<SangriaCaixa>();
 }

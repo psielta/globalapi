@@ -26,7 +26,7 @@ namespace GlobalAPINFe.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProdutoEstoqueController : GenericPagedControllerMultiKey<ProdutoEstoque, int, int, ProdutoEstoqueDto>
+    public class ProdutoEstoqueController : GlobalLib.GenericControllers.GenericPagedControllerMultiKey<ProdutoEstoque, int, int, ProdutoEstoqueDto>
     {
         private readonly GlobalErpFiscalBaseContext _context;
         private readonly IQueryRepository<ProdutoEntradum, int, ProdutoEntradaDto> repProdutoEntrada;
@@ -36,7 +36,7 @@ namespace GlobalAPINFe.Controllers
 
         public ProdutoEstoqueController(
             IQueryRepositoryMultiKey<ProdutoEstoque, int, int, ProdutoEstoqueDto> repo,
-            ILogger<GenericPagedControllerMultiKey<ProdutoEstoque, int, int, ProdutoEstoqueDto>> logger,
+            ILogger<GlobalLib.GenericControllers.GenericPagedControllerMultiKey<ProdutoEstoque, int, int, ProdutoEstoqueDto>> logger,
             GlobalErpFiscalBaseContext _context,
             IQueryRepository<ProdutoEntradum, int, ProdutoEntradaDto> repProdutoEntrada,
             IQueryRepositoryMultiKey<Entrada, int, int, EntradaDto> repEntrada,

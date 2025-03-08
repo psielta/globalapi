@@ -35,6 +35,14 @@ public partial class GlobalErpFiscalBaseContext : DbContext
     public virtual DbSet<CfopImportacao> CfopImportacaos { get; set; }
 
     public virtual DbSet<Cidade> Cidades { get; set; }
+    public virtual DbSet<NfceAberturaCaixa> NfceAberturaCaixas { get; set; }
+
+    public virtual DbSet<NfceFormaPgt> NfceFormaPgts { get; set; }
+
+    public virtual DbSet<NfceProdutoSaidum> NfceProdutoSaida { get; set; }
+
+    public virtual DbSet<NfceSaida> NfceSaidas { get; set; }
+    public virtual DbSet<SangriaCaixa> SangriaCaixas { get; set; }
 
     public virtual DbSet<Cliente> Clientes { get; set; }
 
@@ -1351,6 +1359,173 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .HasConstraintName("ncm_protocolo_estado_fk1");
         });
 
+        modelBuilder.Entity<NfceAberturaCaixa>(entity =>
+        {
+            entity.HasKey(e => new { e.NrLanc, e.CdEmpresa }).HasName("nfce_abertura_caixa_pkey");
+
+            entity.Property(e => e.NrLanc).ValueGeneratedOnAdd();
+            entity.Property(e => e.DataLanc).HasDefaultValueSql("now()");
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
+            entity.Property(e => e.VlBaixaFiado).HasDefaultValueSql("0");
+            entity.Property(e => e.VlMoedas).HasDefaultValueSql("0");
+            entity.Property(e => e.VlSangria).HasDefaultValueSql("0");
+            entity.Property(e => e.VlVendaFinal).HasDefaultValueSql("0");
+            entity.Property(e => e.VlVendaFinalCart).HasDefaultValueSql("0");
+            entity.Property(e => e.VlVendaFinalCartDeb).HasDefaultValueSql("0");
+            entity.Property(e => e.VlVendaFinalChq).HasDefaultValueSql("0");
+            entity.Property(e => e.VlVendaFinalPix).HasDefaultValueSql("0");
+            entity.Property(e => e.VlVendaFinalPrazo).HasDefaultValueSql("0");
+            entity.Property(e => e.VlVendaTicket).HasDefaultValueSql("0");
+
+            entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.NfceAberturaCaixas).HasConstraintName("nfce_abertura_caixa_fk");
+        });
+
+        modelBuilder.Entity<NfceFormaPgt>(entity =>
+        {
+            entity.HasKey(e => new { e.Id, e.CdEmpresa }).HasName("nfce_forma_pgt_idx");
+
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.Caixa).HasDefaultValueSql("'-1'::integer");
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
+            entity.Property(e => e.NrAberturaCaixa).HasDefaultValueSql("'-1'::integer");
+            entity.Property(e => e.Troco).HasDefaultValueSql("0");
+            entity.Property(e => e.Valor).HasDefaultValueSql("0");
+
+            entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.NfceFormaPgts)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("nfce_forma_pgt_fk");
+
+            entity.HasOne(d => d.NfceSaida).WithMany(p => p.NfceFormaPgts).HasConstraintName("nfce_forma_pgt_fk1");
+        });
+
+        modelBuilder.Entity<NfceProdutoSaidum>(entity =>
+        {
+            entity.HasKey(e => new { e.Id, e.CdEmpresa }).HasName("nfce_produto_saida_pkey");
+
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.Cancelou).HasDefaultValueSql("'N'::character varying");
+            entity.Property(e => e.CdInterno).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.CdPlanoSecundario).HasDefaultValueSql("'-1'::integer");
+            entity.Property(e => e.CdProdutoOriginal).HasDefaultValueSql("'-1'::integer");
+            entity.Property(e => e.Cor).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.CstCofins).HasDefaultValueSql("0");
+            entity.Property(e => e.CstPis).HasDefaultValueSql("0");
+            entity.Property(e => e.Genero).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.IcmsSubstituto).HasDefaultValueSql("0");
+            entity.Property(e => e.IdOs).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.IdPrevenda).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
+            entity.Property(e => e.MvaSt).HasDefaultValueSql("0");
+            entity.Property(e => e.Pagou).HasDefaultValueSql("'N'::character varying");
+            entity.Property(e => e.Pfcpufdest).HasDefaultValueSql("0");
+            entity.Property(e => e.Picmsinter).HasDefaultValueSql("0");
+            entity.Property(e => e.Picmsinterpart).HasDefaultValueSql("0");
+            entity.Property(e => e.Picmsufdest).HasDefaultValueSql("0");
+            entity.Property(e => e.PocIcms).HasDefaultValueSql("0");
+            entity.Property(e => e.PocReducao).HasDefaultValueSql("0");
+            entity.Property(e => e.PorcCofins).HasDefaultValueSql("0");
+            entity.Property(e => e.PorcCofinsSt).HasDefaultValueSql("0");
+            entity.Property(e => e.PorcIbpt).HasDefaultValueSql("0");
+            entity.Property(e => e.PorcIpi).HasDefaultValueSql("0");
+            entity.Property(e => e.PorcPis).HasDefaultValueSql("0");
+            entity.Property(e => e.PorcPisSt).HasDefaultValueSql("0");
+            entity.Property(e => e.PorcSt).HasDefaultValueSql("0");
+            entity.Property(e => e.QtTotal).HasDefaultValueSql("1");
+            entity.Property(e => e.Quant).HasDefaultValueSql("1");
+            entity.Property(e => e.QuantEstorno).HasDefaultValueSql("0");
+            entity.Property(e => e.SequenciaItem).HasDefaultValue(0);
+            entity.Property(e => e.St).HasDefaultValueSql("0");
+            entity.Property(e => e.Tamanho).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.Un).HasDefaultValueSql("'UN'::character varying");
+            entity.Property(e => e.Vbcfcpufdest).HasDefaultValueSql("0");
+            entity.Property(e => e.Vbcufdest).HasDefaultValueSql("0");
+            entity.Property(e => e.Vfcpufdest).HasDefaultValueSql("0");
+            entity.Property(e => e.Vicmsufdest).HasDefaultValueSql("0");
+            entity.Property(e => e.Vicmsufremt).HasDefaultValueSql("0");
+            entity.Property(e => e.VlAproxImposto).HasDefaultValueSql("0");
+            entity.Property(e => e.VlBaseCofins).HasDefaultValueSql("0");
+            entity.Property(e => e.VlBaseCofinsSt).HasDefaultValueSql("0");
+            entity.Property(e => e.VlBaseIcms).HasDefaultValueSql("0");
+            entity.Property(e => e.VlBaseIpi).HasDefaultValueSql("0");
+            entity.Property(e => e.VlBasePis).HasDefaultValueSql("0");
+            entity.Property(e => e.VlBasePisSt).HasDefaultValueSql("0");
+            entity.Property(e => e.VlBaseRetido).HasDefaultValueSql("0");
+            entity.Property(e => e.VlBaseSt).HasDefaultValueSql("0");
+            entity.Property(e => e.VlCofins).HasDefaultValueSql("0");
+            entity.Property(e => e.VlCofinsSt).HasDefaultValueSql("0");
+            entity.Property(e => e.VlComissao).HasDefaultValueSql("0");
+            entity.Property(e => e.VlCreditoIcms).HasDefaultValueSql("0");
+            entity.Property(e => e.VlCusto).HasDefaultValueSql("0");
+            entity.Property(e => e.VlIcms).HasDefaultValueSql("0");
+            entity.Property(e => e.VlIcmsRet).HasDefaultValueSql("0");
+            entity.Property(e => e.VlIpi).HasDefaultValueSql("0");
+            entity.Property(e => e.VlPis).HasDefaultValueSql("0");
+            entity.Property(e => e.VlPisSt).HasDefaultValueSql("0");
+            entity.Property(e => e.VlSt).HasDefaultValueSql("0");
+            entity.Property(e => e.VlUnid).HasDefaultValueSql("0");
+
+            entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.NfceProdutoSaida)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("nfce_produto_saida_fk2");
+
+            entity.HasOne(d => d.ProdutoEstoque).WithMany(p => p.NfceProdutoSaida)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("nfce_produto_saida_fk1");
+
+            entity.HasOne(d => d.NfceSaida).WithMany(p => p.NfceProdutoSaida)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("nfce_produto_saida_fk");
+        });
+
+        modelBuilder.Entity<NfceSaida>(entity =>
+        {
+            entity.HasKey(e => new { e.Id, e.Empresa }).HasName("nfce_saidas_pkey");
+
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.Alterado).HasDefaultValueSql("'N'::character varying");
+            entity.Property(e => e.Caixa).HasDefaultValueSql("'-1'::integer");
+            entity.Property(e => e.CdCarga).HasDefaultValueSql("'-1'::integer");
+            entity.Property(e => e.CdSituacao).HasDefaultValueSql("'01'::character varying");
+            entity.Property(e => e.CdUf).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.CdVendedor).HasDefaultValueSql("'-1'::integer");
+            entity.Property(e => e.Cfop).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.ChaveAcessoNfe).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.ChaveNfeSaida).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.Data).HasDefaultValueSql("('now'::text)::date");
+            entity.Property(e => e.Delivery).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.EnviouNaoCancelada).HasDefaultValueSql("'N'::character varying");
+            entity.Property(e => e.Frete).HasDefaultValueSql("0");
+            entity.Property(e => e.IdConvenio).HasDefaultValueSql("'-1'::integer");
+            entity.Property(e => e.IdMedico).HasDefaultValueSql("'-1'::integer");
+            entity.Property(e => e.IdPaciente).HasDefaultValueSql("'-1'::integer");
+            entity.Property(e => e.IdPontoVenda).HasDefaultValueSql("'-1'::integer");
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
+            entity.Property(e => e.LocalSalvoNota).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.NmOperador).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.NrAutorizacaoNfe).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.NrNotaFiscal).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.NrProtoCancelamento).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.NrProtocoloInutilizacao).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.Observacao).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.PagaComissao).HasDefaultValueSql("'N'::character varying");
+            entity.Property(e => e.Pagou).HasDefaultValueSql("'N'::character varying");
+            entity.Property(e => e.Requisicao).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.TabelaVenda).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.TxtJustificativaCancelamento).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.TxtObsNf).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.VlDescGlobal).HasDefaultValueSql("0");
+            entity.Property(e => e.VlOutro).HasDefaultValueSql("0");
+            entity.Property(e => e.XmNf).HasDefaultValueSql("''::text");
+
+            entity.HasOne(d => d.EmpresaNavigation).WithMany(p => p.NfceSaida)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("nfce_saidas_fk1");
+        });
+
         modelBuilder.Entity<ObsNf>(entity =>
         {
             entity.HasKey(e => e.NrLanc).HasName("obs_nf_pkey");
@@ -1989,6 +2164,22 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .HasConstraintName("saldo_estoque_fk1");
         });
 
+        modelBuilder.Entity<SangriaCaixa>(entity =>
+        {
+            entity.HasKey(e => new { e.Id, e.CdEmpresa }).HasName("sangria_caixa_pkey");
+
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.Data).HasDefaultValueSql("('now'::text)::date");
+            entity.Property(e => e.Hora).HasDefaultValueSql("('now'::text)::time with time zone");
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
+            entity.Property(e => e.Tipo).HasDefaultValueSql("''::character varying");
+
+            entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.SangriaCaixas)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("sangria_caixa_fk");
+        });
+
         modelBuilder.Entity<Section>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("sections_pkey");
@@ -2134,6 +2325,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         modelBuilder.HasSequence("seq_fornecedor_geral_1");
         modelBuilder.HasSequence("seq_fornecedor_geral_2");
         modelBuilder.HasSequence("seq_fotos_geral_1");
+        modelBuilder.HasSequence("seq_funcionario_geral_1");
         modelBuilder.HasSequence("seq_produto_geral_1").StartsAt(832L);
         modelBuilder.HasSequence("seq_produto_geral_2");
         modelBuilder.HasSequence("seq_transportadora_geral_1");

@@ -654,4 +654,8 @@ public partial class ProdutoEstoque : IIdentifiable<int>, IIdentifiableMultiKey<
     [InverseProperty("ProdutoEstoque")]
     public virtual ICollection<ProductDetail> ProductDetails { get; set; } = new List<ProductDetail>();
 
+    [JsonIgnore]
+    [InverseProperty("ProdutoEstoque")]
+    public virtual ICollection<NfceProdutoSaidum> NfceProdutoSaida { get; set; } = new List<NfceProdutoSaidum>();
+
 }

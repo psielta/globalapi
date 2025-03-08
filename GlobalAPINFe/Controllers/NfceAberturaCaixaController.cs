@@ -10,40 +10,40 @@ namespace GlobalAPINFe.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class VendedorController : GlobalLib.GenericControllers.GenericPagedControllerMultiKey<Vendedor, int, int, VendedorDto>
+    public class NfceAberturaCaixaController : GenericPagedControllerMultiKey<NfceAberturaCaixa, int, int, NfceAberturaCaixaDto>
     {
-        public VendedorController(IQueryRepositoryMultiKey<Vendedor, int, int, VendedorDto> repo, ILogger<GlobalLib.GenericControllers.GenericPagedControllerMultiKey<Vendedor, int, int, VendedorDto>> logger) : base(repo, logger)
+        public NfceAberturaCaixaController(IQueryRepositoryMultiKey<NfceAberturaCaixa, int, int, NfceAberturaCaixaDto> repo, ILogger<GenericPagedControllerMultiKey<NfceAberturaCaixa, int, int, NfceAberturaCaixaDto>> logger) : base(repo, logger)
         {
         }
         [HttpGet]
-        [ProducesResponseType(typeof(PagedResponse<Vendedor>), 200)]
+        [ProducesResponseType(typeof(PagedResponse<NfceAberturaCaixa>), 200)]
         [ProducesResponseType(404)]
-        public override async Task<ActionResult<PagedResponse<Vendedor>>> GetEntities([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        public override async Task<ActionResult<PagedResponse<NfceAberturaCaixa>>> GetEntities([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             return await base.GetEntities(pageNumber, pageSize);
         }
 
         [HttpGet("{idEmpresa}/{idCadastro}")]
-        [ProducesResponseType(typeof(Vendedor), 200)]
+        [ProducesResponseType(typeof(NfceAberturaCaixa), 200)]
         [ProducesResponseType(404)]
-        public override async Task<ActionResult<Vendedor>> GetEntity(int idEmpresa, int idCadastro)
+        public override async Task<ActionResult<NfceAberturaCaixa>> GetEntity(int idEmpresa, int idCadastro)
         {
             return await base.GetEntity(idEmpresa, idCadastro);
         }
 
         [HttpPost]
-        [ProducesResponseType(typeof(Vendedor), 201)]
+        [ProducesResponseType(typeof(NfceAberturaCaixa), 201)]
         [ProducesResponseType(400)]
-        public override async Task<ActionResult<Vendedor>> Create([FromBody] VendedorDto dto)
+        public override async Task<ActionResult<NfceAberturaCaixa>> Create([FromBody] NfceAberturaCaixaDto dto)
         {
             return await base.Create(dto);
         }
 
         [HttpPut("{idEmpresa}/{idCadastro}")]
-        [ProducesResponseType(typeof(Vendedor), 200)]
+        [ProducesResponseType(typeof(NfceAberturaCaixa), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public override async Task<ActionResult<Vendedor>> Update(int idEmpresa, int idCadastro, [FromBody] VendedorDto dto)
+        public override async Task<ActionResult<NfceAberturaCaixa>> Update(int idEmpresa, int idCadastro, [FromBody] NfceAberturaCaixaDto dto)
         {
             return await base.Update(idEmpresa, idCadastro, dto);
         }

@@ -13,9 +13,9 @@ namespace GlobalAPINFe.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ImpitensnfeController : GenericPagedControllerMultiKey<Impitensnfe, string, string, ImpitensnfeDto>
+    public class ImpitensnfeController : GlobalLib.GenericControllers.GenericPagedControllerMultiKey<Impitensnfe, string, string, ImpitensnfeDto>
     {
-        public ImpitensnfeController(IQueryRepositoryMultiKey<Impitensnfe, string, string, ImpitensnfeDto> repo, ILogger<GenericPagedControllerMultiKey<Impitensnfe, string, string, ImpitensnfeDto>> logger) : base(repo, logger)
+        public ImpitensnfeController(IQueryRepositoryMultiKey<Impitensnfe, string, string, ImpitensnfeDto> repo, ILogger<GlobalLib.GenericControllers.GenericPagedControllerMultiKey<Impitensnfe, string, string, ImpitensnfeDto>> logger) : base(repo, logger)
         {
         }
 

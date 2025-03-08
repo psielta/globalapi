@@ -23,14 +23,14 @@ namespace GlobalAPINFe.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class EntradaController : GenericPagedControllerMultiKey<Entrada, int, int, EntradaDto>
+    public class EntradaController : GlobalLib.GenericControllers.GenericPagedControllerMultiKey<Entrada, int, int, EntradaDto>
     {
         private readonly EntradaCalculationService _calculationService; 
         private readonly IMapper mapper;
         private readonly GlobalErpFiscalBaseContext context;
         public EntradaController(
             IQueryRepositoryMultiKey<Entrada, int, int, EntradaDto> repo,
-            ILogger<GenericPagedControllerMultiKey<Entrada, int, int, EntradaDto>> logger,
+            ILogger<GlobalLib.GenericControllers.GenericPagedControllerMultiKey<Entrada, int, int, EntradaDto>> logger,
             EntradaCalculationService calculationService, IMapper mapper, GlobalErpFiscalBaseContext _context
         ) : base(repo, logger)
         {

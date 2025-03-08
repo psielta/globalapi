@@ -10,9 +10,9 @@ namespace GlobalAPINFe.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsuarioFuncionarioController : GenericPagedControllerMultiKey<UsuarioFuncionario, int, string, UsuarioFuncionarioDto>
+    public class UsuarioFuncionarioController : GlobalLib.GenericControllers.GenericPagedControllerMultiKey<UsuarioFuncionario, int, string, UsuarioFuncionarioDto>
     {
-        public UsuarioFuncionarioController(IQueryRepositoryMultiKey<UsuarioFuncionario, int, string, UsuarioFuncionarioDto> repo, ILogger<GenericPagedControllerMultiKey<UsuarioFuncionario, int, string, UsuarioFuncionarioDto>> logger) : base(repo, logger)
+        public UsuarioFuncionarioController(IQueryRepositoryMultiKey<UsuarioFuncionario, int, string, UsuarioFuncionarioDto> repo, ILogger<GlobalLib.GenericControllers.GenericPagedControllerMultiKey<UsuarioFuncionario, int, string, UsuarioFuncionarioDto>> logger) : base(repo, logger)
         {
         }
         [HttpGet]

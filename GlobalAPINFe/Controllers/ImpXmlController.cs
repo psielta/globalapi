@@ -9,9 +9,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GlobalAPINFe.Controllers
 {
-    public class ImpXmlController : GenericPagedControllerMultiKey<Impxml, int, string, ImpxmlDto>
+    public class ImpXmlController : GlobalLib.GenericControllers.GenericPagedControllerMultiKey<Impxml, int, string, ImpxmlDto>
     {
-        public ImpXmlController(IQueryRepositoryMultiKey<Impxml, int, string, ImpxmlDto> repo, ILogger<GenericPagedControllerMultiKey<Impxml, int, string, ImpxmlDto>> logger) : base(repo, logger)
+        public ImpXmlController(IQueryRepositoryMultiKey<Impxml, int, string, ImpxmlDto> repo, ILogger<GlobalLib.GenericControllers.GenericPagedControllerMultiKey<Impxml, int, string, ImpxmlDto>> logger) : base(repo, logger)
         {
         }
 

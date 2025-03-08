@@ -19,9 +19,9 @@ namespace GlobalAPINFe.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class FornecedorController : GenericPagedControllerMultiKey<Fornecedor, int, int, FornecedorDto>
+    public class FornecedorController : GlobalLib.GenericControllers.GenericPagedControllerMultiKey<Fornecedor, int, int, FornecedorDto>
     {
-        public FornecedorController(IQueryRepositoryMultiKey<Fornecedor, int, int, FornecedorDto> repo, ILogger<GenericPagedControllerMultiKey<Fornecedor, int, int, FornecedorDto>> logger) : base(repo, logger)
+        public FornecedorController(IQueryRepositoryMultiKey<Fornecedor, int, int, FornecedorDto> repo, ILogger<GlobalLib.GenericControllers.GenericPagedControllerMultiKey<Fornecedor, int, int, FornecedorDto>> logger) : base(repo, logger)
         {
         }
 

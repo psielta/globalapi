@@ -16,9 +16,9 @@ namespace GlobalAPINFe.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ConfiguracoesEmpresaController : GenericPagedControllerMultiKey<ConfiguracoesEmpresa, int, string, ConfiguracoesEmpresaDto>
+    public class ConfiguracoesEmpresaController : GlobalLib.GenericControllers.GenericPagedControllerMultiKey<ConfiguracoesEmpresa, int, string, ConfiguracoesEmpresaDto>
     {
-        public ConfiguracoesEmpresaController(IQueryRepositoryMultiKey<ConfiguracoesEmpresa, int, string, ConfiguracoesEmpresaDto> repo, ILogger<GenericPagedControllerMultiKey<ConfiguracoesEmpresa, int, string, ConfiguracoesEmpresaDto>> logger) : base(repo, logger)
+        public ConfiguracoesEmpresaController(IQueryRepositoryMultiKey<ConfiguracoesEmpresa, int, string, ConfiguracoesEmpresaDto> repo, ILogger<GlobalLib.GenericControllers.GenericPagedControllerMultiKey<ConfiguracoesEmpresa, int, string, ConfiguracoesEmpresaDto>> logger) : base(repo, logger)
         {
         }
 

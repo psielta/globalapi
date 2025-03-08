@@ -115,6 +115,13 @@ namespace GlobalErpData.Repository
             CreateMap<Vendedor, VendedorDto>().ReverseMap();
             CreateMap<UsuarioFuncionario, UsuarioFuncionarioDto>().ReverseMap();
 
+            CreateMap<NfceAberturaCaixa, NfceAberturaCaixaDto>().ReverseMap();
+            CreateMap<NfceSaida, NfceSaidaDto>().ReverseMap();
+            CreateMap<NfceProdutoSaidum, NfceProdutoSaidumDto>().ReverseMap();
+            CreateMap<NfceFormaPgt, NfceFormaPgtDto>().ReverseMap();
+            CreateMap<SangriaCaixa, SangriaCaixaDto>().ReverseMap();
+
+
         }
     }
 }

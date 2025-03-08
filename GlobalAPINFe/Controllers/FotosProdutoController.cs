@@ -17,12 +17,12 @@ namespace GlobalAPINFe.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class FotosProdutoController : GenericPagedControllerMultiKey<FotosProduto, int, int, FotosProdutoDto>
+    public class FotosProdutoController : GlobalLib.GenericControllers.GenericPagedControllerMultiKey<FotosProduto, int, int, FotosProdutoDto>
     {
         private readonly GlobalErpFiscalBaseContext _context;
         private readonly IWebHostEnvironment _environment;
 
-        public FotosProdutoController(IQueryRepositoryMultiKey<FotosProduto, int, int, FotosProdutoDto> repo, ILogger<GenericPagedControllerMultiKey<FotosProduto, int, int, FotosProdutoDto>> logger, IWebHostEnvironment environment, GlobalErpFiscalBaseContext _context) : base(repo, logger)
+        public FotosProdutoController(IQueryRepositoryMultiKey<FotosProduto, int, int, FotosProdutoDto> repo, ILogger<GlobalLib.GenericControllers.GenericPagedControllerMultiKey<FotosProduto, int, int, FotosProdutoDto>> logger, IWebHostEnvironment environment, GlobalErpFiscalBaseContext _context) : base(repo, logger)
         {
             _environment = environment;
             this._context = _context;
