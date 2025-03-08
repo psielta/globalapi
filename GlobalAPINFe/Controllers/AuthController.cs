@@ -94,7 +94,7 @@ namespace GlobalAPIDominio.Controllers
             }
 
             // Buscar empresa
-            var empresa = await repositoryEmpresa.RetrieveAsync(usuario.CdEmpresa);
+            var empresa = await repositoryEmpresa.RetrieveAsync(1);
             if (empresa == null)
             {
                 return NotFound();

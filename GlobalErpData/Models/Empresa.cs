@@ -111,90 +111,123 @@ public partial class Empresa : IIdentifiable<int>
 
     [Column("integrated")]
     public int? Integrated { get; set; }
-    [JsonIgnore]
-    [ForeignKey("CdCidade")]
-    [InverseProperty("Empresas")]
-    public virtual Cidade CdCidadeNavigation { get; set; } = null!;
 
     [JsonPropertyName("nmCidade")]
     [NotMapped]
     public string NmCidade => (CdCidadeNavigation == null) ? "" : (CdCidadeNavigation.NmCidade?? "");
 
+    [Column("unity")]
+    public int Unity { get; set; }
+
+    [JsonIgnore]
+    [InverseProperty("IdEmpresaNavigation")]
+    public virtual ICollection<Category> Categories { get; set; } = new List<Category>();
+
+    [JsonIgnore]
+    [ForeignKey("CdCidade")]
+    [InverseProperty("Empresas")]
+    public virtual Cidade CdCidadeNavigation { get; set; } = null!;
+
     [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<Certificado> Certificados { get; set; } = new List<Certificado>();
-    [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<ObsNf> ObsNfs { get; set; } = new List<ObsNf>();
-    [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<Cliente> Clientes { get; set; } = new List<Cliente>();
-    [JsonIgnore]
-    [InverseProperty("CdEmpresaNavigation")]
-    public virtual ICollection<EntradaOutrasDesp> EntradaOutrasDesps { get; set; } = new List<EntradaOutrasDesp>();
+
     [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<CfopCsosnV2> CfopCsosnV2s { get; set; } = new List<CfopCsosnV2>();
+
+    [JsonIgnore]
+    [InverseProperty("IdEmpresaNavigation")]
+    public virtual ICollection<CfopImportacao> CfopImportacaos { get; set; } = new List<CfopImportacao>();
+
+    [JsonIgnore]
+    [InverseProperty("IdEmpresaNavigation")]
+    public virtual ICollection<Cliente> Clientes { get; set; } = new List<Cliente>();
+
     [JsonIgnore]
     [InverseProperty("CdEmpresaNavigation")]
     public virtual ICollection<ConfEmail> ConfEmails { get; set; } = new List<ConfEmail>();
+
+    [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<ConfiguracoesEmpresa> ConfiguracoesEmpresas { get; set; } = new List<ConfiguracoesEmpresa>();
+
+    [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<ContaDoCaixa> ContaDoCaixas { get; set; } = new List<ContaDoCaixa>();
+
+    [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<ContasAPagar> ContasAPagars { get; set; } = new List<ContasAPagar>();
+
+    [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<ContasAReceber> ContasARecebers { get; set; } = new List<ContasAReceber>();
+
+    [JsonIgnore]
+    [InverseProperty("IdEmpresaNavigation")]
+    public virtual ControleNumeracaoNfe? ControleNumeracaoNfe { get; set; }
+
     [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<CteCompPrestacao> CteCompPrestacaos { get; set; } = new List<CteCompPrestacao>();
+
     [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<CteDocAnterior> CteDocAnteriors { get; set; } = new List<CteDocAnterior>();
-    [JsonIgnore]
-    [InverseProperty("CdEmpresaNavigation")]
-    public virtual ICollection<Funcionario> Funcionarios { get; set; } = new List<Funcionario>();
+
     [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<CteDuplicatum> CteDuplicata { get; set; } = new List<CteDuplicatum>();
+
     [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<CteInutilizarNumero> CteInutilizarNumeros { get; set; } = new List<CteInutilizarNumero>();
+
     [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<CteNf> CteNfs { get; set; } = new List<CteNf>();
+
     [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<CteNfe> CteNves { get; set; } = new List<CteNfe>();
+
     [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<CteOb> CteObs { get; set; } = new List<CteOb>();
-    [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<Fornecedor> Fornecedors { get; set; } = new List<Fornecedor>();
-    [JsonIgnore]
-    [InverseProperty("CdEmpresaNavigation")]
-    public virtual ICollection<Vendedor> Vendedors { get; set; } = new List<Vendedor>();
-    [JsonIgnore]
-    [InverseProperty("CdEmpresaNavigation")]
-    public virtual ICollection<UsuarioFuncionario> UsuarioFuncionarios { get; set; } = new List<UsuarioFuncionario>();
+
     [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<CteOrdemColetum> CteOrdemColeta { get; set; } = new List<CteOrdemColetum>();
+
     [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<CteOutrosDoc> CteOutrosDocs { get; set; } = new List<CteOutrosDoc>();
+
     [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<CtePassagem> CtePassagems { get; set; } = new List<CtePassagem>();
+
     [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<CteProdPerigoso> CteProdPerigosos { get; set; } = new List<CteProdPerigoso>();
+
     [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<CteQtdCarga> CteQtdCargas { get; set; } = new List<CteQtdCarga>();
+
     [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<CteRodMotoristum> CteRodMotorista { get; set; } = new List<CteRodMotoristum>();
+
     [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<CteRodVeiculo> CteRodVeiculos { get; set; } = new List<CteRodVeiculo>();
+
     [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<CteSeguro> CteSeguros { get; set; } = new List<CteSeguro>();
+
     [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<CteValePedagio> CteValePedagios { get; set; } = new List<CteValePedagio>();
@@ -208,8 +241,68 @@ public partial class Empresa : IIdentifiable<int>
     public virtual ICollection<Cte> Ctes { get; set; } = new List<Cte>();
 
     [JsonIgnore]
+    [InverseProperty("IdEmpresaNavigation")]
+    public virtual ICollection<DistribuicaoDfe> DistribuicaoDves { get; set; } = new List<DistribuicaoDfe>();
+
+    [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<Entrada> Entrada { get; set; } = new List<Entrada>();
+
+    [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<EntradaOutrasDesp> EntradaOutrasDesps { get; set; } = new List<EntradaOutrasDesp>();
+
+    [JsonIgnore]
+    [InverseProperty("IdEmpresaNavigation")]
+    public virtual ICollection<EntregaNfe> EntregaNves { get; set; } = new List<EntregaNfe>();
+
+    [JsonIgnore]
+    [InverseProperty("IdEmpresaNavigation")]
+    public virtual ICollection<Featured> Featureds { get; set; } = new List<Featured>();
+
+    [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<FormaPagt> FormaPagts { get; set; } = new List<FormaPagt>();
+
+    [JsonIgnore]
+    [InverseProperty("IdEmpresaNavigation")]
+    public virtual ICollection<Fornecedor> Fornecedors { get; set; } = new List<Fornecedor>();
+
+    [JsonIgnore]
+    [InverseProperty("IdEmpresaNavigation")]
+    public virtual ICollection<FotosProduto> FotosProdutos { get; set; } = new List<FotosProduto>();
+
+    [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<Frete> Fretes { get; set; } = new List<Frete>();
+
+    [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<Funcionario> Funcionarios { get; set; } = new List<Funcionario>();
+
+    [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<GrupoEstoque> GrupoEstoques { get; set; } = new List<GrupoEstoque>();
+
+    [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<HistoricoCaixa> HistoricoCaixas { get; set; } = new List<HistoricoCaixa>();
+
+    [JsonIgnore]
     [InverseProperty("CdEmpresaNavigation")]
     public virtual ICollection<Icm> Icms { get; set; } = new List<Icm>();
+
+    [JsonIgnore]
+    [InverseProperty("IdEmpresaNavigation")]
+    public virtual ICollection<Impxml> Impxmls { get; set; } = new List<Impxml>();
+
+    [JsonIgnore]
+    [InverseProperty("IdEmpresaNavigation")]
+    public virtual ICollection<ItemDetail> ItemDetails { get; set; } = new List<ItemDetail>();
+
+    [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<LivroCaixa> LivroCaixas { get; set; } = new List<LivroCaixa>();
 
     [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
@@ -228,191 +321,16 @@ public partial class Empresa : IIdentifiable<int>
     public virtual ICollection<MdfeReboque> MdfeReboques { get; set; } = new List<MdfeReboque>();
 
     [JsonIgnore]
-    [InverseProperty("CdEmpresaNavigation")]
-    public virtual ICollection<ContasAPagar> ContasAPagars { get; set; } = new List<ContasAPagar>();
-
-    [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<MdfeRodoviario> MdfeRodoviarios { get; set; } = new List<MdfeRodoviario>();
 
     [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<Mdfe> Mdves { get; set; } = new List<Mdfe>();
+
     [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<NcmProtocoloEstado> NcmProtocoloEstados { get; set; } = new List<NcmProtocoloEstado>();
-
-    [JsonIgnore]
-    [InverseProperty("CdEmpresaNavigation")]
-    public virtual ICollection<Usuario> Usuarios { get; set; } = new List<Usuario>();
-
-    [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<ProdutoEstoque> ProdutoEstoques { get; set; } = new List<ProdutoEstoque>();
-    [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<CfopImportacao> CfopImportacaos { get; set; } = new List<CfopImportacao>();
-
-    [JsonIgnore]
-    [InverseProperty("CdEmpresaNavigation")]
-    public virtual ICollection<GrupoEstoque> GrupoEstoques { get; set; } = new List<GrupoEstoque>();
-
-    [JsonIgnore]
-    [InverseProperty("CdEmpresaNavigation")]
-    public virtual ICollection<ReferenciaEstoque> ReferenciaEstoques { get; set; } = new List<ReferenciaEstoque>();
-
-    [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<UnidadeMedida> UnidadeMedida { get; set; } = new List<UnidadeMedida>();
-
-    [JsonIgnore]
-    [InverseProperty("CdEmpresaNavigation")]
-    public virtual ICollection<PlanoEstoque> PlanoEstoques { get; set; } = new List<PlanoEstoque>();
-
-    [JsonIgnore]
-    [InverseProperty("CdEmpresaNavigation")]
-    public virtual ICollection<SaldoEstoque> SaldoEstoques { get; set; } = new List<SaldoEstoque>();
-
-    [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<ProdutosForn> ProdutosForns { get; set; } = new List<ProdutosForn>();
-
-    [JsonIgnore]
-    [InverseProperty("CdEmpresaNavigation")]
-    public virtual ICollection<ConfiguracoesEmpresa> ConfiguracoesEmpresas { get; set; } = new List<ConfiguracoesEmpresa>();
-
-    [JsonIgnore]
-    [InverseProperty("CdEmpresaNavigation")]
-    public virtual ICollection<Entrada> Entrada { get; set; } = new List<Entrada>();
-
-    [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<Transportadora> Transportadoras { get; set; } = new List<Transportadora>();
-
-    [JsonIgnore]
-    [InverseProperty("CdEmpresaNavigation")]
-    public virtual ICollection<ProdutoEntradum> ProdutoEntrada { get; set; } = new List<ProdutoEntradum>();
-
-    [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<SectionItem> SectionItems { get; set; } = new List<SectionItem>();
-
-    [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<Section> Sections { get; set; } = new List<Section>();
-
-    [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<Featured> Featureds { get; set; } = new List<Featured>();
-
-    [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<ProductDetail> ProductDetails { get; set; } = new List<ProductDetail>();
-
-    [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<ItemDetail> ItemDetails { get; set; } = new List<ItemDetail>();
-
-    [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<Older> Olders { get; set; } = new List<Older>();
-
-    [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<Impxml> Impxmls { get; set; } = new List<Impxml>();
-
-    [JsonIgnore]
-    [InverseProperty("CdEmpresaNavigation")]
-    public virtual ICollection<ContasAReceber> ContasARecebers { get; set; } = new List<ContasAReceber>();
-
-    [JsonIgnore]
-    [InverseProperty("CdEmpresaNavigation")]
-    public virtual ICollection<LivroCaixa> LivroCaixas { get; set; } = new List<LivroCaixa>();
-
-    [JsonIgnore]
-    [InverseProperty("CdEmpresaNavigation")]
-    public virtual ICollection<PagtosParciaisCp> PagtosParciaisCps { get; set; } = new List<PagtosParciaisCp>();
-
-    [JsonIgnore]
-    [InverseProperty("CdEmpresaNavigation")]
-    public virtual ICollection<PagtosParciaisCr> PagtosParciaisCrs { get; set; } = new List<PagtosParciaisCr>();
-
-    [GraphQLIgnore]
-    public int GetId()
-    {
-        return this.CdEmpresa;
-    }
-
-    [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<PerfilLoja> PerfilLojas { get; set; } = new List<PerfilLoja>();
-
-
-    [GraphQLIgnore]
-    public string GetKeyName()
-    {
-        return "CdEmpresa";
-    }
-
-    [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<FotosProduto> FotosProdutos { get; set; } = new List<FotosProduto>();
-
-    [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<Category> Categories { get; set; } = new List<Category>();
-
-    [JsonIgnore]
-    [InverseProperty("CdEmpresaNavigation")]
-    public virtual ICollection<ContaDoCaixa> ContaDoCaixas { get; set; } = new List<ContaDoCaixa>();
-
-    [JsonIgnore]
-    [InverseProperty("CdEmpresaNavigation")]
-    public virtual ICollection<PlanoDeCaixa> PlanoDeCaixas { get; set; } = new List<PlanoDeCaixa>();
-
-    [JsonIgnore]
-    [InverseProperty("CdEmpresaNavigation")]
-    public virtual ICollection<HistoricoCaixa> HistoricoCaixas { get; set; } = new List<HistoricoCaixa>();
-
-    [JsonIgnore]
-    [InverseProperty("CdEmpresaNavigation")]
-    public virtual ICollection<FormaPagt> FormaPagts { get; set; } = new List<FormaPagt>();
-
-    [JsonIgnore]
-    [InverseProperty("EmpresaNavigation")]
-    public virtual ICollection<Saida> Saida { get; set; } = new List<Saida>();
-
-    [JsonIgnore]
-    [InverseProperty("CdEmpresaNavigation")]
-    public virtual ICollection<ProdutoSaidum> ProdutoSaida { get; set; } = new List<ProdutoSaidum>();
-
-    [JsonIgnore]
-    [InverseProperty("CdEmpresaNavigation")]
-    public virtual ICollection<Frete> Fretes { get; set; } = new List<Frete>();
-
-    [JsonIgnore]
-    [InverseProperty("CdEmpresaNavigation")]
-    public virtual ICollection<SaidasVolume> SaidasVolumes { get; set; } = new List<SaidasVolume>();
-
-    [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<ProtocoloEstadoNcm> ProtocoloEstadoNcms { get; set; } = new List<ProtocoloEstadoNcm>();
-
-    [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ControleNumeracaoNfe? ControleNumeracaoNfe { get; set; }
-
-    [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<EntregaNfe> EntregaNves { get; set; } = new List<EntregaNfe>();
-
-    [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<RetiradaNfe> RetiradaNves { get; set; } = new List<RetiradaNfe>();
-
-    [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<DistribuicaoDfe> DistribuicaoDves { get; set; } = new List<DistribuicaoDfe>();
 
     [JsonIgnore]
     [InverseProperty("CdEmpresaNavigation")]
@@ -431,6 +349,123 @@ public partial class Empresa : IIdentifiable<int>
     public virtual ICollection<NfceSaida> NfceSaida { get; set; } = new List<NfceSaida>();
 
     [JsonIgnore]
+    [InverseProperty("IdEmpresaNavigation")]
+    public virtual ICollection<ObsNf> ObsNfs { get; set; } = new List<ObsNf>();
+
+    [JsonIgnore]
+    [InverseProperty("IdEmpresaNavigation")]
+    public virtual ICollection<Older> Olders { get; set; } = new List<Older>();
+
+    [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<PagtosParciaisCp> PagtosParciaisCps { get; set; } = new List<PagtosParciaisCp>();
+
+    [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<PagtosParciaisCr> PagtosParciaisCrs { get; set; } = new List<PagtosParciaisCr>();
+
+    [JsonIgnore]
+    [InverseProperty("IdEmpresaNavigation")]
+    public virtual ICollection<PerfilLoja> PerfilLojas { get; set; } = new List<PerfilLoja>();
+
+    [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<PlanoDeCaixa> PlanoDeCaixas { get; set; } = new List<PlanoDeCaixa>();
+
+    [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<PlanoEstoque> PlanoEstoques { get; set; } = new List<PlanoEstoque>();
+
+    [JsonIgnore]
+    [InverseProperty("IdEmpresaNavigation")]
+    public virtual ICollection<ProductDetail> ProductDetails { get; set; } = new List<ProductDetail>();
+
+    [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<ProdutoEntradum> ProdutoEntrada { get; set; } = new List<ProdutoEntradum>();
+
+    [JsonIgnore]
+    [InverseProperty("IdEmpresaNavigation")]
+    public virtual ICollection<ProdutoEstoque> ProdutoEstoques { get; set; } = new List<ProdutoEstoque>();
+
+    [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<ProdutoSaidum> ProdutoSaida { get; set; } = new List<ProdutoSaidum>();
+
+    [JsonIgnore]
+    [InverseProperty("IdEmpresaNavigation")]
+    public virtual ICollection<ProdutosForn> ProdutosForns { get; set; } = new List<ProdutosForn>();
+
+    [JsonIgnore]
+    [InverseProperty("IdEmpresaNavigation")]
+    public virtual ICollection<ProtocoloEstadoNcm> ProtocoloEstadoNcms { get; set; } = new List<ProtocoloEstadoNcm>();
+
+    [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<ReferenciaEstoque> ReferenciaEstoques { get; set; } = new List<ReferenciaEstoque>();
+
+    [JsonIgnore]
+    [InverseProperty("IdEmpresaNavigation")]
+    public virtual ICollection<RetiradaNfe> RetiradaNves { get; set; } = new List<RetiradaNfe>();
+
+    [JsonIgnore]
+    [InverseProperty("EmpresaNavigation")]
+    public virtual ICollection<Saida> Saida { get; set; } = new List<Saida>();
+
+    [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<SaidasVolume> SaidasVolumes { get; set; } = new List<SaidasVolume>();
+
+    [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<SaldoEstoque> SaldoEstoques { get; set; } = new List<SaldoEstoque>();
+
+    [JsonIgnore]
     [InverseProperty("CdEmpresaNavigation")]
     public virtual ICollection<SangriaCaixa> SangriaCaixas { get; set; } = new List<SangriaCaixa>();
+
+    [JsonIgnore]
+    [InverseProperty("IdEmpresaNavigation")]
+    public virtual ICollection<SectionItem> SectionItems { get; set; } = new List<SectionItem>();
+
+    [JsonIgnore]
+    [InverseProperty("IdEmpresaNavigation")]
+    public virtual ICollection<Section> Sections { get; set; } = new List<Section>();
+
+    [JsonIgnore]
+    [InverseProperty("IdEmpresaNavigation")]
+    public virtual ICollection<Transportadora> Transportadoras { get; set; } = new List<Transportadora>();
+
+    [JsonIgnore]
+    [InverseProperty("IdEmpresaNavigation")]
+    public virtual ICollection<UnidadeMedida> UnidadeMedida { get; set; } = new List<UnidadeMedida>();
+
+    [JsonIgnore]
+    [ForeignKey("Unity")]
+    [InverseProperty("Empresas")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
+
+    [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<UsuarioEmpresa> UsuarioEmpresas { get; set; } = new List<UsuarioEmpresa>();
+
+    [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<UsuarioFuncionario> UsuarioFuncionarios { get; set; } = new List<UsuarioFuncionario>();
+
+    [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<Vendedor> Vendedors { get; set; } = new List<Vendedor>();
+
+    [GraphQLIgnore]
+    public int GetId()
+    {
+        return this.CdEmpresa;
+    }
+
+    [GraphQLIgnore]
+    public string GetKeyName()
+    {
+        return "CdEmpresa";
+    }
 }

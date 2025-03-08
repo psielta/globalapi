@@ -28,9 +28,6 @@ public partial class Usuario : IIdentifiable<string>
     [StringLength(62)]
     public string NmPessoa { get; set; } = null!;
 
-    [Column("cd_empresa")]
-    public int CdEmpresa { get; set; }
-
     [Column("ativo")]
     [StringLength(1)]
     public string? Ativo { get; set; }
@@ -66,10 +63,8 @@ public partial class Usuario : IIdentifiable<string>
     [Column("integrated")]
     public int? Integrated { get; set; }
 
-    [JsonIgnore]
-    [ForeignKey("CdEmpresa")]
-    [InverseProperty("Usuarios")]
-    public virtual Empresa CdEmpresaNavigation { get; set; } = null!;
+    [Column("unity")]
+    public int Unity { get; set; }
 
     [JsonIgnore]
     [InverseProperty("IdUsuarioCadNavigation")]
@@ -80,12 +75,21 @@ public partial class Usuario : IIdentifiable<string>
     public virtual ICollection<ConfiguracoesUsuario> ConfiguracoesUsuarios { get; set; } = new List<ConfiguracoesUsuario>();
 
     [JsonIgnore]
-    [InverseProperty("IdUsuarioNavigation")]
-    public virtual ICollection<UsuarioPermissao> UsuarioPermissaos { get; set; } = new List<UsuarioPermissao>();
+    [ForeignKey("Unity")]
+    [InverseProperty("Usuarios")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
+
+    [JsonIgnore]
+    [InverseProperty("CdUsuarioNavigation")]
+    public virtual ICollection<UsuarioEmpresa> UsuarioEmpresas { get; set; } = new List<UsuarioEmpresa>();
 
     [JsonIgnore]
     [InverseProperty("NmUsuarioNavigation")]
     public virtual ICollection<UsuarioFuncionario> UsuarioFuncionarios { get; set; } = new List<UsuarioFuncionario>();
+
+    [JsonIgnore]
+    [InverseProperty("IdUsuarioNavigation")]
+    public virtual ICollection<UsuarioPermissao> UsuarioPermissaos { get; set; } = new List<UsuarioPermissao>();
 
     [GraphQLIgnore]
     public string GetId()

@@ -31,6 +31,7 @@ namespace GlobalErpData.Dto
         public bool EmailConfirmed { get; set; }
 
         public string SecurityStamp { get; set; } = null!;
+        public int Unity { get; set; }
     }
 
 }

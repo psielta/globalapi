@@ -128,6 +128,8 @@ builder.Services.AddScoped<IRepositoryDto<ProductDetail, int, ProductDetailDto>,
 builder.Services.AddScoped<IRepositoryDto<ItemDetail, int, ItemDetailDto>, ItemDetailRepository>();
 builder.Services.AddScoped<IRepositoryDto<PerfilLoja, int, PerfilLojaDto>, PerfilLojaRepository>();
 builder.Services.AddScoped<IRepositoryDto<OlderItem, Guid, OlderItemDto>, OlderItemRepository>();
+builder.Services.AddScoped<IRepositoryDto<Unity, int, UnityDto>, UnityRepository>();
+builder.Services.AddScoped<IRepositoryDto<UsuarioEmpresa, int, UsuarioEmpresaDto>, UsuarioEmpresaRepository>();
 builder.Services.AddScoped<IQueryRepository<Older, Guid, OlderDto>, OlderRepository>();
 builder.Services.AddScoped<IRepositoryDto<Category, int, CategoryDto>, CategoryRep>();
 builder.Services.AddScoped<IQueryRepository<ContaDoCaixa, int, ContaCaixaDto>, ContaCaixaRepository>();

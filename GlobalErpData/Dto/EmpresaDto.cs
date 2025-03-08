@@ -44,5 +44,6 @@ namespace GlobalErpData.Dto
         public string? Iest { get; set; }
         public string? Complemento { get; set; }
         public string? Cnae { get; set; }
+        public int Unity { get; set; }
     }
 }

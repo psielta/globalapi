@@ -18,7 +18,7 @@ namespace GlobalErpData.Repository.Repositories
         public async Task<IEnumerable<Usuario>> GetUsuariosAsyncPerEmpresa(int IdEmpresa)
         {
             return await db.Set<Usuario>()
-                .Where(e => e.CdEmpresa == IdEmpresa)
+                //.Where(e => e.CdEmpresa == IdEmpresa)
                 .ToListAsync();
         }
     }

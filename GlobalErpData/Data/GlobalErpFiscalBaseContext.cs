@@ -35,6 +35,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
     public virtual DbSet<CfopImportacao> CfopImportacaos { get; set; }
 
     public virtual DbSet<Cidade> Cidades { get; set; }
+    public virtual DbSet<UsuarioEmpresa> UsuarioEmpresas { get; set; }
+    public virtual DbSet<Unity> Unities { get; set; }
     public virtual DbSet<NfceAberturaCaixa> NfceAberturaCaixas { get; set; }
 
     public virtual DbSet<NfceFormaPgt> NfceFormaPgts { get; set; }
@@ -882,6 +884,10 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.CdCidadeNavigation).WithMany(p => p.Empresas)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("empresa_fk");
+
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.Empresas)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("empresa_fk1");
         });
 
         modelBuilder.Entity<Entrada>(entity =>
@@ -2252,6 +2258,11 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .HasConstraintName("unidade_medida_fk2");
         });
 
+        modelBuilder.Entity<Unity>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("unity_pkey");
+        });
+
         modelBuilder.Entity<Usuario>(entity =>
         {
             entity.HasKey(e => e.NmUsuario).HasName("usuario_pkey");
@@ -2261,7 +2272,20 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.Integrated).HasDefaultValue(0);
             entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
-            entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.Usuarios).HasConstraintName("usuario_fk");
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.Usuarios)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("usuario_fk1");
+        });
+
+        modelBuilder.Entity<UsuarioEmpresa>(entity =>
+        {
+            entity.HasKey(e => new { e.CdUsuario, e.CdEmpresa }).HasName("usuario_empresa_pkey");
+
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+
+            entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.UsuarioEmpresas).HasConstraintName("usuario_empresa_fk1");
+
+            entity.HasOne(d => d.CdUsuarioNavigation).WithMany(p => p.UsuarioEmpresas).HasConstraintName("usuario_empresa_fk");
         });
 
         modelBuilder.Entity<UsuarioFuncionario>(entity =>
@@ -2326,6 +2350,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         modelBuilder.HasSequence("seq_fornecedor_geral_2");
         modelBuilder.HasSequence("seq_fotos_geral_1");
         modelBuilder.HasSequence("seq_funcionario_geral_1");
+        modelBuilder.HasSequence("seq_nfce_saidas_geral_1");
         modelBuilder.HasSequence("seq_produto_geral_1").StartsAt(832L);
         modelBuilder.HasSequence("seq_produto_geral_2");
         modelBuilder.HasSequence("seq_transportadora_geral_1");
