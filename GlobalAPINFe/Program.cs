@@ -30,7 +30,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin",
         builder => builder
-            .WithOrigins("http://localhost:3339", "http://192.168.1.100:3006", "http://191.101.235.12:3000", "http://192.168.1.101:3006", "http://200.98.160.51:8104", "http://145.223.29.182:3006", "http://localhost:5127", "http://localhost:5129", "http://localhost:3006", "http://46.202.151.238:3006", "http://191.101.235.12:3006")
+           .WithOrigins("http://192.168.1.131:3006", "http://192.168.1.134:3006", "http://192.168.1.100:3006", "http://192.168.1.101:3006", "http://200.98.160.51:8104", "http://145.223.29.182:3006", "http://localhost:5127", "http://localhost:5129", "http://localhost:3006", "http://46.202.151.238:3006", "http://191.101.235.12:3006")
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials());
@@ -71,9 +71,9 @@ builder.Services.AddAuthentication(options =>
     });
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
-builder.Services.AddDbContext<GlobalErpFiscalBaseContext>(options => 
+builder.Services.AddDbContext<GlobalErpFiscalBaseContext>(options =>
     options.UseNpgsql(IniFile.GetConnectionString())
-     .EnableSensitiveDataLogging() 
+     .EnableSensitiveDataLogging()
            .LogTo(Console.WriteLine, LogLevel.Information)
 
 );
@@ -156,7 +156,7 @@ builder.Services.AddScoped<IQueryRepository<LivroCaixa, long, LivroCaixaDto>, Li
 builder.Services.AddScoped<IQueryRepository<PagtosParciaisCr, int, PagtosParciaisCrDto>, PagtosParciaisCrRepository>();
 builder.Services.AddScoped<IQueryRepository<PagtosParciaisCp, int, PagtosParciaisCpDto>, PagtosParciaisCpRepository>();
 builder.Services.AddScoped<IQueryRepository<DistribuicaoDfe, Guid, DistribuicaoDfeDto>, DistribuicaoDfeRepository>();
-builder.Services.AddScoped<IQueryRepository<EntradaOutrasDesp, int, EntradaOutrasDespDto>,  EntradaOutrasDespRepository>();
+builder.Services.AddScoped<IQueryRepository<EntradaOutrasDesp, int, EntradaOutrasDespDto>, EntradaOutrasDespRepository>();
 builder.Services.AddScoped<IQueryRepository<Cte, int, CteDto>, CteRepository>();
 
 builder.Services.AddScoped<EntradaCalculationService>();

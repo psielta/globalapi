@@ -41,6 +41,7 @@ namespace GlobalAPINFe.Lib
                 new Permissao { Chave = "livro-caixa", Modulo = "FI", Descricao = "Livro de Caixa" },
                 new Permissao { Chave = "sintegra", Modulo = "ES", Descricao = "Sintegra" },
                 new Permissao { Chave = "relatorio-painel-cliente", Modulo = "ADM", Descricao = "Relatorio de Clientes" },
+                new Permissao { Chave = "cadastro-unidade", Modulo = "ADM", Descricao = "Cadastro de Unidade"},
                 
             };
             try

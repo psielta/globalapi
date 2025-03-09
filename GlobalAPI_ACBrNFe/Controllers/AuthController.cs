@@ -23,7 +23,9 @@ namespace GlobalAPI_ACBrNFe.Controllers
         private readonly SignInManager<Usuario> _signInManager;
         private readonly IRepositoryDto<Empresa, int, EmpresaDto> repositoryEmpresa;
         private readonly IRepositoryDto<Permissao, int, PermissaoDto> repositoryPermissao;
+        private readonly IRepositoryDto<Unity, int, UnityDto> unityRepository;
         private readonly IRepositoryDto<UsuarioPermissao, int, UsuarioPermissaoDto> repositoryUsuarioPermissao;
+        private readonly IRepositoryDto<UsuarioEmpresa, int, UsuarioEmpresaDto> usuarioEmpresaRepository;
         private readonly EmailService _emailService;
 
         public AuthController(
@@ -33,6 +35,8 @@ namespace GlobalAPI_ACBrNFe.Controllers
             IRepositoryDto<Empresa, int, EmpresaDto> repositoryEmpresa,
             IRepositoryDto<Permissao, int, PermissaoDto> repositoryPermissao,
             IRepositoryDto<UsuarioPermissao, int, UsuarioPermissaoDto> repositoryUsuarioPermissao,
+            IRepositoryDto<Unity, int, UnityDto> unityRepository,
+            IRepositoryDto<UsuarioEmpresa, int, UsuarioEmpresaDto> usuarioEmpresaRepository,
             EmailService emailService)
         {
             _configuration = configuration;
@@ -41,6 +45,9 @@ namespace GlobalAPI_ACBrNFe.Controllers
             this.repositoryEmpresa = repositoryEmpresa;
             this.repositoryPermissao = repositoryPermissao;
             this.repositoryUsuarioPermissao = repositoryUsuarioPermissao;
+            this.unityRepository = unityRepository;
+            this.usuarioEmpresaRepository = usuarioEmpresaRepository;
+
             _emailService = emailService;
         }
 
@@ -91,27 +98,41 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 usuario.NeedPasswordHashUpdate = false;
             }
 
-            // Buscar empresa
-            var empresa = await repositoryEmpresa.RetrieveAsync(usuario.CdEmpresa);
-            if (empresa == null)
+            Unity? unity = await unityRepository.RetrieveAsync(usuario.Unity);
+
+            if (unity == null)
             {
-                return NotFound();
+                return NotFound(new { errorMessage = "Unidade do usuario nao encontrada!" });
+            }
+            int unityId = unity.Id;
+
+            List<UsuarioEmpresa>? usuarioEmpresas = await ((UsuarioEmpresaRepository)usuarioEmpresaRepository).RetrieveAllAsyncPerUser(usuario.NmUsuario);
+            if (usuarioEmpresas == null || usuarioEmpresas.Count <= 0)
+            {
+                return NotFound(new { errorMessage = "Empresa(s) do usuario nao encontrada!" });
+            }
+            // Buscar empresa
+            var empresas = await ((EmpresaRepositoryDto)repositoryEmpresa).RetrieveAllAsyncPerUsuarioEmpresas(usuarioEmpresas);
+            if (empresas == null)
+            {
+                return NotFound(new { errorMessage = "Empresa(s) do usuario nao encontrada!" });
             }
 
             // Buscar permissões
             var permissoes = await repositoryPermissao.RetrieveAllAsync();
             var permissoesUsuario = await ((UsuarioPermissaoRepositoryDto)repositoryUsuarioPermissao).RetrieveAllAsyncPerUser(usuario.NmUsuario);
 
-            var token = GenerateJwtToken(usuario, empresa, permissoes, permissoesUsuario);
+            var token = GenerateJwtToken(usuario, permissoes, permissoesUsuario, empresas, unity);
             return Ok(new { token });
         }
 
 
         private ResponseLogin GenerateJwtToken(
             Usuario usuario,
-            Empresa empresa,
             IEnumerable<Permissao> permissoes,
-            IEnumerable<UsuarioPermissao> permissoesUsuario)
+            IEnumerable<UsuarioPermissao> permissoesUsuario,
+            List<Empresa> empresas,
+            Unity unity)
         {
             var claims = new List<Claim>
             {
@@ -140,12 +161,13 @@ namespace GlobalAPI_ACBrNFe.Controllers
             return new ResponseLogin
             {
                 Token = jwt,
-                Empresa = empresa,
                 Usuario = usuario,
                 Expiration = expiracao,
                 Username = usuario.NmUsuario,
                 Permissoes = permissoes,
-                PermissoesUsuario = permissoesUsuario
+                PermissoesUsuario = permissoesUsuario,
+                Empresas = empresas,
+                Unity = unity
             };
         }
     }

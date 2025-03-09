@@ -147,8 +147,8 @@ namespace GlobalAPINFe.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error occurred while retrieving paged entities.");
-                return StatusCode(500, "An error occurred while retrieving entities. Please try again later.");
+                logger.LogError(ex, "Error occurred while retrieving paged entities (Clientes).");
+                return StatusCode(500, "An error occurred while retrieving entities (Clientes). Please try again later.");
             }
         }
 

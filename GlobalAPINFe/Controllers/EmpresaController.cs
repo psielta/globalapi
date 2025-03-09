@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using GlobalLib.Dto;
+using GlobalErpData.Repository.Repositories;
+using X.PagedList.Extensions;
 
 namespace GlobalAPINFe.Controllers
 {
@@ -61,6 +64,34 @@ namespace GlobalAPINFe.Controllers
         public override async Task<IActionResult> Delete(int id)
         {
             return await base.Delete(id);
+        }
+
+        [HttpGet("GetEmpresaByUnity", Name = nameof(GetEmpresaByUnity))]
+        [ProducesResponseType(typeof(PagedResponse<Empresa>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<PagedResponse<Empresa>>> GetEmpresaByUnity(
+            int unity,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10
+            )
+        {
+            try
+            {
+                var query = ((EmpresaRepositoryDto)repo).GetQueryableEmpresasByUnity(unity);
+
+                var filteredQuery = query.OrderBy(p => p.CdEmpresa);
+
+                var pagedList = filteredQuery.ToPagedList(pageNumber, pageSize);
+
+                var response = new PagedResponse<Empresa>(pagedList);
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while retrieving paged entities (Empresas).");
+                return StatusCode(500, "An error occurred while retrieving entities (Empresas). Please try again later.");
+            }
         }
     }
 }

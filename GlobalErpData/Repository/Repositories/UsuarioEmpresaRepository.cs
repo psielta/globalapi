@@ -3,6 +3,7 @@ using GlobalErpData.Data;
 using GlobalErpData.Dto;
 using GlobalErpData.Models;
 using GlobalLib.Repository;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,11 @@ namespace GlobalErpData.Repository.Repositories
     {
         public UsuarioEmpresaRepository(GlobalErpFiscalBaseContext injectedContext, IMapper mapper, ILogger<GenericRepositoryDto<UsuarioEmpresa, GlobalErpFiscalBaseContext, int, UsuarioEmpresaDto>> logger) : base(injectedContext, mapper, logger)
         {
+        }
+
+        public async Task<List<UsuarioEmpresa>?> RetrieveAllAsyncPerUser(string nmUsuario)
+        {
+            return await db.Set<UsuarioEmpresa>().Where(ue => ue.CdUsuario.Equals(nmUsuario)).ToListAsync();
         }
     }
 }
