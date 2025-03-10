@@ -76,5 +76,7 @@ namespace GlobalErpData.Dto
         public DateTime? LastUpdate { get; set; }
 
         public int? Integrated { get; set; }
+
+        public int Unity { get; set; }
     }
 }

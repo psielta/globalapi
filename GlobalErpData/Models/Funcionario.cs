@@ -140,6 +140,9 @@ public partial class Funcionario : IIdentifiableMultiKey<int, int>
     [Column("integrated")]
     public int? Integrated { get; set; }
 
+    [Column("unity")]
+    public int Unity { get; set; }
+
     [JsonIgnore]
     [ForeignKey("CdEmpresa")]
     [InverseProperty("Funcionarios")]
@@ -149,6 +152,11 @@ public partial class Funcionario : IIdentifiableMultiKey<int, int>
     [ForeignKey("Cidade")]
     [InverseProperty("Funcionarios")]
     public virtual Cidade? CidadeNavigation { get; set; }
+
+    [JsonIgnore]
+    [ForeignKey("Unity")]
+    [InverseProperty("Funcionarios")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
 
     [JsonIgnore]
     [InverseProperty("Funcionario")]

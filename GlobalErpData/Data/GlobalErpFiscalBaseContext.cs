@@ -1094,6 +1094,10 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.Funcionarios).HasConstraintName("funcionario_fk");
 
             entity.HasOne(d => d.CidadeNavigation).WithMany(p => p.Funcionarios).HasConstraintName("funcionario_fk1");
+
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.Funcionarios)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("funcionario_fk2");
         });
 
         modelBuilder.Entity<GrupoEstoque>(entity =>
@@ -2346,14 +2350,30 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         modelBuilder.HasSequence("mdfe_rodoviario_id_seq", "mdfe");
         modelBuilder.HasSequence("mdfe_seguro_id_seq", "mdfe");
         modelBuilder.HasSequence("seq_entrada_geral_1");
+        modelBuilder.HasSequence("seq_entrada_geral_10");
+        modelBuilder.HasSequence("seq_entrada_geral_11");
         modelBuilder.HasSequence("seq_fornecedor_geral_1");
+        modelBuilder.HasSequence("seq_fornecedor_geral_10");
+        modelBuilder.HasSequence("seq_fornecedor_geral_11");
         modelBuilder.HasSequence("seq_fornecedor_geral_2");
         modelBuilder.HasSequence("seq_fotos_geral_1");
+        modelBuilder.HasSequence("seq_fotos_geral_10");
+        modelBuilder.HasSequence("seq_fotos_geral_11");
         modelBuilder.HasSequence("seq_funcionario_geral_1");
+        modelBuilder.HasSequence("seq_funcionario_geral_10");
+        modelBuilder.HasSequence("seq_funcionario_geral_11");
+        modelBuilder.HasSequence("seq_nfce_abertura_caixa_geral_10");
+        modelBuilder.HasSequence("seq_nfce_abertura_caixa_geral_11");
         modelBuilder.HasSequence("seq_nfce_saidas_geral_1");
+        modelBuilder.HasSequence("seq_nfce_saidas_geral_10");
+        modelBuilder.HasSequence("seq_nfce_saidas_geral_11");
         modelBuilder.HasSequence("seq_produto_geral_1").StartsAt(832L);
+        modelBuilder.HasSequence("seq_produto_geral_10");
+        modelBuilder.HasSequence("seq_produto_geral_11");
         modelBuilder.HasSequence("seq_produto_geral_2");
         modelBuilder.HasSequence("seq_transportadora_geral_1");
+        modelBuilder.HasSequence("seq_transportadora_geral_10");
+        modelBuilder.HasSequence("seq_transportadora_geral_11");
 
         /************************************************************/
         /* MODELOS PERSONALIZADOS => Triggers & Views => NAO APAGAR */

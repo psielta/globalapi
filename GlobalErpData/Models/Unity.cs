@@ -27,6 +27,10 @@ public partial class Unity : IIdentifiable<int>
     [InverseProperty("UnityNavigation")]
     public virtual ICollection<Usuario> Usuarios { get; set; } = new List<Usuario>();
 
+    [JsonIgnore]
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<Funcionario> Funcionarios { get; set; } = new List<Funcionario>();
+
     [GraphQLIgnore]
     public int GetId()
     {
