@@ -15,11 +15,11 @@ namespace GlobalErpData.Repository.Repositories
         {
         }
 
-        public async Task<IEnumerable<Usuario>> GetUsuariosAsyncPerEmpresa(int IdEmpresa)
+        public IQueryable<Usuario> GetUsuariosAsyncPerUnity(int unity)
         {
-            return await db.Set<Usuario>()
-                //.Where(e => e.CdEmpresa == IdEmpresa)
-                .ToListAsync();
+            return db.Set<Usuario>()
+                .Where(e => e.Unity == unity)
+                .AsQueryable();
         }
     }
 }

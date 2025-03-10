@@ -19,6 +19,11 @@ namespace GlobalErpData.Repository.Repositories
         {
         }
 
+        public async Task<List<UsuarioEmpresa>> GetUsuarioEmpresaByUsername(string username)
+        {
+            return await db.Set<UsuarioEmpresa>().Where(ue => ue.CdUsuario.Equals(username)).ToListAsync();
+        }
+
         public async Task<List<UsuarioEmpresa>?> RetrieveAllAsyncPerUser(string nmUsuario)
         {
             return await db.Set<UsuarioEmpresa>().Where(ue => ue.CdUsuario.Equals(nmUsuario)).ToListAsync();

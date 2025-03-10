@@ -93,5 +93,24 @@ namespace GlobalAPINFe.Controllers
                 return StatusCode(500, "An error occurred while retrieving entities (Empresas). Please try again later.");
             }
         }
+
+        [HttpGet("GetAllEmpresaByUnity", Name = nameof(GetAllEmpresaByUnity))]
+        [ProducesResponseType(typeof(List<Empresa>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<List<Empresa>>> GetAllEmpresaByUnity(
+            int unity)
+        {
+            try
+            {
+                var list = await ((EmpresaRepositoryDto)repo).GetEmpresasByUnity(unity);
+
+                return Ok(list);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while retrieving paged entities (Empresas).");
+                return StatusCode(500, "An error occurred while retrieving entities (Empresas). Please try again later.");
+            }
+        }
     }
 }

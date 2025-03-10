@@ -1,9 +1,12 @@
-﻿using GlobalErpData.Dto;
+﻿using GlobalErpData.Data;
+using GlobalErpData.Dto;
 using GlobalErpData.Models;
+using GlobalErpData.Repository.Repositories;
 using GlobalLib.GenericControllers;
 using GlobalLib.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace GlobalAPINFe.Controllers
 {
@@ -11,8 +14,10 @@ namespace GlobalAPINFe.Controllers
     [ApiController]
     public class UsuarioEmpresaController : GenericDtoController<UsuarioEmpresa, int, UsuarioEmpresaDto>
     {
-        public UsuarioEmpresaController(IRepositoryDto<UsuarioEmpresa, int, UsuarioEmpresaDto> repo, ILogger<GenericDtoController<UsuarioEmpresa, int, UsuarioEmpresaDto>> logger) : base(repo, logger)
+        private readonly GlobalErpFiscalBaseContext context;
+        public UsuarioEmpresaController(IRepositoryDto<UsuarioEmpresa, int, UsuarioEmpresaDto> repo, ILogger<GenericDtoController<UsuarioEmpresa, int, UsuarioEmpresaDto>> logger, GlobalErpFiscalBaseContext _context) : base(repo, logger)
         {
+            context = _context;
         }
 
         [HttpGet]
@@ -55,6 +60,51 @@ namespace GlobalAPINFe.Controllers
         public override async Task<IActionResult> Delete(int id)
         {
             return await base.Delete(id);
+        }
+
+        [HttpGet("GetUsuarioEmpresaByUsername/{Username}")]
+        [ProducesResponseType(typeof(List<UsuarioEmpresa>), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public  async Task<ActionResult<List<UsuarioEmpresa>>> GetUsuarioEmpresaByUsername([FromRoute] string Username)
+        {
+            try
+            {
+                List<UsuarioEmpresa> all = await ((UsuarioEmpresaRepository)repo).GetUsuarioEmpresaByUsername(Username);
+
+                return Ok(all);
+
+
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Erro ao obter usuario_empresa por usuario", ex);
+                return NotFound(new { errorMessage = "Erro ao obter UsuarioEmpresa por nmUsuario." });
+            }
+        }
+
+        [HttpDelete("DeleteUsuarioEmpresaById/{Id}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<ActionResult> DeleteUsuarioEmpresaById([FromRoute] int Id)
+        {
+            try
+            {
+                UsuarioEmpresa? usuarioEmpresa = await context.UsuarioEmpresas.Where(u => u.Id == Id).FirstOrDefaultAsync();
+                if (usuarioEmpresa == null)
+                {
+                    throw new Exception("UsuarioEmpresa não encontrado");
+                }
+                context.UsuarioEmpresas.Remove(usuarioEmpresa);
+                await context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Erro ao deletar usuario_empresa por id", ex);
+                return NotFound(new { errorMessage = "Erro ao deletar UsuarioEmpresa por id." });
+            }
+
         }
     }
 }

@@ -11,6 +11,8 @@ using GlobalLib.Dto;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using X.PagedList.Extensions;
+using Microsoft.EntityFrameworkCore;
 
 namespace GlobalAPINFe.Controllers
 {
@@ -68,17 +70,28 @@ namespace GlobalAPINFe.Controllers
 
         // Método personalizado ajustado
 
-        [HttpGet("/api/UsuariosPorEmpresa/{id}", Name = nameof(GetUsuariosPorEmpresa))]
-        [ProducesResponseType(typeof(IEnumerable<Usuario>), 200)]
+        [HttpGet("GetUsuarioByUnity/{unity}", Name = nameof(GetUsuarioByUnity))]
+        [ProducesResponseType(typeof(List<Usuario>), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuariosPorEmpresa(int id)
+        public async Task<ActionResult<List<Usuario>>> GetUsuarioByUnity(
+          [FromRoute]  int unity
+            )
         {
-            IEnumerable<Usuario>? entities = await ((UsuarioRepositoryDto)repo).GetUsuariosAsyncPerEmpresa(id);
-            if (entities == null || !entities.Any())
+            try
             {
-                return NotFound(); // 404 Resource not found
+                var query = ((UsuarioRepositoryDto)repo).GetUsuariosAsyncPerUnity(unity);
+
+                var filteredQuery = query.OrderBy(p => p.Id);
+
+                var List = await filteredQuery.ToListAsync();
+
+                return Ok(List);
             }
-            return Ok(entities); // 200 OK
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while retrieving paged entities (Usuarios).");
+                return StatusCode(500, "An error occurred while retrieving entities (Usuarios). Please try again later.");
+            }
         }
     }
 }
