@@ -1,5 +1,6 @@
 ﻿using GlobalErpData.Dto;
 using GlobalErpData.Models;
+using GlobalErpData.Repository.PagedRepositoriesMultiKey;
 using GlobalLib.Dto;
 using GlobalLib.GenericControllers;
 using GlobalLib.Repository;
@@ -55,6 +56,30 @@ namespace GlobalAPINFe.Controllers
         public override async Task<IActionResult> Delete(int idEmpresa, string idCadastro)
         {
             return await base.Delete(idEmpresa, idCadastro);
+        }
+
+        [HttpGet("GetUsuarioFuncionarioByUsuario/{nmUsuario}", Name = nameof(GetUsuarioFuncionarioByUsuario))]
+        [ProducesResponseType(typeof(UsuarioFuncionario), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<UsuarioFuncionario>> GetUsuarioFuncionarioByUsuario(
+            string nmUsuario)
+        {
+            try
+            {
+                UsuarioFuncionario? usuarioFuncionario = await ((UsuarioFuncionarioRepository)repo).GetUsuarioFuncionarioByUsuario(nmUsuario);
+
+                if (usuarioFuncionario == null)
+                {
+                    return NotFound($"UsuarioFuncionario with NmUsuario {nmUsuario} not found.");
+                }
+
+                return Ok(usuarioFuncionario);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while retrieving paged entities (UsuarioFuncionario).");
+                return StatusCode(500, "An error occurred while retrieving entities (UsuarioFuncionario). Please try again later.");
+            }
         }
     }
 }

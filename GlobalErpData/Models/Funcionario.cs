@@ -169,18 +169,18 @@ public partial class Funcionario : IIdentifiableMultiKey<int, int>
     [GraphQLIgnore]
     public (int, int) GetId()
     {
-        return (CdFuncionario, CdEmpresa);
+        return (CdEmpresa, CdFuncionario);
     }
 
     [GraphQLIgnore]
     public string GetKeyName1()
     {
-        return "CdFuncionario";
+        return "CdEmpresa";
     }
 
     [GraphQLIgnore]
     public string GetKeyName2()
     {
-        return "CdEmpresa";
+        return "CdFuncionario";
     }
 }

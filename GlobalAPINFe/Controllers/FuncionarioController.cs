@@ -26,12 +26,14 @@ namespace GlobalAPINFe.Controllers
             return await base.GetEntities(pageNumber, pageSize);
         }
 
-        [HttpGet("{idFuncionario}/{cdEmpresa}")]
+        [HttpGet("{cdEmpresa}/{cdFuncionario}")]
         [ProducesResponseType(typeof(Funcionario), 200)]
         [ProducesResponseType(404)]
-        public override async Task<ActionResult<Funcionario>> GetEntity(int idFuncionario, int cdEmpresa)
+        public override async Task<ActionResult<Funcionario>> GetEntity(int cdEmpresa
+            
+            , int cdFuncionario)
         {
-            return await base.GetEntity(idFuncionario, cdEmpresa);
+            return await base.GetEntity(cdEmpresa, cdFuncionario);
         }
 
         [HttpPost]
@@ -54,7 +56,7 @@ namespace GlobalAPINFe.Controllers
                 {
                     return CreatedAtAction( // 201 Created
                       nameof(GetEntity),
-                      new { idFuncionario = added.GetId().Item1, cdEmpresa = added.GetId().Item2 },
+                      new { cdEmpresa = added.GetId().Item1, cdFuncionario = added.GetId().Item2 },
                       added);
                 }
             }
@@ -65,22 +67,22 @@ namespace GlobalAPINFe.Controllers
             }
         }
 
-        [HttpPut("{idFuncionario}/{cdEmpresa}")]
+        [HttpPut("{cdEmpresa}/{cdFuncionario}")]
         [ProducesResponseType(typeof(Funcionario), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public override async Task<ActionResult<Funcionario>> Update(int idFuncionario, int cdEmpresa, [FromBody] FuncionarioDto dto)
+        public override async Task<ActionResult<Funcionario>> Update(int cdEmpresa, int cdFuncionario, [FromBody] FuncionarioDto dto)
         {
-            return await base.Update(idFuncionario, cdEmpresa, dto);
+            return await base.Update(cdEmpresa, cdFuncionario, dto);
         }
 
-        [HttpDelete("{idFuncionario}/{cdEmpresa}")]
+        [HttpDelete("{cdEmpresa}/{cdFuncionario}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public override async Task<IActionResult> Delete(int idFuncionario, int cdEmpresa)
+        public override async Task<IActionResult> Delete(int cdEmpresa, int cdFuncionario)
         {
-            return await base.Delete(idFuncionario, cdEmpresa);
+            return await base.Delete(cdEmpresa, cdFuncionario);
         }
 
         [HttpGet("GetFuncionarioByUnity", Name = nameof(GetFuncionarioByUnity))]
