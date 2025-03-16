@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GlobalErpData.Models;
 
-[PrimaryKey("CdForn", "IdEmpresa")]
+[PrimaryKey("CdForn", "Unity")]
 [Table("fornecedor")]
 public partial class Fornecedor : IIdentifiableMultiKey<int, int>
 {
@@ -86,35 +86,21 @@ public partial class Fornecedor : IIdentifiableMultiKey<int, int>
     [StringLength(18)]
     public string? Cpf { get; set; }
 
-    [Key]
-    [Column("id_empresa")]
-    public int IdEmpresa { get; set; }
-
-    [JsonPropertyName("nmCidade")]
-    [NotMapped]
-    public string NmCidade => CdCidadeNavigation?.NmCidade ?? string.Empty;
-
-    [JsonPropertyName("uf")]
-    [NotMapped]
-    public string Uf => CdCidadeNavigation?.Uf ?? string.Empty;
     [Column("last_update", TypeName = "timestamp without time zone")]
     public DateTime? LastUpdate { get; set; }
 
     [Column("integrated")]
     public int? Integrated { get; set; }
+
+    [JsonIgnore]
+    [Key]
+    [Column("unity")]
+    public int Unity { get; set; }
+
     [JsonIgnore]
     [ForeignKey("CdCidade")]
     [InverseProperty("Fornecedors")]
     public virtual Cidade CdCidadeNavigation { get; set; } = null!;
-
-    [JsonIgnore]
-    [ForeignKey("IdEmpresa")]
-    [InverseProperty("Fornecedors")]
-    public virtual Empresa IdEmpresaNavigation { get; set; } = null!;
-
-    [JsonIgnore]
-    [InverseProperty("Fornecedor")]
-    public virtual ICollection<ProdutosForn> ProdutosForns { get; set; } = new List<ProdutosForn>();
 
     [JsonIgnore]
     [InverseProperty("Fornecedor")]
@@ -122,26 +108,36 @@ public partial class Fornecedor : IIdentifiableMultiKey<int, int>
 
     [JsonIgnore]
     [InverseProperty("Fornecedor")]
-    public virtual ICollection<ContasAPagar> ContasAPagars { get; set; } = new List<ContasAPagar>();
+    public virtual ICollection<EntradaOutrasDesp> EntradaOutrasDesps { get; set; } = new List<EntradaOutrasDesp>();
 
     [JsonIgnore]
     [InverseProperty("Fornecedor")]
-    public virtual ICollection<EntradaOutrasDesp> EntradaOutrasDesps { get; set; } = new List<EntradaOutrasDesp>();
+    public virtual ICollection<ProdutosForn> ProdutosForns { get; set; } = new List<ProdutosForn>();
 
+    [JsonIgnore]
+    [ForeignKey("Unity")]
+    [InverseProperty("Fornecedors")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
+
+    [JsonIgnore]
+    [InverseProperty("Fornecedor")]
+    public virtual ICollection<ContasAPagar> ContasAPagars { get; set; } = new List<ContasAPagar>();
 
     [GraphQLIgnore]
     public (int, int) GetId()
     {
-        return (IdEmpresa, CdForn);
+        return (CdForn, Unity);
     }
+
     [GraphQLIgnore]
     public string GetKeyName1()
     {
-        return "IdEmpresa";
+        return "CdForn";
     }
+
     [GraphQLIgnore]
     public string GetKeyName2()
     {
-        return "CdForn";
+        return "Unity";
     }
 }

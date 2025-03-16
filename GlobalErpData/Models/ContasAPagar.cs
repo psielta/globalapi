@@ -135,29 +135,13 @@ public partial class ContasAPagar : IIdentifiable<int>
 
     [Column("integrated")]
     public int? Integrated { get; set; }
-    [JsonIgnore]
-    [ForeignKey("CdEmpresa")]
-    [InverseProperty("ContasAPagars")]
-    public virtual Empresa CdEmpresaNavigation { get; set; } = null!;
 
-    [JsonIgnore]
-    [ForeignKey("CdFornecedor, CdEmpresa")]
-    [InverseProperty("ContasAPagars")]
-    public virtual Fornecedor Fornecedor { get; set; } = null!;
-
-    [JsonIgnore]
-    [ForeignKey("NrEntrada, CdEmpresa")]
-    [InverseProperty("ContasAPagars")]
-    public virtual Entrada? Entrada { get; set; }
+    [Column("unity")]
+    public int Unity { get; set; }
 
     [JsonPropertyName("nmForn")]
     [NotMapped]
     public string NmForn => Fornecedor?.NmForn ?? "";
-
-    [JsonIgnore]
-    [ForeignKey("CdEmpresa, CdHistoricoCaixa, CdPlanoCaixa")]
-    [InverseProperty("ContasAPagars")]
-    public virtual HistoricoCaixa HistoricoCaixa { get; set; } = null!;
 
     [JsonPropertyName("nmPlanoCaixa")]
     [NotMapped]
@@ -180,12 +164,37 @@ public partial class ContasAPagar : IIdentifiable<int>
     public decimal ValorRestante => this.VlTotal - ((PagtosParciaisCps != null && PagtosParciaisCps.Count > 0) ? PagtosParciaisCps.Sum(x => x.ValorPago ?? 0) : 0);
 
     [JsonIgnore]
+    [ForeignKey("CdEmpresa")]
+    [InverseProperty("ContasAPagars")]
+    public virtual Empresa CdEmpresaNavigation { get; set; } = null!;
+
+    [JsonIgnore]
+    [ForeignKey("NrEntrada, CdEmpresa")]
+    [InverseProperty("ContasAPagars")]
+    public virtual Entrada? Entrada { get; set; }
+
+    [JsonIgnore]
+    [ForeignKey("CdFornecedor, Unity")]
+    [InverseProperty("ContasAPagars")]
+    public virtual Fornecedor Fornecedor { get; set; } = null!;
+
+    [JsonIgnore]
+    [ForeignKey("CdEmpresa, CdHistoricoCaixa, CdPlanoCaixa")]
+    [InverseProperty("ContasAPagars")]
+    public virtual HistoricoCaixa HistoricoCaixa { get; set; } = null!;
+
+    [JsonIgnore]
     [InverseProperty("NrCpNavigation")]
     public virtual ICollection<LivroCaixa> LivroCaixas { get; set; } = new List<LivroCaixa>();
 
     [JsonIgnore]
     [InverseProperty("IdContasPagarNavigation")]
     public virtual ICollection<PagtosParciaisCp> PagtosParciaisCps { get; set; } = new List<PagtosParciaisCp>();
+
+    [JsonIgnore]
+    [ForeignKey("Unity")]
+    [InverseProperty("ContasAPagars")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
 
 
     [GraphQLIgnore]

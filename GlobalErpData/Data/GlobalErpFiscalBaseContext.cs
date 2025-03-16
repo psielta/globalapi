@@ -360,13 +360,15 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("cliente_fk1");
 
-            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.Clientes).HasConstraintName("cliente_fk");
-
             entity.HasOne(d => d.IdUsuarioCadNavigation).WithMany(p => p.Clientes)
                 .HasPrincipalKey(p => p.Id)
                 .HasForeignKey(d => d.IdUsuarioCad)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("cliente_fk2");
+
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.Clientes)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("cliente_fk");
         });
 
         modelBuilder.Entity<ConfEmail>(entity =>
@@ -457,9 +459,13 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("contas_a_pagar_fk2");
 
-            entity.HasOne(d => d.Fornecedor).WithMany(p => p.ContasAPagars)
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.ContasAPagars)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("contas_a_pagar_fk1");
+
+            entity.HasOne(d => d.Fornecedor).WithMany(p => p.ContasAPagars)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("contas_a_pagar_fk4");
 
             entity.HasOne(d => d.Entrada).WithMany(p => p.ContasAPagars)
                 .OnDelete(DeleteBehavior.Cascade)
@@ -908,9 +914,13 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("entradas_fk2");
 
-            entity.HasOne(d => d.Fornecedor).WithMany(p => p.Entrada)
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.Entrada)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("entradas_fk");
+
+            entity.HasOne(d => d.Fornecedor).WithMany(p => p.Entrada)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("entradas_fk3");
         });
 
         modelBuilder.Entity<EntradaOutrasDesp>(entity =>
@@ -922,9 +932,13 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
             entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.EntradaOutrasDesps).HasConstraintName("entrada_outras_desp_fk1");
 
-            entity.HasOne(d => d.Fornecedor).WithMany(p => p.EntradaOutrasDesps)
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.EntradaOutrasDesps)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("entrada_outras_desp_fk");
+
+            entity.HasOne(d => d.Fornecedor).WithMany(p => p.EntradaOutrasDesps)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("entrada_outras_desp_fk2");
         });
 
         modelBuilder.Entity<EntregaNfe>(entity =>
@@ -997,7 +1011,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
         modelBuilder.Entity<Fornecedor>(entity =>
         {
-            entity.HasKey(e => new { e.CdForn, e.IdEmpresa }).HasName("fornecedor_idx");
+            entity.HasKey(e => new { e.CdForn, e.Unity }).HasName("fornecedor_idx1");
 
             entity.Property(e => e.CdForn).ValueGeneratedOnAdd();
             entity.Property(e => e.Bairro).HasDefaultValueSql("''::character varying");
@@ -1023,7 +1037,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fornecedor_fk1");
 
-            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.Fornecedors)
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.Fornecedors)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fornecedor_fk");
         });
@@ -2017,7 +2031,13 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
             entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.ProdutosForns).HasConstraintName("produtos_forn_fk1");
 
-            entity.HasOne(d => d.Fornecedor).WithMany(p => p.ProdutosForns).HasConstraintName("produtos_forn_fk3");
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.ProdutosForns)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("produtos_forn_fk");
+
+            entity.HasOne(d => d.Fornecedor).WithMany(p => p.ProdutosForns)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("produtos_forn_fk3");
 
             entity.HasOne(d => d.ProdutoEstoque).WithMany(p => p.ProdutosForns).HasConstraintName("produtos_forn_fk2");
         });
@@ -2300,13 +2320,11 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.Integrated).HasDefaultValue(0);
             entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
-            entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.UsuarioFuncionarios)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("usuario_funcionario_fk2");
-
             entity.HasOne(d => d.NmUsuarioNavigation).WithMany(p => p.UsuarioFuncionarios).HasConstraintName("usuario_funcionario_fk1");
 
-            entity.HasOne(d => d.Funcionario).WithMany(p => p.UsuarioFuncionarios).HasConstraintName("usuario_funcionario_fk");
+            entity.HasOne(d => d.Funcionario).WithMany(p => p.UsuarioFuncionarios)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("usuario_funcionario_fk");
         });
 
         modelBuilder.Entity<UsuarioPermissao>(entity =>
@@ -2362,6 +2380,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         modelBuilder.HasSequence("seq_funcionario_geral_1");
         modelBuilder.HasSequence("seq_funcionario_geral_10");
         modelBuilder.HasSequence("seq_funcionario_geral_11");
+        modelBuilder.HasSequence("seq_funcionario_geral_2");
         modelBuilder.HasSequence("seq_nfce_abertura_caixa_geral_10");
         modelBuilder.HasSequence("seq_nfce_abertura_caixa_geral_11");
         modelBuilder.HasSequence("seq_nfce_saidas_geral_1");

@@ -90,20 +90,30 @@ public partial class EntradaOutrasDesp : IIdentifiable<int>
     [Column("cd_cidade_destino")]
     [StringLength(10)]
     public string? CdCidadeDestino { get; set; }
+
     [Column("last_update", TypeName = "timestamp without time zone")]
     public DateTime? LastUpdate { get; set; }
 
     [Column("integrated")]
     public int? Integrated { get; set; }
+
+    [Column("unity")]
+    public int Unity { get; set; }
+
     [JsonIgnore]
     [ForeignKey("CdEmpresa")]
     [InverseProperty("EntradaOutrasDesps")]
     public virtual Empresa CdEmpresaNavigation { get; set; } = null!;
 
     [JsonIgnore]
-    [ForeignKey("CdFornecedor, CdEmpresa")]
+    [ForeignKey("CdFornecedor, Unity")]
     [InverseProperty("EntradaOutrasDesps")]
     public virtual Fornecedor Fornecedor { get; set; } = null!;
+
+    [JsonIgnore]
+    [ForeignKey("Unity")]
+    [InverseProperty("EntradaOutrasDesps")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
 
     [GraphQLIgnore]
     public int GetId()

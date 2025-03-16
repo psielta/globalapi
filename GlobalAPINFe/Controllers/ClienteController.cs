@@ -101,7 +101,7 @@ namespace GlobalAPINFe.Controllers
         {
             try
             {
-                var query = ((ClientePagedRepositoyDto)repo).GetClientePorEmpresa(idEmpresa).Result.AsQueryable();
+                var query = ((ClientePagedRepositoyDto)repo).GetClientePorUnity(idEmpresa).Result.AsQueryable();
 
                 if (query == null)
                 {
@@ -194,7 +194,7 @@ namespace GlobalAPINFe.Controllers
             using var report = new FastReport.Report();
             report.Load(reportFilePath);
 
-            var query = ((ClientePagedRepositoyDto)repo).GetClientePorEmpresa(idEmpresa).Result.AsQueryable();
+            var query = ((ClientePagedRepositoyDto)repo).GetClientePorUnity(idEmpresa).Result.AsQueryable();
 
             if (query == null)
             {
@@ -247,7 +247,7 @@ namespace GlobalAPINFe.Controllers
         [ProducesResponseType(404)]
         public async Task<ActionResult<IEnumerable<Cliente>>> GetClienteByName(int idEmpresa, string nome)
         {
-            var clientes = await (repo as ClientePagedRepositoyDto).GetClientePorEmpresa(idEmpresa);
+            var clientes = await (repo as ClientePagedRepositoyDto).GetClientePorUnity(idEmpresa);
 
             var clientesList = clientes.ToList();
             if (clientesList == null)

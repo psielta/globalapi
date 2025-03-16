@@ -14,11 +14,11 @@ namespace GlobalErpData.Repository.PagedRepositoriesMultiKey
         public FornecedorPagedRepositoryMultiKey(GlobalErpFiscalBaseContext injectedContext, IMapper mapper, ILogger<GenericPagedRepositoryMultiKey<Fornecedor, GlobalErpFiscalBaseContext, int, int, FornecedorDto>> logger) : base(injectedContext, mapper, logger)
         {
         }
-        public Task<IQueryable<Fornecedor>> GetFornecedorPorEmpresa(int idEmpresa)
+        public Task<IQueryable<Fornecedor>> GetFornecedorPorUnity(int Unity)
         {
             try
             {
-                return Task.FromResult(db.Set<Fornecedor>().Where(e => e.IdEmpresa == idEmpresa)
+                return Task.FromResult(db.Set<Fornecedor>().Where(e => e.Unity == Unity)
                     .Include(e => e.CdCidadeNavigation)
                     .AsQueryable());
             }
@@ -40,7 +40,7 @@ namespace GlobalErpData.Repository.PagedRepositoriesMultiKey
                 EntityCache.AddOrUpdate(entity.GetId(), entity, UpdateCache);
 
                 return await db.Set<Fornecedor>().Include(e => e.CdCidadeNavigation)
-                    .FirstOrDefaultAsync(e => e.CdForn == entity.CdForn && e.IdEmpresa == entity.IdEmpresa);
+                    .FirstOrDefaultAsync(e => e.CdForn == entity.CdForn && e.Unity == entity.Unity);
             }
             else
             {
@@ -62,7 +62,7 @@ namespace GlobalErpData.Repository.PagedRepositoriesMultiKey
                 UpdateCache((idEmpresa, idCadastro), entity);
 
                 return await db.Set<Fornecedor>().Include(e => e.CdCidadeNavigation)
-                    .FirstOrDefaultAsync(e => e.CdForn == entity.CdForn && e.IdEmpresa == entity.IdEmpresa);
+                    .FirstOrDefaultAsync(e => e.CdForn == entity.CdForn && e.Unity == entity.Unity);
             }
             else
             {

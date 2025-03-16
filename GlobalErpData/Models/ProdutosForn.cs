@@ -22,12 +22,6 @@ public partial class ProdutosForn : IIdentifiable<int>
     [Column("cd_forn")]
     public int CdForn { get; set; }
 
-    [Column("last_update", TypeName = "timestamp without time zone")]
-    public DateTime? LastUpdate { get; set; }
-
-    [Column("integrated")]
-    public int? Integrated { get; set; }
-
     [Column("id_produto_externo")]
     [StringLength(62)]
     public string IdProdutoExterno { get; set; } = null!;
@@ -39,13 +33,17 @@ public partial class ProdutosForn : IIdentifiable<int>
     [Column("id_empresa")]
     public int IdEmpresa { get; set; }
 
-    [JsonPropertyName("nomeProduto")]
-    [NotMapped]
-    public string NomeProduto => ProdutoEstoque?.NmProduto ?? string.Empty;
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
 
+    [Column("integrated")]
+    public int? Integrated { get; set; }
+
+    [Column("unity")]
+    public int Unity { get; set; }
 
     [JsonIgnore]
-    [ForeignKey("CdForn, IdEmpresa")]
+    [ForeignKey("CdForn, Unity")]
     [InverseProperty("ProdutosForns")]
     public virtual Fornecedor Fornecedor { get; set; } = null!;
 
@@ -58,6 +56,11 @@ public partial class ProdutosForn : IIdentifiable<int>
     [ForeignKey("CdProduto, IdEmpresa")]
     [InverseProperty("ProdutosForns")]
     public virtual ProdutoEstoque ProdutoEstoque { get; set; } = null!;
+
+    [JsonIgnore]
+    [ForeignKey("Unity")]
+    [InverseProperty("ProdutosForns")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
 
     [GraphQLIgnore]
     public int GetId()

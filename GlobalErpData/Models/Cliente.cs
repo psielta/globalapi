@@ -10,7 +10,7 @@ namespace GlobalErpData.Models;
 
 [Table("cliente")]
 public partial class Cliente : IIdentifiable<int>
-{ 
+{
     [Key]
     [Column("id")]
     public int Id { get; set; }
@@ -22,11 +22,7 @@ public partial class Cliente : IIdentifiable<int>
     [Column("ativo")]
     [StringLength(1)]
     public string? Ativo { get; set; }
-    [Column("last_update", TypeName = "timestamp without time zone")]
-    public DateTime? LastUpdate { get; set; }
 
-    [Column("integrated")]
-    public int? Integrated { get; set; }
     [Column("nm_endereco")]
     [StringLength(256)]
     public string? NmEndereco { get; set; }
@@ -63,16 +59,12 @@ public partial class Cliente : IIdentifiable<int>
     [StringLength(19)]
     public string? NrDoc { get; set; }
 
-    [Column("id_empresa")]
-    public int IdEmpresa { get; set; }
-
     [Column("txt_obs")]
-
     [StringLength(16384)]
     public string? TxtObs { get; set; }
 
     [Column("dt_cadastro")]
-    public DateOnly? DtCadastro { get; set; } = new DateOnly(DateTime.Now.Year,DateTime.Now.Month,DateTime.Now.Day);
+    public DateOnly? DtCadastro { get; set; }
 
     [Column("id_usuario_cad")]
     public int IdUsuarioCad { get; set; }
@@ -90,20 +82,21 @@ public partial class Cliente : IIdentifiable<int>
     [Column("tp_regime")]
     public int? TpRegime { get; set; }
 
+    [Column("consumidor_final")]
+    public bool ConsumidorFinal { get; set; }
+
     [Column("complemento")]
     [StringLength(255)]
     public string? Complemento { get; set; }
 
-    [JsonPropertyName("nmCidade")]
-    [NotMapped]
-    public string NmCidade => CdCidadeNavigation?.NmCidade ?? string.Empty;
+    [Column("last_update", TypeName = "timestamp without time zone")]
+    public DateTime? LastUpdate { get; set; }
 
-    [JsonPropertyName("uf")]
-    [NotMapped]
-    public string Uf => CdCidadeNavigation?.Uf ?? string.Empty;
+    [Column("integrated")]
+    public int? Integrated { get; set; }
 
-    [Column("consumidor_final")]
-    public bool ConsumidorFinal { get; set; }
+    [Column("unity")]
+    public int Unity { get; set; }
 
     [JsonIgnore]
     [ForeignKey("CdCidade")]
@@ -111,20 +104,34 @@ public partial class Cliente : IIdentifiable<int>
     public virtual Cidade CdCidadeNavigation { get; set; } = null!;
 
     [JsonIgnore]
-    [ForeignKey("IdEmpresa")]
-    [InverseProperty("Clientes")]
-    public virtual Empresa IdEmpresaNavigation { get; set; } = null!;
+    [InverseProperty("CdClienteNavigation")]
+    public virtual ICollection<ContasAReceber> ContasARecebers { get; set; } = new List<ContasAReceber>();
+
+    [JsonIgnore]
+    [InverseProperty("IdClienteNavigation")]
+    public virtual ICollection<EntregaNfe> EntregaNves { get; set; } = new List<EntregaNfe>();
 
     [JsonIgnore]
     [ForeignKey("IdUsuarioCad")]
     [InverseProperty("Clientes")]
     public virtual Usuario IdUsuarioCadNavigation { get; set; } = null!;
 
+    [InverseProperty("IdClienteNavigation")]
+    public virtual ICollection<RetiradaNfe> RetiradaNves { get; set; } = new List<RetiradaNfe>();
+
+    [JsonIgnore]
+    [InverseProperty("ClienteNavigation")]
+    public virtual ICollection<Saida> Saida { get; set; } = new List<Saida>();
+
+    [JsonIgnore]
+    [ForeignKey("Unity")]
+    [InverseProperty("Clientes")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
 
     [GraphQLIgnore]
     public int GetId()
     {
-        return this.Id;
+        return Id;
     }
 
     [GraphQLIgnore]
@@ -133,19 +140,11 @@ public partial class Cliente : IIdentifiable<int>
         return "Id";
     }
 
-    [JsonIgnore]
-    [InverseProperty("CdClienteNavigation")]
-    public virtual ICollection<ContasAReceber> ContasARecebers { get; set; } = new List<ContasAReceber>();
+    [JsonPropertyName("nmCidade")]
+    [NotMapped]
+    public string NmCidade => CdCidadeNavigation?.NmCidade ?? string.Empty;
 
-    [JsonIgnore]
-    [InverseProperty("ClienteNavigation")]
-    public virtual ICollection<Saida> Saida { get; set; } = new List<Saida>();
-
-    [JsonIgnore]
-    [InverseProperty("IdClienteNavigation")]
-    public virtual ICollection<RetiradaNfe> RetiradaNves { get; set; } = new List<RetiradaNfe>();
-
-    [JsonIgnore]
-    [InverseProperty("IdClienteNavigation")]
-    public virtual ICollection<EntregaNfe> EntregaNves { get; set; } = new List<EntregaNfe>();
+    [JsonPropertyName("uf")]
+    [NotMapped]
+    public string Uf => CdCidadeNavigation?.Uf ?? string.Empty;
 }

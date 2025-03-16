@@ -15,11 +15,11 @@ namespace GlobalErpData.Repository.PagedRepositories
         {
         }
 
-        public Task<IQueryable<Cliente>> GetClientePorEmpresa(int idEmpresa)
+        public Task<IQueryable<Cliente>> GetClientePorUnity(int Unity)
         {
             try
             {
-                return Task.FromResult(db.Set<Cliente>().Where(e => e.IdEmpresa == idEmpresa)
+                return Task.FromResult(db.Set<Cliente>().Where(e => e.Unity == Unity)
                     .Include(e => e.CdCidadeNavigation)
                     .AsQueryable());
             }

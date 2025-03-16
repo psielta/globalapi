@@ -140,9 +140,7 @@ public partial class Empresa : IIdentifiable<int>
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<CfopImportacao> CfopImportacaos { get; set; } = new List<CfopImportacao>();
 
-    [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<Cliente> Clientes { get; set; } = new List<Cliente>();
+    
 
     [JsonIgnore]
     [InverseProperty("CdEmpresaNavigation")]
@@ -264,9 +262,6 @@ public partial class Empresa : IIdentifiable<int>
     [InverseProperty("CdEmpresaNavigation")]
     public virtual ICollection<FormaPagt> FormaPagts { get; set; } = new List<FormaPagt>();
 
-    [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<Fornecedor> Fornecedors { get; set; } = new List<Fornecedor>();
 
     [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]

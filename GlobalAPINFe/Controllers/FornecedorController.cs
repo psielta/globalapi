@@ -67,11 +67,11 @@ namespace GlobalAPINFe.Controllers
             return await base.Delete(idEmpresa, idCadastro);
         }
 
-        [HttpGet("GetFornecedorPorEmpresa", Name = nameof(GetFornecedorPorEmpresa))]
+        [HttpGet("GetFornecedorPorUnity", Name = nameof(GetFornecedorPorUnity))]
         [ProducesResponseType(typeof(PagedResponse<Fornecedor>), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<PagedResponse<Fornecedor>>> GetFornecedorPorEmpresa(
-            int idEmpresa,
+        public async Task<ActionResult<PagedResponse<Fornecedor>>> GetFornecedorPorUnity(
+            int unity,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
             [FromQuery] string? nmForn = null,
@@ -82,7 +82,7 @@ namespace GlobalAPINFe.Controllers
         {
             try
             {
-                var query = ((FornecedorPagedRepositoryMultiKey)repo).GetFornecedorPorEmpresa(idEmpresa).Result.AsQueryable();
+                var query = ((FornecedorPagedRepositoryMultiKey)repo).GetFornecedorPorUnity(unity).Result.AsQueryable();
 
                 if (query == null)
                 {
@@ -139,12 +139,12 @@ namespace GlobalAPINFe.Controllers
             }
         }
 
-        [HttpGet("GetFornecedorByName/{idEmpresa}/{nome}")]
+        [HttpGet("GetFornecedorByName/{unity}/{nome}")]
         [ProducesResponseType(typeof(IEnumerable<Fornecedor>), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<IEnumerable<Fornecedor>>> GetFornecedorByName(int idEmpresa, string nome)
+        public async Task<ActionResult<IEnumerable<Fornecedor>>> GetFornecedorByName(int unity, string nome)
         {
-            var Fornecedors = await (repo as FornecedorPagedRepositoryMultiKey).GetFornecedorPorEmpresa(idEmpresa);
+            var Fornecedors = await (repo as FornecedorPagedRepositoryMultiKey).GetFornecedorPorUnity(unity);
             IEnumerable<Fornecedor> _Fr = Fornecedors.ToList();
             if (_Fr == null)
             {

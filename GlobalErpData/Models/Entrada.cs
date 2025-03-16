@@ -255,11 +255,16 @@ public partial class Entrada : IIdentifiableMultiKey<int, int>
     [JsonPropertyName("valorTotalProdutos")]
     [NotMapped]
     public double? ValorTotalProdutos { get; set; }
+
     [Column("last_update", TypeName = "timestamp without time zone")]
     public DateTime? LastUpdate { get; set; }
 
     [Column("integrated")]
     public int? Integrated { get; set; }
+
+    [Column("unity")]
+    public int Unity { get; set; }
+
     [JsonIgnore]
     [ForeignKey("CdEmpresa")]
     [InverseProperty("Entrada")]
@@ -271,7 +276,11 @@ public partial class Entrada : IIdentifiableMultiKey<int, int>
     public virtual PlanoEstoque CdGrupoEstoqueNavigation { get; set; } = null!;
 
     [JsonIgnore]
-    [ForeignKey("CdForn, CdEmpresa")]
+    [InverseProperty("Entrada")]
+    public virtual ICollection<ContasAPagar> ContasAPagars { get; set; } = new List<ContasAPagar>();
+
+    [JsonIgnore]
+    [ForeignKey("CdForn, Unity")]
     [InverseProperty("Entrada")]
     public virtual Fornecedor Fornecedor { get; set; } = null!;
 
@@ -280,8 +289,9 @@ public partial class Entrada : IIdentifiableMultiKey<int, int>
     public virtual ICollection<ProdutoEntradum> ProdutoEntrada { get; set; } = new List<ProdutoEntradum>();
 
     [JsonIgnore]
+    [ForeignKey("Unity")]
     [InverseProperty("Entrada")]
-    public virtual ICollection<ContasAPagar> ContasAPagars { get; set; } = new List<ContasAPagar>();
+    public virtual Unity UnityNavigation { get; set; } = null!;
 
     [GraphQLIgnore]
     public (int, int) GetId()
@@ -294,7 +304,7 @@ public partial class Entrada : IIdentifiableMultiKey<int, int>
     {
         return "CdEmpresa";
     }
-
+  
     [GraphQLIgnore]
     public string GetKeyName2()
     {
