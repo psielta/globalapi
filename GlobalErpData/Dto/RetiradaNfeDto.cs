@@ -10,7 +10,7 @@ namespace GlobalErpData.Dto
 {
     public class RetiradaNfeDto
     {
-        public int IdEmpresa { get; set; }
+        public int Unity { get; set; }
         public int IdCliente { get; set; }
         public string? Cnpjcpf { get; set; }
         public string? Ie { get; set; }

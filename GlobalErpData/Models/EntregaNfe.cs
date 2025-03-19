@@ -15,8 +15,8 @@ public partial class EntregaNfe : IIdentifiable<int>
     [Column("id")]
     public int Id { get; set; }
 
-    [Column("id_empresa")]
-    public int IdEmpresa { get; set; }
+    [Column("unity")]
+    public int Unity { get; set; }
 
     [Column("id_cliente")]
     public int IdCliente { get; set; }
@@ -82,9 +82,9 @@ public partial class EntregaNfe : IIdentifiable<int>
     public virtual Cliente IdClienteNavigation { get; set; } = null!;
 
     [JsonIgnore]
-    [ForeignKey("IdEmpresa")]
+    [ForeignKey("Unity")]
     [InverseProperty("EntregaNves")]
-    public virtual Empresa IdEmpresaNavigation { get; set; } = null!;
+    public virtual Unity UnityNavigation { get; set; } = null!;
 
     [GraphQLIgnore]
     public int GetId()

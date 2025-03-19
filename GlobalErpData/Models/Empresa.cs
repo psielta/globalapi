@@ -250,9 +250,7 @@ public partial class Empresa : IIdentifiable<int>
     [InverseProperty("CdEmpresaNavigation")]
     public virtual ICollection<EntradaOutrasDesp> EntradaOutrasDesps { get; set; } = new List<EntradaOutrasDesp>();
 
-    [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<EntregaNfe> EntregaNves { get; set; } = new List<EntregaNfe>();
+    
 
     [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
@@ -399,9 +397,7 @@ public partial class Empresa : IIdentifiable<int>
     [InverseProperty("CdEmpresaNavigation")]
     public virtual ICollection<ReferenciaEstoque> ReferenciaEstoques { get; set; } = new List<ReferenciaEstoque>();
 
-    [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<RetiradaNfe> RetiradaNves { get; set; } = new List<RetiradaNfe>();
+    
 
     [JsonIgnore]
     [InverseProperty("EmpresaNavigation")]

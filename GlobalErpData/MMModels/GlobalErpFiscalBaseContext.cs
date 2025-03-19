@@ -944,7 +944,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("entrega_nfe_fk");
 
-            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.EntregaNves)
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.EntregaNves)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("entrega_nfe_fk1");
         });
@@ -2073,7 +2073,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("retirada_nfe_fk");
 
-            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.RetiradaNves)
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.RetiradaNves)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("retirada_nfe_fk1");
         });

@@ -32,7 +32,7 @@ namespace GlobalErpData.Dto
 
         public string? NrDoc { get; set; }
 
-        public int IdEmpresa { get; set; }
+        public int Unity { get; set; }
 
         public string? TxtObs { get; set; }
 

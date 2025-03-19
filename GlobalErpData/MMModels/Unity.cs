@@ -33,6 +33,9 @@ public partial class Unity
     public virtual ICollection<EntradaOutrasDesp> EntradaOutrasDesps { get; set; } = new List<EntradaOutrasDesp>();
 
     [InverseProperty("UnityNavigation")]
+    public virtual ICollection<EntregaNfe> EntregaNves { get; set; } = new List<EntregaNfe>();
+
+    [InverseProperty("UnityNavigation")]
     public virtual ICollection<Fornecedor> Fornecedors { get; set; } = new List<Fornecedor>();
 
     [InverseProperty("UnityNavigation")]
@@ -40,6 +43,9 @@ public partial class Unity
 
     [InverseProperty("UnityNavigation")]
     public virtual ICollection<ProdutosForn> ProdutosForns { get; set; } = new List<ProdutosForn>();
+
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<RetiradaNfe> RetiradaNves { get; set; } = new List<RetiradaNfe>();
 
     [InverseProperty("UnityNavigation")]
     public virtual ICollection<Usuario> Usuarios { get; set; } = new List<Usuario>();

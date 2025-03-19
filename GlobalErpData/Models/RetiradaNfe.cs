@@ -15,8 +15,8 @@ public partial class RetiradaNfe : IIdentifiable<int>
     [Column("id")]
     public int Id { get; set; }
 
-    [Column("id_empresa")]
-    public int IdEmpresa { get; set; }
+    [Column("unity")]
+    public int Unity { get; set; }
 
     [Column("id_cliente")]
     public int IdCliente { get; set; }
@@ -84,9 +84,9 @@ public partial class RetiradaNfe : IIdentifiable<int>
     public virtual Cliente IdClienteNavigation { get; set; } = null!;
 
     [JsonIgnore]
-    [ForeignKey("IdEmpresa")]
+    [ForeignKey("Unity")]
     [InverseProperty("RetiradaNves")]
-    public virtual Empresa IdEmpresaNavigation { get; set; } = null!;
+    public virtual Unity UnityNavigation { get; set; } = null!;
 
     [GraphQLIgnore]
     public int GetId()

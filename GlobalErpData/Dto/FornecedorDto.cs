@@ -43,6 +43,6 @@ namespace GlobalErpData.Dto
 
         public string? Cpf { get; set; }
 
-        public int IdEmpresa { get; set; }
+        public int Unity { get; set; }
     }
 }

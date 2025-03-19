@@ -87,11 +87,11 @@ namespace GlobalAPINFe.Controllers
 
         // Métodos personalizados ajustados
 
-        [HttpGet("GetClientePorEmpresa", Name = nameof(GetClientePorEmpresa))]
+        [HttpGet("GetClientePorUnity", Name = nameof(GetClientePorUnity))]
         [ProducesResponseType(typeof(PagedResponse<Cliente>), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<PagedResponse<Cliente>>> GetClientePorEmpresa(
-            int idEmpresa,
+        public async Task<ActionResult<PagedResponse<Cliente>>> GetClientePorUnity(
+            int unity,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
             [FromQuery] string? nmCliente = null,
@@ -101,7 +101,7 @@ namespace GlobalAPINFe.Controllers
         {
             try
             {
-                var query = ((ClientePagedRepositoyDto)repo).GetClientePorUnity(idEmpresa).Result.AsQueryable();
+                var query = ((ClientePagedRepositoyDto)repo).GetClientePorUnity(unity).Result.AsQueryable();
 
                 if (query == null)
                 {

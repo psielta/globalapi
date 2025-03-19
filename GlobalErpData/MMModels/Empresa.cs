@@ -213,9 +213,6 @@ public partial class Empresa
     public virtual ICollection<EntradaOutrasDesp> EntradaOutrasDesps { get; set; } = new List<EntradaOutrasDesp>();
 
     [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<EntregaNfe> EntregaNves { get; set; } = new List<EntregaNfe>();
-
-    [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<Featured> Featureds { get; set; } = new List<Featured>();
 
     [InverseProperty("CdEmpresaNavigation")]
@@ -322,9 +319,6 @@ public partial class Empresa
 
     [InverseProperty("CdEmpresaNavigation")]
     public virtual ICollection<ReferenciaEstoque> ReferenciaEstoques { get; set; } = new List<ReferenciaEstoque>();
-
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<RetiradaNfe> RetiradaNves { get; set; } = new List<RetiradaNfe>();
 
     [InverseProperty("EmpresaNavigation")]
     public virtual ICollection<Saida> Saida { get; set; } = new List<Saida>();
