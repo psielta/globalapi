@@ -15,7 +15,7 @@ namespace GlobalErpData.Repository.PagedRepositories
 
         public Task<IQueryable<ReferenciaEstoque>> GetReferenciaEstoqueAsyncPorEmpresa(int IdEmpresa)
         {
-            return Task.FromResult(db.Set<ReferenciaEstoque>().Where(e => e.CdEmpresa == IdEmpresa).AsQueryable());
+            return Task.FromResult(db.Set<ReferenciaEstoque>().Where(e => e.Unity == IdEmpresa).AsQueryable());
         }
     }
 }

@@ -406,6 +406,9 @@ public partial class ProdutoEntradum : IIdentifiable<int>
     [NotMapped]
     public decimal VlTotal => this.Quant * this.VlUnitario - (this.VlOutras ?? 0);
 
+    [Column("unity")]
+    public int Unity { get; set; }
+
     [JsonIgnore]
     [ForeignKey("CdEmpresa")]
     [InverseProperty("ProdutoEntrada")]
@@ -417,9 +420,14 @@ public partial class ProdutoEntradum : IIdentifiable<int>
     public virtual Entrada? Entrada { get; set; }
 
     [JsonIgnore]
-    [ForeignKey("CdProduto, CdEmpresa")]
+    [ForeignKey("CdProduto, Unity")]
     [InverseProperty("ProdutoEntrada")]
-    public virtual ProdutoEstoque? ProdutoEstoque { get; set; }
+    public virtual ProdutoEstoque ProdutoEstoque { get; set; } = null!;
+
+    [JsonIgnore]
+    [ForeignKey("Unity")]
+    [InverseProperty("ProdutoEntrada")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
 
     [GraphQLIgnore]
     public int GetId()

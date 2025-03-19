@@ -11,7 +11,7 @@ namespace GlobalErpData.Dto
     public class FotosProdutoDto
     {
         public int Id { get; set; }
-        public int IdEmpresa { get; set; }
+        public int Unity { get; set; }
         public int CdProduto { get; set; }
         public string CaminhoFoto { get; set; } = null!;
         public bool Excluiu { get; set; }

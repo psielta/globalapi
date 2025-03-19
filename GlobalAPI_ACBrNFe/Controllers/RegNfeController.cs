@@ -55,6 +55,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
         [ProducesResponseType(500)]
         public async Task<ActionResult<Entrada>> Registrar([FromBody] ImpNFeTemp2 impNFeTemp, int idEmpresa, int cdPlanoEstoque, int cdHistorico, string chaveAcesso, string sessionId, string tipoEntrada)
         {
+           var empresa = await db.Empresas.AsNoTracking().Where(c => c.CdEmpresa == idEmpresa).FirstOrDefaultAsync();
 
             #region Validações
             await _hubContext.Clients.Group(sessionId).SendAsync("ReceiveProgress", "Iniciando validações...");
@@ -162,7 +163,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
             await _hubContext.Clients.Group(sessionId).SendAsync("ReceiveProgress", "Importando itens do XML.");
             try
             {
-                await ImportarItens(impNFeTemp, entrada, idEmpresa, cdPlanoEstoque, sessionId);
+                await ImportarItens(impNFeTemp, entrada, idEmpresa, cdPlanoEstoque, sessionId, empresa.Unity);
             }
             catch (Exception ex)
             {
@@ -306,7 +307,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
 
         }
 
-        private async Task ImportarItens(ImpNFeTemp2 impNFeTemp, Entrada entrada, int idEmpresa, int cdPlanoEstoque, string sessionId)
+        private async Task ImportarItens(ImpNFeTemp2 impNFeTemp, Entrada entrada, int idEmpresa, int cdPlanoEstoque, string sessionId, int unity)
         {
             int cont = impNFeTemp.impitensnves.Count;
             foreach (var item in impNFeTemp.impitensnves)
@@ -350,7 +351,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     //ConvertToDecimal(item.Qtrib);
                     ppp.VlUnitario = Math.Round(ConvertToDecimal(item.Vuntrib) / (amarracao.FatorConversao ?? 1), 4);
                     // ConvertToDecimal(item.Vuntrib);
-                    await ImportarUnidadeMedida(item, amarracao, idEmpresa);
+                    await ImportarUnidadeMedida(item, amarracao, idEmpresa, unity);
                     ppp.Unidade = produtoEstoque.CdUni;//item.Utrib;
                     await AtualizarDadosFiscais(item, ppp, amarracao, entrada, idEmpresa, produtoEstoque);
                     if ((!string.IsNullOrEmpty(item.Csosn)) && item.Csosn.Length > 0)
@@ -617,12 +618,12 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     }
 
 
-                    await GravarAmarracao(idEmpresa, ppp, item, amarracao, entrada);
+                    await GravarAmarracao(idEmpresa, ppp, item, amarracao, entrada, unity);
                 }
             }
         }
 
-        private async Task GravarAmarracao(int idEmpresa, ProdutoEntradum ppp, Impitensnfe item, Amarracao2 amarracao, Entrada entrada)
+        private async Task GravarAmarracao(int idEmpresa, ProdutoEntradum ppp, Impitensnfe item, Amarracao2 amarracao, Entrada entrada, int unity)
         {
             string vsql = $@" 
                         SELECT 
@@ -639,7 +640,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
             {
                 produtosForn = new ProdutosForn();
                 produtosForn.CdProduto = ppp.CdProduto;
-                produtosForn.IdEmpresa = idEmpresa;
+                produtosForn.Unity = unity;
                 produtosForn.CdForn = entrada.CdForn;
                 produtosForn.IdProdutoExterno = item.CProd;
 
@@ -802,7 +803,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
         }
 
 
-        private async Task ImportarUnidadeMedida(Impitensnfe item, Amarracao2 amarracao, int idEmpresa)
+        private async Task ImportarUnidadeMedida(Impitensnfe item, Amarracao2 amarracao, int idEmpresa, int unity)
         {
             string SQLunidade = $@"
                 SELECT 
@@ -817,7 +818,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
             if (unidade == null)
             {
                 unidade = new UnidadeMedida();
-                unidade.IdEmpresa = idEmpresa;
+                unidade.Unity = unity;
                 unidade.CdUnidade = item.Utrib;
                 unidade.Descricao = item.Utrib;
 

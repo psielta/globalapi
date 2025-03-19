@@ -259,7 +259,7 @@ namespace GlobalErpData.Dto
 
         public decimal? LucroPorNFiscal { get; set; }
 
-        public int IdEmpresa { get; set; }
+        public int Unity { get; set; }
         public decimal? PercentualImpostos { get; set; }
 
         public decimal? PercentualComissao { get; set; }

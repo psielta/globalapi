@@ -94,11 +94,11 @@ namespace GlobalAPINFe.Controllers
 
         // Método personalizado ajustado
 
-        [HttpGet("GetProdutoEstoquePorEmpresa", Name = nameof(GetProdutoEstoquePorEmpresa))]
+        [HttpGet("GetProdutoEstoquePorUnity", Name = nameof(GetProdutoEstoquePorUnity))]
         [ProducesResponseType(typeof(PagedResponse<ProdutoEstoque>), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<PagedResponse<ProdutoEstoque>>> GetProdutoEstoquePorEmpresa(
-            int idEmpresa,
+        public async Task<ActionResult<PagedResponse<ProdutoEstoque>>> GetProdutoEstoquePorUnity(
+            int unity,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
             [FromQuery] string? nmProduto = null,
@@ -113,7 +113,7 @@ namespace GlobalAPINFe.Controllers
             try
             {
                 var query = ((ProdutoEstoquePagedRepositoryMultiKey)repo)
-                    .GetProdutoEstoqueAsyncPorEmpresa(idEmpresa)
+                    .GetProdutoEstoqueAsyncPorUnity(unity)
                     .Result
                     .AsQueryable();
 
@@ -175,7 +175,7 @@ namespace GlobalAPINFe.Controllers
                 foreach (var produto in pagedList)
                 {
                     double? quantidade = 0;
-
+                    
                     if (cdPlanoEstoque != -1)
                     {
                         var saldo = produto.SaldoEstoques.FirstOrDefault();
@@ -257,7 +257,7 @@ namespace GlobalAPINFe.Controllers
 
                 var query = _context.ProdutoEstoques.FromSqlRaw(sqlQuery, parametros.ToArray())
                     .Include(p => p.FotosProdutos)
-                    .Where(p => p.IdEmpresa == idEmpresa && p.FotosProdutos.Any());
+                    .Where(p => p.Unity == idEmpresa && p.FotosProdutos.Any());
 
                 // Aplicar filtros adicionais via LINQ
                 if (categoryId.HasValue)
@@ -331,7 +331,7 @@ namespace GlobalAPINFe.Controllers
                 // Carregar os ProductDetails e ItemDetails de forma separada
                 var produtoIds = pagedList.Select(p => p.CdProduto).ToList();
                 var productDetails = await _context.ProductDetails
-                    .Where(pd => produtoIds.Contains(pd.IdProduto) && pd.IdEmpresa == idEmpresa)
+                    .Where(pd => produtoIds.Contains(pd.IdProduto) && pd.Unity == idEmpresa)
                     .ToListAsync();
                 var idOfProductDetails = productDetails.Select(pd => pd.Id).ToList();
 
@@ -342,7 +342,7 @@ namespace GlobalAPINFe.Controllers
                 // Atribuir os detalhes aos produtos correspondentes
                 foreach (var dto in dtoList)
                 {
-                    var productDetail = productDetails.Where(pd => pd.IdProduto == dto.id && pd.IdEmpresa == idEmpresa).ToList();
+                    var productDetail = productDetails.Where(pd => pd.IdProduto == dto.id && pd.Unity == idEmpresa).ToList();
                     foreach (var pd in productDetail)
                     {
                         var details = new ProductDetailv2
@@ -440,7 +440,7 @@ namespace GlobalAPINFe.Controllers
                 {
                     var produto = await
                         _context.ProdutoEstoques
-                        .Where((produto) => produto.CdProduto == item.cdProduto && produto.IdEmpresa == idEmpresa)
+                        .Where((produto) => produto.CdProduto == item.cdProduto && produto.Unity == idEmpresa)
                         .FirstOrDefaultAsync();
 
                     if (produto == null)
@@ -529,7 +529,7 @@ namespace GlobalAPINFe.Controllers
                 {
                     var produto = await
                         _context.ProdutoEstoques
-                        .Where((produto) => produto.CdProduto == item.cdProduto && produto.IdEmpresa == idEmpresa)
+                        .Where((produto) => produto.CdProduto == item.cdProduto && produto.Unity == idEmpresa)
                         .FirstOrDefaultAsync();
 
                     if (produto == null)
@@ -626,7 +626,7 @@ namespace GlobalAPINFe.Controllers
                 {
                     var produto = await
                         _context.ProdutoEstoques
-                        .Where((produto) => produto.CdProduto == item.cdProduto && produto.IdEmpresa == idEmpresa)
+                        .Where((produto) => produto.CdProduto == item.cdProduto && produto.Unity == idEmpresa)
                         .FirstOrDefaultAsync();
 
                     if (produto == null)

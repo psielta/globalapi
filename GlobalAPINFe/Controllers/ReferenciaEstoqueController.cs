@@ -81,11 +81,11 @@ namespace GlobalAPINFe.Controllers
         [HttpGet("GetReferenciaEstoquePorEmpresa", Name = nameof(GetReferenciaEstoquePorEmpresa))]
         [ProducesResponseType(typeof(PagedResponse<ReferenciaEstoque>), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<PagedResponse<ReferenciaEstoque>>> GetReferenciaEstoquePorEmpresa(int idEmpresa, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        public async Task<ActionResult<PagedResponse<ReferenciaEstoque>>> GetReferenciaEstoquePorEmpresa(int unity, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                var query = ((ReferenciaEstoquePagedRepository)repo).GetReferenciaEstoqueAsyncPorEmpresa(idEmpresa).Result.AsQueryable();
+                var query = ((ReferenciaEstoquePagedRepository)repo).GetReferenciaEstoqueAsyncPorEmpresa(unity).Result.AsQueryable();
                 if (query == null)
                 {
                     return NotFound("Entities not found."); // 404 Resource not found
@@ -143,7 +143,7 @@ namespace GlobalAPINFe.Controllers
             {
                 return NotFound("Referência não encontrada.");
             }
-            var referenciasFilteredByEmpresa = referencias.AsEnumerable().Where(u => u.CdEmpresa == idEmpresa);
+            var referenciasFilteredByEmpresa = referencias.AsEnumerable().Where(u => u.Unity == idEmpresa);
 
             if (referenciasFilteredByEmpresa == null)
             {

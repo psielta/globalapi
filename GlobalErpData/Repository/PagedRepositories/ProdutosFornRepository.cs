@@ -20,12 +20,12 @@ namespace GlobalErpData.Repository.PagedRepositories
         {
         }
 
-        public Task<IQueryable<ProdutosForn>> GetProdutosFornAsyncPorEmpresa(int IdEmpresa)
+        public Task<IQueryable<ProdutosForn>> GetProdutosFornAsyncPorUnity(int unity)
         {
             try
             {
                 return Task.FromResult(db.Set<ProdutosForn>()
-                    .Where(e => e.IdEmpresa == IdEmpresa)
+                    .Where(e => e.Unity == unity)
                     .Include(e => e.ProdutoEstoque)
                     .AsQueryable());
             }

@@ -47,7 +47,7 @@ namespace GlobalErpData.Repository.PagedRepositories
         public async override Task<ProdutoSaidum?> CreateAsync(ProdutoSaidumDto dto)
         {
             ProdutoEstoque? produto = await db.ProdutoEstoques
-                .FirstOrDefaultAsync(e => e.CdProduto == dto.CdProduto && e.IdEmpresa == dto.CdEmpresa);
+                .FirstOrDefaultAsync(e => e.CdProduto == dto.CdProduto && e.Unity == dto.Unity);
 
             if (produto is null)
             {
@@ -143,14 +143,14 @@ namespace GlobalErpData.Repository.PagedRepositories
 
             db.ProdutoEstoques.Update(produto);
             await db.SaveChangesAsync();
-            ((ProdutoEstoquePagedRepositoryMultiKey)queryRepositoryMultiKey).UpdateCache((produto.IdEmpresa, produto.CdProduto), produto);
+            ((ProdutoEstoquePagedRepositoryMultiKey)queryRepositoryMultiKey).UpdateCache((produto.Unity, produto.CdProduto), produto);
 
-            UnidadeMedida? unidade = db.UnidadeMedidas.Where(u => u.CdUnidade == dto.Un && u.IdEmpresa == produto.IdEmpresa).FirstOrDefault();
+            UnidadeMedida? unidade = db.UnidadeMedidas.Where(u => u.CdUnidade == dto.Un && u.Unity == produto.Unity).FirstOrDefault();
             if (unidade == null)
             {
                 UnidadeMedida unidadeNova = new UnidadeMedida();
                 unidadeNova.CdUnidade = dto.Un ?? "";
-                unidadeNova.IdEmpresa = produto.IdEmpresa;
+                unidadeNova.Unity = produto.Unity;
                 unidadeNova.Descricao = dto.Un ?? "";
 
                 db.UnidadeMedidas.Add(unidadeNova);
@@ -162,7 +162,7 @@ namespace GlobalErpData.Repository.PagedRepositories
         public async override Task<ProdutoSaidum?> UpdateAsync(int id, ProdutoSaidumDto dto)
         {
             ProdutoEstoque? produto = await db.ProdutoEstoques
-                .FirstOrDefaultAsync(e => e.CdProduto == dto.CdProduto && e.IdEmpresa == dto.CdEmpresa);
+                .FirstOrDefaultAsync(e => e.CdProduto == dto.CdProduto && e.Unity == dto.Unity);
             if (produto is null)
             {
                 logger.LogWarning("Failed to create entity from DTO. Produto not found.");
@@ -208,7 +208,7 @@ namespace GlobalErpData.Repository.PagedRepositories
         public async Task<ProdutoSaidum?> UpdateAsyncSemRecalcular(int id, ProdutoSaidumDto dto)
         {
             ProdutoEstoque? produto = await db.ProdutoEstoques
-                .FirstOrDefaultAsync(e => e.CdProduto == dto.CdProduto && e.IdEmpresa == dto.CdEmpresa);
+                .FirstOrDefaultAsync(e => e.CdProduto == dto.CdProduto && e.Unity == dto.Unity);
             if (produto is null)
             {
                 logger.LogWarning("Failed to create entity from DTO. Produto not found.");

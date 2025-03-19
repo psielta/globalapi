@@ -48,15 +48,23 @@ public partial class OlderItem : IIdentifiable<Guid>
     [Column("integrated")]
     public int? Integrated { get; set; }
 
+    [Column("unity")]
+    public int Unity { get; set; }
+
     [JsonIgnore]
     [ForeignKey("OlderId")]
     [InverseProperty("OlderItems")]
     public virtual Older? Older { get; set; }
 
     [JsonIgnore]
-    [ForeignKey("CdProduto, IdEmpresa")]
+    [ForeignKey("CdProduto, Unity")]
     [InverseProperty("OlderItems")]
     public virtual ProdutoEstoque ProdutoEstoque { get; set; } = null!;
+
+    [JsonIgnore]
+    [ForeignKey("Unity")]
+    [InverseProperty("OlderItems")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
 
     [GraphQLIgnore]
     public Guid GetId()

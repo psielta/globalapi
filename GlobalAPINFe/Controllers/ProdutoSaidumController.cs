@@ -193,7 +193,7 @@ namespace GlobalAPINFe.Controllers
                 try
                 {
                     ProdutoEstoque? produto = await _context.ProdutoEstoques.FirstOrDefaultAsync(obj =>
-                    obj.IdEmpresa == dto.CdEmpresa && obj.CdProduto == dto.CdProduto);
+                    obj.Unity == dto.Unity && obj.CdProduto == dto.CdProduto);
 
                     if (produto == null)
                     {
@@ -272,7 +272,7 @@ namespace GlobalAPINFe.Controllers
                 try
                 {
                     ProdutoEstoque? produto = await _context.ProdutoEstoques.FirstOrDefaultAsync(obj =>
-                    obj.IdEmpresa == dto.CdEmpresa && obj.CdBarra.Equals(dto.Ean));
+                    obj.Unity == dto.Unity && obj.CdBarra.Equals(dto.Ean));
                     if (produto == null)
                     {
                         throw new Exception("Produto não encontrado.");
@@ -287,7 +287,7 @@ namespace GlobalAPINFe.Controllers
                     }
                     ProdutoSaidumDto ProdutoSaidumDto = new ProdutoSaidumDto();
                     ProdutoSaidumDto.NrSaida = dto.NrSaida;
-                    ProdutoSaidumDto.CdEmpresa = dto.CdEmpresa ?? 0;
+                    ProdutoSaidumDto.CdEmpresa = dto.CdEmpresa ;
                     ProdutoSaidumDto.CdBarra = produto.CdBarra;
                     ProdutoSaidumDto.CdProduto = produto.CdProduto;
                     ProdutoSaidumDto.NmProduto = produto.NmProduto;

@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 namespace GlobalErpData.Models;
 
 [Table("unidade_medida")]
+[Index("CdUnidade", "Unity", Name = "unidade_medida_idx", IsUnique = true)]
 public partial class UnidadeMedida: IIdentifiable<int>
 {
     [Key]
@@ -23,8 +24,8 @@ public partial class UnidadeMedida: IIdentifiable<int>
     [StringLength(62)]
     public string Descricao { get; set; } = null!;
 
-    [Column("id_empresa")]
-    public int IdEmpresa { get; set; }
+    [Column("unity")]
+    public int Unity { get; set; }
 
 
     [Column("last_update", TypeName = "timestamp without time zone")]
@@ -34,9 +35,9 @@ public partial class UnidadeMedida: IIdentifiable<int>
     public int? Integrated { get; set; }
 
     [JsonIgnore]
-    [ForeignKey("IdEmpresa")]
+    [ForeignKey("Unity")]
     [InverseProperty("UnidadeMedida")]
-    public virtual Empresa IdEmpresaNavigation { get; set; } = null!;
+    public virtual Unity UnityNavigation { get; set; } = null!;
 
     [GraphQLIgnore]
     public int GetId()

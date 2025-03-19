@@ -25,6 +25,7 @@ namespace GlobalErpData.Dto
 
         public int IdEmpresa { get; set; }
 
+    public int Unity { get; set; }
         public int CdProduto { get; set; }
     }
 }

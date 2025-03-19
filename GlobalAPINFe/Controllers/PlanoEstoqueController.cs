@@ -109,13 +109,13 @@ namespace GlobalAPINFe.Controllers
         [ProducesResponseType(typeof(PagedResponse<PlanoEstoque>), 200)]
         [ProducesResponseType(404)]
         public async Task<ActionResult<PagedResponse<PlanoEstoque>>> GetPlanoEstoquePorEmpresa(
-            int idEmpresa,
+            int unity,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10)
         {
             try
             {
-                var query = ((PlanoEstoquePagedRepository)repo).GetPlanoEstoquePorEmpresa(idEmpresa).Result.AsQueryable();
+                var query = ((PlanoEstoquePagedRepository)repo).GetPlanoEstoquePorUnity(unity).Result.AsQueryable();
 
                 if (query == null)
                 {

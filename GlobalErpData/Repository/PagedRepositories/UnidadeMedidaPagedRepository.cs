@@ -12,9 +12,9 @@ namespace GlobalErpData.Repository.PagedRepositories
         public UnidadeMedidaPagedRepository(GlobalErpFiscalBaseContext injectedContext, IMapper mapper, ILogger<GenericRepositoryDto<UnidadeMedida, GlobalErpFiscalBaseContext, int, UnidadeMedidaDto>> logger) : base(injectedContext, mapper, logger)
         {
         }
-        public Task<IQueryable<UnidadeMedida>> GetUnidadeMedidaPorEmpresa(int IdEmpresa)
+        public Task<IQueryable<UnidadeMedida>> GetUnidadeMedidaPorEmpresa(int unity)
         {
-            return Task.FromResult(db.Set<UnidadeMedida>().Where(e => e.IdEmpresa == IdEmpresa).AsQueryable());
+            return Task.FromResult(db.Set<UnidadeMedida>().Where(e => e.Unity == unity).AsQueryable());
         }
     }
 }

@@ -22,7 +22,7 @@ namespace GlobalErpData.Repository.Repositories
         public async Task<IEnumerable<ProductDetail>> GetProductDetailsAsyncPerEmpresa(int IdEmpresa)
         {
             return await db.Set<ProductDetail>()
-                .Where(e => e.IdEmpresa == IdEmpresa)
+                .Where(e => e.Unity == IdEmpresa)
                 .ToListAsync();
         }
     }

@@ -21,7 +21,7 @@ namespace GlobalErpData.Repository.Repositories
         public async Task<IEnumerable<Category>> GetCategorysByEmpresaAsync(int IdEmpresa)
         {
             return await db.Set<Category>()
-                .Where(s => s.IdEmpresa == IdEmpresa)
+                .Where(s => s.Unity == IdEmpresa)
                 .ToListAsync();
         }
     }

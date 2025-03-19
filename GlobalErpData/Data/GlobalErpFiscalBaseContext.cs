@@ -262,7 +262,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.Integrated).HasDefaultValue(0);
             entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
-            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.Categories)
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.Categories)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("category_fk");
         });
@@ -970,7 +970,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
         modelBuilder.Entity<Featured>(entity =>
         {
-            entity.HasKey(e => new { e.Id, e.IdEmpresa }).HasName("featured_pkey");
+            entity.HasKey(e => new { e.Id, e.Unity }).HasName("featured_pkey");
 
             entity.Property(e => e.Excluiu).HasDefaultValue(false);
             entity.Property(e => e.Integrated).HasDefaultValue(0);
@@ -978,7 +978,9 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
             entity.HasOne(d => d.Category).WithMany(p => p.Featureds).HasConstraintName("featured_category_id_fkey");
 
-            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.Featureds).HasConstraintName("featured_id_empresa_fkey");
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.Featureds)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("featured_fk");
         });
 
         modelBuilder.Entity<FormaPagt>(entity =>
@@ -1044,19 +1046,19 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
         modelBuilder.Entity<FotosProduto>(entity =>
         {
-            entity.HasKey(e => new { e.Id, e.IdEmpresa }).HasName("fotos_produto_pkey");
+            entity.HasKey(e => new { e.Id, e.Unity }).HasName("fotos_produto_pkey");
 
             entity.Property(e => e.Excluiu).HasDefaultValue(false);
             entity.Property(e => e.Integrated).HasDefaultValue(0);
             entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
-            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.FotosProdutos)
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.FotosProdutos)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("fk_empresa");
+                .HasConstraintName("fotos_produto_fk");
 
             entity.HasOne(d => d.ProdutoEstoque).WithMany(p => p.FotosProdutos)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("fk_produto");
+                .HasConstraintName("fotos_produto_fk6");
         });
 
         modelBuilder.Entity<Frete>(entity =>
@@ -1121,7 +1123,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.Integrated).HasDefaultValue(0);
             entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
-            entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.GrupoEstoques)
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.GrupoEstoques)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("grupo_estoque_fk");
         });
@@ -1495,9 +1497,13 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("nfce_produto_saida_fk2");
 
-            entity.HasOne(d => d.ProdutoEstoque).WithMany(p => p.NfceProdutoSaida)
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.NfceProdutoSaida)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("nfce_produto_saida_fk1");
+
+            entity.HasOne(d => d.ProdutoEstoque).WithMany(p => p.NfceProdutoSaida)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("nfce_produto_saida_fk6");
 
             entity.HasOne(d => d.NfceSaida).WithMany(p => p.NfceProdutoSaida)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -1588,9 +1594,13 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("older_items_older_id_fkey");
 
-            entity.HasOne(d => d.ProdutoEstoque).WithMany(p => p.OlderItems)
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.OlderItems)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("older_items_fk");
+
+            entity.HasOne(d => d.ProdutoEstoque).WithMany(p => p.OlderItems)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("older_items_fk6");
         });
 
         modelBuilder.Entity<OrigemCst>(entity =>
@@ -1682,6 +1692,10 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.PlanoEstoques)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("plano_estoque_fk");
+
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.PlanoEstoques)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("plano_estoque_fk1");
         });
 
         modelBuilder.Entity<ProductDetail>(entity =>
@@ -1691,13 +1705,13 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.Integrated).HasDefaultValue(0);
             entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
-            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.ProductDetails)
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.ProductDetails)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("product_details_fk1");
+                .HasConstraintName("product_details_fk");
 
             entity.HasOne(d => d.ProdutoEstoque).WithMany(p => p.ProductDetails)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("product_details_fk");
+                .HasConstraintName("older_items_fk6");
         });
 
         modelBuilder.Entity<ProdutoEntradum>(entity =>
@@ -1772,7 +1786,13 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
             entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.ProdutoEntrada).HasConstraintName("produto_entrada_fk2");
 
-            entity.HasOne(d => d.ProdutoEstoque).WithMany(p => p.ProdutoEntrada).HasConstraintName("produto_entrada_fk1");
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.ProdutoEntrada)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("produto_entrada_fk1");
+
+            entity.HasOne(d => d.ProdutoEstoque).WithMany(p => p.ProdutoEntrada)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("produto_entrada_fk6");
 
             entity.HasOne(d => d.Entrada).WithMany(p => p.ProdutoEntrada)
                 .OnDelete(DeleteBehavior.Cascade)
@@ -1781,7 +1801,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
         modelBuilder.Entity<ProdutoEstoque>(entity =>
         {
-            entity.HasKey(e => new { e.CdProduto, e.IdEmpresa }).HasName("pk_produtos");
+            entity.HasKey(e => new { e.CdProduto, e.Unity }).HasName("produto_estoque_idx");
 
             entity.Property(e => e.CdProduto).ValueGeneratedOnAdd();
             entity.Property(e => e.Ativo).HasDefaultValueSql("'S'::character varying");
@@ -1898,10 +1918,6 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("produto_estoque_fk1");
 
-            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.ProdutoEstoques)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("produto_estoque_fk2");
-
             entity.HasOne(d => d.Section).WithMany(p => p.ProdutoEstoques)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("fk_section_id");
@@ -1910,9 +1926,9 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("fk_section_item_id");
 
-            entity.HasOne(d => d.Featured).WithMany(p => p.ProdutoEstoques)
-                .OnDelete(DeleteBehavior.SetNull)
-                .HasConstraintName("fk_featured_id");
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.ProdutoEstoques)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("produto_estoque_fk2");
         });
 
         modelBuilder.Entity<ProdutoSaidum>(entity =>
@@ -2015,9 +2031,13 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
             entity.HasOne(d => d.NrSaidaNavigation).WithMany(p => p.ProdutoSaida).HasConstraintName("produto_saida_fk2");
 
-            entity.HasOne(d => d.ProdutoEstoque).WithMany(p => p.ProdutoSaida)
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.ProdutoSaida)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("produto_saida_fk");
+
+            entity.HasOne(d => d.ProdutoEstoque).WithMany(p => p.ProdutoSaida)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("produto_saida_fk4");
         });
 
         modelBuilder.Entity<ProdutosForn>(entity =>
@@ -2029,8 +2049,6 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.Integrated).HasDefaultValue(0);
             entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
-            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.ProdutosForns).HasConstraintName("produtos_forn_fk1");
-
             entity.HasOne(d => d.UnityNavigation).WithMany(p => p.ProdutosForns)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("produtos_forn_fk");
@@ -2039,7 +2057,9 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("produtos_forn_fk3");
 
-            entity.HasOne(d => d.ProdutoEstoque).WithMany(p => p.ProdutosForns).HasConstraintName("produtos_forn_fk2");
+            entity.HasOne(d => d.ProdutoEstoque).WithMany(p => p.ProdutosForns)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("produtos_forn_fk6");
         });
 
         modelBuilder.Entity<ProtocoloEstadoNcm>(entity =>
@@ -2065,7 +2085,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.Integrated).HasDefaultValue(0);
             entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
-            entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.ReferenciaEstoques)
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.ReferenciaEstoques)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("referencia_estoque_fk");
         });
@@ -2189,9 +2209,9 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("saldo_estoque_fk2");
 
-            entity.HasOne(d => d.ProdutoEstoque).WithMany(p => p.SaldoEstoques)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("saldo_estoque_fk1");
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.SaldoEstoques).HasConstraintName("saldo_estoque_fk1");
+
+            entity.HasOne(d => d.ProdutoEstoque).WithMany(p => p.SaldoEstoques).HasConstraintName("saldo_estoque_fk6");
         });
 
         modelBuilder.Entity<SangriaCaixa>(entity =>
@@ -2231,11 +2251,13 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.Integrated).HasDefaultValue(0);
             entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
-            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.SectionItems).HasConstraintName("section_items_id_empresa_fkey");
-
             entity.HasOne(d => d.Section).WithMany(p => p.SectionItems)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("section_items_section_id_fkey");
+
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.SectionItems)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("section_items_fk");
         });
 
         modelBuilder.Entity<TabelaAnp>(entity =>
@@ -2257,7 +2279,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
         modelBuilder.Entity<Transportadora>(entity =>
         {
-            entity.HasKey(e => new { e.CdTransportadora, e.IdEmpresa }).HasName("transportadora_idx1");
+            entity.HasKey(e => new { e.CdTransportadora, e.Unity }).HasName("transportadora_idx1");
 
             entity.Property(e => e.CdTransportadora).ValueGeneratedOnAdd();
             entity.Property(e => e.Integrated).HasDefaultValue(0);
@@ -2265,7 +2287,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
             entity.HasOne(d => d.CdCidadeNavigation).WithMany(p => p.Transportadoras).HasConstraintName("transportadora_fk1");
 
-            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.Transportadoras)
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.Transportadoras)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("transportadora_fk");
         });
@@ -2277,7 +2299,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.Integrated).HasDefaultValue(0);
             entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
-            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.UnidadeMedida)
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.UnidadeMedida)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("unidade_medida_fk2");
         });

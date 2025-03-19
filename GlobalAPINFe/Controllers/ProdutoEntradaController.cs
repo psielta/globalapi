@@ -180,7 +180,7 @@ namespace GlobalAPINFe.Controllers
                 try
                 {
                     ProdutoEstoque? produto = await _context.ProdutoEstoques.FirstOrDefaultAsync(obj =>
-                    obj.IdEmpresa == dto.CdEmpresa && obj.CdProduto == dto.CdProduto);
+                    obj.Unity == dto.Unity && obj.CdProduto == dto.CdProduto);
                     if (produto == null)
                     {
                         throw new Exception("Produto não encontrado.");
@@ -228,8 +228,8 @@ namespace GlobalAPINFe.Controllers
                
                 try
                 {
-                    ProdutoEstoque produto = await _context.ProdutoEstoques.FirstOrDefaultAsync(obj =>
-                    obj.IdEmpresa == dto.CdEmpresa && obj.CdBarra.Equals(dto.Ean));
+                    ProdutoEstoque? produto = await _context.ProdutoEstoques.FirstOrDefaultAsync(obj =>
+                    obj.Unity == dto.Unity && obj.CdBarra.Equals(dto.Ean));
                     if (produto == null)
                     {
                         throw new Exception("Produto não encontrado.");

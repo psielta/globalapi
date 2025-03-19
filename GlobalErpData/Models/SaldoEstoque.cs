@@ -43,6 +43,9 @@ public partial class SaldoEstoque : IIdentifiable<int>
     [Precision(18, 4)]
     public decimal? QuantF { get; set; }
 
+    [Column("unity")]
+    public int? Unity { get; set; }
+
     [JsonIgnore]
     [ForeignKey("CdEmpresa")]
     [InverseProperty("SaldoEstoques")]
@@ -54,9 +57,14 @@ public partial class SaldoEstoque : IIdentifiable<int>
     public virtual PlanoEstoque CdPlanoNavigation { get; set; } = null!;
 
     [JsonIgnore]
-    [ForeignKey("CdProduto, CdEmpresa")]
+    [ForeignKey("CdProduto, Unity")]
     [InverseProperty("SaldoEstoques")]
-    public virtual ProdutoEstoque ProdutoEstoque { get; set; } = null!;
+    public virtual ProdutoEstoque? ProdutoEstoque { get; set; }
+
+    [JsonIgnore]
+    [ForeignKey("Unity")]
+    [InverseProperty("SaldoEstoques")]
+    public virtual Unity? UnityNavigation { get; set; }
 
     [JsonPropertyName("nmPlano")]
     [NotMapped]

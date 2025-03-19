@@ -35,11 +35,6 @@ public partial class UsuarioFuncionario : IIdentifiableMultiKey<int, string>
     public int? Integrated { get; set; }
 
     [JsonIgnore]
-    [ForeignKey("CdEmpresa")]
-    [InverseProperty("UsuarioFuncionarios")]
-    public virtual Empresa CdEmpresaNavigation { get; set; } = null!;
-
-    [JsonIgnore]
     [ForeignKey("CdFuncionario, CdEmpresa")]
     [InverseProperty("UsuarioFuncionarios")]
     public virtual Funcionario Funcionario { get; set; } = null!;

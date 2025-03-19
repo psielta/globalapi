@@ -16,7 +16,7 @@ namespace GlobalErpData.Dto
         public string? Href { get; set; }
         public string? ImageSrc { get; set; }
         public string? ImageAlt { get; set; }
-        public int IdEmpresa { get; set; }
+        public int Unity { get; set; }
         public bool? Excluiu { get; set; }
     }
 }

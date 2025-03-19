@@ -26,8 +26,8 @@ public partial class SectionItem : IIdentifiable<int>
     [StringLength(255)]
     public string? Href { get; set; }
 
-    [Column("id_empresa")]
-    public int IdEmpresa { get; set; }
+    [Column("unity")]
+    public int Unity { get; set; }
 
     [Column("last_update", TypeName = "timestamp without time zone")]
     public DateTime? LastUpdate { get; set; }
@@ -36,9 +36,9 @@ public partial class SectionItem : IIdentifiable<int>
     public int? Integrated { get; set; }
 
     [JsonIgnore]
-    [ForeignKey("IdEmpresa")]
+    [ForeignKey("Unity")]
     [InverseProperty("SectionItems")]
-    public virtual Empresa IdEmpresaNavigation { get; set; } = null!;
+    public virtual Unity UnityNavigation { get; set; } = null!;
 
     [JsonIgnore]
     [InverseProperty("SectionItem")]

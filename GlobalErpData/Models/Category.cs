@@ -15,8 +15,8 @@ public partial class Category : IIdentifiable<int>
     [Column("id")]
     public int Id { get; set; }
 
-    [Column("id_empresa")]
-    public int IdEmpresa { get; set; }
+    [Column("unity")]
+    public int Unity { get; set; }
 
     [Column("name")]
     [StringLength(255)]
@@ -27,9 +27,9 @@ public partial class Category : IIdentifiable<int>
     public virtual ICollection<Featured> Featureds { get; set; } = new List<Featured>();
 
     [JsonIgnore]
-    [ForeignKey("IdEmpresa")]
+    [ForeignKey("Unity")]
     [InverseProperty("Categories")]
-    public virtual Empresa IdEmpresaNavigation { get; set; } = null!;
+    public virtual Unity UnityNavigation { get; set; } = null!;
 
     [JsonIgnore]
     [InverseProperty("CategoryNavigation")]

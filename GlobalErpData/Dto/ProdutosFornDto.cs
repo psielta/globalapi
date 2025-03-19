@@ -18,6 +18,6 @@ namespace GlobalErpData.Dto
 
         public string CdBarra { get; set; } = null!;
 
-        public int IdEmpresa { get; set; }
+        public int Unity { get; set; }
     }
 }

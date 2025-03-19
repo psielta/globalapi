@@ -89,7 +89,7 @@ namespace GlobalAPINFe.Controllers
         {
             try
             {
-                var query = ((ProdutosFornRepository)repo).GetProdutosFornAsyncPorEmpresa(idEmpresa).Result.AsQueryable();
+                var query = ((ProdutosFornRepository)repo).GetProdutosFornAsyncPorUnity(idEmpresa).Result.AsQueryable();
 
                 if (query == null)
                 {

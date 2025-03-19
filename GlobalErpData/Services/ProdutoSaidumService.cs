@@ -25,7 +25,7 @@ namespace GlobalErpData.Services
             ProdutoSaidumDto ProdutoSaidumDto, ProdutoEstoque produto, Cliente cliente)
         {
             ProdutoSaidumDto.NrSaida = dto.NrSaida;
-            ProdutoSaidumDto.CdEmpresa = dto.CdEmpresa ?? 0;
+            ProdutoSaidumDto.CdEmpresa = dto.CdEmpresa;
             ProdutoSaidumDto.CdProduto = produto.CdProduto;
             ProdutoSaidumDto.CdBarra = produto.CdBarra;
             ProdutoSaidumDto.NmProduto = produto.NmProduto;
@@ -83,7 +83,7 @@ namespace GlobalErpData.Services
             ProdutoSaidumDto ProdutoSaidumDto, ProdutoEstoque produto, Cliente cliente)
         {
             ProdutoSaidumDto.NrSaida = dto.NrSaida;
-            ProdutoSaidumDto.CdEmpresa = dto.CdEmpresa ?? 0;
+            ProdutoSaidumDto.CdEmpresa = dto.CdEmpresa;
             ProdutoSaidumDto.CdProduto = produto.CdProduto;
             ProdutoSaidumDto.CdBarra = produto.CdBarra;
             ProdutoSaidumDto.NmProduto = produto.NmProduto;

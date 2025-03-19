@@ -484,10 +484,18 @@ public partial class ProdutoSaidum : IIdentifiable<int>
     [StringLength(20)]
     public string CdBarra { get; set; } = null!;
 
+    [Column("unity")]
+    public int Unity { get; set; }
+    
     [JsonIgnore]
     [ForeignKey("CdEmpresa")]
     [InverseProperty("ProdutoSaida")]
     public virtual Empresa CdEmpresaNavigation { get; set; } = null!;
+
+    [JsonIgnore]
+    [ForeignKey("CdPlano")]
+    [InverseProperty("ProdutoSaida")]
+    public virtual PlanoEstoque CdPlanoNavigation { get; set; } = null!;
 
     [JsonIgnore]
     [ForeignKey("NrSaida")]
@@ -495,14 +503,14 @@ public partial class ProdutoSaidum : IIdentifiable<int>
     public virtual Saida NrSaidaNavigation { get; set; } = null!;
 
     [JsonIgnore]
-    [ForeignKey("CdProduto, CdEmpresa")]
+    [ForeignKey("CdProduto, Unity")]
     [InverseProperty("ProdutoSaida")]
     public virtual ProdutoEstoque ProdutoEstoque { get; set; } = null!;
 
-    [JsonPropertyName("nmProduto")]
-    [NotMapped]
-    public string NmProduto => ProdutoEstoque?.NmProduto ?? "";
-
+    [JsonIgnore]
+    [ForeignKey("Unity")]
+    [InverseProperty("ProdutoSaida")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
     [GraphQLIgnore]
     public int GetId()
     {
@@ -515,8 +523,4 @@ public partial class ProdutoSaidum : IIdentifiable<int>
         return "Nr";
     }
 
-    [JsonIgnore]
-    [ForeignKey("CdPlano")]
-    [InverseProperty("ProdutoSaida")]
-    public virtual PlanoEstoque CdPlanoNavigation { get; set; } = null!;
 }

@@ -11,6 +11,7 @@ namespace GlobalErpData.Dto
         public string NmPlano { get; set; } = null!;
 
         public int CdEmpresa { get; set; }
+        public int Unity { get; set; }
 
         public bool Ativo { get; set; }
 

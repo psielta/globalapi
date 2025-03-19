@@ -113,7 +113,7 @@ namespace GlobalAPINFe.Controllers
 
                 string relativePath = System.IO.Path.Combine("featured", dto.IdEmpresa.ToString(), dto.CategoryId.ToString(), fileName);
 
-                var existingFoto = await _context.Featureds.Where(f => f.IdEmpresa == dto.IdEmpresa && f.Id == dto.Id).FirstOrDefaultAsync();
+                var existingFoto = await _context.Featureds.Where(f => f.Unity == dto.IdEmpresa && f.Id == dto.Id).FirstOrDefaultAsync();
 
                 //await repo.RetrieveAsync(dto.IdEmpresa, dto.Id);
 
@@ -142,7 +142,7 @@ namespace GlobalAPINFe.Controllers
                     Featured uploadedFeaturedDto = new Featured()
                     {
                         Id = dto.Id,
-                        IdEmpresa = dto.IdEmpresa,
+                        Unity = dto.IdEmpresa,
                         ImageSrc = relativePath,
                         ImageAlt = dto.ImageAlt,
                         Excluiu = false,

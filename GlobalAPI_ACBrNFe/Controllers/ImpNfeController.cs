@@ -76,6 +76,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
         {
             string _chNFe = string.Empty;
             var impNFeTemp = new ImpNFeTemp();
+            var empresa = await db.Empresas.FirstOrDefaultAsync(e => e.CdEmpresa == idEmpresa);
             using (var stream = new StreamReader(xml.OpenReadStream()))
             {
                 string xmlContent = await stream.ReadToEndAsync();
@@ -868,7 +869,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     }
 
 
-                    await GetAmarracoes(impNFeTemp, idEmpresa, nfe);
+                    await GetAmarracoes(impNFeTemp, idEmpresa, nfe, empresa.Unity);
 
                     return Ok(impNFeTemp);
                 }
@@ -953,7 +954,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
             return false;
         }
 
-        private async Task GetAmarracoes(ImpNFeTemp impNFeTemp, int idEmpresa, nfeProc nfe)
+        private async Task GetAmarracoes(ImpNFeTemp impNFeTemp, int idEmpresa, nfeProc nfe, int unity)
         {
             if (impNFeTemp.impitensnves == null)
                 throw new Exception("Não foi possível salvar os itens da nota fiscal, verifique se o XML está correto.");
@@ -966,7 +967,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
             bool existeFornecedor = await FornecedorExiste(idEmpresa, nfe.NFe.infNFe.emit.CNPJ, nfe.NFe.infNFe.emit.CPF);
             if (!existeFornecedor)
             {
-                int CdForn = await CadastrarFornecedor(nfe.NFe.infNFe.emit, idEmpresa);
+                int CdForn = await CadastrarFornecedor(nfe.NFe.infNFe.emit, idEmpresa, unity);
                 foreach (var item in impNFeTemp.impitensnves)
                 {
                     Amarracao amarracao = new Amarracao();
@@ -1063,10 +1064,10 @@ namespace GlobalAPI_ACBrNFe.Controllers
 
 
 
-        private async Task<int> CadastrarFornecedor(emit emit, int idEmpresa)
+        private async Task<int> CadastrarFornecedor(emit emit, int idEmpresa, int unity)
         {
             FornecedorDto novoFornecedor = new FornecedorDto();
-            novoFornecedor.IdEmpresa = idEmpresa;
+            novoFornecedor.Unity = unity;
             novoFornecedor.Cnpj = emit.CNPJ;
             novoFornecedor.Cpf = emit.CPF;
             novoFornecedor.NmForn = emit.xNome;
@@ -1224,6 +1225,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
         [ProducesResponseType(500)]
         public async Task<IActionResult> CadastrarProdutosFaltantes([FromBody] List<Amarracao2> amarracoes2, int idEmpresa, int cdForn, string chaveNfe, string sessionId)
         {
+            var empresa = await db.Empresas.FirstOrDefaultAsync(x => x.CdEmpresa == idEmpresa);
             if (ImportacaoProdutosProtect.ContainsKey(chaveNfe) && ImportacaoProdutosProtect[chaveNfe] == idEmpresa)
             {
                 return BadRequest("Ja existe importação em andamento.");
@@ -1329,7 +1331,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                         produtoEstoque.Ativo = "S";
                         produtoEstoque.LancLivro = "S";
                         produtoEstoque.TpItem = "00";
-                        produtoEstoque.IdEmpresa = idEmpresa;
+                        produtoEstoque.Unity = empresa.Unity;
                         produtoEstoque.QtUnitario = 1;
                         produtoEstoque.NmProduto = impitensnfe.Nome;
                         produtoEstoque.CdTribt = 3;
@@ -1348,7 +1350,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                             produtoEstoque.CdBarra = "SEM GTIN";
                         }
 
-                        GrupoEstoque? grupo = await db.GrupoEstoques.FirstOrDefaultAsync(x => x.CdEmpresa == idEmpresa
+                        GrupoEstoque? grupo = await db.GrupoEstoques.FirstOrDefaultAsync(x => x.Unity == empresa.Unity
                         && x.NmGrupo.ToUpper().Trim().Equals("DIVERSOS")
                         );
                         if (grupo != null)
@@ -1358,7 +1360,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                         else
                         {
                             GrupoEstoqueDto grupoEstoqueDto = new GrupoEstoqueDto();
-                            grupoEstoqueDto.CdEmpresa = idEmpresa;
+                            grupoEstoqueDto.Unity = empresa.Unity;
                             grupoEstoqueDto.NmGrupo = "DIVERSOS";
                             const string END_POINT_GRUPO = Constants.URL_API_NFE + "/api/GrupoEstoque";
                             HttpClient client = new HttpClient();
@@ -1385,7 +1387,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                                     new ErrorMessage(500, response.Content.ReadAsStringAsync().Result));
                             }
                         }
-                        ReferenciaEstoque? referenciaEstoque = await db.ReferenciaEstoques.FirstOrDefaultAsync(x => x.CdEmpresa == idEmpresa && x.NmRef.ToUpper().Trim().Equals("DIVERSOS"));
+                        ReferenciaEstoque? referenciaEstoque = await db.ReferenciaEstoques.FirstOrDefaultAsync(x => x.Unity == empresa.Unity && x.NmRef.ToUpper().Trim().Equals("DIVERSOS"));
                         if (referenciaEstoque != null)
                         {
                             produtoEstoque.CdRef = referenciaEstoque.CdRef;
@@ -1393,7 +1395,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                         else
                         {
                             ReferenciaEstoqueDto referenciaEstoqueDto = new ReferenciaEstoqueDto();
-                            referenciaEstoqueDto.CdEmpresa = idEmpresa;
+                            referenciaEstoqueDto.Unity = empresa.Unity;
                             referenciaEstoqueDto.NmRef = "DIVERSOS";
                             const string END_POINT_REFERENCIA = Constants.URL_API_NFE + "/api/ReferenciaEstoque";
                             HttpClient clientReferencia = new HttpClient();
@@ -1419,7 +1421,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                             }
                         }
 
-                        UnidadeMedida? unidadeMedida = await db.UnidadeMedidas.FirstOrDefaultAsync(x => x.IdEmpresa == idEmpresa && x.CdUnidade.Equals(impitensnfe.Un));
+                        UnidadeMedida? unidadeMedida = await db.UnidadeMedidas.FirstOrDefaultAsync(x => x.Unity == empresa.Unity && x.CdUnidade.Equals(impitensnfe.Un));
                         if (unidadeMedida != null)
                         {
                             produtoEstoque.CdUni = unidadeMedida.CdUnidade;
@@ -1427,7 +1429,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                         else
                         {
                             UnidadeMedidaDto unidadeMedidaDto = new UnidadeMedidaDto();
-                            unidadeMedidaDto.IdEmpresa = idEmpresa;
+                            unidadeMedidaDto.Unity = empresa.Unity;
                             unidadeMedidaDto.CdUnidade = impitensnfe.Un;
                             unidadeMedidaDto.Descricao = impitensnfe.Un;
                             const string END_POINT_UNIDADE = Constants.URL_API_NFE + "/api/UnidadeMedida";
@@ -1477,7 +1479,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                                 produtosForn.CdForn = cdForn;
                                 produtosForn.IdProdutoExterno = impitensnfe.CProd;
                                 produtosForn.CdBarra = impitensnfe.Cean;
-                                produtosForn.IdEmpresa = idEmpresa;
+                                produtosForn.Unity = empresa.Unity;
 
                                 ProdutosFornDto produtosFornDto = mapper.Map<ProdutosFornDto>(produtosForn);
 
@@ -1574,6 +1576,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
         {
             try
             {
+                var empresa = await db.Empresas.FirstOrDefaultAsync(x => x.CdEmpresa == idEmpresa);
                 Impitensnfe? impitensnfe = await db.Impitensnves.FirstOrDefaultAsync(x => x.ChNfe == chaveNfe && x.NrItem == nrItem);
                 if (impitensnfe == null)
                 {
@@ -1581,10 +1584,10 @@ namespace GlobalAPI_ACBrNFe.Controllers
                         new ErrorMessage(404, "Item da nota fiscal não encontrado"));
 
                 }
-                ProdutosForn? produtoFornOld = await db.ProdutosForns.FirstOrDefaultAsync(x => x.IdEmpresa == idEmpresa && x.CdForn == cdForn && x.IdProdutoExterno == impitensnfe.CProd && x.CdBarra.Equals(impitensnfe.Cean));
+                ProdutosForn? produtoFornOld = await db.ProdutosForns.FirstOrDefaultAsync(x => x.Unity == empresa.Unity && x.CdForn == cdForn && x.IdProdutoExterno == impitensnfe.CProd && x.CdBarra.Equals(impitensnfe.Cean));
                 if (produtoFornOld != null)
                 {
-                    ProdutoEstoque? produtoEstoqueOld = await db.ProdutoEstoques.FirstOrDefaultAsync(x => x.IdEmpresa == idEmpresa && x.CdProduto == produtoFornOld.CdProduto && x.CdBarra.Equals(produtoFornOld.CdBarra));
+                    ProdutoEstoque? produtoEstoqueOld = await db.ProdutoEstoques.FirstOrDefaultAsync(x => x.Unity == empresa.Unity && x.CdProduto == produtoFornOld.CdProduto && x.CdBarra.Equals(produtoFornOld.CdBarra));
                     if (produtoEstoqueOld != null)
                     {
                         return Ok(produtoEstoqueOld);
@@ -1595,7 +1598,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 produtoEstoque.Ativo = "S";
                 produtoEstoque.LancLivro = "S";
                 produtoEstoque.TpItem = "00";
-                produtoEstoque.IdEmpresa = idEmpresa;
+                produtoEstoque.Unity = empresa.Unity;
                 produtoEstoque.QtUnitario = 1;
                 produtoEstoque.NmProduto = impitensnfe.Nome;
                 produtoEstoque.CdTribt = 3;
@@ -1614,7 +1617,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     produtoEstoque.CdBarra = "SEM GTIN";
                 }
 
-                GrupoEstoque? grupo = await db.GrupoEstoques.FirstOrDefaultAsync(x => x.CdEmpresa == idEmpresa
+                GrupoEstoque? grupo = await db.GrupoEstoques.FirstOrDefaultAsync(x => x.Unity == empresa.Unity
                 && x.NmGrupo.ToUpper().Trim().Equals("DIVERSOS")
                 );
                 if (grupo != null)
@@ -1624,7 +1627,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 else
                 {
                     GrupoEstoqueDto grupoEstoqueDto = new GrupoEstoqueDto();
-                    grupoEstoqueDto.CdEmpresa = idEmpresa;
+                    grupoEstoqueDto.Unity = empresa.Unity;
                     grupoEstoqueDto.NmGrupo = "DIVERSOS";
                     const string END_POINT_GRUPO = Constants.URL_API_NFE + "/api/GrupoEstoque";
                     HttpClient client = new HttpClient();
@@ -1652,7 +1655,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     }
                 }
 
-                ReferenciaEstoque? referenciaEstoque = await db.ReferenciaEstoques.FirstOrDefaultAsync(x => x.CdEmpresa == idEmpresa && x.NmRef.ToUpper().Trim().Equals("DIVERSOS"));
+                ReferenciaEstoque? referenciaEstoque = await db.ReferenciaEstoques.FirstOrDefaultAsync(x => x.Unity == empresa.Unity && x.NmRef.ToUpper().Trim().Equals("DIVERSOS"));
                 if (referenciaEstoque != null)
                 {
                     produtoEstoque.CdRef = referenciaEstoque.CdRef;
@@ -1660,7 +1663,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 else
                 {
                     ReferenciaEstoqueDto referenciaEstoqueDto = new ReferenciaEstoqueDto();
-                    referenciaEstoqueDto.CdEmpresa = idEmpresa;
+                    referenciaEstoqueDto.Unity = empresa.Unity;
                     referenciaEstoqueDto.NmRef = "DIVERSOS";
                     const string END_POINT_REFERENCIA = Constants.URL_API_NFE + "/api/ReferenciaEstoque";
                     HttpClient clientReferencia = new HttpClient();
@@ -1688,7 +1691,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     }
                 }
 
-                UnidadeMedida? unidadeMedida = await db.UnidadeMedidas.FirstOrDefaultAsync(x => x.IdEmpresa == idEmpresa && x.CdUnidade.Equals(impitensnfe.Un));
+                UnidadeMedida? unidadeMedida = await db.UnidadeMedidas.FirstOrDefaultAsync(x => x.Unity == empresa.Unity && x.CdUnidade.Equals(impitensnfe.Un));
                 if (unidadeMedida != null)
                 {
                     produtoEstoque.CdUni = unidadeMedida.CdUnidade;
@@ -1696,7 +1699,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 else
                 {
                     UnidadeMedidaDto unidadeMedidaDto = new UnidadeMedidaDto();
-                    unidadeMedidaDto.IdEmpresa = idEmpresa;
+                    unidadeMedidaDto.Unity = empresa.Unity;
                     unidadeMedidaDto.CdUnidade = impitensnfe.Un;
                     unidadeMedidaDto.Descricao = impitensnfe.Un;
                     const string END_POINT_UNIDADE = Constants.URL_API_NFE + "/api/UnidadeMedida";
@@ -1746,7 +1749,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                         produtosForn.CdForn = cdForn;
                         produtosForn.IdProdutoExterno = impitensnfe.CProd;
                         produtosForn.CdBarra = impitensnfe.Cean;
-                        produtosForn.IdEmpresa = idEmpresa;
+                        produtosForn.Unity = empresa.Unity;
 
                         ProdutosFornDto produtosFornDto = mapper.Map<ProdutosFornDto>(produtosForn);
 

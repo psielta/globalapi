@@ -19,8 +19,8 @@ public partial class ReferenciaEstoque : IIdentifiable<int>
     [StringLength(62)]
     public string NmRef { get; set; } = null!;
 
-    [Column("cd_empresa")]
-    public int CdEmpresa { get; set; }
+    [Column("unity")]
+    public int Unity { get; set; }
 
     [Column("last_update", TypeName = "timestamp without time zone")]
     public DateTime? LastUpdate { get; set; }
@@ -29,13 +29,13 @@ public partial class ReferenciaEstoque : IIdentifiable<int>
     public int? Integrated { get; set; }
 
     [JsonIgnore]
-    [ForeignKey("CdEmpresa")]
-    [InverseProperty("ReferenciaEstoques")]
-    public virtual Empresa CdEmpresaNavigation { get; set; } = null!;
-
-    [JsonIgnore]
     [InverseProperty("CdRefNavigation")]
     public virtual ICollection<ProdutoEstoque> ProdutoEstoques { get; set; } = new List<ProdutoEstoque>();
+
+    [JsonIgnore]
+    [ForeignKey("Unity")]
+    [InverseProperty("ReferenciaEstoques")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
 
     [GraphQLIgnore]
     public int GetId()

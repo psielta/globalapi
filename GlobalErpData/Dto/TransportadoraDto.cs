@@ -26,6 +26,6 @@ namespace GlobalErpData.Dto
         public string? NrTelefone2 { get; set; }
         public string? Email { get; set; }
         public string? Cep { get; set; }
-        public int IdEmpresa { get; set; }
+        public int Unity { get; set; }
     }
 }

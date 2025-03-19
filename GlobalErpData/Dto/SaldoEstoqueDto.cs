@@ -21,5 +21,8 @@ namespace GlobalErpData.Dto
         public decimal? QuantV { get; set; }
 
         public decimal? QuantF { get; set; }
+
+        public int? Unity { get; set; }
+
     }
 }

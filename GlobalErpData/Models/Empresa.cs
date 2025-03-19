@@ -120,10 +120,6 @@ public partial class Empresa : IIdentifiable<int>
     public int Unity { get; set; }
 
     [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<Category> Categories { get; set; } = new List<Category>();
-
-    [JsonIgnore]
     [ForeignKey("CdCidade")]
     [InverseProperty("Empresas")]
     public virtual Cidade CdCidadeNavigation { get; set; } = null!;
@@ -139,8 +135,6 @@ public partial class Empresa : IIdentifiable<int>
     [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<CfopImportacao> CfopImportacaos { get; set; } = new List<CfopImportacao>();
-
-    
 
     [JsonIgnore]
     [InverseProperty("CdEmpresaNavigation")]
@@ -250,20 +244,9 @@ public partial class Empresa : IIdentifiable<int>
     [InverseProperty("CdEmpresaNavigation")]
     public virtual ICollection<EntradaOutrasDesp> EntradaOutrasDesps { get; set; } = new List<EntradaOutrasDesp>();
 
-    
-
-    [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<Featured> Featureds { get; set; } = new List<Featured>();
-
     [JsonIgnore]
     [InverseProperty("CdEmpresaNavigation")]
     public virtual ICollection<FormaPagt> FormaPagts { get; set; } = new List<FormaPagt>();
-
-
-    [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<FotosProduto> FotosProdutos { get; set; } = new List<FotosProduto>();
 
     [JsonIgnore]
     [InverseProperty("CdEmpresaNavigation")]
@@ -272,10 +255,6 @@ public partial class Empresa : IIdentifiable<int>
     [JsonIgnore]
     [InverseProperty("CdEmpresaNavigation")]
     public virtual ICollection<Funcionario> Funcionarios { get; set; } = new List<Funcionario>();
-
-    [JsonIgnore]
-    [InverseProperty("CdEmpresaNavigation")]
-    public virtual ICollection<GrupoEstoque> GrupoEstoques { get; set; } = new List<GrupoEstoque>();
 
     [JsonIgnore]
     [InverseProperty("CdEmpresaNavigation")]
@@ -370,16 +349,8 @@ public partial class Empresa : IIdentifiable<int>
     public virtual ICollection<PlanoEstoque> PlanoEstoques { get; set; } = new List<PlanoEstoque>();
 
     [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<ProductDetail> ProductDetails { get; set; } = new List<ProductDetail>();
-
-    [JsonIgnore]
     [InverseProperty("CdEmpresaNavigation")]
     public virtual ICollection<ProdutoEntradum> ProdutoEntrada { get; set; } = new List<ProdutoEntradum>();
-
-    [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<ProdutoEstoque> ProdutoEstoques { get; set; } = new List<ProdutoEstoque>();
 
     [JsonIgnore]
     [InverseProperty("CdEmpresaNavigation")]
@@ -387,17 +358,7 @@ public partial class Empresa : IIdentifiable<int>
 
     [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<ProdutosForn> ProdutosForns { get; set; } = new List<ProdutosForn>();
-
-    [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<ProtocoloEstadoNcm> ProtocoloEstadoNcms { get; set; } = new List<ProtocoloEstadoNcm>();
-
-    [JsonIgnore]
-    [InverseProperty("CdEmpresaNavigation")]
-    public virtual ICollection<ReferenciaEstoque> ReferenciaEstoques { get; set; } = new List<ReferenciaEstoque>();
-
-    
 
     [JsonIgnore]
     [InverseProperty("EmpresaNavigation")]
@@ -417,19 +378,10 @@ public partial class Empresa : IIdentifiable<int>
 
     [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<SectionItem> SectionItems { get; set; } = new List<SectionItem>();
-
-    [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<Section> Sections { get; set; } = new List<Section>();
 
-    [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<Transportadora> Transportadoras { get; set; } = new List<Transportadora>();
 
-    [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<UnidadeMedida> UnidadeMedida { get; set; } = new List<UnidadeMedida>();
+    
 
     [JsonIgnore]
     [ForeignKey("Unity")]
@@ -439,10 +391,6 @@ public partial class Empresa : IIdentifiable<int>
     [JsonIgnore]
     [InverseProperty("CdEmpresaNavigation")]
     public virtual ICollection<UsuarioEmpresa> UsuarioEmpresas { get; set; } = new List<UsuarioEmpresa>();
-
-    [JsonIgnore]
-    [InverseProperty("CdEmpresaNavigation")]
-    public virtual ICollection<UsuarioFuncionario> UsuarioFuncionarios { get; set; } = new List<UsuarioFuncionario>();
 
     [JsonIgnore]
     [InverseProperty("CdEmpresaNavigation")]

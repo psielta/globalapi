@@ -80,11 +80,11 @@ namespace GlobalAPINFe.Controllers
         [HttpGet("GetUnidadeMedidaPorEmpresa", Name = nameof(GetUnidadeMedidaPorEmpresa))]
         [ProducesResponseType(typeof(PagedResponse<UnidadeMedida>), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<PagedResponse<UnidadeMedida>>> GetUnidadeMedidaPorEmpresa(int idEmpresa, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        public async Task<ActionResult<PagedResponse<UnidadeMedida>>> GetUnidadeMedidaPorEmpresa(int unity, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                var query = await ((UnidadeMedidaPagedRepository)repo).GetUnidadeMedidaPorEmpresa(idEmpresa);
+                var query = await ((UnidadeMedidaPagedRepository)repo).GetUnidadeMedidaPorEmpresa(unity);
                 if (query == null)
                 {
                     return NotFound("Entities not found."); // 404 Resource not found
@@ -142,7 +142,7 @@ namespace GlobalAPINFe.Controllers
             {
                 return NotFound("Unidade não encontrada.");
             }
-            var unidadesFilteredByEmpresa = unidades.Where(u => u.IdEmpresa == idEmpresa);
+            var unidadesFilteredByEmpresa = unidades.Where(u => u.Unity == idEmpresa);
 
             if (unidadesFilteredByEmpresa == null)
             {

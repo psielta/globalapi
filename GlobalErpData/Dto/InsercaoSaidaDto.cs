@@ -10,7 +10,9 @@ namespace GlobalErpData.Dto
     {
         public int NrSaida { get; set; }
 
-        public int? CdEmpresa { get; set; }
+        public int CdEmpresa { get; set; }
+
+        public int Unity { get; set; }
 
         public int CdProduto { get; set; }
 
@@ -23,7 +25,8 @@ namespace GlobalErpData.Dto
     {
         public int NrSaida { get; set; }
 
-        public int? CdEmpresa { get; set; }
+        public int CdEmpresa { get; set; }
+        public int Unity { get; set; }
 
         public string Ean { get; set; }
 

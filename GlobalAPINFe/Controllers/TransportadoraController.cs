@@ -74,7 +74,7 @@ namespace GlobalAPINFe.Controllers
         [ProducesResponseType(typeof(PagedResponse<Transportadora>), 200)]
         [ProducesResponseType(404)]
         public async Task<ActionResult<PagedResponse<Transportadora>>> GetTransportadoraPorEmpresa(
-            int idEmpresa,
+            int unity,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
             [FromQuery] string? nmTransp = null,
@@ -83,7 +83,7 @@ namespace GlobalAPINFe.Controllers
         {
             try
             {
-                var query = ((TransportadoraPagedRepository)repo).GetTransportadoraPorEmpresa(idEmpresa).Result.AsQueryable();
+                var query = ((TransportadoraPagedRepository)repo).GetTransportadoraPorEmpresa(unity).Result.AsQueryable();
 
                 if (query == null)
                 {

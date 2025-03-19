@@ -101,7 +101,7 @@ namespace GlobalAPINFe.Controllers
                 string relativePath = System.IO.Path.Combine("imagens", dto.IdEmpresa.ToString(), dto.CdProduto.ToString(), fileName);
 
                 var existingFoto = 
-                    await this._context.FotosProdutos.Where(f => f.IdEmpresa == dto.IdEmpresa && f.Id == dto.Id).FirstOrDefaultAsync();
+                    await this._context.FotosProdutos.Where(f => f.Unity == dto.IdEmpresa && f.Id == dto.Id).FirstOrDefaultAsync();
                 //await repo.RetrieveAsync(dto.IdEmpresa, dto.Id);
 
                 if (existingFoto != null)
@@ -124,7 +124,7 @@ namespace GlobalAPINFe.Controllers
                     FotosProduto novaFoto = new FotosProduto
                     {
                         Id = dto.Id,
-                        IdEmpresa = dto.IdEmpresa,
+                        Unity = dto.IdEmpresa,
                         CdProduto = dto.CdProduto,
                         CaminhoFoto = relativePath,
                         DescricaoFoto = dto.DescricaoFoto,

@@ -13,11 +13,11 @@ namespace GlobalErpData.Repository.PagedRepositoriesMultiKey
         public ProdutoEstoquePagedRepositoryMultiKey(GlobalErpFiscalBaseContext injectedContext, IMapper mapper, ILogger<GenericPagedRepositoryMultiKey<ProdutoEstoque, GlobalErpFiscalBaseContext, int, int, ProdutoEstoqueDto>> logger) : base(injectedContext, mapper, logger)
         {
         }
-        public Task<IQueryable<ProdutoEstoque>> GetProdutoEstoqueAsyncPorEmpresa(int IdEmpresa)
+        public Task<IQueryable<ProdutoEstoque>> GetProdutoEstoqueAsyncPorUnity(int IdEmpresa)
         {
             try
             {
-                return Task.FromResult(db.Set<ProdutoEstoque>().Where(e => e.IdEmpresa == IdEmpresa).AsQueryable());
+                return Task.FromResult(db.Set<ProdutoEstoque>().Where(e => e.Unity == IdEmpresa).AsQueryable());
             }
             catch (Exception ex)
             {

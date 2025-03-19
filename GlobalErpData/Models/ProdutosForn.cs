@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 namespace GlobalErpData.Models;
 
 [Table("produtos_forn")]
-[Index("CdForn", "CdProduto", "IdEmpresa", "IdProdutoExterno", "CdBarra", Name = "pk_pedido_item", IsUnique = true)]
+[Index("CdProduto", "CdForn", "IdProdutoExterno", "CdBarra", "Unity", Name = "produtos_forn_idx")]
 public partial class ProdutosForn : IIdentifiable<int>
 {
     [Key]
@@ -30,9 +30,6 @@ public partial class ProdutosForn : IIdentifiable<int>
     [StringLength(14)]
     public string CdBarra { get; set; } = null!;
 
-    [Column("id_empresa")]
-    public int IdEmpresa { get; set; }
-
     [Column("last_update", TypeName = "timestamp without time zone")]
     public DateTime? LastUpdate { get; set; }
 
@@ -48,19 +45,14 @@ public partial class ProdutosForn : IIdentifiable<int>
     public virtual Fornecedor Fornecedor { get; set; } = null!;
 
     [JsonIgnore]
-    [ForeignKey("IdEmpresa")]
-    [InverseProperty("ProdutosForns")]
-    public virtual Empresa IdEmpresaNavigation { get; set; } = null!;
-
-    [JsonIgnore]
-    [ForeignKey("CdProduto, IdEmpresa")]
-    [InverseProperty("ProdutosForns")]
-    public virtual ProdutoEstoque ProdutoEstoque { get; set; } = null!;
-
-    [JsonIgnore]
     [ForeignKey("Unity")]
     [InverseProperty("ProdutosForns")]
     public virtual Unity UnityNavigation { get; set; } = null!;
+
+    [JsonIgnore]
+    [ForeignKey("CdProduto, Unity")]
+    [InverseProperty("ProdutosForns")]
+    public virtual ProdutoEstoque ProdutoEstoque { get; set; } = null!;
 
     [GraphQLIgnore]
     public int GetId()

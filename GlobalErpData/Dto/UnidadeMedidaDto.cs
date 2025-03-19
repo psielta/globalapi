@@ -13,6 +13,6 @@ namespace GlobalErpData.Dto
     {
         public string CdUnidade { get; set; } = null!;
         public string Descricao { get; set; } = null!;
-        public int IdEmpresa { get; set; }
+        public int Unity { get; set; }
     }
 }

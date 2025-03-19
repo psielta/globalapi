@@ -361,6 +361,9 @@ public partial class NfceProdutoSaidum : IIdentifiableMultiKey<int, int>
     [Column("integrated")]
     public int? Integrated { get; set; }
 
+    [Column("unity")]
+    public int Unity { get; set; }
+
     [JsonIgnore]
     [ForeignKey("CdEmpresa")]
     [InverseProperty("NfceProdutoSaida")]
@@ -372,9 +375,14 @@ public partial class NfceProdutoSaidum : IIdentifiableMultiKey<int, int>
     public virtual NfceSaida NfceSaida { get; set; } = null!;
 
     [JsonIgnore]
-    [ForeignKey("CdProduto, CdEmpresa")]
+    [ForeignKey("CdProduto, Unity")]
     [InverseProperty("NfceProdutoSaida")]
     public virtual ProdutoEstoque ProdutoEstoque { get; set; } = null!;
+
+    [JsonIgnore]
+    [ForeignKey("Unity")]
+    [InverseProperty("NfceProdutoSaida")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
 
     [GraphQLIgnore]
     public (int, int) GetId()

@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GlobalErpData.Models;
 
-[PrimaryKey("CdProduto", "IdEmpresa")]
+[PrimaryKey("CdProduto", "Unity")]
 [Table("produto_estoque")]
 public partial class ProdutoEstoque : IIdentifiable<int>, IIdentifiableMultiKey<int, int>
 {
@@ -516,10 +516,6 @@ public partial class ProdutoEstoque : IIdentifiable<int>, IIdentifiableMultiKey<
     [Precision(18, 4)]
     public decimal? LucroPorNFiscal { get; set; }
 
-    [Key]
-    [Column("id_empresa")]
-    public int IdEmpresa { get; set; }
-
     [Column("percentual_impostos")]
     [Precision(18, 4)]
     public decimal? PercentualImpostos { get; set; }
@@ -565,10 +561,14 @@ public partial class ProdutoEstoque : IIdentifiable<int>, IIdentifiableMultiKey<
     [NotMapped]
     public double? Quantidade { get; set; }
 
+    [Key]
+    [Column("unity")]
+    public int Unity { get; set; }
+
     [JsonIgnore]
     [ForeignKey("Category")]
     [InverseProperty("ProdutoEstoques")]
-    public virtual Category CategoryNavigation { get; set; } = null!;
+    public virtual Category? CategoryNavigation { get; set; }
 
     [JsonIgnore]
     [ForeignKey("CdGrupo")]
@@ -581,13 +581,28 @@ public partial class ProdutoEstoque : IIdentifiable<int>, IIdentifiableMultiKey<
     public virtual ReferenciaEstoque CdRefNavigation { get; set; } = null!;
 
     [JsonIgnore]
-    [ForeignKey("IdEmpresa")]
-    [InverseProperty("ProdutoEstoques")]
-    public virtual Empresa IdEmpresaNavigation { get; set; } = null!;
+    [InverseProperty("ProdutoEstoque")]
+    public virtual ICollection<FotosProduto> FotosProdutos { get; set; } = new List<FotosProduto>();
 
     [JsonIgnore]
     [InverseProperty("ProdutoEstoque")]
-    public virtual ICollection<SaldoEstoque> SaldoEstoques { get; set; } = new List<SaldoEstoque>();
+    public virtual ICollection<NfceProdutoSaidum> NfceProdutoSaida { get; set; } = new List<NfceProdutoSaidum>();
+
+    [JsonIgnore]
+    [InverseProperty("ProdutoEstoque")]
+    public virtual ICollection<OlderItem> OlderItems { get; set; } = new List<OlderItem>();
+
+    [JsonIgnore]
+    [InverseProperty("ProdutoEstoque")]
+    public virtual ICollection<ProductDetail> ProductDetails { get; set; } = new List<ProductDetail>();
+
+    [JsonIgnore]
+    [InverseProperty("ProdutoEstoque")]
+    public virtual ICollection<ProdutoEntradum> ProdutoEntrada { get; set; } = new List<ProdutoEntradum>();
+
+    [JsonIgnore]
+    [InverseProperty("ProdutoEstoque")]
+    public virtual ICollection<ProdutoSaidum> ProdutoSaida { get; set; } = new List<ProdutoSaidum>();
 
     [JsonIgnore]
     [InverseProperty("ProdutoEstoque")]
@@ -595,8 +610,7 @@ public partial class ProdutoEstoque : IIdentifiable<int>, IIdentifiableMultiKey<
 
     [JsonIgnore]
     [InverseProperty("ProdutoEstoque")]
-    public virtual ICollection<ProdutoEntradum> ProdutoEntrada { get; set; } = new List<ProdutoEntradum>();
-
+    public virtual ICollection<SaldoEstoque> SaldoEstoques { get; set; } = new List<SaldoEstoque>();
 
     [JsonIgnore]
     [ForeignKey("SectionId")]
@@ -609,13 +623,9 @@ public partial class ProdutoEstoque : IIdentifiable<int>, IIdentifiableMultiKey<
     public virtual SectionItem? SectionItem { get; set; }
 
     [JsonIgnore]
-    [ForeignKey("FeaturedId, IdEmpresa")]
+    [ForeignKey("Unity")]
     [InverseProperty("ProdutoEstoques")]
-    public virtual Featured? Featured { get; set; }
-
-    [JsonIgnore]
-    [InverseProperty("ProdutoEstoque")]
-    public virtual ICollection<OlderItem> OlderItems { get; set; } = new List<OlderItem>();
+    public virtual Unity UnityNavigation { get; set; } = null!;
 
     [GraphQLIgnore]
     public int GetId()
@@ -640,22 +650,7 @@ public partial class ProdutoEstoque : IIdentifiable<int>, IIdentifiableMultiKey<
     [GraphQLIgnore]
     (int, int) IIdentifiableMultiKey<int, int>.GetId()
     {
-        return (IdEmpresa, CdProduto);
+        return (Unity, CdProduto);
     }
-    [JsonIgnore]
-    [InverseProperty("ProdutoEstoque")]
-    public virtual ICollection<FotosProduto> FotosProdutos { get; set; } = new List<FotosProduto>();
-
-    [JsonIgnore]
-    [InverseProperty("ProdutoEstoque")]
-    public virtual ICollection<ProdutoSaidum> ProdutoSaida { get; set; } = new List<ProdutoSaidum>();
-
-    [JsonIgnore]
-    [InverseProperty("ProdutoEstoque")]
-    public virtual ICollection<ProductDetail> ProductDetails { get; set; } = new List<ProductDetail>();
-
-    [JsonIgnore]
-    [InverseProperty("ProdutoEstoque")]
-    public virtual ICollection<NfceProdutoSaidum> NfceProdutoSaida { get; set; } = new List<NfceProdutoSaidum>();
-
+    
 }

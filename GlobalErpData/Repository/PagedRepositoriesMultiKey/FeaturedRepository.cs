@@ -22,7 +22,7 @@ namespace GlobalErpData.Repository.PagedRepositoriesMultiKey
         public async Task<IEnumerable<Featured>> GetFeaturedByEmpresaAsync(int IdEmpresa)
         {
             return await db.Set<Featured>()
-                .Where(e => e.IdEmpresa == IdEmpresa)
+                .Where(e => e.Unity == IdEmpresa)
                 .ToListAsync();
         }
     }

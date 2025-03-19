@@ -19,8 +19,8 @@ public partial class GrupoEstoque : IIdentifiable<int>
     [StringLength(62)]
     public string NmGrupo { get; set; } = null!;
 
-    [Column("cd_empresa")]
-    public int CdEmpresa { get; set; }
+    [Column("unity")]
+    public int Unity { get; set; }
 
     [Column("last_update", TypeName = "timestamp without time zone")]
     public DateTime? LastUpdate { get; set; }
@@ -29,13 +29,13 @@ public partial class GrupoEstoque : IIdentifiable<int>
     public int? Integrated { get; set; }
 
     [JsonIgnore]
-    [ForeignKey("CdEmpresa")]
-    [InverseProperty("GrupoEstoques")]
-    public virtual Empresa CdEmpresaNavigation { get; set; } = null!;
-
-    [JsonIgnore]
     [InverseProperty("CdGrupoNavigation")]
     public virtual ICollection<ProdutoEstoque> ProdutoEstoques { get; set; } = new List<ProdutoEstoque>();
+
+    [JsonIgnore]
+    [ForeignKey("Unity")]
+    [InverseProperty("GrupoEstoques")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
 
     [GraphQLIgnore]
     public int GetId()

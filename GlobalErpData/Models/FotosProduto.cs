@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GlobalErpData.Models;
 
-[PrimaryKey("Id", "IdEmpresa")]
+[PrimaryKey("Id", "Unity")]
 [Table("fotos_produto")]
 public partial class FotosProduto : IIdentifiableMultiKey<int, int>
 {
@@ -17,8 +17,8 @@ public partial class FotosProduto : IIdentifiableMultiKey<int, int>
     public int Id { get; set; }
 
     [Key]
-    [Column("id_empresa")]
-    public int IdEmpresa { get; set; }
+    [Column("unity")]
+    public int Unity { get; set; }
 
     [Column("cd_produto")]
     public int CdProduto { get; set; }
@@ -38,25 +38,25 @@ public partial class FotosProduto : IIdentifiableMultiKey<int, int>
     [Column("integrated")]
     public int? Integrated { get; set; }
     [JsonIgnore]
-    [ForeignKey("IdEmpresa")]
-    [InverseProperty("FotosProdutos")]
-    public virtual Empresa IdEmpresaNavigation { get; set; } = null!;
-
-    [JsonIgnore]
-    [ForeignKey("CdProduto, IdEmpresa")]
+    [ForeignKey("CdProduto, Unity")]
     [InverseProperty("FotosProdutos")]
     public virtual ProdutoEstoque ProdutoEstoque { get; set; } = null!;
+
+    [JsonIgnore]
+    [ForeignKey("Unity")]
+    [InverseProperty("FotosProdutos")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
 
     [GraphQLIgnore]
     public (int, int) GetId()
     {
-        return (IdEmpresa, Id);
+        return (Unity, Id);
     }
 
     [GraphQLIgnore]
     public string GetKeyName1()
     {
-        return "IdEmpresa";
+        return "Unity";
     }
 
     [GraphQLIgnore]

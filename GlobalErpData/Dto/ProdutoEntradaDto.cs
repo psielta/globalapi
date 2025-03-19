@@ -363,5 +363,6 @@ namespace GlobalErpData.Dto
 
         public decimal? CustoAtualizado { get; set; }
 
+    public int Unity { get; set; }
     }
 }

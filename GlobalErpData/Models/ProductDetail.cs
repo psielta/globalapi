@@ -15,8 +15,8 @@ public partial class ProductDetail : IIdentifiable<int>
     [Column("id")]
     public int Id { get; set; }
 
-    [Column("id_empresa")]
-    public int IdEmpresa { get; set; }
+    [Column("unity")]
+    public int Unity { get; set; }
 
     [Column("id_produto")]
     public int IdProduto { get; set; }
@@ -32,18 +32,18 @@ public partial class ProductDetail : IIdentifiable<int>
     public int? Integrated { get; set; }
 
     [JsonIgnore]
-    [ForeignKey("IdEmpresa")]
-    [InverseProperty("ProductDetails")]
-    public virtual Empresa IdEmpresaNavigation { get; set; } = null!;
-
-    [JsonIgnore]
     [InverseProperty("IdProductDetailsNavigation")]
     public virtual ICollection<ItemDetail> ItemDetails { get; set; } = new List<ItemDetail>();
 
     [JsonIgnore]
-    [ForeignKey("IdProduto, IdEmpresa")]
+    [ForeignKey("IdProduto, Unity")]
     [InverseProperty("ProductDetails")]
     public virtual ProdutoEstoque ProdutoEstoque { get; set; } = null!;
+
+    [JsonIgnore]
+    [ForeignKey("Unity")]
+    [InverseProperty("ProductDetails")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
 
     [GraphQLIgnore]
     public int GetId()

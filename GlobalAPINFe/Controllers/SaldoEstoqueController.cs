@@ -85,9 +85,10 @@ namespace GlobalAPINFe.Controllers
         [ProducesResponseType(typeof(PagedResponse<SaldoEstoque>), 200)]
         [ProducesResponseType(404)]
         public async Task<ActionResult<PagedResponse<SaldoEstoque>>> GetSaldoEstoquePorEmpresa(
-            int idEmpresa,
+            int unity,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
+            [FromQuery] int? cdEmpresa = null,
             [FromQuery] int? cdProduto = null,
             [FromQuery] int? cdPlano = null,
             [FromQuery] string? nmProduto = null)
@@ -96,13 +97,13 @@ namespace GlobalAPINFe.Controllers
             {
                 IQueryable<SaldoEstoque>? query;
                 string SQL = $@"SELECT * FROM saldo_estoque se
-                        WHERE se.cd_empresa = {idEmpresa}
+                        WHERE se.unity = {unity}
                         ";
                 if (!string.IsNullOrEmpty(nmProduto))
                 {
                     SQL += $@" AND se.cd_produto IN (SELECT pe.cd_produto FROM produto_estoque pe
                         where upper(trim(pe.nm_produto)) LIKE '%{nmProduto.Trim().ToUpper()}%'
-                        and pe.id_empresa = {idEmpresa}) ";
+                        and pe.unity = {unity}) ";
                 }
 
                 query = _context.SaldoEstoques.FromSqlRaw(SQL).Include(c => c.ProdutoEstoque)

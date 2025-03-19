@@ -23,7 +23,7 @@ namespace GlobalErpData.Repository.PagedRepositoriesMultiKey
         {
             try
             {
-                return Task.FromResult(db.Set<Transportadora>().Where(e => e.IdEmpresa == idEmpresa)
+                return Task.FromResult(db.Set<Transportadora>().Where(e => e.Unity == idEmpresa)
                     .Include(e => e.CdCidadeNavigation)
                     .AsQueryable());
             }
@@ -45,7 +45,7 @@ namespace GlobalErpData.Repository.PagedRepositoriesMultiKey
                 EntityCache.AddOrUpdate(entity.GetId(), entity, UpdateCache);
 
                 return await db.Set<Transportadora>().Include(e => e.CdCidadeNavigation)
-                    .FirstOrDefaultAsync(e => e.CdTransportadora == entity.CdTransportadora && e.IdEmpresa == entity.IdEmpresa);
+                    .FirstOrDefaultAsync(e => e.CdTransportadora == entity.CdTransportadora && e.Unity == entity.Unity);
             }
             else
             {
@@ -67,7 +67,7 @@ namespace GlobalErpData.Repository.PagedRepositoriesMultiKey
                 UpdateCache((idEmpresa, idCadastro), entity);
 
                 return await db.Set<Transportadora>().Include(e => e.CdCidadeNavigation)
-                    .FirstOrDefaultAsync(e => e.CdTransportadora == entity.CdTransportadora && e.IdEmpresa == entity.IdEmpresa);
+                    .FirstOrDefaultAsync(e => e.CdTransportadora == entity.CdTransportadora && e.Unity == entity.Unity);
             }
             else
             {

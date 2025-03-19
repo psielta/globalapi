@@ -21,7 +21,15 @@ public partial class Unity : IIdentifiable<int>
 
     [JsonIgnore]
     [InverseProperty("UnityNavigation")]
+    public virtual ICollection<Category> Categories { get; set; } = new List<Category>();
+
+    [JsonIgnore]
+    [InverseProperty("UnityNavigation")]
     public virtual ICollection<Cliente> Clientes { get; set; } = new List<Cliente>();
+
+    [JsonIgnore]
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<ContasAPagar> ContasAPagars { get; set; } = new List<ContasAPagar>();
 
     [JsonIgnore]
     [InverseProperty("UnityNavigation")]
@@ -37,14 +45,50 @@ public partial class Unity : IIdentifiable<int>
 
     [JsonIgnore]
     [InverseProperty("UnityNavigation")]
-    public virtual ICollection<Fornecedor> Fornecedors { get; set; } = new List<Fornecedor>();
-    [JsonIgnore]
-    [InverseProperty("UnityNavigation")]
-    public virtual ICollection<ContasAPagar> ContasAPagars { get; set; } = new List<ContasAPagar>();
+    public virtual ICollection<EntregaNfe> EntregaNves { get; set; } = new List<EntregaNfe>();
 
     [JsonIgnore]
     [InverseProperty("UnityNavigation")]
+    public virtual ICollection<Featured> Featureds { get; set; } = new List<Featured>();
+
+    [JsonIgnore]
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<Fornecedor> Fornecedors { get; set; } = new List<Fornecedor>();
+
+    [JsonIgnore]
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<FotosProduto> FotosProdutos { get; set; } = new List<FotosProduto>();
+
+    [InverseProperty("UnityNavigation")]
     public virtual ICollection<Funcionario> Funcionarios { get; set; } = new List<Funcionario>();
+
+    [JsonIgnore]
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<GrupoEstoque> GrupoEstoques { get; set; } = new List<GrupoEstoque>();
+
+    [JsonIgnore]
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<NfceProdutoSaidum> NfceProdutoSaida { get; set; } = new List<NfceProdutoSaidum>();
+
+    [JsonIgnore]
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<OlderItem> OlderItems { get; set; } = new List<OlderItem>();
+
+    [JsonIgnore]
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<ProductDetail> ProductDetails { get; set; } = new List<ProductDetail>();
+
+    [JsonIgnore]
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<ProdutoEntradum> ProdutoEntrada { get; set; } = new List<ProdutoEntradum>();
+
+    [JsonIgnore]
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<ProdutoEstoque> ProdutoEstoques { get; set; } = new List<ProdutoEstoque>();
+
+    [JsonIgnore]
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<ProdutoSaidum> ProdutoSaida { get; set; } = new List<ProdutoSaidum>();
 
     [JsonIgnore]
     [InverseProperty("UnityNavigation")]
@@ -52,7 +96,7 @@ public partial class Unity : IIdentifiable<int>
 
     [JsonIgnore]
     [InverseProperty("UnityNavigation")]
-    public virtual ICollection<Usuario> Usuarios { get; set; } = new List<Usuario>();
+    public virtual ICollection<ReferenciaEstoque> ReferenciaEstoques { get; set; } = new List<ReferenciaEstoque>();
 
     [JsonIgnore]
     [InverseProperty("UnityNavigation")]
@@ -60,7 +104,27 @@ public partial class Unity : IIdentifiable<int>
 
     [JsonIgnore]
     [InverseProperty("UnityNavigation")]
-    public virtual ICollection<EntregaNfe> EntregaNves { get; set; } = new List<EntregaNfe>();
+    public virtual ICollection<SaldoEstoque> SaldoEstoques { get; set; } = new List<SaldoEstoque>();
+
+    [JsonIgnore]
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<SectionItem> SectionItems { get; set; } = new List<SectionItem>();
+
+    [JsonIgnore]
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<UnidadeMedida> UnidadeMedida { get; set; } = new List<UnidadeMedida>();
+
+    [JsonIgnore]
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<Usuario> Usuarios { get; set; } = new List<Usuario>();
+    
+    [JsonIgnore]
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<PlanoEstoque> PlanoEstoques { get; set; } = new List<PlanoEstoque>();
+    
+    [JsonIgnore]
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<Transportadora> Transportadoras { get; set; } = new List<Transportadora>();
 
     [GraphQLIgnore]
     public int GetId()

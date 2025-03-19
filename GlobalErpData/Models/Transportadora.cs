@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GlobalErpData.Models;
 
-[PrimaryKey("CdTransportadora", "IdEmpresa")]
+[PrimaryKey("CdTransportadora", "Unity")]
 [Table("transportadora")]
 public partial class Transportadora : IIdentifiableMultiKey<int, int>
 {
@@ -64,13 +64,13 @@ public partial class Transportadora : IIdentifiableMultiKey<int, int>
     public string? Cep { get; set; }
 
     [Key]
-    [Column("id_empresa")]
-    public int IdEmpresa { get; set; }
+    [Column("unity")]
+    public int Unity { get; set; }
 
     [JsonIgnore]
-    [ForeignKey("IdEmpresa")]
+    [ForeignKey("Unity")]
     [InverseProperty("Transportadoras")]
-    public virtual Empresa IdEmpresaNavigation { get; set; } = null!;
+    public virtual Unity UnityNavigation { get; set; } = null!;
 
     [JsonPropertyName("nmCidade")]
     [NotMapped]
@@ -94,13 +94,13 @@ public partial class Transportadora : IIdentifiableMultiKey<int, int>
     [GraphQLIgnore]
     public (int, int) GetId()
     {
-        return (IdEmpresa,CdTransportadora);
+        return (Unity,CdTransportadora);
     }
 
     [GraphQLIgnore]
     public string GetKeyName1()
     {
-        return "IdEmpresa";
+        return "Unity";
     }
 
     [GraphQLIgnore]

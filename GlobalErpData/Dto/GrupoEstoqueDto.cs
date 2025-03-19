@@ -9,7 +9,7 @@ namespace GlobalErpData.Dto
     public class GrupoEstoqueDto
     {
         public string NmGrupo { get; set; } = null!;
-        public int CdEmpresa { get; set; }
+        public int Unity { get; set; }
 
     }
 }

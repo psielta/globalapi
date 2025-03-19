@@ -38,7 +38,13 @@ public partial class PlanoEstoque : IIdentifiable<int>
     [ForeignKey("CdEmpresa")]
     [InverseProperty("PlanoEstoques")]
     public virtual Empresa CdEmpresaNavigation { get; set; } = null!;
-    
+
+    [JsonPropertyName("nmEmpresa")]
+    [NotMapped]
+    public string NmEmpresa => $"{CdEmpresaNavigation?.CdEmpresa} - {CdEmpresaNavigation?.NmEmpresa}" ?? "";
+
+
+
     [JsonIgnore]
     [InverseProperty("CdPlanoNavigation")]
     public virtual ICollection<SaldoEstoque> SaldoEstoques { get; set; } = new List<SaldoEstoque>();
@@ -66,4 +72,12 @@ public partial class PlanoEstoque : IIdentifiable<int>
     {
         return "CdPlano";
     }
+
+    [Column("unity")]
+    public int Unity { get; set; }
+
+    [JsonIgnore]
+    [ForeignKey("Unity")]
+    [InverseProperty("PlanoEstoques")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
 }

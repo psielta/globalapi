@@ -104,11 +104,11 @@ namespace GlobalAPINFe.Controllers
         [HttpGet("GetGrupoEstoquePorEmpresa", Name = nameof(GetGrupoEstoquePorEmpresa))]
         [ProducesResponseType(typeof(PagedResponse<GrupoEstoque>), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<PagedResponse<GrupoEstoque>>> GetGrupoEstoquePorEmpresa(int idEmpresa, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        public async Task<ActionResult<PagedResponse<GrupoEstoque>>> GetGrupoEstoquePorEmpresa(int unity, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                var query = ((GrupoEstoquePagedRepository)repo).GetGrupoEstoqueAsyncPorEmpresa(idEmpresa).Result.AsQueryable();
+                var query = ((GrupoEstoquePagedRepository)repo).GetGrupoEstoqueAsyncPorEmpresa(unity).Result.AsQueryable();
                 if (query == null)
                 {
                     return NotFound("Entities not found."); // 404 Resource not found
@@ -140,7 +140,7 @@ namespace GlobalAPINFe.Controllers
             {
                 return NotFound("Grupo não encontrado.");
             }
-            var gruposFilteredByEmpresa = grupos.AsEnumerable().Where(u => u.CdEmpresa == idEmpresa);
+            var gruposFilteredByEmpresa = grupos.AsEnumerable().Where(u => u.Unity == idEmpresa);
 
             if (gruposFilteredByEmpresa == null)
             {

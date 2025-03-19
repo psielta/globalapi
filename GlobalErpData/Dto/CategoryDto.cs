@@ -10,7 +10,7 @@ namespace GlobalErpData.Dto
 {
     public class CategoryDto
     {
-        public int IdEmpresa { get; set; }
+        public int Unity { get; set; }
 
         public string Name { get; set; } = null!;
     }

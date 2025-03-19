@@ -10,7 +10,7 @@ namespace GlobalErpData.Dto
 {
     public class ProductDetailDto
     {
-        public int IdEmpresa { get; set; }
+        public int Unity { get; set; }
 
         public int IdProduto { get; set; }
 
