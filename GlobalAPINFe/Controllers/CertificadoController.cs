@@ -122,6 +122,44 @@ namespace GlobalAPINFe.Controllers
                 return StatusCode(500, "An error occurred while retrieving entities. Please try again later.");
             }
         }
+        
+        [HttpGet("GetCertificadoPorUnity", Name = nameof(GetCertificadoPorUnity))]
+        [ProducesResponseType(typeof(PagedResponse<Certificado>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<PagedResponse<Certificado>>> GetCertificadoPorUnity(
+            int unity,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10)
+        {
+            try
+            {
+                var query = ((CertificadoPagedRepository)repo).GetCertificadoPorUnity(unity);
+
+                if (query == null)
+                {
+                    return NotFound("Entities not found.");
+                }
+
+                var filteredQuery = query.AsEnumerable();
+
+                filteredQuery = filteredQuery.OrderByDescending(p => p.Id);
+
+                var pagedList = filteredQuery.ToPagedList(pageNumber, pageSize);
+                var response = new PagedResponse<Certificado>(pagedList);
+
+                if (response.Items == null || response.Items.Count == 0)
+                {
+                    return NotFound("Entities not found."); // 404 Resource not found
+                }
+
+                return Ok(response); // 200 OK
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while retrieving paged entities.");
+                return StatusCode(500, "An error occurred while retrieving entities. Please try again later.");
+            }
+        }
 
         [HttpPost("upload")]
         [ProducesResponseType(typeof(Certificado), 200)]
@@ -157,10 +195,16 @@ namespace GlobalAPINFe.Controllers
                 await request.ArquivoPfx.CopyToAsync(stream);
             }
 
+            var empresa = await _context.Empresas.FindAsync(request.Dados.IdEmpresa);
+            if (empresa == null) {
+                return NotFound("Empresa não encontrada.");
+            }
+
             if (certificadoExistente == null)
             {
                 certificadoExistente = new Certificado
                 {
+                    Unity = empresa.Unity,
                     IdEmpresa = request.Dados.IdEmpresa,
                     CaminhoCertificado = caminhoDestino,
                     SerialCertificado = request.Dados.SerialCertificado,

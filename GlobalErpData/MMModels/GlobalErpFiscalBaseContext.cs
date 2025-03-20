@@ -269,6 +269,10 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .HasComment("H - Homologacao\r\nP - Producao");
 
             entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.Certificados).HasConstraintName("certificados_fk");
+
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.Certificados)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("certificados_fk1");
         });
 
         modelBuilder.Entity<CestNcm>(entity =>

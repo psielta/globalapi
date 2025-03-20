@@ -17,7 +17,7 @@ namespace GlobalErpData.Repository.Repositories
 
         public async Task<List<Empresa>> GetEmpresasByUnity(int unity)
         {
-            return await db.Empresas.Where(e => e.Unity == unity).ToListAsync();
+            return await db.Empresas.Where(e => e.Unity == unity).Include(e=>e.CdCidadeNavigation).ToListAsync();
         }
         
         public IQueryable<Empresa> GetQueryableEmpresasByUnity(int unity)

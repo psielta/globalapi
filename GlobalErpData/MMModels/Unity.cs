@@ -21,6 +21,9 @@ public partial class Unity
     public virtual ICollection<Category> Categories { get; set; } = new List<Category>();
 
     [InverseProperty("UnityNavigation")]
+    public virtual ICollection<Certificado> Certificados { get; set; } = new List<Certificado>();
+
+    [InverseProperty("UnityNavigation")]
     public virtual ICollection<Cliente> Clientes { get; set; } = new List<Cliente>();
 
     [InverseProperty("UnityNavigation")]

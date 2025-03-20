@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace GlobalErpData.MMModels;
 
 [Table("certificados")]
+[Index("IdEmpresa", "Unity", Name = "certificados_idx", IsUnique = true)]
 public partial class Certificado
 {
     [Key]
@@ -51,7 +52,14 @@ public partial class Certificado
     [Column("integrated")]
     public int? Integrated { get; set; }
 
+    [Column("unity")]
+    public int Unity { get; set; }
+
     [ForeignKey("IdEmpresa")]
     [InverseProperty("Certificados")]
     public virtual Empresa IdEmpresaNavigation { get; set; } = null!;
+
+    [ForeignKey("Unity")]
+    [InverseProperty("Certificados")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
 }

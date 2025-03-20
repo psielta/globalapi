@@ -11,6 +11,7 @@ namespace GlobalErpData.Dto
     public class CertificadoDto
     {
         public int IdEmpresa { get; set; }
+        public int Unity { get; set; }
 
         public string SerialCertificado { get; set; } = null!;
 

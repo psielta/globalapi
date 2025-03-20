@@ -126,6 +126,10 @@ public partial class Unity : IIdentifiable<int>
     [InverseProperty("UnityNavigation")]
     public virtual ICollection<Transportadora> Transportadoras { get; set; } = new List<Transportadora>();
 
+    [JsonIgnore]
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<Certificado> Certificados { get; set; } = new List<Certificado>();
+
     [GraphQLIgnore]
     public int GetId()
     {

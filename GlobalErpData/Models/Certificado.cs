@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 namespace GlobalErpData.Models;
 
 [Table("certificados")]
+[Index("IdEmpresa", "Unity", Name = "certificados_idx", IsUnique = true)]
 public partial class Certificado: IIdentifiable<int>
 {
     [Key]
@@ -52,6 +53,9 @@ public partial class Certificado: IIdentifiable<int>
     [Column("certificado_byte")]
     public byte[]? CertificadoByte { get; set; }
 
+    [Column("unity")]
+    public int Unity { get; set; }
+
     [JsonIgnore]
     [ForeignKey("IdEmpresa")]
     [InverseProperty("Certificados")]
@@ -68,4 +72,9 @@ public partial class Certificado: IIdentifiable<int>
     {
         return "Id";
     }
+
+    [JsonIgnore]
+    [ForeignKey("Unity")]
+    [InverseProperty("Certificados")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
 }

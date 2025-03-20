@@ -24,5 +24,18 @@ namespace GlobalErpData.Repository.PagedRepositories
                 return Task.FromResult(Enumerable.Empty<Certificado>().AsQueryable());
             }
         }
+
+        public IQueryable<Certificado> GetCertificadoPorUnity(int unity)
+        {
+            try
+            {
+                return db.Set<Certificado>().Where(e => e.Unity == unity).AsQueryable();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while retrieving all entities.");
+                return Enumerable.Empty<Certificado>().AsQueryable();
+            }
+        }
     }
 }

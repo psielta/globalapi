@@ -117,7 +117,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
             Transportadora? transportadora;
             try
             {
-                transportadora = await ImportarTransportadora(impNFeTemp, idEmpresa);
+                transportadora = await ImportarTransportadora(impNFeTemp, idEmpresa, empresa.Unity);
             }
             catch (Exception ex)
             {
@@ -1016,7 +1016,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
             return cfopImportacao.CdCfopE;
         }
 
-        private async Task<Transportadora?> ImportarTransportadora(ImpNFeTemp2 impNFeTemp, int idEmpresa)
+        private async Task<Transportadora?> ImportarTransportadora(ImpNFeTemp2 impNFeTemp, int idEmpresa, int unity)
         {
             if (string.IsNullOrEmpty(impNFeTemp?.impcabnfe?.CnpjTransp))
             {
@@ -1041,7 +1041,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 transportadora.Numero = 0;
                 transportadora.NmEndereco = impNFeTemp.impcabnfe?.EndTransp;
                 transportadora.CdCidade = await GetCdCidade(idEmpresa, impNFeTemp.impcabnfe?.CidadeTransp);
-                transportadora.IdEmpresa = idEmpresa;
+                transportadora.Unity = unity;
 
                 TransportadoraDto transportadoraDto = mapper.Map<TransportadoraDto>(transportadora);
 
