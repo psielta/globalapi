@@ -132,7 +132,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
             Entrada? entrada;
             try
             {
-                entrada = await ImportarEntrada(IdFornecedor, transportadora, impNFeTemp, idEmpresa, cdPlanoEstoque, tipoEntrada);
+                entrada = await ImportarEntrada(IdFornecedor, transportadora, impNFeTemp, idEmpresa, cdPlanoEstoque, tipoEntrada, empresa.Unity);
                 if (entrada == null)
                 {
                     logger.LogError($"Erro ao importar entrada ({chaveAcesso}).");
@@ -353,7 +353,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     // ConvertToDecimal(item.Vuntrib);
                     await ImportarUnidadeMedida(item, amarracao, idEmpresa, unity);
                     ppp.Unidade = produtoEstoque.CdUni;//item.Utrib;
-                    await AtualizarDadosFiscais(item, ppp, amarracao, entrada, idEmpresa, produtoEstoque);
+                    await AtualizarDadosFiscais(item, ppp, amarracao, entrada, idEmpresa, produtoEstoque, unity);
                     if ((!string.IsNullOrEmpty(item.Csosn)) && item.Csosn.Length > 0)
                     {
                         if (item.Csosn.Length >= 3)
@@ -672,7 +672,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
             }
         }
 
-        private async Task AtualizarDadosFiscais(Impitensnfe item, ProdutoEntradum ppp, Amarracao2 amarracao, Entrada entrada, int idEmpresa, ProdutoEstoque produtoEstoque)
+        private async Task AtualizarDadosFiscais(Impitensnfe item, ProdutoEntradum ppp, Amarracao2 amarracao, Entrada entrada, int idEmpresa, ProdutoEstoque produtoEstoque, int unity)
         {
             CfopImportacao? cfopImportacao = await db.CfopImportacaos.FromSqlRaw(
                 $@"
@@ -683,11 +683,11 @@ namespace GlobalAPI_ACBrNFe.Controllers
                   cfop_dentro,
                   cfop_fora,
                   csosn,
-                  id_empresa
+                  unity
                 FROM 
                   public.cfop_importacao 
                 WHERE
-                  id_empresa = {idEmpresa}
+                  unity = {unity}
                 AND cd_cfop_s = '{item.Cfop}'
                  "
                 ).FirstOrDefaultAsync();
@@ -850,7 +850,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
             }
         }
 
-        private async Task<Entrada?> ImportarEntrada(int idFornecedor, Transportadora? transportadora, ImpNFeTemp2 impNFeTemp, int idEmpresa, int cdPlanoEstoque, string tipoEntrada)
+        private async Task<Entrada?> ImportarEntrada(int idFornecedor, Transportadora? transportadora, ImpNFeTemp2 impNFeTemp, int idEmpresa, int cdPlanoEstoque, string tipoEntrada, int unity)
         {
             Entrada? entrada = db.Entradas.FromSqlRaw($@"
                 SELECT 
@@ -876,7 +876,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     entrada.DtSaida = DateUtils.DateTimeToDateOnly(impNFeTemp.impcabnfe.DtSaida ?? DateTime.Now);
                 }
                 entrada.CdForn = idFornecedor;
-                entrada.CdCfop = await GetCfop(idEmpresa, impNFeTemp);
+                entrada.CdCfop = await GetCfop(idEmpresa, impNFeTemp, unity);
                 entrada.CdEmpresa = idEmpresa;
                 if (transportadora != null)
                 {
@@ -992,7 +992,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
             return entrada;
         }
 
-        private async Task<string?> GetCfop(int idEmpresa, ImpNFeTemp2 impNFeTemp)
+        private async Task<string?> GetCfop(int idEmpresa, ImpNFeTemp2 impNFeTemp, int unity)
         {
             string cfop = impNFeTemp.impitensnves.First().Cfop;
             if (string.IsNullOrEmpty(cfop))
@@ -1005,7 +1005,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 FROM 
                   public.cfop_importacao
                 WHERE 
-                  id = {idEmpresa} AND
+                  unity = {unity} AND
                   cd_cfop_s = '{cfop}'";
 
             CfopImportacao? cfopImportacao = await db.CfopImportacaos.FromSqlRaw(SQLcfop).FirstOrDefaultAsync();

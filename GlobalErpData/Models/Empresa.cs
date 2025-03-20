@@ -133,10 +133,6 @@ public partial class Empresa : IIdentifiable<int>
     public virtual ICollection<CfopCsosnV2> CfopCsosnV2s { get; set; } = new List<CfopCsosnV2>();
 
     [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<CfopImportacao> CfopImportacaos { get; set; } = new List<CfopImportacao>();
-
-    [JsonIgnore]
     [InverseProperty("CdEmpresaNavigation")]
     public virtual ICollection<ConfEmail> ConfEmails { get; set; } = new List<ConfEmail>();
 

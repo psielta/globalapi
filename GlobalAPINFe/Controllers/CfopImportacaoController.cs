@@ -80,7 +80,7 @@ namespace GlobalAPINFe.Controllers
         [ProducesResponseType(typeof(PagedResponse<CfopImportacao>), 200)]
         [ProducesResponseType(404)]
         public async Task<ActionResult<PagedResponse<CfopImportacao>>> GetCfopImportacaoPorEmpresa(
-            int idEmpresa,
+            int unity,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
             [FromQuery] string? cdCfopS = null,
@@ -88,7 +88,7 @@ namespace GlobalAPINFe.Controllers
         {
             try
             {
-                var query = ((CfopImportacaoPagedRepository)repo).GetCfopImportacaoPorEmpresa(idEmpresa).Result.AsQueryable();
+                var query = ((CfopImportacaoPagedRepository)repo).GetCfopImportacaoPorUnity(unity).Result.AsQueryable();
 
                 if (query == null)
                 {

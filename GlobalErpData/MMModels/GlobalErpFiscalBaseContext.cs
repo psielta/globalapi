@@ -316,7 +316,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.Integrated).HasDefaultValue(0);
             entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
-            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.CfopImportacaos)
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.CfopImportacaos)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("cfop_importacao_fk");
         });

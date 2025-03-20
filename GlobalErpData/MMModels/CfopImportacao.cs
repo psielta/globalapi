@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace GlobalErpData.MMModels;
 
 [Table("cfop_importacao")]
-[Index("CdCfopS", "CdCfopE", "IdEmpresa", Name = "cfop_importacao_unique", IsUnique = true)]
+[Index("CdCfopS", "CdCfopE", "Unity", Name = "cfop_importacao_unique", IsUnique = true)]
 public partial class CfopImportacao
 {
     [Key]
@@ -34,8 +34,8 @@ public partial class CfopImportacao
     [StringLength(4)]
     public string? Csosn { get; set; }
 
-    [Column("id_empresa")]
-    public int IdEmpresa { get; set; }
+    [Column("unity")]
+    public int Unity { get; set; }
 
     [Column("last_update", TypeName = "timestamp without time zone")]
     public DateTime? LastUpdate { get; set; }
@@ -43,7 +43,7 @@ public partial class CfopImportacao
     [Column("integrated")]
     public int? Integrated { get; set; }
 
-    [ForeignKey("IdEmpresa")]
+    [ForeignKey("Unity")]
     [InverseProperty("CfopImportacaos")]
-    public virtual Empresa IdEmpresaNavigation { get; set; } = null!;
+    public virtual Unity UnityNavigation { get; set; } = null!;
 }

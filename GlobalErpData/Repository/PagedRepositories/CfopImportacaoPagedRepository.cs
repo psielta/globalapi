@@ -12,11 +12,11 @@ namespace GlobalErpData.Repository.PagedRepositories
         public CfopImportacaoPagedRepository(GlobalErpFiscalBaseContext injectedContext, IMapper mapper, ILogger<GenericRepositoryDto<CfopImportacao, GlobalErpFiscalBaseContext, int, CfopImportacaoDto>> logger) : base(injectedContext, mapper, logger)
         {
         }
-        public Task<IQueryable<CfopImportacao>> GetCfopImportacaoPorEmpresa(int idEmpresa)
+        public Task<IQueryable<CfopImportacao>> GetCfopImportacaoPorUnity(int unity)
         {
             try
             {
-                return Task.FromResult(db.Set<CfopImportacao>().Where(e => e.IdEmpresa == idEmpresa).AsQueryable());
+                return Task.FromResult(db.Set<CfopImportacao>().Where(e => e.Unity == unity).AsQueryable());
             }
             catch (Exception ex)
             {
