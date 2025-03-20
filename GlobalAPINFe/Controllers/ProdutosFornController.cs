@@ -81,7 +81,7 @@ namespace GlobalAPINFe.Controllers
         [ProducesResponseType(typeof(PagedResponse<ProdutosForn>), 200)]
         [ProducesResponseType(404)]
         public async Task<ActionResult<PagedResponse<ProdutosForn>>> GetProdutosFornPorEmpresa(
-            int idEmpresa,
+            int unity,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
             [FromQuery] int? cdForn = null,
@@ -89,7 +89,7 @@ namespace GlobalAPINFe.Controllers
         {
             try
             {
-                var query = ((ProdutosFornRepository)repo).GetProdutosFornAsyncPorUnity(idEmpresa).Result.AsQueryable();
+                var query = ((ProdutosFornRepository)repo).GetProdutosFornAsyncPorUnity(unity).Result.AsQueryable();
 
                 if (query == null)
                 {

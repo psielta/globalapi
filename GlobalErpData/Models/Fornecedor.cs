@@ -92,7 +92,7 @@ public partial class Fornecedor : IIdentifiableMultiKey<int, int>
     [Column("integrated")]
     public int? Integrated { get; set; }
 
-    [JsonIgnore]
+
     [Key]
     [Column("unity")]
     public int Unity { get; set; }
@@ -126,18 +126,18 @@ public partial class Fornecedor : IIdentifiableMultiKey<int, int>
     [GraphQLIgnore]
     public (int, int) GetId()
     {
-        return (CdForn, Unity);
+        return (Unity, CdForn);
     }
 
     [GraphQLIgnore]
     public string GetKeyName1()
     {
-        return "CdForn";
+        return "Unity";
     }
 
     [GraphQLIgnore]
     public string GetKeyName2()
     {
-        return "Unity";
+        return "CdForn";
     }
 }
