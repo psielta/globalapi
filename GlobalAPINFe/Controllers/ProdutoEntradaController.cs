@@ -192,6 +192,7 @@ namespace GlobalAPINFe.Controllers
                     produtoEntradaDto.Quant = dto.Quant;
                     produtoEntradaDto.CdPlano = dto.CdPlano;
                     produtoEntradaDto.VlUnitario = produto.VlCusto ?? 0;
+                    produtoEntradaDto.Unity = dto.Unity;
 
                     var response = await repo.CreateAsync(produtoEntradaDto);
                     if (response == null)
@@ -241,6 +242,7 @@ namespace GlobalAPINFe.Controllers
                     produtoEntradaDto.Quant = dto.Quant;
                     produtoEntradaDto.CdPlano = dto.CdPlano;
                     produtoEntradaDto.VlUnitario = produto.VlCusto ?? 0;
+                    produtoEntradaDto.Unity = dto.Unity;
 
                     var response = await repo.CreateAsync(produtoEntradaDto);
                     if (response == null)
