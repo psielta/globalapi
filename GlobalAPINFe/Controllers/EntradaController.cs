@@ -87,7 +87,7 @@ namespace GlobalAPINFe.Controllers
         [ProducesResponseType(typeof(PagedResponse<Entrada>), 200)]
         [ProducesResponseType(404)]
         public async Task<ActionResult<PagedResponse<Entrada>>> GetEntradaPorEmpresa(
-            int idEmpresa,
+            int unity,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
             [FromQuery] int tipoPeriodoEntrada = 0,
@@ -95,6 +95,7 @@ namespace GlobalAPINFe.Controllers
             [FromQuery] string? periodoInicial = null,
             [FromQuery] string? periodoFinal = null,
             [FromQuery] string? nmForn = null,
+            [FromQuery] int? cdEmpresa = null,
             [FromQuery] int? nr = null,
             [FromQuery] int? nrNotaFiscal = null,
             [FromQuery] int? serie = null,
@@ -115,7 +116,7 @@ namespace GlobalAPINFe.Controllers
                 ENUM_tipoDataEntrada = (TipoDataEntrada)tipoDataEntrada;
                 ENUM_tipoPeriodoEntrada = (TipoPeriodoEntrada)tipoPeriodoEntrada;
 
-                var query = await ((EntradaPagedRepository)repo).GetEntradaAsyncPorEmpresa(idEmpresa);
+                var query = await ((EntradaPagedRepository)repo).GetEntradaAsyncPorEmpresa(unity);
 
                 if (query == null)
                 {
@@ -133,6 +134,11 @@ namespace GlobalAPINFe.Controllers
                 if (nr.HasValue)
                 {
                     filteredQuery = filteredQuery.Where(p => p.Nr == nr.Value);
+                }
+
+                if (cdEmpresa.HasValue)
+                {
+                    filteredQuery = filteredQuery.Where(p => p.CdEmpresa == cdEmpresa.Value);
                 }
 
                 if (nrNotaFiscal.HasValue)

@@ -27,11 +27,11 @@ namespace GlobalErpData.Repository.PagedRepositoriesMultiKey
             _calculationService = calculationService;
             this.produtoEntradaRepository = produtoEntradaRepository;
         }
-        public Task<IQueryable<Entrada>> GetEntradaAsyncPorEmpresa(int IdEmpresa)
+        public Task<IQueryable<Entrada>> GetEntradaAsyncPorEmpresa(int unity)
         {
             try
             {
-                return Task.FromResult(db.Set<Entrada>().Where(e => e.CdEmpresa == IdEmpresa)
+                return Task.FromResult(db.Set<Entrada>().Where(e => e.Unity == unity)
                     .Include(e => e.Fornecedor)
                     .Include(e => e.CdGrupoEstoqueNavigation)
                     .Include(e => e.ProdutoEntrada)

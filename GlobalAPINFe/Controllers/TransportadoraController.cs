@@ -128,12 +128,12 @@ namespace GlobalAPINFe.Controllers
             }
         }
 
-        [HttpGet("GetTransportadoraByName/{idEmpresa}/{nome}")]
+        [HttpGet("GetTransportadoraByName/{unity}/{nome}")]
         [ProducesResponseType(typeof(IEnumerable<Transportadora>), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<IEnumerable<Transportadora>>> GetTransportadoraByName(int idEmpresa, string nome)
+        public async Task<ActionResult<IEnumerable<Transportadora>>> GetTransportadoraByName(int unity, string nome)
         {
-            var Transportadoras = await (repo as TransportadoraPagedRepository).GetTransportadoraPorEmpresa(idEmpresa);
+            var Transportadoras = await (repo as TransportadoraPagedRepository).GetTransportadoraPorEmpresa(unity);
 
             var TransportadorasList = Transportadoras.ToList();
             if (TransportadorasList == null)
