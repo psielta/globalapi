@@ -14,6 +14,7 @@ namespace GlobalErpData.Dto
         public DateOnly? Data { get; set; }
 
         public int Empresa { get; set; }
+        public int Unity { get; set; }
 
         public int Cliente { get; set; }
 

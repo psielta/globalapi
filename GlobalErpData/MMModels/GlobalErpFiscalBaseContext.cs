@@ -467,7 +467,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .HasConstraintName("contas_a_pagar_fk3");
 
             entity.HasOne(d => d.HistoricoCaixa).WithMany(p => p.ContasAPagars)
-                .HasPrincipalKey(p => new { p.CdEmpresa, p.CdSubPlano, p.CdPlano })
+                .HasPrincipalKey(p => new { p.Unity, p.CdSubPlano, p.CdPlano })
                 .HasForeignKey(d => new { d.CdEmpresa, d.CdHistoricoCaixa, d.CdPlanoCaixa })
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("contas_a_pagar_fk");
@@ -516,7 +516,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .HasConstraintName("contas_a_receber_fk");
 
             entity.HasOne(d => d.HistoricoCaixa).WithMany(p => p.ContasARecebers)
-                .HasPrincipalKey(p => new { p.CdEmpresa, p.CdSubPlano, p.CdPlano })
+                .HasPrincipalKey(p => new { p.Unity, p.CdSubPlano, p.CdPlano })
                 .HasForeignKey(d => new { d.CdEmpresa, d.CdHistoricoCaixa, d.CdPlanoCaixa })
                 .HasConstraintName("contas_a_receber_fk2");
         });
@@ -1130,13 +1130,13 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.Integrated).HasDefaultValue(0);
             entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
-            entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.HistoricoCaixas)
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.HistoricoCaixas)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("historico_caixa_fk1");
 
             entity.HasOne(d => d.PlanoDeCaixa).WithMany(p => p.HistoricoCaixas)
-                .HasPrincipalKey(p => new { p.CdClassificacao, p.CdEmpresa })
-                .HasForeignKey(d => new { d.CdPlano, d.CdEmpresa })
+                .HasPrincipalKey(p => new { p.CdClassificacao, p.Unity })
+                .HasForeignKey(d => new { d.CdPlano, d.Unity })
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("historico_caixa_fk");
         });
@@ -1249,7 +1249,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.NrCrNavigation).WithMany(p => p.LivroCaixas).HasConstraintName("livro_caixa_fk3");
 
             entity.HasOne(d => d.HistoricoCaixa).WithMany(p => p.LivroCaixas)
-                .HasPrincipalKey(p => new { p.CdEmpresa, p.CdSubPlano, p.CdPlano })
+                .HasPrincipalKey(p => new { p.Unity, p.CdSubPlano, p.CdPlano })
                 .HasForeignKey(d => new { d.CdEmpresa, d.CdHistorico, d.CdPlano })
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("livro_caixa_fk2");
@@ -1670,7 +1670,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.Integrated).HasDefaultValue(0);
             entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
-            entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.PlanoDeCaixas)
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.PlanoDeCaixas)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("plano_de_caixa_fk");
         });

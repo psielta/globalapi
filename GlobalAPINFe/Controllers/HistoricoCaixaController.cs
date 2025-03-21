@@ -80,11 +80,11 @@ namespace GlobalAPINFe.Controllers
         [HttpGet("GetHistoricoCaixaPorEmpresa", Name = nameof(GetHistoricoCaixaPorEmpresa))]
         [ProducesResponseType(typeof(PagedResponse<HistoricoCaixa>), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<PagedResponse<HistoricoCaixa>>> GetHistoricoCaixaPorEmpresa(int idEmpresa, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        public async Task<ActionResult<PagedResponse<HistoricoCaixa>>> GetHistoricoCaixaPorEmpresa(int unity, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                var query = ((HistoricoCaixaRepository)repo).GetHistoricoCaixaPorEmpresa(idEmpresa).Result.AsQueryable();
+                var query = ((HistoricoCaixaRepository)repo).GetHistoricoCaixaPorEmpresa(unity).Result.AsQueryable();
                 if (query == null)
                 {
                     return NotFound("Entities not found."); // 404 Resource not found

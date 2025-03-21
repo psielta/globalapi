@@ -9,15 +9,15 @@ using Microsoft.EntityFrameworkCore;
 namespace GlobalErpData.Models;
 
 [Table("plano_de_caixa")]
-[Index("CdClassificacao", "CdEmpresa", Name = "plano_de_caixa_idx", IsUnique = true)]
+[Index("CdClassificacao", "Unity", Name = "plano_de_caixa_idx", IsUnique = true)]
 public partial class PlanoDeCaixa : IIdentifiable<int>
 {
     [Key]
     [Column("id")]
     public int Id { get; set; }
 
-    [Column("cd_empresa")]
-    public int CdEmpresa { get; set; }
+    [Column("unity")]
+    public int Unity { get; set; }
 
     [Column("cd_classificacao")]
     [StringLength(25)]
@@ -34,9 +34,9 @@ public partial class PlanoDeCaixa : IIdentifiable<int>
     public int? Integrated { get; set; }
 
     [JsonIgnore]
-    [ForeignKey("CdEmpresa")]
+    [ForeignKey("Unity")]
     [InverseProperty("PlanoDeCaixas")]
-    public virtual Empresa CdEmpresaNavigation { get; set; } = null!;
+    public virtual Unity UnityNavigation { get; set; } = null!;
 
     [JsonIgnore]
     [InverseProperty("PlanoDeCaixa")]

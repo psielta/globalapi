@@ -144,7 +144,42 @@ namespace GlobalAPINFe.Controllers
                 return StatusCode(500, "An error occurred while retrieving entities. Please try again later.");
             }
         }
-        
+
+        [HttpGet("GetAllPlanoEstoquePorUnity", Name = nameof(GetAllPlanoEstoquePorUnity))]
+        [ProducesResponseType(typeof(List<PlanoEstoque>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<List<PlanoEstoque>>> GetAllPlanoEstoquePorUnity(
+            int unity,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10)
+        {
+            try
+            {
+                var query = ((PlanoEstoquePagedRepository)repo).GetPlanoEstoquePorUnity(unity).Result.AsQueryable();
+
+                if (query == null)
+                {
+                    return NotFound("Entities not found.");
+                }
+
+                query = query.OrderBy(p => p.CdPlano);
+
+                var filteredQuery = await query.ToListAsync();
+
+                if (filteredQuery == null || filteredQuery.Count == 0)
+                {
+                    return NotFound("Entities not found."); // 404 Resource not found
+                }
+
+                return Ok(filteredQuery); // 200 OK
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while retrieving paged entities.");
+                return StatusCode(500, "An error occurred while retrieving entities. Please try again later.");
+            }
+        }
+
         [HttpGet("GetPlanoEstoqueFiscalPorEmpresa", Name = nameof(GetPlanoEstoqueFiscalPorEmpresa))]
         [ProducesResponseType(typeof(PagedResponse<PlanoEstoque>), 200)]
         [ProducesResponseType(404)]
@@ -179,6 +214,44 @@ namespace GlobalAPINFe.Controllers
                 }
 
                 return Ok(response); // 200 OK
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while retrieving paged entities.");
+                return StatusCode(500, "An error occurred while retrieving entities. Please try again later.");
+            }
+        }
+
+        [HttpGet("GetAllPlanoEstoqueFiscalPorEmpresa", Name = nameof(GetAllPlanoEstoqueFiscalPorEmpresa))]
+        [ProducesResponseType(typeof(List<PlanoEstoque>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<List<PlanoEstoque>>> GetAllPlanoEstoqueFiscalPorEmpresa(
+            int idEmpresa)
+        {
+            try
+            {
+                var query = ((PlanoEstoquePagedRepository)repo).GetPlanoEstoquePorEmpresa(idEmpresa).Result.AsQueryable();
+
+                if (query == null)
+                {
+                    return NotFound("Entities not found.");
+                }
+
+                query = query.Where(p => p.EFiscal == true);
+
+                var filteredQuery = await query.ToListAsync();
+
+                if (filteredQuery == null)
+                {
+                    return NotFound("Entities not found."); // 404 Resource not found
+                }
+                else if (filteredQuery.Count == 0)
+                {
+                    return NotFound("Entities not found."); // 404 Resource not found
+                }
+
+
+                return Ok(filteredQuery); // 200 OK
             }
             catch (Exception ex)
             {

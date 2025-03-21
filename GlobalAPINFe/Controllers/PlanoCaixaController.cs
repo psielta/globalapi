@@ -80,11 +80,11 @@ namespace GlobalAPINFe.Controllers
         [HttpGet("GetPlanoDeCaixaPorEmpresa", Name = nameof(GetPlanoDeCaixaPorEmpresa))]
         [ProducesResponseType(typeof(PagedResponse<PlanoDeCaixa>), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<PagedResponse<PlanoDeCaixa>>> GetPlanoDeCaixaPorEmpresa(int idEmpresa, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        public async Task<ActionResult<PagedResponse<PlanoDeCaixa>>> GetPlanoDeCaixaPorEmpresa(int unity, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                var query = ((PlanoCaixaRepository)repo).GetPlanoDeCaixaAsyncPorEmpresa(idEmpresa).Result.AsQueryable();
+                var query = ((PlanoCaixaRepository)repo).GetPlanoDeCaixaAsyncPorEmpresa(unity).Result.AsQueryable();
                 if (query == null)
                 {
                     return NotFound("Entities not found."); // 404 Resource not found

@@ -7,15 +7,15 @@ using Microsoft.EntityFrameworkCore;
 namespace GlobalErpData.MMModels;
 
 [Table("historico_caixa")]
-[Index("CdEmpresa", "CdSubPlano", "CdPlano", Name = "historico_caixa_idx1", IsUnique = true)]
+[Index("Unity", "CdSubPlano", "CdPlano", Name = "historico_caixa_idx1", IsUnique = true)]
 public partial class HistoricoCaixa
 {
     [Key]
     [Column("id")]
     public int Id { get; set; }
 
-    [Column("cd_empresa")]
-    public int CdEmpresa { get; set; }
+    [Column("unity")]
+    public int Unity { get; set; }
 
     [Column("cd_sub_plano")]
     [StringLength(25)]
@@ -39,10 +39,6 @@ public partial class HistoricoCaixa
     [Column("integrated")]
     public int? Integrated { get; set; }
 
-    [ForeignKey("CdEmpresa")]
-    [InverseProperty("HistoricoCaixas")]
-    public virtual Empresa CdEmpresaNavigation { get; set; } = null!;
-
     [InverseProperty("HistoricoCaixa")]
     public virtual ICollection<ContasAPagar> ContasAPagars { get; set; } = new List<ContasAPagar>();
 
@@ -52,7 +48,11 @@ public partial class HistoricoCaixa
     [InverseProperty("HistoricoCaixa")]
     public virtual ICollection<LivroCaixa> LivroCaixas { get; set; } = new List<LivroCaixa>();
 
-    [ForeignKey("CdPlano, CdEmpresa")]
+    [ForeignKey("CdPlano, Unity")]
     [InverseProperty("HistoricoCaixas")]
     public virtual PlanoDeCaixa PlanoDeCaixa { get; set; } = null!;
+
+    [ForeignKey("Unity")]
+    [InverseProperty("HistoricoCaixas")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
 }

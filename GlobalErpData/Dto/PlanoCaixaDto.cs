@@ -10,7 +10,7 @@ namespace GlobalErpData.Dto
 {
     public class PlanoCaixaDto
     {
-        public int CdEmpresa { get; set; }
+        public int Unity { get; set; }
 
         public string CdClassificacao { get; set; } = null!;
 

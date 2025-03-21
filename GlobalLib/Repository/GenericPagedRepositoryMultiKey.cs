@@ -106,7 +106,7 @@ namespace GlobalLib.Repository
         public virtual async Task<TEntity?> UpdateAsync(TKey1 idEmpresa, TKey2 idCadastro, TDto dto)
         {
             TEntity entity = mapper.Map<TEntity>(dto);
-            entity.GetType().GetProperty(entity.GetKeyName1())?.SetValue(entity, idEmpresa);
+            //entity.GetType().GetProperty(entity.GetKeyName1())?.SetValue(entity, idEmpresa);
             entity.GetType().GetProperty(entity.GetKeyName2())?.SetValue(entity, idCadastro);
             db.Set<TEntity>().Update(entity);
             int affected = await db.SaveChangesAsync();

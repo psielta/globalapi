@@ -10,7 +10,7 @@ namespace GlobalErpData.Dto
 {
     public class HistoricoCaixaDto
     {
-        public int CdEmpresa { get; set; }
+        public int Unity { get; set; }
         public string CdSubPlano { get; set; } = null!;
         public string CdPlano { get; set; } = null!;
         public string Tipo { get; set; } = null!;

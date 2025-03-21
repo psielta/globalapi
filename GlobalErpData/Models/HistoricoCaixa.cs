@@ -9,15 +9,15 @@ using Microsoft.EntityFrameworkCore;
 namespace GlobalErpData.Models;
 
 [Table("historico_caixa")]
-[Index("CdEmpresa", "CdSubPlano", "CdPlano", Name = "historico_caixa_idx1", IsUnique = true)]
+[Index("Unity", "CdSubPlano", "CdPlano", Name = "historico_caixa_idx1", IsUnique = true)]
 public partial class HistoricoCaixa : IIdentifiable<int>
 {
     [Key]
     [Column("id")]
     public int Id { get; set; }
 
-    [Column("cd_empresa")]
-    public int CdEmpresa { get; set; }
+    [Column("unity")]
+    public int Unity { get; set; }
 
     [Column("cd_sub_plano")]
     [StringLength(25)]
@@ -42,12 +42,12 @@ public partial class HistoricoCaixa : IIdentifiable<int>
     public int? Integrated { get; set; }
 
     [JsonIgnore]
-    [ForeignKey("CdEmpresa")]
+    [ForeignKey("Unity")]
     [InverseProperty("HistoricoCaixas")]
-    public virtual Empresa CdEmpresaNavigation { get; set; } = null!;
+    public virtual Unity UnityNavigation { get; set; } = null!;
 
     [JsonIgnore]
-    [ForeignKey("CdPlano, CdEmpresa")]
+    [ForeignKey("CdPlano, Unity")]
     [InverseProperty("HistoricoCaixas")]
     public virtual PlanoDeCaixa PlanoDeCaixa { get; set; } = null!;
 

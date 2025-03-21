@@ -24,7 +24,7 @@ namespace GlobalErpData.Repository.PagedRepositories
         {
             try
             {
-                return Task.FromResult(db.Set<HistoricoCaixa>().Where(e => e.CdEmpresa == idEmpresa)
+                return Task.FromResult(db.Set<HistoricoCaixa>().Where(e => e.Unity == idEmpresa)
                     .Include(e => e.PlanoDeCaixa)
                     .AsQueryable());
             }

@@ -16,6 +16,7 @@ namespace GlobalErpData.Dto
         public int CdForn { get; set; }
 
         public int CdEmpresa { get; set; }
+        public int Unity { get; set; }
 
         public string? NrNf { get; set; }
 

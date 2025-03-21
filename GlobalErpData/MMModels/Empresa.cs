@@ -216,9 +216,6 @@ public partial class Empresa
     public virtual ICollection<Funcionario> Funcionarios { get; set; } = new List<Funcionario>();
 
     [InverseProperty("CdEmpresaNavigation")]
-    public virtual ICollection<HistoricoCaixa> HistoricoCaixas { get; set; } = new List<HistoricoCaixa>();
-
-    [InverseProperty("CdEmpresaNavigation")]
     public virtual ICollection<Icm> Icms { get; set; } = new List<Icm>();
 
     [InverseProperty("IdEmpresaNavigation")]
@@ -277,9 +274,6 @@ public partial class Empresa
 
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<PerfilLoja> PerfilLojas { get; set; } = new List<PerfilLoja>();
-
-    [InverseProperty("CdEmpresaNavigation")]
-    public virtual ICollection<PlanoDeCaixa> PlanoDeCaixas { get; set; } = new List<PlanoDeCaixa>();
 
     [InverseProperty("CdEmpresaNavigation")]
     public virtual ICollection<PlanoEstoque> PlanoEstoques { get; set; } = new List<PlanoEstoque>();

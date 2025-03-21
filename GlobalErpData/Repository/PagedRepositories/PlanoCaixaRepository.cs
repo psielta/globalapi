@@ -19,7 +19,7 @@ namespace GlobalErpData.Repository.PagedRepositories
         }
         public Task<IQueryable<PlanoDeCaixa>> GetPlanoDeCaixaAsyncPorEmpresa(int IdEmpresa)
         {
-            return Task.FromResult(db.Set<PlanoDeCaixa>().Where(e => e.CdEmpresa == IdEmpresa).AsQueryable());
+            return Task.FromResult(db.Set<PlanoDeCaixa>().Where(e => e.Unity == IdEmpresa).AsQueryable());
         }
     }
 }
