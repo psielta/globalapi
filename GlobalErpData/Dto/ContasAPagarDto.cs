@@ -26,6 +26,7 @@ namespace GlobalErpData.Dto
         public string? TxtObs { get; set; }
         public string? TpFormaPagt { get; set; }
         public int CdEmpresa { get; set; }
+        public int Unity { get; set; }
         public string? NrCheque { get; set; }
         public int? NrConta { get; set; }
         public string? PagoA { get; set; }

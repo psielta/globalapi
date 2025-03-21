@@ -63,15 +63,13 @@ public partial class Unity
     public virtual ICollection<HistoricoCaixa> HistoricoCaixas { get; set; } = new List<HistoricoCaixa>();
 
     [InverseProperty("UnityNavigation")]
-    public virtual ICollection<PlanoDeCaixa> PlanoDeCaixas { get; set; } = new List<PlanoDeCaixa>();
-
-    [InverseProperty("UnityNavigation")]
     public virtual ICollection<NfceProdutoSaidum> NfceProdutoSaida { get; set; } = new List<NfceProdutoSaidum>();
 
     [InverseProperty("UnityNavigation")]
     public virtual ICollection<OlderItem> OlderItems { get; set; } = new List<OlderItem>();
 
-    
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<PlanoDeCaixa> PlanoDeCaixas { get; set; } = new List<PlanoDeCaixa>();
 
     [InverseProperty("UnityNavigation")]
     public virtual ICollection<PlanoEstoque> PlanoEstoques { get; set; } = new List<PlanoEstoque>();

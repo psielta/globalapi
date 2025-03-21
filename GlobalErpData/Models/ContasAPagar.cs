@@ -179,7 +179,7 @@ public partial class ContasAPagar : IIdentifiable<int>
     public virtual Fornecedor Fornecedor { get; set; } = null!;
 
     [JsonIgnore]
-    [ForeignKey("CdEmpresa, CdHistoricoCaixa, CdPlanoCaixa")]
+    [ForeignKey("Unity, CdHistoricoCaixa, CdPlanoCaixa")]
     [InverseProperty("ContasAPagars")]
     public virtual HistoricoCaixa HistoricoCaixa { get; set; } = null!;
 

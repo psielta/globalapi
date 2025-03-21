@@ -36,6 +36,23 @@ namespace GlobalErpData.Repository.PagedRepositories
                 return Task.FromResult(Enumerable.Empty<ContasAPagar>().AsQueryable());
             }
         }
+        
+        public Task<IQueryable<ContasAPagar>> GetContasAPagarAsyncPorUnity(int unity)
+        {
+            try
+            {
+                return Task.FromResult(db.Set<ContasAPagar>().Where(e => e.Unity == unity)
+                    .Include(e => e.Fornecedor)
+                    .Include(e=> e.PagtosParciaisCps)
+                    .Include(e => e.HistoricoCaixa).ThenInclude(h => h.PlanoDeCaixa)
+                    .AsQueryable());
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while retrieving all entities.");
+                return Task.FromResult(Enumerable.Empty<ContasAPagar>().AsQueryable());
+            }
+        }
 
         public async override Task<ContasAPagar?> CreateAsync(ContasAPagarDto dto)
         {

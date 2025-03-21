@@ -136,7 +136,7 @@ namespace GlobalAPINFe.Controllers
         [ProducesResponseType(typeof(PagedResponse<ContasAPagar>), 200)]
         [ProducesResponseType(404)]
         public async Task<ActionResult<PagedResponse<ContasAPagar>>> GetContasAPagarPorEmpresa(
-            int idEmpresa,
+            int unity,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
             [FromQuery] int tipoPeriodoCAP = 0,
@@ -145,6 +145,7 @@ namespace GlobalAPINFe.Controllers
             [FromQuery] string? periodoFinal = null,
             [FromQuery] string pagou = "N",
             [FromQuery] string? nmForn = null,
+            [FromQuery] int? cdEmpresa = null,
             [FromQuery] int? nrEntrada = null,
             [FromQuery] string? nrDuplicata = null,
             [FromQuery] string? cdHistoricoCaixa = null,
@@ -168,7 +169,7 @@ namespace GlobalAPINFe.Controllers
                 {
                     return BadRequest(new ErrorMessage(500, "Invalid parameters"));
                 }
-                var query = await ((ContasAPagarRepository)repo).GetContasAPagarAsyncPorEmpresa(idEmpresa);
+                var query = await ((ContasAPagarRepository)repo).GetContasAPagarAsyncPorUnity(unity);
 
                 if (query == null)
                 {
@@ -186,6 +187,11 @@ namespace GlobalAPINFe.Controllers
                 if (nrEntrada.HasValue)
                 {
                     filteredQuery = filteredQuery.Where(p => p.NrEntrada != null && p.NrEntrada.Equals(nrEntrada.Value));
+                }
+
+                if (cdEmpresa.HasValue)
+                {
+                    filteredQuery = filteredQuery.Where(p => p.CdEmpresa == cdEmpresa.Value);
                 }
 
                 if (!string.IsNullOrEmpty(nrDuplicata))
