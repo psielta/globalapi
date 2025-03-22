@@ -71,6 +71,19 @@ public partial class ContaDoCaixa : IIdentifiable<int>
 
     [Column("integrated")]
     public int? Integrated { get; set; }
+
+    [Column("unity")]
+    public int Unity { get; set; }
+
+    [JsonPropertyName("nmEmpresa")]
+    [NotMapped]
+    public string? NmEmpresa => CdEmpresaNavigation?.NmEmpresa ?? "";
+
+    [JsonIgnore]
+    [ForeignKey("Unity")]
+    [InverseProperty("ContaDoCaixas")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
+
     [JsonIgnore]
     [InverseProperty("NrContaNavigation")]
     public virtual ICollection<LivroCaixa> LivroCaixas { get; set; } = new List<LivroCaixa>();

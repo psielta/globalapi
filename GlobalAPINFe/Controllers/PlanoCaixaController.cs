@@ -109,11 +109,11 @@ namespace GlobalAPINFe.Controllers
         [HttpGet("GetPlanoDeCaixaPorEmpresa_ALL", Name = nameof(GetPlanoDeCaixaPorEmpresa_ALL))]
         [ProducesResponseType(typeof(IEnumerable<PlanoDeCaixa>), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<IEnumerable<PlanoDeCaixa>>> GetPlanoDeCaixaPorEmpresa_ALL(int idEmpresa)
+        public async Task<ActionResult<IEnumerable<PlanoDeCaixa>>> GetPlanoDeCaixaPorEmpresa_ALL(int unity)
         {
             try
             {
-                var query = ((PlanoCaixaRepository)repo).GetPlanoDeCaixaAsyncPorEmpresa(idEmpresa).Result.AsQueryable();
+                var query = ((PlanoCaixaRepository)repo).GetPlanoDeCaixaAsyncPorEmpresa(unity).Result.AsQueryable();
                 if (query == null)
                 {
                     return NotFound("Entities not found."); // 404 Resource not found

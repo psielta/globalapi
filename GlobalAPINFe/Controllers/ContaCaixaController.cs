@@ -72,14 +72,14 @@ namespace GlobalAPINFe.Controllers
         }
 
         // Método personalizado ajustado
-        [HttpGet("GetContaDoCaixaPorEmpresa", Name = nameof(GetContaDoCaixaPorEmpresa))]
+        [HttpGet("GetContaDoCaixaPorUnity", Name = nameof(GetContaDoCaixaPorUnity))]
         [ProducesResponseType(typeof(PagedResponse<ContaDoCaixa>), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<PagedResponse<ContaDoCaixa>>> GetContaDoCaixaPorEmpresa(int idEmpresa, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        public async Task<ActionResult<PagedResponse<ContaDoCaixa>>> GetContaDoCaixaPorUnity(int unity, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                var query = await ((ContaCaixaRepository)repo).GetContaDoCaixaAsyncPorEmpresa(idEmpresa);
+                var query = await ((ContaCaixaRepository)repo).GetContaDoCaixaAsyncPorUnity(unity);
                 if (query == null)
                 {
                     return NotFound("Entities not found."); // 404 Resource not found

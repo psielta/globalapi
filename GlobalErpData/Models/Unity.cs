@@ -142,6 +142,10 @@ public partial class Unity : IIdentifiable<int>
     [InverseProperty("UnityNavigation")]
     public virtual ICollection<PlanoDeCaixa> PlanoDeCaixas { get; set; } = new List<PlanoDeCaixa>();
 
+    [JsonIgnore]
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<ContaDoCaixa> ContaDoCaixas { get; set; } = new List<ContaDoCaixa>();
+
     [GraphQLIgnore]
     public int GetId()
     {

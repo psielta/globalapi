@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 
 namespace GlobalErpData.MMModels;
@@ -66,10 +67,17 @@ public partial class ContaDoCaixa
     [Column("integrated")]
     public int? Integrated { get; set; }
 
+    [Column("unity")]
+    public int Unity { get; set; }
+
     [ForeignKey("CdEmpresa")]
     [InverseProperty("ContaDoCaixas")]
     public virtual Empresa CdEmpresaNavigation { get; set; } = null!;
 
     [InverseProperty("NrContaNavigation")]
     public virtual ICollection<LivroCaixa> LivroCaixas { get; set; } = new List<LivroCaixa>();
+
+    [ForeignKey("Unity")]
+    [InverseProperty("ContaDoCaixas")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
 }

@@ -441,6 +441,10 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.SaldoInicial).HasDefaultValueSql("0");
 
             entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.ContaDoCaixas).HasConstraintName("conta_do_caixa_fk");
+
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.ContaDoCaixas)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("conta_do_caixa_fk1");
         });
 
         modelBuilder.Entity<ContasAPagar>(entity =>

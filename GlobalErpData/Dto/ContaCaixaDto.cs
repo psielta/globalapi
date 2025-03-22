@@ -24,6 +24,7 @@ namespace GlobalErpData.Dto
         public string? NrChequeInicial { get; set; }
 
         public int CdEmpresa { get; set; }
+        public int Unity { get; set; }
 
         public string? NrDigitoAg { get; set; }
 

@@ -30,6 +30,9 @@ public partial class Unity
     public virtual ICollection<Cliente> Clientes { get; set; } = new List<Cliente>();
 
     [InverseProperty("UnityNavigation")]
+    public virtual ICollection<ContaDoCaixa> ContaDoCaixas { get; set; } = new List<ContaDoCaixa>();
+
+    [InverseProperty("UnityNavigation")]
     public virtual ICollection<ContasAPagar> ContasAPagars { get; set; } = new List<ContasAPagar>();
 
     [InverseProperty("UnityNavigation")]
