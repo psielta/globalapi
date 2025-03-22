@@ -396,7 +396,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
         modelBuilder.Entity<ConfiguracoesEmpresa>(entity =>
         {
-            entity.HasKey(e => new { e.Chave, e.CdEmpresa }).HasName("configuracoes_empresa_idx");
+            entity.HasKey(e => new { e.Chave, e.Unity }).HasName("configuracoes_empresa_idx");
 
             entity.Property(e => e.Integrated).HasDefaultValue(0);
             entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
@@ -404,7 +404,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.Valor2).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.Valor3).HasDefaultValueSql("''::character varying");
 
-            entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.ConfiguracoesEmpresas).HasConstraintName("configuracoes_empresa_fk");
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.ConfiguracoesEmpresas).HasConstraintName("configuracoes_empresa_fk");
         });
 
         modelBuilder.Entity<ConfiguracoesUsuario>(entity =>
@@ -2219,7 +2219,9 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
             entity.HasOne(d => d.UnityNavigation).WithMany(p => p.SaldoEstoques).HasConstraintName("saldo_estoque_fk1");
 
-            entity.HasOne(d => d.ProdutoEstoque).WithMany(p => p.SaldoEstoques).HasConstraintName("saldo_estoque_fk6");
+            entity.HasOne(d => d.ProdutoEstoque).WithMany(p => p.SaldoEstoques)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("saldo_estoque_fk6");
         });
 
         modelBuilder.Entity<SangriaCaixa>(entity =>
@@ -2400,6 +2402,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         modelBuilder.HasSequence("seq_entrada_geral_1");
         modelBuilder.HasSequence("seq_entrada_geral_10");
         modelBuilder.HasSequence("seq_entrada_geral_11");
+        modelBuilder.HasSequence("seq_entradas_geral_2");
         modelBuilder.HasSequence("seq_fornecedor_geral_1");
         modelBuilder.HasSequence("seq_fornecedor_geral_10");
         modelBuilder.HasSequence("seq_fornecedor_geral_11");

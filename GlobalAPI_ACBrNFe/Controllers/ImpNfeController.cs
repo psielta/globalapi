@@ -984,7 +984,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     amarracao.NrItem = item.NrItem;
                     amarracao.CdForn = CdForn;
                     amarracao.CdUni = "";
-                    ProdutosForn? produtosForn = await GetProdutoForn(idEmpresa, CdForn, item.CProd, item.Cean);
+                    ProdutosForn? produtosForn = await GetProdutoForn(idEmpresa, CdForn, item.CProd, item.Cean, unity);
                     if (produtosForn != null)
                     {
                         if (produtosForn.ProdutoEstoque != null)
@@ -1015,10 +1015,10 @@ namespace GlobalAPI_ACBrNFe.Controllers
             }
         }
 
-        private async Task<ProdutosForn?> GetProdutoForn(int idEmpresa, int cdForn, string? cProd, string? cean)
+        private async Task<ProdutosForn?> GetProdutoForn(int idEmpresa, int cdForn, string? cProd, string? cean, int unity)
         {
             ConfiguracoesEmpresa? configuracoesEmpresa = await db.ConfiguracoesEmpresas
-               .Where((conf) => conf.Chave.Equals("IMPNFE") && conf.CdEmpresa == idEmpresa)
+               .Where((conf) => conf.Chave.Equals("IMPNFE") && conf.Unity == unity)
                .FirstOrDefaultAsync();
 
             if (configuracoesEmpresa == null)
@@ -1276,7 +1276,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                             return BadRequest(
                                 new ErrorMessage(500, "Item da nota fiscal não encontrado"));
                         }
-                        ProdutosForn? produtosForn_pes = await GetProdutoForn(idEmpresa, cdForn, impitensnfe.CProd, impitensnfe.Cean);
+                        ProdutosForn? produtosForn_pes = await GetProdutoForn(idEmpresa, cdForn, impitensnfe.CProd, impitensnfe.Cean, empresa.Unity);
                         if (produtosForn_pes != null)
                         {
                             ProdutoEstoque? produtoEstoque1 = await db.ProdutoEstoques.FirstOrDefaultAsync(x => x.CdProduto == produtosForn_pes.CdProduto);

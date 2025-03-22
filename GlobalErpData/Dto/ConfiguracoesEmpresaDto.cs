@@ -26,6 +26,6 @@ namespace GlobalErpData.Dto
         public string? Valor9 { get; set; }
         public string? Valor10 { get; set; }
 
-        public int CdEmpresa { get; set; }
+        public int Unity { get; set; }
     }
 }

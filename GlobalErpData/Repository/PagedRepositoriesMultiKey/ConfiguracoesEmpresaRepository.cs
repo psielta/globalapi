@@ -18,11 +18,11 @@ namespace GlobalErpData.Repository.PagedRepositoriesMultiKey
         {
         }
 
-        public Task<IQueryable<ConfiguracoesEmpresa>> GetConfiguracoesEmpresaPorEmpresa(int idEmpresa)
+        public Task<IQueryable<ConfiguracoesEmpresa>> GetConfiguracoesEmpresaPorEmpresa(int unity)
         {
             try
             {
-                return Task.FromResult(db.Set<ConfiguracoesEmpresa>().Where(e => e.CdEmpresa == idEmpresa).AsQueryable());
+                return Task.FromResult(db.Set<ConfiguracoesEmpresa>().Where(e => e.Unity == unity).AsQueryable());
             }
             catch (Exception ex)
             {

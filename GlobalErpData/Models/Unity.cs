@@ -140,6 +140,10 @@ public partial class Unity : IIdentifiable<int>
 
     [JsonIgnore]
     [InverseProperty("UnityNavigation")]
+    public virtual ICollection<ConfiguracoesEmpresa> ConfiguracoesEmpresas { get; set; } = new List<ConfiguracoesEmpresa>();
+
+    [JsonIgnore]
+    [InverseProperty("UnityNavigation")]
     public virtual ICollection<PlanoDeCaixa> PlanoDeCaixas { get; set; } = new List<PlanoDeCaixa>();
 
     [JsonIgnore]

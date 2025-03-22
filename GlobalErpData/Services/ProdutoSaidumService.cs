@@ -276,7 +276,7 @@ namespace GlobalErpData.Services
             {
                 bool gerarRetidoSaida = true;
                 ConfiguracoesEmpresa? configuracoesEmpresa = await _context.ConfiguracoesEmpresas
-                    .Where(c => c.CdEmpresa == produtoSaidum.CdEmpresa && c.Chave.Equals("RETNFE"))
+                    .Where(c => c.Unity == produtoSaidum.Unity && c.Chave.Equals("RETNFE"))
                     .FirstOrDefaultAsync();
                 if (configuracoesEmpresa != null)
                 {

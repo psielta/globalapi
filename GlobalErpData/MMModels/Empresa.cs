@@ -129,9 +129,6 @@ public partial class Empresa
     public virtual ICollection<ConfEmail> ConfEmails { get; set; } = new List<ConfEmail>();
 
     [InverseProperty("CdEmpresaNavigation")]
-    public virtual ICollection<ConfiguracoesEmpresa> ConfiguracoesEmpresas { get; set; } = new List<ConfiguracoesEmpresa>();
-
-    [InverseProperty("CdEmpresaNavigation")]
     public virtual ICollection<ContaDoCaixa> ContaDoCaixas { get; set; } = new List<ContaDoCaixa>();
 
     [InverseProperty("CdEmpresaNavigation")]
