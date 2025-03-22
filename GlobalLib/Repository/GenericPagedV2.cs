@@ -173,5 +173,19 @@ namespace GlobalLib.Repository
             }
         }
 
+        public Task<TEntity?> RetrieveAsyncAsNoTracking(TKey1 idEmpresa, TKey2 idCadastro)
+        {
+            try
+            {
+                if (EntityCache is null) return Task.FromResult<TEntity?>(null);
+                EntityCache.TryGetValue((idEmpresa, idCadastro), out TEntity? entity);
+                return Task.FromResult(entity);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while retrieving entity with ID: {idEmpresa}-{idCadastro}", idEmpresa, idCadastro);
+                return Task.FromResult<TEntity?>(null);
+            }
+        }
     }
 }

@@ -100,7 +100,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
             try
             {
                 IdFornecedor = impNFeTemp.amarracoes.FirstOrDefault().CdForn;
-                fornecedor = await db.Fornecedors.FindAsync(IdFornecedor, idEmpresa);
+                fornecedor = await db.Fornecedors.FindAsync(IdFornecedor, empresa.Unity);
                 if (IdFornecedor <= 0 || fornecedor == null)
                 {
                     return BadRequest(new ErrorMessage(500, "Is missing Fornecedor"));
@@ -176,7 +176,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
             await _hubContext.Clients.Group(sessionId).SendAsync("ReceiveProgress", "Importando duplicatas do XML.");
             try
             {
-                await ImportarDuplicatas(impNFeTemp, entrada, idEmpresa, cdHistorico);
+                await ImportarDuplicatas(impNFeTemp, entrada, idEmpresa, cdHistorico, empresa.Unity);
             }
             catch (Exception ex)
             {
@@ -192,10 +192,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
         private async Task ImportarXml(ImpNFeTemp2 impNFeTemp, Entrada entrada, int idEmpresa)
         {
             string SQL = $@"SELECT 
-                              id_empresa,
-                              chave_acesso,
-                              type,
-                              xml
+                              *
                             FROM 
                               public.impxml
                             WHERE
@@ -237,7 +234,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
             }
         }
 
-        private async Task ImportarDuplicatas(ImpNFeTemp2 impNFeTemp, Entrada entrada, int idEmpresa, int cdHistorico)
+        private async Task ImportarDuplicatas(ImpNFeTemp2 impNFeTemp, Entrada entrada, int idEmpresa, int cdHistorico, int unity)
         {
             if (impNFeTemp.impdupnfe == null || impNFeTemp.impdupnfe.Count == 0)
             {
@@ -263,6 +260,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 ContasAPagarDto contasAPagarDto = new ContasAPagarDto();
                 contasAPagarDto.DtLancamento = DateUtils.DateTimeToDateOnly(DateTime.Now);
                 contasAPagarDto.DtVencimento = dataVencimento;
+                contasAPagarDto.Unity = unity;
                 contasAPagarDto.CdFornecedor = entrada.CdForn;
                 contasAPagarDto.NrDuplicata = $"ENT{entrada.Nr}";
                 contasAPagarDto.VlCp = ConvertToDecimal(item.Valor);
@@ -333,11 +331,12 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 {
                     ppp = new ProdutoEntradum();
                     ppp.CdEmpresa = idEmpresa;
+                    ppp.Unity = unity;
                     ppp.NrEntrada = entrada.Nr;
                     ppp.NrItem = Convert.ToInt16(item.NrItem);
                     ppp.CdBarra = (string.IsNullOrEmpty(amarracao.CdBarra) ? "SEM GTIN" : amarracao.CdBarra);
                     ppp.CdProduto = Convert.ToInt32(amarracao.CdProduto);
-                    ProdutoEstoque? produtoEstoque = await db.ProdutoEstoques.FromSqlRaw($"SELECT * from produto_estoque where cd_produto = {amarracao.CdProduto} and id_empresa = {idEmpresa}").FirstOrDefaultAsync();
+                    ProdutoEstoque? produtoEstoque = await db.ProdutoEstoques.FromSqlRaw($"SELECT * from produto_estoque where cd_produto = {amarracao.CdProduto} and unity = {unity}").FirstOrDefaultAsync();
                     if (produtoEstoque == null)
                     {
                         throw new Exception($"Erro ao buscar produto ({amarracao.CdProduto})");
@@ -632,7 +631,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                             produtos_forn 
                         WHERE 
                             cd_produto = {ppp.CdProduto} 
-                            AND id_empresa = {idEmpresa} 
+                            AND unity = {unity} 
                             AND cd_forn = {entrada.CdForn} 
                             AND id_produto_externo = '{item.CProd}'";
             ProdutosForn? produtosForn = await db.ProdutosForns.FromSqlRaw(vsql).FirstOrDefaultAsync();
@@ -677,13 +676,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
             CfopImportacao? cfopImportacao = await db.CfopImportacaos.FromSqlRaw(
                 $@"
                 SELECT 
-                  id,
-                  cd_cfop_s,
-                  cd_cfop_e,
-                  cfop_dentro,
-                  cfop_fora,
-                  csosn,
-                  unity
+                  *
                 FROM 
                   public.cfop_importacao 
                 WHERE
@@ -732,7 +725,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
             }
 
             ProdutoEstoqueDto produtoEstoqueDto = mapper.Map<ProdutoEstoqueDto>(produtoEstoque);
-            string url = ENDPOINT_PRODUTOS + $"/{idEmpresa}/{produtoEstoque.CdProduto}";
+            string url = ENDPOINT_PRODUTOS + $"/{unity}/{produtoEstoque.CdProduto}";
 
             HttpClient client = new HttpClient();
             client.BaseAddress = new Uri(url);
@@ -748,14 +741,15 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 }
                 else
                 {
-                    logger.LogError($"Erro ao ATUALIZAR Produto ({entrada.CdChaveNfe}).");
-                    throw new Exception("Erro ao ATUALIZAR Produto");
+                    logger.LogError($"Erro ao atualizar produto (dados fiscais na entrada NFe) ({entrada.CdChaveNfe}).");
+                    throw new Exception("Erro ao atualizar produto (dados fiscais na entrada NFe) ");
                 }
             }
             else
             {
-                logger.LogError($"Erro ao importar ATUALIZAR ({entrada.CdChaveNfe}).");
-                throw new Exception("Erro ao importar ATUALIZAR");
+                var msg = $"Erro ao atualizar produto (dados fiscais na entrada NFe) ({entrada.CdChaveNfe}). HTTP ERROR: {response.StatusCode} - {response.Content}";
+                logger.LogError(msg);
+                throw new Exception(msg);
             }
         }
 
@@ -811,7 +805,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 FROM 
                   public.unidade_medida
                 WHERE 
-                  id_empresa = {idEmpresa} AND
+                  unity = {unity} AND
                   cd_unidade = '{item.Utrib}'";
 
             UnidadeMedida? unidade = await db.UnidadeMedidas.FromSqlRaw(SQLunidade).FirstOrDefaultAsync();
@@ -878,6 +872,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 entrada.CdForn = idFornecedor;
                 entrada.CdCfop = await GetCfop(idEmpresa, impNFeTemp, unity);
                 entrada.CdEmpresa = idEmpresa;
+                entrada.Unity = unity;
                 if (transportadora != null)
                 {
                     entrada.Transp = transportadora.CdTransportadora;
@@ -1029,7 +1024,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                         FROM 
                           public.transportadora
                         WHERE 
-                          id_empresa = {idEmpresa} AND
+                          unity = {unity} AND
                           regexp_replace(cd_cnpj, '[^0-9]', '', 'g') = '{cnpj}'";
 
             Transportadora? transportadora = await db.Transportadoras.FromSqlRaw(SQLtransp).FirstOrDefaultAsync();
@@ -1076,9 +1071,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
         {
             string SQL = $@"
                 SELECT 
-                  cd_cidade,
-                  nm_cidade,
-                  uf
+                  *
                 FROM 
                   public.cidade
                 WHERE upper(trim(nm_cidade)) LIKE '%{(cidadeTransp ?? "SAO SEBASTIAO DO PARAISO").Trim().ToUpper()}%'

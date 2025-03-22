@@ -640,7 +640,7 @@ public partial class ProdutoEstoque : IIdentifiable<int>, IIdentifiableMultiKey<
     [GraphQLIgnore]
     public string GetKeyName1()
     {
-        return "IdEmpresa";
+        return "Unity";
     }
     [GraphQLIgnore]
     public string GetKeyName2()

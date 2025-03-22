@@ -904,10 +904,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
         private async Task InserirXmlDb(int idEmpresa, string v, string xmlContent)
         {
             string SQL = $@"SELECT 
-                              id_empresa,
-                              chave_acesso,
-                              type,
-                              xml
+                              *
                             FROM 
                               public.impxml
                             WHERE
@@ -964,7 +961,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 impNFeTemp.amarracoes = new List<Amarracao>();
             }
 
-            bool existeFornecedor = await FornecedorExiste(idEmpresa, nfe.NFe.infNFe.emit.CNPJ, nfe.NFe.infNFe.emit.CPF);
+            bool existeFornecedor = await FornecedorExiste(idEmpresa, nfe.NFe.infNFe.emit.CNPJ, nfe.NFe.infNFe.emit.CPF, unity);
             if (!existeFornecedor)
             {
                 int CdForn = await CadastrarFornecedor(nfe.NFe.infNFe.emit, idEmpresa, unity);
@@ -980,7 +977,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
             }
             else
             {
-                int CdForn = await GetFornecedor(idEmpresa, nfe.NFe.infNFe.emit.CNPJ, nfe.NFe.infNFe.emit.CPF);
+                int CdForn = await GetFornecedor(idEmpresa, nfe.NFe.infNFe.emit.CNPJ, nfe.NFe.infNFe.emit.CPF, unity);
                 foreach (var item in impNFeTemp.impitensnves)
                 {
                     Amarracao amarracao = new Amarracao();
@@ -1038,21 +1035,21 @@ namespace GlobalAPI_ACBrNFe.Controllers
             }
         }
 
-        private async Task<int> GetFornecedor(int idEmpresa, string cNPJ, string cPF)
+        private async Task<int> GetFornecedor(int idEmpresa, string cNPJ, string cPF, int unity)
         {
             Fornecedor? fornecedor;
             if (!string.IsNullOrEmpty(cNPJ))
             {
                 string cnpjOnlyNumbers = Regex.Replace(cNPJ, @"\D", "");
                 fornecedor = await db.Fornecedors
-                    .FromSqlRaw("SELECT * FROM public.fornecedor WHERE regexp_replace(cnpj, '\\D', '', 'g') = {0} AND id_empresa = {1}", cnpjOnlyNumbers, idEmpresa)
+                    .FromSqlRaw("SELECT * FROM public.fornecedor WHERE regexp_replace(cnpj, '\\D', '', 'g') = {0} AND unity = {1}", cnpjOnlyNumbers, unity)
                     .FirstOrDefaultAsync();
             }
             else
             {
                 string cpfOnlyNumbers = Regex.Replace(cPF, @"\D", "");
                 fornecedor = await db.Fornecedors
-                    .FromSqlRaw("SELECT * FROM public.fornecedor WHERE regexp_replace(cpf, '\\D', '', 'g') = {0} AND id_empresa = {1}", cpfOnlyNumbers, idEmpresa)
+                    .FromSqlRaw("SELECT * FROM public.fornecedor WHERE regexp_replace(cpf, '\\D', '', 'g') = {0} AND unity = {1}", cpfOnlyNumbers, unity)
                     .FirstOrDefaultAsync();
             }
             if (fornecedor == null)
@@ -1137,7 +1134,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 return 0;
             }
         }
-        private async Task<bool> FornecedorExiste(int idEmpresa, string cnpj, string cpf)
+        private async Task<bool> FornecedorExiste(int idEmpresa, string cnpj, string cpf, int unity)
         {
             // Função para remover qualquer caractere não numérico
             string RemoveNonNumeric(string value)
@@ -1157,10 +1154,10 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 sqlQuery = @"
             SELECT *
             FROM fornecedor
-            WHERE id_empresa = {0}
+            WHERE unity = {0}
             AND REGEXP_REPLACE(cnpj, '[^0-9]', '', 'g') = {1}";
 
-                var count = await db.Fornecedors.FromSqlRaw(sqlQuery, idEmpresa, cnpjNumerico)
+                var count = await db.Fornecedors.FromSqlRaw(sqlQuery, unity, cnpjNumerico)
                                                  .CountAsync();
                 return count > 0;
             }
@@ -1169,10 +1166,10 @@ namespace GlobalAPI_ACBrNFe.Controllers
                 sqlQuery = @"
             SELECT *
             FROM fornecedor
-            WHERE id_empresa = {0}
+            WHERE unity = {0}
             AND REGEXP_REPLACE(cpf, '[^0-9]', '', 'g') = {1}";
 
-                var count = await db.Fornecedors.FromSqlRaw(sqlQuery, idEmpresa, cpfNumerico)
+                var count = await db.Fornecedors.FromSqlRaw(sqlQuery, unity, cpfNumerico)
                                                  .CountAsync();
                 return count > 0;
             }

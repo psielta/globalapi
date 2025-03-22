@@ -137,11 +137,11 @@ namespace GlobalLib.GenericControllers
                 {
                     return BadRequest("Invalid data provided."); // 400 Bad request
                 }
-                TEntity? existing = await repo.RetrieveAsync(id);
+                /*TEntity? existing = await repo.RetrieveAsync(id);
                 if (existing == null)
                 {
                     return NotFound($"Entity with ID {id} not found."); // 404 Resource not found
-                }
+                }*/
                 await repo.UpdateAsync(id, dto);
 
                 // Retrieve the updated entity

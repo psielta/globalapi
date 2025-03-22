@@ -455,7 +455,6 @@ namespace GlobalAPINFe.Controllers
                     if (affected == 1)
                     {
                         logger.LogInformation("Entity updated with ID: {idEmpresa}-{idCadastro}", idEmpresa, produto.CdProduto);
-                        ((ProdutoEstoquePagedRepositoryMultiKey)repo).UpdateCache((idEmpresa, produto.CdProduto), produto);
                     }
                     else
                     {
@@ -552,7 +551,6 @@ namespace GlobalAPINFe.Controllers
                     if (affected == 1)
                     {
                         logger.LogInformation("Entity updated with ID: {idEmpresa}-{idCadastro}", idEmpresa, produto.CdProduto);
-                        ((ProdutoEstoquePagedRepositoryMultiKey)repo).UpdateCache((idEmpresa, produto.CdProduto), produto);
                     }
                     else
                     {
@@ -650,7 +648,6 @@ namespace GlobalAPINFe.Controllers
                     if (affected == 1)
                     {
                         logger.LogInformation("Entity updated with ID: {idEmpresa}-{idCadastro}", idEmpresa, produto.CdProduto);
-                        ((ProdutoEstoquePagedRepositoryMultiKey)repo).UpdateCache((idEmpresa, produto.CdProduto), produto);
                     }
                     else
                     {

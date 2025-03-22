@@ -50,10 +50,6 @@ namespace GlobalErpData.Repository.PagedRepositoriesMultiKey
             int affected = await db.SaveChangesAsync();
             if (affected == 1)
             {
-                if (EntityCache is null) return entity;
-                logger.LogInformation("Entity created and added to cache with ID: {Id}", entity.GetId());
-                EntityCache.AddOrUpdate(entity.GetId(), entity, UpdateCache);
-
                 Entrada? entradaGerada = await db.Set<Entrada>()
                     .Where(e =>
                         e.Nr == entity.Nr
@@ -96,7 +92,6 @@ namespace GlobalErpData.Repository.PagedRepositoriesMultiKey
             if (affected == 1)
             {
                 logger.LogInformation("Entity updated with ID: {idEmpresa}-{idCadastro}", idEmpresa, idCadastro);
-                UpdateCache((idEmpresa, idCadastro), entity);
                 if (oldEntrada.CdGrupoEstoque != dto.CdGrupoEstoque)
                 {
                     bool x = await ((ProdutoEntradaRepository)produtoEntradaRepository).UpdateAllCdGrupoEstoqueAsync(idEmpresa, idCadastro, dto.CdGrupoEstoque);

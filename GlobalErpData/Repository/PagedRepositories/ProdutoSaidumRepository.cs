@@ -143,7 +143,6 @@ namespace GlobalErpData.Repository.PagedRepositories
 
             db.ProdutoEstoques.Update(produto);
             await db.SaveChangesAsync();
-            ((ProdutoEstoquePagedRepositoryMultiKey)queryRepositoryMultiKey).UpdateCache((produto.Unity, produto.CdProduto), produto);
 
             UnidadeMedida? unidade = db.UnidadeMedidas.Where(u => u.CdUnidade == dto.Un && u.Unity == produto.Unity).FirstOrDefault();
             if (unidade == null)
