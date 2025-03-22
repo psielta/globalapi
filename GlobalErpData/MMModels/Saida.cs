@@ -205,6 +205,9 @@ public partial class Saida
     [Column("integrated")]
     public int? Integrated { get; set; }
 
+    [Column("unity")]
+    public int Unity { get; set; }
+
     [ForeignKey("CdGrupoEstoque")]
     [InverseProperty("Saida")]
     public virtual PlanoEstoque CdGrupoEstoqueNavigation { get; set; } = null!;
@@ -228,4 +231,8 @@ public partial class Saida
 
     [InverseProperty("NrSaidaNavigation")]
     public virtual ICollection<SaidasVolume> SaidasVolumes { get; set; } = new List<SaidasVolume>();
+
+    [ForeignKey("Unity")]
+    [InverseProperty("Saida")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
 }

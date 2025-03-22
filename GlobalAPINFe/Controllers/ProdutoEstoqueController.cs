@@ -175,7 +175,7 @@ namespace GlobalAPINFe.Controllers
                 foreach (var produto in pagedList)
                 {
                     double? quantidade = 0;
-                    
+
                     if (cdPlanoEstoque != -1)
                     {
                         var saldo = produto.SaldoEstoques.FirstOrDefault();
@@ -440,7 +440,7 @@ namespace GlobalAPINFe.Controllers
                 {
                     var produto = await
                         _context.ProdutoEstoques
-                        .Where((produto) => produto.CdProduto == item.cdProduto && produto.Unity == idEmpresa)
+                        .Where((produto) => produto.CdProduto == item.cdProduto && produto.Unity == entrada.Unity)
                         .FirstOrDefaultAsync();
 
                     if (produto == null)
@@ -528,7 +528,7 @@ namespace GlobalAPINFe.Controllers
                 {
                     var produto = await
                         _context.ProdutoEstoques
-                        .Where((produto) => produto.CdProduto == item.cdProduto && produto.Unity == idEmpresa)
+                        .Where((produto) => produto.CdProduto == item.cdProduto && produto.Unity == entrada.Unity)
                         .FirstOrDefaultAsync();
 
                     if (produto == null)
@@ -541,10 +541,14 @@ namespace GlobalAPINFe.Controllers
                     produto.PercentualCustoFixo = 0;
                     produto.PercentualImpostos = 0;
                     decimal preco = Math.Round(((item.lucroPor) / 100 + 1) * (produto.VlCusto ?? 0), 2);
-                    decimal percentualLucroLiquido = 100 * (1 - (produto.VlCusto ?? 0) / (preco));
-                    produto.PercentualLucroLiquidoFiscal = percentualLucroLiquido;
-                    produto.IndiceMarkupFiscal = (1 - percentualLucroLiquido / 100);
-                    produto.VlAVista = preco;
+                    decimal percentualLucroLiquido = 0;
+                    if (preco > 0)
+                    {
+                        percentualLucroLiquido = 100 * (1 - (produto.VlCusto ?? 0) / (preco));
+                        produto.PercentualLucroLiquidoFiscal = percentualLucroLiquido;
+                        produto.IndiceMarkupFiscal = (1 - percentualLucroLiquido / 100);
+                        produto.VlAVista = preco;
+                    }
 
                     _context.Update(produto);
                     int affected = await _context.SaveChangesAsync();
@@ -624,7 +628,7 @@ namespace GlobalAPINFe.Controllers
                 {
                     var produto = await
                         _context.ProdutoEstoques
-                        .Where((produto) => produto.CdProduto == item.cdProduto && produto.Unity == idEmpresa)
+                        .Where((produto) => produto.CdProduto == item.cdProduto && produto.Unity == entrada.Unity)
                         .FirstOrDefaultAsync();
 
                     if (produto == null)
@@ -638,11 +642,14 @@ namespace GlobalAPINFe.Controllers
                     produto.PercentualCustoFixo = item.percentualCustoFixo;
 
                     decimal indiceMarkup = 1 - (item.percentualLiquido + item.percentualImpostos + item.percentualComissao + item.percentualCustoFixo) / 100;
-                    decimal preco = Math.Round((produto.VlCusto ?? 0) / indiceMarkup, 2);
+                    decimal preco = 0;
+                    if (indiceMarkup > 0)
+                    {
+                        preco = Math.Round((produto.VlCusto ?? 0) / indiceMarkup, 2);
 
-                    produto.IndiceMarkupFiscal = indiceMarkup;
-                    produto.VlAVista = preco;
-
+                        produto.IndiceMarkupFiscal = indiceMarkup;
+                        produto.VlAVista = preco;
+                    }
                     _context.Update(produto);
                     int affected = await _context.SaveChangesAsync();
                     if (affected == 1)

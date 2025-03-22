@@ -223,6 +223,9 @@ public partial class Saida : IIdentifiable<int>
     [StringLength(62)]
     public string? NrProtoInu { get; set; }
 
+    [Column("unity")]
+    public int Unity { get; set; }
+
     [JsonIgnore]
     [ForeignKey("CdGrupoEstoque")]
     [InverseProperty("Saida")]
@@ -274,4 +277,8 @@ public partial class Saida : IIdentifiable<int>
     [InverseProperty("NrSaidaNavigation")]
     public virtual ICollection<SaidaNotasDevolucao> SaidaNotasDevolucaos { get; set; } = new List<SaidaNotasDevolucao>();
 
+    [JsonIgnore]
+    [ForeignKey("Unity")]
+    [InverseProperty("Saida")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
 }

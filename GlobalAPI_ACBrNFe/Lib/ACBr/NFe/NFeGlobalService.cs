@@ -1026,7 +1026,7 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
         private async Task<bool> GetConfiguracaoRetido(Saida saida)
         {
             ConfiguracoesEmpresa? configuracoesEmpresa =
-                                    await db.ConfiguracoesEmpresas.Where(c => c.CdEmpresa == saida.Empresa && c.Chave == "RETNFE").FirstOrDefaultAsync();
+                                    await db.ConfiguracoesEmpresas.Where(c => c.Unity == saida.Unity && c.Chave == "RETNFE").FirstOrDefaultAsync();
             if (configuracoesEmpresa == null)
             {
                 return false;

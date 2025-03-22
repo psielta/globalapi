@@ -2159,6 +2159,10 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.EmpresaNavigation).WithMany(p => p.Saida)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("saidas_fk");
+
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.Saida)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("saidas_fk3");
         });
 
         modelBuilder.Entity<SaidaNotasDevolucao>(entity =>

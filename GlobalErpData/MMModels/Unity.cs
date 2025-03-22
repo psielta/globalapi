@@ -102,6 +102,9 @@ public partial class Unity
     public virtual ICollection<RetiradaNfe> RetiradaNves { get; set; } = new List<RetiradaNfe>();
 
     [InverseProperty("UnityNavigation")]
+    public virtual ICollection<Saida> Saida { get; set; } = new List<Saida>();
+
+    [InverseProperty("UnityNavigation")]
     public virtual ICollection<SaldoEstoque> SaldoEstoques { get; set; } = new List<SaldoEstoque>();
 
     [InverseProperty("UnityNavigation")]
