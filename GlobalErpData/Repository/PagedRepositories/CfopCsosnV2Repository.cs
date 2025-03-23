@@ -17,9 +17,9 @@ namespace GlobalErpData.Repository.PagedRepositories
         public CfopCsosnV2Repository(GlobalErpFiscalBaseContext injectedContext, IMapper mapper, ILogger<GenericRepositoryDto<CfopCsosnV2, GlobalErpFiscalBaseContext, int, CfopCsosnV2Dto>> logger) : base(injectedContext, mapper, logger)
         {
         }
-        public Task<IQueryable<CfopCsosnV2>> GetCfopCsosnV2AsyncPorEmpresa(int IdEmpresa)
+        public Task<IQueryable<CfopCsosnV2>> GetCfopCsosnV2AsyncPorUnity(int unity)
         {
-            return Task.FromResult(db.Set<CfopCsosnV2>().Where(e => e.IdEmpresa == IdEmpresa).AsQueryable());
+            return Task.FromResult(db.Set<CfopCsosnV2>().Where(e => e.Unity == unity).AsQueryable());
         }
     }
 }

@@ -302,7 +302,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.Integrated).HasDefaultValue(0);
             entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
-            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.CfopCsosnV2s)
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.CfopCsosnV2s)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("cfop_csosn_v2_fk");
         });
@@ -539,6 +539,10 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.IdEmpresaNavigation).WithOne(p => p.ControleNumeracaoNfe)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("controle_numeracao_nfe_fk");
+
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.ControleNumeracaoNves)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("controle_numeracao_nfe_fk1");
         });
 
         modelBuilder.Entity<Csosn>(entity =>
@@ -1563,7 +1567,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
             entity.Property(e => e.TxtObs).HasDefaultValueSql("''::character varying(1)");
 
-            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.ObsNfs)
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.ObsNfs)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("obs_nf_fk");
         });

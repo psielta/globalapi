@@ -94,6 +94,34 @@ namespace GlobalAPINFe.Controllers
                 logger.LogError(ex, "Error occurred while retrieving paged entities.");
                 return StatusCode(500, "An error occurred while retrieving entities. Please try again later.");
             }
+        } 
+        
+        [HttpGet("GetControleNumeracaoNfePorUnity", Name = nameof(GetControleNumeracaoNfePorUnity))]
+        [ProducesResponseType(typeof(PagedResponse<ControleNumeracaoNfe>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<PagedResponse<ControleNumeracaoNfe>>> GetControleNumeracaoNfePorUnity(int unity, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        {
+            try
+            {
+                var query = ((ControleNumeracaoNfeRepository)repo).GetControleNumeracaoNfeAsyncPorUnity(unity).Result.AsQueryable();
+                if (query == null)
+                {
+                    return NotFound("Entities not found."); // 404 Resource not found
+                }
+                var pagedList = await query.ToPagedListAsync(pageNumber, pageSize);
+                var response = new PagedResponse<ControleNumeracaoNfe>(pagedList);
+
+                if (response.Items == null || response.Items.Count == 0)
+                {
+                    return NotFound("Entities not found."); // 404 Resource not found
+                }
+                return Ok(response); // 200 OK
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while retrieving paged entities.");
+                return StatusCode(500, "An error occurred while retrieving entities. Please try again later.");
+            }
         }
 
         [HttpGet("GetControleNumeracaoNfePorEmpresa_ALL", Name = nameof(GetControleNumeracaoNfePorEmpresa_ALL))]

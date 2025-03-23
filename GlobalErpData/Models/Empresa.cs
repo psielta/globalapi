@@ -129,10 +129,6 @@ public partial class Empresa : IIdentifiable<int>
     public virtual ICollection<Certificado> Certificados { get; set; } = new List<Certificado>();
 
     [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<CfopCsosnV2> CfopCsosnV2s { get; set; } = new List<CfopCsosnV2>();
-
-    [JsonIgnore]
     [InverseProperty("CdEmpresaNavigation")]
     public virtual ICollection<ConfEmail> ConfEmails { get; set; } = new List<ConfEmail>();
 
@@ -309,10 +305,6 @@ public partial class Empresa : IIdentifiable<int>
     [JsonIgnore]
     [InverseProperty("EmpresaNavigation")]
     public virtual ICollection<NfceSaida> NfceSaida { get; set; } = new List<NfceSaida>();
-
-    [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<ObsNf> ObsNfs { get; set; } = new List<ObsNf>();
 
     [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]

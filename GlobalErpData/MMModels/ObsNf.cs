@@ -13,8 +13,8 @@ public partial class ObsNf
     [Column("nr_lanc")]
     public int NrLanc { get; set; }
 
-    [Column("id_empresa")]
-    public int IdEmpresa { get; set; }
+    [Column("unity")]
+    public int Unity { get; set; }
 
     [Column("nm_obs")]
     [StringLength(150)]
@@ -30,7 +30,7 @@ public partial class ObsNf
     [Column("integrated")]
     public int? Integrated { get; set; }
 
-    [ForeignKey("IdEmpresa")]
+    [ForeignKey("Unity")]
     [InverseProperty("ObsNfs")]
-    public virtual Empresa IdEmpresaNavigation { get; set; } = null!;
+    public virtual Unity UnityNavigation { get; set; } = null!;
 }

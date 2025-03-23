@@ -69,14 +69,14 @@ namespace GlobalAPINFe.Controllers
 
         // Métodos personalizados ajustados
 
-        [HttpGet("GetObsNfPorEmpresa", Name = nameof(GetObsNfPorEmpresa))]
+        [HttpGet("GetObsNfPorUnity", Name = nameof(GetObsNfPorUnity))]
         [ProducesResponseType(typeof(PagedResponse<ObsNf>), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<PagedResponse<ObsNf>>> GetObsNfPorEmpresa(int idEmpresa, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        public async Task<ActionResult<PagedResponse<ObsNf>>> GetObsNfPorUnity(int unity, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                var query = ((ObsNfRepository)repo).GetObsNfAsyncPorEmpresa(idEmpresa).Result.AsQueryable();
+                var query = ((ObsNfRepository)repo).GetObsNfAsyncPorUnity(unity).Result.AsQueryable();
                 if (query == null)
                 {
                     return NotFound("Entities not found."); // 404 Resource not found
@@ -105,7 +105,7 @@ namespace GlobalAPINFe.Controllers
         {
             try
             {
-                var query = ((ObsNfRepository)repo).GetObsNfAsyncPorEmpresa(idEmpresa).Result.AsQueryable();
+                var query = ((ObsNfRepository)repo).GetObsNfAsyncPorUnity(idEmpresa).Result.AsQueryable();
                 if (query == null)
                 {
                     return NotFound("Entities not found."); // 404 Resource not found

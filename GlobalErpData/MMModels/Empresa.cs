@@ -122,9 +122,6 @@ public partial class Empresa
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<Certificado> Certificados { get; set; } = new List<Certificado>();
 
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<CfopCsosnV2> CfopCsosnV2s { get; set; } = new List<CfopCsosnV2>();
-
     [InverseProperty("CdEmpresaNavigation")]
     public virtual ICollection<ConfEmail> ConfEmails { get; set; } = new List<ConfEmail>();
 
@@ -256,9 +253,6 @@ public partial class Empresa
 
     [InverseProperty("EmpresaNavigation")]
     public virtual ICollection<NfceSaida> NfceSaida { get; set; } = new List<NfceSaida>();
-
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<ObsNf> ObsNfs { get; set; } = new List<ObsNf>();
 
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<Older> Olders { get; set; } = new List<Older>();

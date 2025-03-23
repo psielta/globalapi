@@ -32,7 +32,14 @@ public partial class ControleNumeracaoNfe
     [Column("integrated")]
     public int? Integrated { get; set; }
 
+    [Column("unity")]
+    public int Unity { get; set; }
+
     [ForeignKey("IdEmpresa")]
     [InverseProperty("ControleNumeracaoNfe")]
     public virtual Empresa IdEmpresaNavigation { get; set; } = null!;
+
+    [ForeignKey("Unity")]
+    [InverseProperty("ControleNumeracaoNves")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
 }

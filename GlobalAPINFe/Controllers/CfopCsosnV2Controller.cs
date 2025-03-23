@@ -5,6 +5,7 @@ using GlobalLib.Dto;
 using GlobalLib.GenericControllers;
 using GlobalLib.Repository;
 using Microsoft.AspNetCore.Mvc;
+using X.PagedList.Extensions;
 
 namespace GlobalAPINFe.Controllers
 {
@@ -68,14 +69,45 @@ namespace GlobalAPINFe.Controllers
 
         // Métodos personalizados ajustados
 
-        [HttpGet("GetAllCfopCsosnV2PorEmpresa/{idEmpresa}", Name = nameof(GetAllCfopCsosnV2PorEmpresa))]
+        [HttpGet("GetCfopCsosnV2PorUnity", Name = nameof(GetCfopCsosnV2PorUnity))]
+        [ProducesResponseType(typeof(PagedResponse<CfopCsosnV2>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<PagedResponse<CfopCsosnV2>>> GetCfopCsosnV2PorUnity(
+            int unity,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10)
+        {
+            try
+            {
+                var entitysFilterByEmpresa = await ((CfopCsosnV2Repository)repo).GetCfopCsosnV2AsyncPorUnity(unity);
+
+                var filteredQuery = entitysFilterByEmpresa.OrderByDescending(p => p.Id);
+
+                var pagedList = filteredQuery.ToPagedList(pageNumber, pageSize);
+                var response = new PagedResponse<CfopCsosnV2>(pagedList);
+
+                if (response.Items == null || response.Items.Count == 0)
+                {
+                    return NotFound("Entities not found."); // 404 Resource not found
+                }
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while retrieving paged entities.");
+                return StatusCode(500, "An error occurred while retrieving entities. Please try again later.");
+            }
+        }
+
+            [HttpGet("GetAllCfopCsosnV2PorEmpresa/{idEmpresa}", Name = nameof(GetAllCfopCsosnV2PorEmpresa))]
         [ProducesResponseType(typeof(IEnumerable<CfopCsosnV2>), 200)]
         [ProducesResponseType(404)]
         public async Task<ActionResult<IEnumerable<CfopCsosnV2>>> GetAllCfopCsosnV2PorEmpresa(int idEmpresa)
         {
             try
             {
-                var entitysFilterByEmpresa = await ((CfopCsosnV2Repository)repo).GetCfopCsosnV2AsyncPorEmpresa(idEmpresa);
+                var entitysFilterByEmpresa = await ((CfopCsosnV2Repository)repo).GetCfopCsosnV2AsyncPorUnity(idEmpresa);
 
                 if (entitysFilterByEmpresa == null)
                 {

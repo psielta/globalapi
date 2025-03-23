@@ -10,7 +10,7 @@ namespace GlobalErpData.Dto
 {
     public class CfopCsosnV2Dto
     {
-        public int IdEmpresa { get; set; }
+        public int Unity { get; set; }
 
         public string Cfop { get; set; } = null!;
 

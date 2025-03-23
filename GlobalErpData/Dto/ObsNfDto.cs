@@ -10,7 +10,7 @@ namespace GlobalErpData.Dto
 {
     public class ObsNfDto
     {
-        public int IdEmpresa { get; set; }
+        public int Unity { get; set; }
 
         public string NmObs { get; set; } = null!;
 

@@ -18,9 +18,9 @@ namespace GlobalErpData.Repository.PagedRepositories
         {
         }
 
-        public Task<IQueryable<ObsNf>> GetObsNfAsyncPorEmpresa(int IdEmpresa)
+        public Task<IQueryable<ObsNf>> GetObsNfAsyncPorUnity(int Unity)
         {
-            return Task.FromResult(db.Set<ObsNf>().Where(e => e.IdEmpresa == IdEmpresa).AsQueryable());
+            return Task.FromResult(db.Set<ObsNf>().Where(e => e.Unity == Unity).AsQueryable());
         }
     }
 }

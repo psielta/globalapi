@@ -27,7 +27,16 @@ namespace GlobalErpData.Repository.PagedRepositories
 
         public Task<IQueryable<ControleNumeracaoNfe>> GetControleNumeracaoNfeAsyncPorEmpresa(int IdEmpresa)
         {
-            return Task.FromResult(db.Set<ControleNumeracaoNfe>().Where(e => e.IdEmpresa == IdEmpresa).AsQueryable());
+            return Task.FromResult(db.Set<ControleNumeracaoNfe>()
+                .Include(c => c.IdEmpresaNavigation)
+                .Where(e => e.IdEmpresa == IdEmpresa).AsQueryable());
+        }
+        
+        public Task<IQueryable<ControleNumeracaoNfe>> GetControleNumeracaoNfeAsyncPorUnity(int unity)
+        {
+            return Task.FromResult(db.Set<ControleNumeracaoNfe>()
+                .Include(c => c.IdEmpresaNavigation)
+                .Where(e => e.Unity == unity).AsQueryable());
         }
 
         public async override Task<ControleNumeracaoNfe?> CreateAsync(ControleNumeracaoNfeDto dto)
@@ -38,6 +47,7 @@ namespace GlobalErpData.Repository.PagedRepositories
             {
                 // Encontrar registros existentes para o mesmo IdEmpresa onde Padrao é verdadeiro
                 var existingPadrao = await _context.ControleNumeracaoNves
+                .Include(c => c.IdEmpresaNavigation)
                     .Where(e => e.IdEmpresa == entity.IdEmpresa && e.Padrao)
                     .ToListAsync();
 
@@ -58,6 +68,7 @@ namespace GlobalErpData.Repository.PagedRepositories
                 EntityCache.AddOrUpdate(entity.GetId(), entity, UpdateCache);
 
                 return await db.Set<ControleNumeracaoNfe>()
+                .Include(c => c.IdEmpresaNavigation)
                     .FirstOrDefaultAsync(e => e.Id == entity.Id);
             }
             else
@@ -76,6 +87,7 @@ namespace GlobalErpData.Repository.PagedRepositories
             {
                 // Encontrar registros existentes para o mesmo IdEmpresa onde Padrao é verdadeiro, excluindo a entidade atual
                 var existingPadrao = await _context.ControleNumeracaoNves
+                .Include(c => c.IdEmpresaNavigation)
                     .Where(e => e.IdEmpresa == entity.IdEmpresa && e.Padrao && e.Id != id)
                     .ToListAsync();
 
@@ -94,6 +106,7 @@ namespace GlobalErpData.Repository.PagedRepositories
                 logger.LogInformation("Entidade atualizada com ID: {Id}", id);
                 UpdateCache(id, entity);
                 return await db.Set<ControleNumeracaoNfe>()
+                .Include(c => c.IdEmpresaNavigation)
                     .FirstOrDefaultAsync(e => e.Id == id);
             }
             else

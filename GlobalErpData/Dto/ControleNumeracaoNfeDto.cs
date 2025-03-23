@@ -11,6 +11,7 @@ namespace GlobalErpData.Dto
     {
         public int IdEmpresa { get; set; }
 
+        public int Unity { get; set; }
         public int Serie { get; set; }
 
         public long ProximoNumero { get; set; }

@@ -8,15 +8,15 @@ using Microsoft.EntityFrameworkCore;
 namespace GlobalErpData.Models;
 
 [Table("cfop_csosn_v2")]
-[Index("IdEmpresa", "Cfop", "Csosn", Name = "cfop_csosn_v2_idx", IsUnique = true)]
+[Index("Unity", "Cfop", "Csosn", Name = "cfop_csosn_v2_idx", IsUnique = true)]
 public partial class CfopCsosnV2 : IIdentifiable<int>
 {
     [Key]
     [Column("id")]
     public int Id { get; set; }
 
-    [Column("id_empresa")]
-    public int IdEmpresa { get; set; }
+    [Column("unity")]
+    public int Unity { get; set; }
 
     [Column("cfop")]
     [StringLength(5)]
@@ -31,9 +31,9 @@ public partial class CfopCsosnV2 : IIdentifiable<int>
     [Column("integrated")]
     public int? Integrated { get; set; }
     [GraphQLIgnore]
-    [ForeignKey("IdEmpresa")]
+    [ForeignKey("Unity")]
     [InverseProperty("CfopCsosnV2s")]
-    public virtual Empresa IdEmpresaNavigation { get; set; } = null!;
+    public virtual Unity UnityNavigation { get; set; } = null!;
 
     [GraphQLIgnore]
     public int GetId()

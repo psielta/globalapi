@@ -32,11 +32,24 @@ public partial class ControleNumeracaoNfe : IIdentifiable<int>
 
     [Column("integrated")]
     public int? Integrated { get; set; }
+
+    [Column("unity")]
+    public int Unity { get; set; }
+
     [JsonIgnore]
     [ForeignKey("IdEmpresa")]
     [InverseProperty("ControleNumeracaoNfe")]
     public virtual Empresa IdEmpresaNavigation { get; set; } = null!;
-    
+
+    [JsonPropertyName("nmEmpresa")]
+    [NotMapped]
+    public string? NmEmpresa => IdEmpresaNavigation?.NmEmpresa ?? "";
+
+    [JsonIgnore]
+    [ForeignKey("Unity")]
+    [InverseProperty("ControleNumeracaoNves")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
+
     [GraphQLIgnore]
     public int GetId()
     {

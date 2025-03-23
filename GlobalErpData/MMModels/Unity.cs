@@ -24,6 +24,9 @@ public partial class Unity
     public virtual ICollection<Certificado> Certificados { get; set; } = new List<Certificado>();
 
     [InverseProperty("UnityNavigation")]
+    public virtual ICollection<CfopCsosnV2> CfopCsosnV2s { get; set; } = new List<CfopCsosnV2>();
+
+    [InverseProperty("UnityNavigation")]
     public virtual ICollection<CfopImportacao> CfopImportacaos { get; set; } = new List<CfopImportacao>();
 
     [InverseProperty("UnityNavigation")]
@@ -37,6 +40,9 @@ public partial class Unity
 
     [InverseProperty("UnityNavigation")]
     public virtual ICollection<ContasAPagar> ContasAPagars { get; set; } = new List<ContasAPagar>();
+
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<ControleNumeracaoNfe> ControleNumeracaoNves { get; set; } = new List<ControleNumeracaoNfe>();
 
     [InverseProperty("UnityNavigation")]
     public virtual ICollection<Empresa> Empresas { get; set; } = new List<Empresa>();
@@ -70,6 +76,9 @@ public partial class Unity
 
     [InverseProperty("UnityNavigation")]
     public virtual ICollection<NfceProdutoSaidum> NfceProdutoSaida { get; set; } = new List<NfceProdutoSaidum>();
+
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<ObsNf> ObsNfs { get; set; } = new List<ObsNf>();
 
     [InverseProperty("UnityNavigation")]
     public virtual ICollection<OlderItem> OlderItems { get; set; } = new List<OlderItem>();
