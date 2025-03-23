@@ -100,7 +100,7 @@ namespace GlobalErpData.Dto
         public string? IdSerieKit { get; set; }
         public int? TpOperacaoVeic { get; set; }
         public string? ChasiVeic { get; set; }
-    public int Unity { get; set; }
+        public int Unity { get; set; }
         public string? CorVeic { get; set; }
         public string? DescCorVeic { get; set; }
         public string? PotenciaMotorVeic { get; set; }

@@ -172,6 +172,10 @@ public partial class Unity : IIdentifiable<int>
 
     [JsonIgnore]
     [InverseProperty("UnityNavigation")]
+    public virtual ICollection<ContasAReceber> ContasARecebers { get; set; } = new List<ContasAReceber>();
+
+    [JsonIgnore]
+    [InverseProperty("UnityNavigation")]
     public virtual ICollection<NcmProtocoloEstado> NcmProtocoloEstados { get; set; } = new List<NcmProtocoloEstado>();
 
     [JsonIgnore]

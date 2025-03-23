@@ -192,6 +192,9 @@ public partial class ContasAReceber
     [Column("integrated")]
     public int? Integrated { get; set; }
 
+    [Column("unity")]
+    public int Unity { get; set; }
+
     [ForeignKey("CdCliente")]
     [InverseProperty("ContasARecebers")]
     public virtual Cliente CdClienteNavigation { get; set; } = null!;
@@ -209,4 +212,8 @@ public partial class ContasAReceber
 
     [InverseProperty("NrContaNavigation")]
     public virtual ICollection<PagtosParciaisCr> PagtosParciaisCrs { get; set; } = new List<PagtosParciaisCr>();
+
+    [ForeignKey("Unity")]
+    [InverseProperty("ContasARecebers")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
 }

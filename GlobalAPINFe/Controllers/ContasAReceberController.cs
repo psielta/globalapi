@@ -130,7 +130,7 @@ namespace GlobalAPINFe.Controllers
         [ProducesResponseType(typeof(PagedResponse<ContasAReceber>), 200)]
         [ProducesResponseType(404)]
         public async Task<ActionResult<PagedResponse<ContasAReceber>>> GetContasAReceberPorEmpresa(
-            int idEmpresa,
+            int unity,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
             [FromQuery] int tipoPeriodoCAR = 0,
@@ -140,6 +140,7 @@ namespace GlobalAPINFe.Controllers
             [FromQuery] string recebeu = "N",
             [FromQuery] string? nmCliente = null,
             [FromQuery] int? nrSaida = null,
+            [FromQuery] int? cdEmpresa = null,
             [FromQuery] string? nrDuplicata = null,
             [FromQuery] string? cdHistoricoCaixa = null,
             [FromQuery] string? cdPlanoCaixa = null
@@ -151,7 +152,7 @@ namespace GlobalAPINFe.Controllers
                 var ENUM_tipoDataCar = (TipoDataCar)tipoDataCar;
                 var ENUM_tipoPeriodoCAR = (TipoPeriodoCAR)tipoPeriodoCAR;
 
-                var query = await ((ContasAReceberRepository)repo).GetContasAReceberAsyncPorEmpresa(idEmpresa);
+                var query = await ((ContasAReceberRepository)repo).GetContasAReceberAsyncPorUnity(unity);
 
                 if (query == null)
                 {
@@ -169,6 +170,11 @@ namespace GlobalAPINFe.Controllers
                 if (nrSaida.HasValue)
                 {
                     filteredQuery = filteredQuery.Where(p => p.NrSaida != null && p.NrSaida.Equals(nrSaida.Value));
+                }
+
+                if (cdEmpresa.HasValue)
+                {
+                    filteredQuery = filteredQuery.Where(p => p.CdEmpresa == cdEmpresa.Value);
                 }
 
                 if (!string.IsNullOrEmpty(nrDuplicata))

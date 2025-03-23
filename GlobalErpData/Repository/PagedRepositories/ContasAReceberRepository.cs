@@ -20,9 +20,9 @@ namespace GlobalErpData.Repository.PagedRepositories
         {
         }
 
-        public Task<IQueryable<ContasAReceber>> GetContasAReceberAsyncPorEmpresa(int IdEmpresa)
+        public Task<IQueryable<ContasAReceber>> GetContasAReceberAsyncPorUnity(int unity)
         {
-            return Task.FromResult(db.Set<ContasAReceber>().Where(e => e.CdEmpresa == IdEmpresa)
+            return Task.FromResult(db.Set<ContasAReceber>().Where(e => e.Unity == unity)
                 .Include(e => e.PagtosParciaisCrs)
                 .Include(p => p.CdClienteNavigation)
                 .AsQueryable());

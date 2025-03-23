@@ -42,6 +42,9 @@ public partial class Unity
     public virtual ICollection<ContasAPagar> ContasAPagars { get; set; } = new List<ContasAPagar>();
 
     [InverseProperty("UnityNavigation")]
+    public virtual ICollection<ContasAReceber> ContasARecebers { get; set; } = new List<ContasAReceber>();
+
+    [InverseProperty("UnityNavigation")]
     public virtual ICollection<ControleNumeracaoNfe> ControleNumeracaoNves { get; set; } = new List<ControleNumeracaoNfe>();
 
     [InverseProperty("UnityNavigation")]

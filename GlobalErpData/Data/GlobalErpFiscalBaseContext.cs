@@ -528,6 +528,10 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("contas_a_receber_fk");
 
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.ContasARecebers)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("contas_a_receber_fk3");
+
             entity.HasOne(d => d.HistoricoCaixa).WithMany(p => p.ContasARecebers)
                 .HasPrincipalKey(p => new { p.Unity, p.CdSubPlano, p.CdPlano })
                 .HasForeignKey(d => new { d.CdEmpresa, d.CdHistoricoCaixa, d.CdPlanoCaixa })

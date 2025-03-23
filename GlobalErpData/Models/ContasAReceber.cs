@@ -201,6 +201,9 @@ public partial class ContasAReceber : IIdentifiable<int>
     [NotMapped]
     public string NmCliente => CdClienteNavigation?.NmCliente ?? "";
 
+    [Column("unity")]
+    public int Unity { get; set; }
+
     [JsonIgnore]
     [ForeignKey("CdEmpresa")]
     [InverseProperty("ContasARecebers")]
@@ -239,4 +242,8 @@ public partial class ContasAReceber : IIdentifiable<int>
     [InverseProperty("NrContaNavigation")]
     public virtual ICollection<PagtosParciaisCr> PagtosParciaisCrs { get; set; } = new List<PagtosParciaisCr>();
 
+    [JsonIgnore]
+    [ForeignKey("Unity")]
+    [InverseProperty("ContasARecebers")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
 }

@@ -15,6 +15,7 @@ namespace GlobalErpData.Dto
         public DateOnly DtVencimento { get; set; }
 
         public int CdEmpresa { get; set; }
+        public int Unity { get; set; }
 
         public int CdCliente { get; set; }
 
