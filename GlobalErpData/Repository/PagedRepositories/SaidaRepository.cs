@@ -43,10 +43,28 @@ namespace GlobalErpData.Repository.PagedRepositories
             }
         }
 
+        public Task<IQueryable<Saida>> GetSaidaAsyncPorUnity(int unity)
+        {
+            try
+            {
+                return Task.FromResult(db.Set<Saida>().Where(e => e.Unity == unity)
+                    .Include(f => f.Fretes)
+                    .Include(e => e.ClienteNavigation)
+                    .Include(p => p.CdGrupoEstoqueNavigation)
+                    .Include(p => p.ProdutoSaida)
+                    .AsQueryable());
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while retrieving all entities.");
+                return Task.FromResult(Enumerable.Empty<Saida>().AsQueryable());
+            }
+        }
+
         public async override Task<Saida?> CreateAsync(SaidaDto dto)
         {
             ControleNumeracaoNfe? numeracao = null;
-            
+
             if (!dto.TpSaida.Equals("A"))
             {
                 var allNumeracoes = await ((ControleNumeracaoNfeRepository)queryRepositoryNum).GetControleNumeracaoNfeAsyncPorEmpresa(dto.Empresa);
@@ -58,8 +76,25 @@ namespace GlobalErpData.Repository.PagedRepositories
                 numeracao = allNumeracoes.FirstOrDefault(n => n.Padrao);
                 if (numeracao is null)
                 {
-                    logger.LogWarning("Failed to retrieve all numeracoes padrao from database.");
-                    return null;
+                    //logger.LogWarning("Failed to retrieve all numeracoes padrao from database.");
+                    //return null;
+                    ControleNumeracaoNfeDto controleNumeracaoNfe = new ControleNumeracaoNfeDto();
+                    controleNumeracaoNfe.IdEmpresa = dto.Empresa;
+                    controleNumeracaoNfe.Padrao = true;
+                    controleNumeracaoNfe.ProximoNumero = 1;
+                    controleNumeracaoNfe.Serie = 1;
+                    controleNumeracaoNfe.Unity = dto.Unity;
+
+                    var response = await ((ControleNumeracaoNfeRepository)queryRepositoryNum).CreateAsync(controleNumeracaoNfe);
+                    if (response == null)
+                    {
+                        logger.LogWarning("Failed to retrieve all numeracoes padrao from database.");
+                        return null;
+                    }
+                    else
+                    {
+                        numeracao = response;
+                    }
                 }
                 long proximaNumeracao = numeracao.ProximoNumero;
                 dto.NrNotaFiscal = proximaNumeracao.ToString();
@@ -81,7 +116,7 @@ namespace GlobalErpData.Repository.PagedRepositories
                     return null;
                 }
                 if (!dto.TpSaida.Equals("A") && numeracao != null)
-                { 
+                {
                     numeracao.ProximoNumero = numeracao.ProximoNumero + 1;
 
                     db.ControleNumeracaoNves.Update(numeracao);

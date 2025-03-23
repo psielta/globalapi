@@ -84,7 +84,7 @@ namespace GlobalAPINFe.Controllers
         [ProducesResponseType(typeof(PagedResponse<Saida>), 200)]
         [ProducesResponseType(404)]
         public async Task<ActionResult<PagedResponse<Saida>>> GetSaidaPorEmpresa(
-            int idEmpresa,
+            int unity,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
             [FromQuery] int tipoPeriodoSaida = 0,
@@ -93,6 +93,7 @@ namespace GlobalAPINFe.Controllers
             [FromQuery] string? periodoFinal = null,
             [FromQuery] string? nmCliente = null,
             [FromQuery] int? nrLanc = null,
+            [FromQuery] int? cdEmpresa = null,
             [FromQuery] string? nrNotaFiscal = null,
             [FromQuery] string? serie = null,
             [FromQuery] string? chaveAcesso = null,
@@ -114,7 +115,7 @@ namespace GlobalAPINFe.Controllers
                 ENUM_tipoDataSaida = (TipoDataSaida)tipoDataSaida;
                 ENUM_tipoPeriodoSaida = (TipoPeriodoSaida)tipoPeriodoSaida;
 
-                var query = await ((SaidaRepository)repo).GetSaidaAsyncPorEmpresa(idEmpresa);
+                var query = await ((SaidaRepository)repo).GetSaidaAsyncPorUnity(unity);
 
                 if (query == null)
                 {
@@ -132,6 +133,11 @@ namespace GlobalAPINFe.Controllers
                 if (nrLanc.HasValue)
                 {
                     filteredQuery = filteredQuery.Where(p => p.NrLanc == nrLanc.Value);
+                }
+
+                if (cdEmpresa.HasValue)
+                {
+                    filteredQuery = filteredQuery.Where(p => p.Empresa == cdEmpresa.Value);
                 }
 
                 if (!string.IsNullOrEmpty(nrNotaFiscal))
