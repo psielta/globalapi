@@ -89,6 +89,7 @@ namespace GlobalAPINFe.Controllers
             [FromQuery] int? NrCp = null,
             [FromQuery] int? NrCr = null,
             [FromQuery] int? NrConta = null,
+            [FromQuery] int? CdEmpresa = null,
             [FromQuery] string? CdHistorico = null,
             [FromQuery] string? CdPlano = null,
             [FromQuery] int tipoPeriodoLC = 0,
@@ -124,6 +125,11 @@ namespace GlobalAPINFe.Controllers
                 if (NrConta.HasValue)
                 {
                     query = query.Where(p => p.NrConta == NrConta.Value);
+                }
+
+                if (CdEmpresa.HasValue)
+                {
+                    query = query.Where(p => p.CdEmpresa == CdEmpresa.Value);
                 }
 
                 TipoPeriodoLC enumPeriodoLC = (TipoPeriodoLC)tipoPeriodoLC;

@@ -82,8 +82,6 @@ namespace GlobalErpData.Services
 
                 cr.VlTotal = cr.VlConta - (cr.VlDesconto ?? 0) + cr.VlAcrescimo;
 
-                // Atualiza o cache de ContasAReceber.
-                ((ContasAReceberRepository)repCr).UpdateCache(cr.NrConta, cr);
             }
 
             // Passo 7: Aplique o valor do pagamento às contas.
@@ -127,8 +125,6 @@ namespace GlobalErpData.Services
             cr.DtPagamento = listCRDto.DataPagamento;
             cr.Recebeu = "S";
 
-            // Atualiza o cache de ContasAReceber.
-            ((ContasAReceberRepository)repCr).UpdateCache(cr.NrConta, cr);
 
             // Cria entrada no LivroCaixa.
             LivroCaixa livroCaixa = new LivroCaixa
@@ -146,8 +142,6 @@ namespace GlobalErpData.Services
             _context.LivroCaixas.Add(livroCaixa);
             await _context.SaveChangesAsync(); // Salva para gerar NrLanc
 
-            // Atualiza o cache de LivroCaixa.
-            ((LivroCaixaRepository)repLivro).UpdateCache(livroCaixa.NrLanc, livroCaixa);
         }
 
         /// <summary>
@@ -158,8 +152,6 @@ namespace GlobalErpData.Services
             // Atualiza ContasAReceber.
             cr.VlPago = (cr.VlPago ?? 0) + valorPago;
 
-            // Atualiza o cache de ContasAReceber.
-            ((ContasAReceberRepository)repCr).UpdateCache(cr.NrConta, cr);
 
             // Cria entrada em PagtosParciaisCr.
             PagtosParciaisCr pagamentoParcial = new PagtosParciaisCr
@@ -175,8 +167,6 @@ namespace GlobalErpData.Services
             _context.PagtosParciaisCrs.Add(pagamentoParcial);
             await _context.SaveChangesAsync(); // Salva para gerar Id
 
-            // Atualiza o cache de PagtosParciaisCr.
-            ((PagtosParciaisCrRepository)repPgt).UpdateCache(pagamentoParcial.Id, pagamentoParcial);
 
             // Cria entrada no LivroCaixa.
             LivroCaixa livroCaixa = new LivroCaixa
@@ -194,8 +184,6 @@ namespace GlobalErpData.Services
             _context.LivroCaixas.Add(livroCaixa);
             await _context.SaveChangesAsync(); // Salva para gerar NrLanc
 
-            // Atualiza o cache de LivroCaixa.
-            ((LivroCaixaRepository)repLivro).UpdateCache(livroCaixa.NrLanc, livroCaixa);
 
             // Verifica se a conta foi totalmente paga após o pagamento parcial.
             if (cr.VlPago >= cr.VlTotal)
@@ -203,8 +191,6 @@ namespace GlobalErpData.Services
                 cr.Recebeu = "S";
                 cr.DtPagamento = listCRDto.DataPagamento;
 
-                // Atualiza o cache de ContasAReceber novamente.
-                ((ContasAReceberRepository)repCr).UpdateCache(cr.NrConta, cr);
             }
         }
 
@@ -236,8 +222,6 @@ namespace GlobalErpData.Services
             foreach (var pagamento in pagamentosParciais)
             {
                 _context.PagtosParciaisCrs.Remove(pagamento);
-                // Remover do cache
-                repPgtConcrete.RemoveFromCache(pagamento.Id);
             }
 
             // Remove entradas de LivroCaixa.
@@ -250,8 +234,6 @@ namespace GlobalErpData.Services
             foreach (var livro in livroCaixas)
             {
                 _context.LivroCaixas.Remove(livro);
-                // Remover do cache
-                repLivroConcrete.RemoveFromCache(livro.NrLanc);
             }
 
             // Reseta ContasAReceber.
@@ -264,8 +246,6 @@ namespace GlobalErpData.Services
             cr.VlAcrescimo = 0;
             cr.VlTotal = cr.VlConta;
 
-            // Atualiza o cache de ContasAReceber.
-            ((ContasAReceberRepository)repCr).UpdateCache(cr.NrConta, cr);
 
             // Salva as alterações.
             await _context.SaveChangesAsync();

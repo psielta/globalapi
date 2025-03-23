@@ -70,9 +70,6 @@ namespace GlobalErpData.Repository.PagedRepositories
             int affected = await db.SaveChangesAsync();
             if (affected == 1)
             {
-                if (EntityCache is null) return entity;
-                logger.LogInformation("Entity created and added to cache with ID: {Id}", entity.GetId());
-                EntityCache.AddOrUpdate(entity.GetId(), entity, UpdateCache);
 
                 var saida = await db.Set<Saida>().Include(f => f.Fretes).Include(e => e.ClienteNavigation)
                     .Include(p => p.ProdutoSaida)
@@ -89,7 +86,6 @@ namespace GlobalErpData.Repository.PagedRepositories
 
                     db.ControleNumeracaoNves.Update(numeracao);
                     await db.SaveChangesAsync();
-                    ((ControleNumeracaoNfeRepository) queryRepositoryNum).UpdateCache(numeracao.GetId(), numeracao);
                 }
                 _calculationService.CalculateTotals(saida);
                 return saida;
@@ -109,7 +105,6 @@ namespace GlobalErpData.Repository.PagedRepositories
             if (affected == 1)
             {
                 logger.LogInformation("Entity updated with ID: {Id}", id);
-                UpdateCache(id, entity);
                 var saida = await db.Set<Saida>().Include(f => f.Fretes).Include(e => e.ClienteNavigation)
                     .Include(p => p.ProdutoSaida)
                     .Include(p => p.CdGrupoEstoqueNavigation)

@@ -481,7 +481,6 @@ namespace GlobalAPINFe.Controllers
                     if (affectedProdutoEntrada == 1)
                     {
                         logger.LogInformation("Entity updated with ID: {idEmpresa}-{idCadastro}", idEmpresa, oldProdutoEntrada.Nr);
-                        ((ProdutoEntradaRepository)repProdutoEntrada).UpdateCache(oldProdutoEntrada.Nr, oldProdutoEntrada);
                     }
                     else
                     {
@@ -581,7 +580,6 @@ namespace GlobalAPINFe.Controllers
                     if (affectedProdutoEntrada == 1)
                     {
                         logger.LogInformation("Entity updated with ID: {idEmpresa}-{idCadastro}", idEmpresa, oldProdutoEntrada.Nr);
-                        ((ProdutoEntradaRepository)repProdutoEntrada).UpdateCache(oldProdutoEntrada.Nr, oldProdutoEntrada);
                     }
                     else
                     {
@@ -681,7 +679,6 @@ namespace GlobalAPINFe.Controllers
                     if (affectedProdutoEntrada == 1)
                     {
                         logger.LogInformation("Entity updated with ID: {idEmpresa}-{idCadastro}", idEmpresa, oldProdutoEntrada.Nr);
-                        ((ProdutoEntradaRepository)repProdutoEntrada).UpdateCache(oldProdutoEntrada.Nr, oldProdutoEntrada);
                     }
                     else
                     {

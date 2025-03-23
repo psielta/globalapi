@@ -63,10 +63,6 @@ namespace GlobalErpData.Repository.PagedRepositories
             int affected = await db.SaveChangesAsync();
             if (affected >= 1) // Pode ser maior que 1 se atualizamos registros existentes
             {
-                if (EntityCache is null) return entity;
-                logger.LogInformation("Entidade criada e adicionada ao cache com ID: {Id}", entity.GetId());
-                EntityCache.AddOrUpdate(entity.GetId(), entity, UpdateCache);
-
                 return await db.Set<ControleNumeracaoNfe>()
                 .Include(c => c.IdEmpresaNavigation)
                     .FirstOrDefaultAsync(e => e.Id == entity.Id);
@@ -104,7 +100,6 @@ namespace GlobalErpData.Repository.PagedRepositories
             if (affected >= 1) // Pode ser maior que 1 se atualizamos registros existentes
             {
                 logger.LogInformation("Entidade atualizada com ID: {Id}", id);
-                UpdateCache(id, entity);
                 return await db.Set<ControleNumeracaoNfe>()
                 .Include(c => c.IdEmpresaNavigation)
                     .FirstOrDefaultAsync(e => e.Id == id);

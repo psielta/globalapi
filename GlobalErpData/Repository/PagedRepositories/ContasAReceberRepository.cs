@@ -35,9 +35,6 @@ namespace GlobalErpData.Repository.PagedRepositories
             int affected = await db.SaveChangesAsync();
             if (affected == 1)
             {
-                if (EntityCache is null) return entity;
-                logger.LogInformation("Entity created and added to cache with ID: {Id}", entity.GetId());
-                EntityCache.AddOrUpdate(entity.GetId(), entity, UpdateCache);
 
                 return await db.Set<ContasAReceber>().Include(e => e.CdClienteNavigation)
                     .Include(e => e.PagtosParciaisCrs)
@@ -59,7 +56,6 @@ namespace GlobalErpData.Repository.PagedRepositories
             if (affected == 1)
             {
                 logger.LogInformation("Entity updated with ID: {Id}", id);
-                UpdateCache(id, entity);
                 return await db.Set<ContasAReceber>().Include(e => e.CdClienteNavigation)
                     .Include(e => e.PagtosParciaisCrs)
                     .Include(e => e.HistoricoCaixa).ThenInclude(h => h.PlanoDeCaixa)
@@ -85,10 +81,6 @@ namespace GlobalErpData.Repository.PagedRepositories
 
             if (affected >= entities.Count)
             {
-                foreach (var entity in entities)
-                {
-                    EntityCache?.AddOrUpdate(entity.GetId(), entity, UpdateCache);
-                }
                 //return entities;
                 return await db.Set<ContasAReceber>().Include(e => e.CdClienteNavigation)
                     .Include(e => e.PagtosParciaisCrs)

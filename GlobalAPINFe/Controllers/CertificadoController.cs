@@ -237,7 +237,6 @@ namespace GlobalAPINFe.Controllers
             }
 
             await _context.SaveChangesAsync();
-            ((CertificadoPagedRepository)repo).UpdateCache(certificadoExistente.Id, certificadoExistente);
             return Ok(certificadoExistente);
         }
 
