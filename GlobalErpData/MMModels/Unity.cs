@@ -75,6 +75,12 @@ public partial class Unity
     public virtual ICollection<HistoricoCaixa> HistoricoCaixas { get; set; } = new List<HistoricoCaixa>();
 
     [InverseProperty("UnityNavigation")]
+    public virtual ICollection<Icm> Icms { get; set; } = new List<Icm>();
+
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<NcmProtocoloEstado> NcmProtocoloEstados { get; set; } = new List<NcmProtocoloEstado>();
+
+    [InverseProperty("UnityNavigation")]
     public virtual ICollection<NfceProdutoSaidum> NfceProdutoSaida { get; set; } = new List<NfceProdutoSaidum>();
 
     [InverseProperty("UnityNavigation")]
@@ -103,6 +109,9 @@ public partial class Unity
 
     [InverseProperty("UnityNavigation")]
     public virtual ICollection<ProdutosForn> ProdutosForns { get; set; } = new List<ProdutosForn>();
+
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<ProtocoloEstadoNcm> ProtocoloEstadoNcms { get; set; } = new List<ProtocoloEstadoNcm>();
 
     [InverseProperty("UnityNavigation")]
     public virtual ICollection<ReferenciaEstoque> ReferenciaEstoques { get; set; } = new List<ReferenciaEstoque>();

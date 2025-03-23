@@ -97,11 +97,11 @@ namespace GlobalAPINFe.Controllers
         [HttpGet("GetIcmPorEmpresa", Name = nameof(GetIcmPorEmpresa))]
         [ProducesResponseType(typeof(PagedResponse<Icm>), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<PagedResponse<Icm>>> GetIcmPorEmpresa(int idEmpresa, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        public async Task<ActionResult<PagedResponse<Icm>>> GetIcmPorEmpresa(int unity, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                var query = ((IcmRepository)repo).GetIcmAsyncPorEmpresa(idEmpresa).Result.AsQueryable();
+                var query = ((IcmRepository)repo).GetIcmAsyncPorEmpresa(unity).Result.AsQueryable();
                 if (query == null)
                 {
                     return NotFound("Entities not found."); // 404 Resource not found

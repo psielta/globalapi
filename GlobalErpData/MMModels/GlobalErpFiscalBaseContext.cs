@@ -1171,7 +1171,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.Integrated).HasDefaultValue(0);
             entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
-            entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.Icms)
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.Icms)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("icms_fk");
         });
@@ -1383,7 +1383,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
             entity.HasOne(d => d.IdCabProtocoloNavigation).WithMany(p => p.NcmProtocoloEstados).HasConstraintName("ncm_protocolo_estado_fk");
 
-            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.NcmProtocoloEstados)
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.NcmProtocoloEstados)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("ncm_protocolo_estado_fk1");
         });
@@ -2076,7 +2076,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.RedSt).HasDefaultValueSql("0");
             entity.Property(e => e.St).HasDefaultValueSql("0");
 
-            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.ProtocoloEstadoNcms)
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.ProtocoloEstadoNcms)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("protocolo_estado_ncm_fk");
         });

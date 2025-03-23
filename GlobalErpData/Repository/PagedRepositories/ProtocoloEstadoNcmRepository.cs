@@ -18,9 +18,9 @@ namespace GlobalErpData.Repository.PagedRepositories
         {
         }
 
-        public Task<IQueryable<ProtocoloEstadoNcm>> GetProtocoloEstadoNcmAsyncPorEmpresa(int IdEmpresa)
+        public Task<IQueryable<ProtocoloEstadoNcm>> GetProtocoloEstadoNcmAsyncPorEmpresa(int unity)
         {
-            return Task.FromResult(db.Set<ProtocoloEstadoNcm>().Where(e => e.IdEmpresa == IdEmpresa).AsQueryable());
+            return Task.FromResult(db.Set<ProtocoloEstadoNcm>().Where(e => e.Unity == unity).AsQueryable());
         }
     }
 

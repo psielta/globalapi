@@ -98,11 +98,11 @@ namespace GlobalAPINFe.Controllers
         [HttpGet("GetNcmProtocoloEstadoPorEmpresa", Name = nameof(GetNcmProtocoloEstadoPorEmpresa))]
         [ProducesResponseType(typeof(PagedResponse<NcmProtocoloEstado>), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<PagedResponse<NcmProtocoloEstado>>> GetNcmProtocoloEstadoPorEmpresa(int idEmpresa, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        public async Task<ActionResult<PagedResponse<NcmProtocoloEstado>>> GetNcmProtocoloEstadoPorEmpresa(int unity, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                var query = ((NcmProtocoloEstadoRepository)repo).GetNcmProtocoloEstadoAsyncPorEmpresa(idEmpresa).Result.AsQueryable();
+                var query = ((NcmProtocoloEstadoRepository)repo).GetNcmProtocoloEstadoAsyncPorEmpresa(unity).Result.AsQueryable();
                 if (query == null)
                 {
                     return NotFound("Entities not found."); // 404 Resource not found

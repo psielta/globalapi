@@ -10,7 +10,7 @@ namespace GlobalErpData.Dto
 {
     public class NcmProtocoloEstadoDto
     {
-        public int IdEmpresa { get; set; }
+        public int Unity { get; set; }
 
         public int IdCabProtocolo { get; set; }
 

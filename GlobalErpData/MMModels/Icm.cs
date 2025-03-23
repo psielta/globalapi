@@ -121,8 +121,8 @@ public partial class Icm
     [Precision(18, 2)]
     public decimal? Ex { get; set; }
 
-    [Column("cd_empresa")]
-    public int CdEmpresa { get; set; }
+    [Column("unity")]
+    public int Unity { get; set; }
 
     [Column("pe")]
     [Precision(18, 2)]
@@ -134,7 +134,7 @@ public partial class Icm
     [Column("integrated")]
     public int? Integrated { get; set; }
 
-    [ForeignKey("CdEmpresa")]
+    [ForeignKey("Unity")]
     [InverseProperty("Icms")]
-    public virtual Empresa CdEmpresaNavigation { get; set; } = null!;
+    public virtual Unity UnityNavigation { get; set; } = null!;
 }

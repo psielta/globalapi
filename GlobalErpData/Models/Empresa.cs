@@ -244,12 +244,6 @@ public partial class Empresa : IIdentifiable<int>
     [InverseProperty("CdEmpresaNavigation")]
     public virtual ICollection<Funcionario> Funcionarios { get; set; } = new List<Funcionario>();
 
-    
-
-    [JsonIgnore]
-    [InverseProperty("CdEmpresaNavigation")]
-    public virtual ICollection<Icm> Icms { get; set; } = new List<Icm>();
-
     [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<Impxml> Impxmls { get; set; } = new List<Impxml>();
@@ -285,10 +279,6 @@ public partial class Empresa : IIdentifiable<int>
     [JsonIgnore]
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<Mdfe> Mdves { get; set; } = new List<Mdfe>();
-
-    [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<NcmProtocoloEstado> NcmProtocoloEstados { get; set; } = new List<NcmProtocoloEstado>();
 
     [JsonIgnore]
     [InverseProperty("CdEmpresaNavigation")]
@@ -334,10 +324,6 @@ public partial class Empresa : IIdentifiable<int>
     [JsonIgnore]
     [InverseProperty("CdEmpresaNavigation")]
     public virtual ICollection<ProdutoSaidum> ProdutoSaida { get; set; } = new List<ProdutoSaidum>();
-
-    [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<ProtocoloEstadoNcm> ProtocoloEstadoNcms { get; set; } = new List<ProtocoloEstadoNcm>();
 
     [JsonIgnore]
     [InverseProperty("EmpresaNavigation")]

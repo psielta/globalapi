@@ -38,6 +38,6 @@ namespace GlobalErpData.Dto
         public decimal? Sp { get; set; }
         public decimal? To { get; set; }
         public decimal? Ex { get; set; }
-        public int CdEmpresa { get; set; }
+        public int Unity { get; set; }
     }
 }

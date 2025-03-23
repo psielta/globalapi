@@ -127,8 +127,8 @@ public partial class Icm : IIdentifiable<int>
     [Precision(18, 2)]
     public decimal? Ex { get; set; }
 
-    [Column("cd_empresa")]
-    public int CdEmpresa { get; set; }
+    [Column("unity")]
+    public int Unity { get; set; }
 
     [Column("last_update", TypeName = "timestamp without time zone")]
     public DateTime? LastUpdate { get; set; }
@@ -137,9 +137,9 @@ public partial class Icm : IIdentifiable<int>
     public int? Integrated { get; set; }
 
     [JsonIgnore]
-    [ForeignKey("CdEmpresa")]
+    [ForeignKey("Unity")]
     [InverseProperty("Icms")]
-    public virtual Empresa CdEmpresaNavigation { get; set; } = null!;
+    public virtual Unity UnityNavigation { get; set; } = null!;
 
     [GraphQLIgnore]
     public int GetId()

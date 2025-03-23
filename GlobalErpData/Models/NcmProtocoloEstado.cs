@@ -15,8 +15,8 @@ public partial class NcmProtocoloEstado : IIdentifiable<int>
     [Column("id")]
     public int Id { get; set; }
 
-    [Column("id_empresa")]
-    public int IdEmpresa { get; set; }
+    [Column("unity")]
+    public int Unity { get; set; }
 
     [Column("id_cab_protocolo")]
     public int IdCabProtocolo { get; set; }
@@ -41,9 +41,9 @@ public partial class NcmProtocoloEstado : IIdentifiable<int>
     public int? Integrated { get; set; }
 
     [JsonIgnore]
-    [ForeignKey("IdEmpresa")]
+    [ForeignKey("Unity")]
     [InverseProperty("NcmProtocoloEstados")]
-    public virtual Empresa IdEmpresaNavigation { get; set; } = null!;
+    public virtual Unity UnityNavigation { get; set; } = null!;
 
     [GraphQLIgnore]
     public int GetId()

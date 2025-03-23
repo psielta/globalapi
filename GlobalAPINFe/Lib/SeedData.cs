@@ -69,11 +69,11 @@ namespace GlobalAPINFe.Lib
             }
             try
             {
-                var existingEmpresas = context.Empresas.ToList();
+                var existingUnities = context.Unities.ToList();
                 var existingIcm = context.Icms.ToList();
-                foreach (Empresa empresa in existingEmpresas)
+                foreach (Unity unity in existingUnities)
                 {
-                    var existingIcm_ = existingIcm.Where(p => p.CdEmpresa == empresa.CdEmpresa);
+                    var existingIcm_ = existingIcm.Where(p => p.Unity == unity.Id);
                     if (existingIcm_ == null || existingIcm_.Count() == 0)
                     {
                         Icm icm = new Icm
@@ -105,7 +105,7 @@ namespace GlobalAPINFe.Lib
                             Sp = 18.00m,
                             To = 17.00m,
                             Ex = 17.00m,
-                            CdEmpresa = empresa.CdEmpresa
+                            Unity = unity.Id
                         };
 
                         context.Icms.Add(icm);

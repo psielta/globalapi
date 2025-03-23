@@ -13,8 +13,8 @@ public partial class NcmProtocoloEstado
     [Column("id")]
     public int Id { get; set; }
 
-    [Column("id_empresa")]
-    public int IdEmpresa { get; set; }
+    [Column("unity")]
+    public int Unity { get; set; }
 
     [Column("id_cab_protocolo")]
     public int IdCabProtocolo { get; set; }
@@ -33,7 +33,7 @@ public partial class NcmProtocoloEstado
     [InverseProperty("NcmProtocoloEstados")]
     public virtual ProtocoloEstadoNcm IdCabProtocoloNavigation { get; set; } = null!;
 
-    [ForeignKey("IdEmpresa")]
+    [ForeignKey("Unity")]
     [InverseProperty("NcmProtocoloEstados")]
-    public virtual Empresa IdEmpresaNavigation { get; set; } = null!;
+    public virtual Unity UnityNavigation { get; set; } = null!;
 }

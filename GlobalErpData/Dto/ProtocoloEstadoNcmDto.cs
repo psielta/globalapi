@@ -11,7 +11,7 @@ namespace GlobalErpData.Dto
 {
     public class ProtocoloEstadoNcmDto
     {
-        public int IdEmpresa { get; set; }
+        public int Unity { get; set; }
         public string Ativo { get; set; } = null!;
         public string Nome { get; set; } = null!;
         public string Uf { get; set; } = null!;

@@ -18,9 +18,9 @@ namespace GlobalErpData.Repository.PagedRepositories
         {
         }
 
-        public Task<IQueryable<Icm>> GetIcmAsyncPorEmpresa(int IdEmpresa)
+        public Task<IQueryable<Icm>> GetIcmAsyncPorEmpresa(int unity)
         {
-            return Task.FromResult(db.Set<Icm>().Where(e => e.CdEmpresa == IdEmpresa).AsQueryable());
+            return Task.FromResult(db.Set<Icm>().Where(e => e.Unity == unity).AsQueryable());
         }
     }
 }

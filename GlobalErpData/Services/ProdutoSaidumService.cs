@@ -656,7 +656,7 @@ namespace GlobalErpData.Services
 
         private async Task<decimal?> GetIcmsEstado(Empresa empresa)
         {
-            Icm? icm = await _context.Icms.AsNoTracking().Where(p => p.CdEmpresa == empresa.CdEmpresa).FirstAsync();
+            Icm? icm = await _context.Icms.AsNoTracking().Where(p => p.Unity == empresa.Unity).FirstAsync();
             if (icm == null)
             {
                 throw new Exception("ICMS não encontrado");

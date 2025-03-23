@@ -20,11 +20,11 @@ namespace GlobalErpData.Repository.PagedRepositories
         {
         }
 
-        public Task<IQueryable<NcmProtocoloEstado>> GetNcmProtocoloEstadoAsyncPorEmpresa(int IdEmpresa)
+        public Task<IQueryable<NcmProtocoloEstado>> GetNcmProtocoloEstadoAsyncPorEmpresa(int unity)
         {
             return Task.FromResult(db.Set<NcmProtocoloEstado>()
                 .Include(n => n.IdCabProtocoloNavigation)
-                .Where(e => e.IdEmpresa == IdEmpresa).AsQueryable());
+                .Where(e => e.Unity == unity).AsQueryable());
         }
 
         public async override Task<NcmProtocoloEstado?> CreateAsync(NcmProtocoloEstadoDto dto)

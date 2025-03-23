@@ -5,6 +5,7 @@ using GlobalLib.Dto;
 using GlobalLib.GenericControllers;
 using GlobalLib.Repository;
 using Microsoft.AspNetCore.Mvc;
+using X.PagedList.EF;
 
 namespace GlobalAPINFe.Controllers
 {
@@ -86,6 +87,35 @@ namespace GlobalAPINFe.Controllers
                     return NotFound("Entities not found.");
                 }
                 return Ok(entitysFilterByEmpresa);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while retrieving paged entities.");
+                return StatusCode(500, "An error occurred while retrieving entities. Please try again later.");
+            }
+        }
+        
+        [HttpGet("GetProtocoloEstadoNcmPorUnity", Name = nameof(GetProtocoloEstadoNcmPorUnity))]
+        [ProducesResponseType(typeof(PagedResponse<ProtocoloEstadoNcm>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<PagedResponse<ProtocoloEstadoNcm>>> GetProtocoloEstadoNcmPorUnity(int unity, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        {
+            try
+            {
+                var query = ((ProtocoloEstadoNcmRepository)repo).GetProtocoloEstadoNcmAsyncPorEmpresa(unity).Result.AsQueryable();
+                if (query == null)
+                {
+                    return NotFound("Entities not found."); // 404 Resource not found
+                }
+                query = query.OrderByDescending(e => e.Id);
+                var pagedList = await query.ToPagedListAsync(pageNumber, pageSize);
+                var response = new PagedResponse<ProtocoloEstadoNcm>(pagedList);
+
+                if (response.Items == null || response.Items.Count == 0)
+                {
+                    return NotFound("Entities not found."); // 404 Resource not found
+                }
+                return Ok(response); // 200 OK
             }
             catch (Exception ex)
             {

@@ -15,8 +15,8 @@ public partial class ProtocoloEstadoNcm : IIdentifiable<int>
     [Column("id")]
     public int Id { get; set; }
 
-    [Column("id_empresa")]
-    public int IdEmpresa { get; set; }
+    [Column("unity")]
+    public int Unity { get; set; }
 
     [Column("ativo")]
     [StringLength(1)]
@@ -55,10 +55,12 @@ public partial class ProtocoloEstadoNcm : IIdentifiable<int>
     [Column("txt_obs")]
     [StringLength(16384)]
     public string? TxtObs { get; set; }
+
     [JsonIgnore]
-    [ForeignKey("IdEmpresa")]
+    [ForeignKey("Unity")]
     [InverseProperty("ProtocoloEstadoNcms")]
-    public virtual Empresa IdEmpresaNavigation { get; set; } = null!;
+    public virtual Unity UnityNavigation { get; set; } = null!;
+
     [JsonIgnore]
     [InverseProperty("IdCabProtocoloNavigation")]
     public virtual ICollection<NcmProtocoloEstado> NcmProtocoloEstados { get; set; } = new List<NcmProtocoloEstado>();

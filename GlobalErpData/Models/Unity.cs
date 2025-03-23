@@ -166,6 +166,18 @@ public partial class Unity : IIdentifiable<int>
     [InverseProperty("UnityNavigation")]
     public virtual ICollection<ObsNf> ObsNfs { get; set; } = new List<ObsNf>();
 
+    [JsonIgnore]
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<Icm> Icms { get; set; } = new List<Icm>();
+
+    [JsonIgnore]
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<NcmProtocoloEstado> NcmProtocoloEstados { get; set; } = new List<NcmProtocoloEstado>();
+
+    [JsonIgnore]
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<ProtocoloEstadoNcm> ProtocoloEstadoNcms { get; set; } = new List<ProtocoloEstadoNcm>();
+
     [GraphQLIgnore]
     public int GetId()
     {
