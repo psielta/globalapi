@@ -81,6 +81,9 @@ public partial class Unity
     public virtual ICollection<Icm> Icms { get; set; } = new List<Icm>();
 
     [InverseProperty("UnityNavigation")]
+    public virtual ICollection<LivroCaixa> LivroCaixas { get; set; } = new List<LivroCaixa>();
+
+    [InverseProperty("UnityNavigation")]
     public virtual ICollection<NcmProtocoloEstado> NcmProtocoloEstados { get; set; } = new List<NcmProtocoloEstado>();
 
     [InverseProperty("UnityNavigation")]

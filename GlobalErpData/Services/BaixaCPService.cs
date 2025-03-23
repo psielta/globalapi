@@ -135,6 +135,7 @@ namespace GlobalErpData.Services
             {
                 DtLanc = DateTime.UtcNow,
                 CdEmpresa = cp.CdEmpresa,
+                Unity = cp.Unity,
                 CdHistorico = cp.CdHistoricoCaixa,
                 VlLancamento = cp.VlTotal,// - cp.VlTotal, // Negativo, pois é uma despesa.
                 NrCp = cp.Id,
@@ -182,6 +183,7 @@ namespace GlobalErpData.Services
             {
                 DtLanc = DateTime.UtcNow,
                 CdEmpresa = cp.CdEmpresa,
+                Unity = cp.Unity,
                 CdHistorico = cp.CdHistoricoCaixa,
                 VlLancamento = valorPago,// -valorPago, // Negativo, pois é uma despesa.
                 NrCp = cp.Id,

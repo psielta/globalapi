@@ -135,6 +135,7 @@ namespace GlobalErpData.Services
             {
                 DtLanc = DateTime.UtcNow,
                 CdEmpresa = cr.CdEmpresa,
+                Unity = cr.Unity,
                 CdHistorico = cr.CdHistoricoCaixa,
                 VlLancamento = cr.VlTotal,
                 NrCr = cr.NrConta,
@@ -183,6 +184,7 @@ namespace GlobalErpData.Services
                 DtLanc = DateTime.UtcNow,
                 CdEmpresa = cr.CdEmpresa,
                 CdHistorico = cr.CdHistoricoCaixa,
+                Unity = cr.Unity,
                 VlLancamento = valorPago,
                 NrCr = cr.NrConta,
                 TxtObs = cr.TxtObs,

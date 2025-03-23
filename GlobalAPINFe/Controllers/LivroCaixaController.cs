@@ -83,7 +83,7 @@ namespace GlobalAPINFe.Controllers
         [ProducesResponseType(typeof(PagedResponse<LivroCaixa>), 200)]
         [ProducesResponseType(404)]
         public async Task<ActionResult<PagedResponse<LivroCaixa>>> GetLivroCaixaPorEmpresa(
-            int idEmpresa,
+            int unity,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
             [FromQuery] int? NrCp = null,
@@ -98,7 +98,7 @@ namespace GlobalAPINFe.Controllers
         {
             try
             {
-                var query = ((LivroCaixaRepository)repo).GetLivroCaixaAsyncPorEmpresa(idEmpresa).Result.AsQueryable();
+                var query = ((LivroCaixaRepository)repo).GetLivroCaixaAsyncPorUnity(unity).Result.AsQueryable();
 
                 if (query == null)
                 {

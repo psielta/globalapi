@@ -52,13 +52,16 @@ public partial class LivroCaixa : IIdentifiable<long>
     [Column("integrated")]
     public int? Integrated { get; set; }
 
+    [Column("unity")]
+    public int Unity { get; set; }
+
     [JsonIgnore]
     [ForeignKey("CdEmpresa")]
     [InverseProperty("LivroCaixas")]
     public virtual Empresa CdEmpresaNavigation { get; set; } = null!;
 
     [JsonIgnore]
-    [ForeignKey("CdEmpresa, CdHistorico, CdPlano")]
+    [ForeignKey("Unity, CdHistorico, CdPlano")]
     [InverseProperty("LivroCaixas")]
     public virtual HistoricoCaixa HistoricoCaixa { get; set; } = null!;
 
@@ -79,6 +82,11 @@ public partial class LivroCaixa : IIdentifiable<long>
     [ForeignKey("NrCr")]
     [InverseProperty("LivroCaixas")]
     public virtual ContasAReceber? NrCrNavigation { get; set; }
+
+    [JsonIgnore]
+    [ForeignKey("Unity")]
+    [InverseProperty("LivroCaixas")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
 
     [GraphQLIgnore]
     public long GetId()

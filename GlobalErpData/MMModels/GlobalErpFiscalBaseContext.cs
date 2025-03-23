@@ -1260,9 +1260,11 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
             entity.HasOne(d => d.NrCrNavigation).WithMany(p => p.LivroCaixas).HasConstraintName("livro_caixa_fk3");
 
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.LivroCaixas).HasConstraintName("livro_caixa_fk5");
+
             entity.HasOne(d => d.HistoricoCaixa).WithMany(p => p.LivroCaixas)
                 .HasPrincipalKey(p => new { p.Unity, p.CdSubPlano, p.CdPlano })
-                .HasForeignKey(d => new { d.CdEmpresa, d.CdHistorico, d.CdPlano })
+                .HasForeignKey(d => new { d.Unity, d.CdHistorico, d.CdPlano })
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("livro_caixa_fk2");
         });

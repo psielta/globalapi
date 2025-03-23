@@ -14,6 +14,7 @@ namespace GlobalErpData.Dto
         public DateTime DtLanc { get; set; }
 
         public int CdEmpresa { get; set; }
+        public int Unity { get; set; }
 
         public string CdHistorico { get; set; } = null!;
 

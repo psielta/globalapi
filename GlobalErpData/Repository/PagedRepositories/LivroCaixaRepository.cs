@@ -26,6 +26,13 @@ namespace GlobalErpData.Repository.PagedRepositories
                 .Include(l => l.HistoricoCaixa)
                 .Where(e => e.CdEmpresa == IdEmpresa).AsQueryable());
         }
+        
+        public Task<IQueryable<LivroCaixa>> GetLivroCaixaAsyncPorUnity(int unity)
+        {
+            return Task.FromResult(db.Set<LivroCaixa>()
+                .Include(l => l.HistoricoCaixa)
+                .Where(e => e.Unity == unity).AsQueryable());
+        }
 
         public async override Task<LivroCaixa?> CreateAsync(LivroCaixaDto dto)
         {
