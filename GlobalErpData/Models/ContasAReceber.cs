@@ -218,7 +218,7 @@ public partial class ContasAReceber : IIdentifiable<int>
     public decimal ValorRestante => this.VlTotal - (this.VlPago ?? 0);
 
     [JsonIgnore]
-    [ForeignKey("CdEmpresa, CdHistoricoCaixa, CdPlanoCaixa")]
+    [ForeignKey("Unity, CdHistoricoCaixa, CdPlanoCaixa")]
     [InverseProperty("ContasARecebers")]
     public virtual HistoricoCaixa? HistoricoCaixa { get; set; }
 

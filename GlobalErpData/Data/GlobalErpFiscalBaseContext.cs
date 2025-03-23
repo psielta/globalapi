@@ -534,7 +534,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
             entity.HasOne(d => d.HistoricoCaixa).WithMany(p => p.ContasARecebers)
                 .HasPrincipalKey(p => new { p.Unity, p.CdSubPlano, p.CdPlano })
-                .HasForeignKey(d => new { d.CdEmpresa, d.CdHistoricoCaixa, d.CdPlanoCaixa })
+                .HasForeignKey(d => new { d.Unity, d.CdHistoricoCaixa, d.CdPlanoCaixa })
                 .HasConstraintName("contas_a_receber_fk2");
         });
 

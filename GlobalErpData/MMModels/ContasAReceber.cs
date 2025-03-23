@@ -203,7 +203,7 @@ public partial class ContasAReceber
     [InverseProperty("ContasARecebers")]
     public virtual Empresa CdEmpresaNavigation { get; set; } = null!;
 
-    [ForeignKey("CdEmpresa, CdHistoricoCaixa, CdPlanoCaixa")]
+    [ForeignKey("Unity, CdHistoricoCaixa, CdPlanoCaixa")]
     [InverseProperty("ContasARecebers")]
     public virtual HistoricoCaixa? HistoricoCaixa { get; set; }
 
