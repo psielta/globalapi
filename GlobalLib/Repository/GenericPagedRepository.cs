@@ -19,7 +19,7 @@ namespace GlobalLib.Repository
         protected IMapper mapper;
         protected readonly ILogger<GenericRepositoryDto<TEntity, TContext, TKey, TDto>> logger;
 
-        public GenericPagedRepository(TContext injectedContext, IMapper mapper, ILogger<GenericRepositoryDto<TEntity, TContext, TKey, TDto>> logger)
+        public GenericPagedRepository(
         {
             db = injectedContext;
             this.mapper = mapper;
