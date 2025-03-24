@@ -8,6 +8,7 @@ namespace GlobalErpData.MMModels;
 
 [Table("usuario")]
 [Index("Id", Name = "usuario_id_key", IsUnique = true)]
+[Index("Email", Name = "usuario_idx", IsUnique = true)]
 public partial class Usuario
 {
     [Column("id")]

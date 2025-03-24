@@ -10,6 +10,7 @@ namespace GlobalErpData.Models;
 
 [Table("usuario")]
 [Index("Id", Name = "usuario_id_key", IsUnique = true)]
+[Index("Email", Name = "usuario_idx", IsUnique = true)]
 public partial class Usuario : IIdentifiable<string>
 {
     [Column("id")]
