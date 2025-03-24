@@ -29,6 +29,7 @@ namespace GlobalAPINFe.Lib
                 new Permissao { Chave = "cad-icm", Modulo = "ES", Descricao = "Cadastro de ICMS" },
                 new Permissao { Chave = "cad-cfop-csosn", Modulo = "ES", Descricao = "Cadastro de CFOP por CSOSN" },
                 new Permissao { Chave = "imp-nfe", Modulo = "ES", Descricao = "Importação XML" },
+                new Permissao { Chave = "get-xml", Modulo = "ES", Descricao = "Baixar XML(s)" },
                 new Permissao { Chave = "configuracao-empresa", Modulo = "ADM", Descricao = "Configurações" },
                 new Permissao { Chave = "cad-certificado", Modulo = "ADM", Descricao = "Cadastro de Certificado" },
                 new Permissao { Chave = "cad-cfop-importacao", Modulo = "ES", Descricao = "Cfop de Importação" },

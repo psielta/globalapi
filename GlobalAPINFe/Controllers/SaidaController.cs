@@ -39,7 +39,7 @@ namespace GlobalAPINFe.Controllers
         {
             var sb = new System.Text.StringBuilder();
             sb.AppendLine("SELECT * FROM saidas s");
-            sb.AppendLine($"WHERE s.unity = {unity}");
+            sb.AppendLine($"WHERE s.unity = {unity} AND s.tp_saida <> 'A' ");
 
             if (data.Empresas != null && data.Empresas.Count > 0)
                 sb.AppendLine($"AND s.empresa IN ({UtlStrings.CommaText<int>(data.Empresas)})");
