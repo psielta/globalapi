@@ -11,6 +11,7 @@ namespace GlobalLib.Repository
         Task<T?> CreateAsync(TDto dto);
         Task<IEnumerable<T>> RetrieveAllAsync();
         Task<T?> RetrieveAsync(TKey id);
+        Task<T?> RetrieveAsyncAsNoTracking(TKey id);
         Task<T?> UpdateAsync(TKey id, TDto dto);
         Task<bool?> DeleteAsync(TKey id);
     }

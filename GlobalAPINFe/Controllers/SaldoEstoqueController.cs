@@ -19,14 +19,13 @@ namespace GlobalAPINFe.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SaldoEstoqueController : GenericPagedControllerNoCache<SaldoEstoque, int, SaldoEstoqueDto>
+    public class SaldoEstoqueController : GenericPagedController<SaldoEstoque, int, SaldoEstoqueDto>
     {
         private readonly GlobalErpFiscalBaseContext _context;
 
-        public SaldoEstoqueController(IQueryRepositoryNoCache<SaldoEstoque, int, SaldoEstoqueDto> repo, ILogger<GenericPagedControllerNoCache<SaldoEstoque, int, SaldoEstoqueDto>> logger
-                        , GlobalErpFiscalBaseContext context) : base(repo, logger)
+        public SaldoEstoqueController(IQueryRepository<SaldoEstoque, int, SaldoEstoqueDto> repo, ILogger<GenericPagedController<SaldoEstoque, int, SaldoEstoqueDto>> logger, GlobalErpFiscalBaseContext c) : base(repo, logger)
         {
-            this._context = context;
+            _context = c;
         }
 
         [HttpGet]

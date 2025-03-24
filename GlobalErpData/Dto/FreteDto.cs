@@ -11,7 +11,7 @@ namespace GlobalErpData.Dto
 {
     public class FreteDto
     {
-        public int CdEmpresa { get; set; }
+        public int Unity { get; set; }
         public int NrSaida { get; set; }
         public int FretePorConta { get; set; }
         public decimal VlFrete { get; set; }

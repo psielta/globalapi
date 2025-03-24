@@ -9,9 +9,9 @@ using Microsoft.Extensions.Logging;
 
 namespace GlobalErpData.Repository.PagedRepositories
 {
-    public class SaldoEstoquePagedRepository : GenericPagedRepositoryNoCache<SaldoEstoque, GlobalErpFiscalBaseContext, int, SaldoEstoqueDto>
+    public class SaldoEstoquePagedRepository : GenericPagedRepository<SaldoEstoque, GlobalErpFiscalBaseContext, int, SaldoEstoqueDto>
     {
-        public SaldoEstoquePagedRepository(GlobalErpFiscalBaseContext injectedContext, IMapper mapper, ILogger<GenericPagedRepositoryNoCache<SaldoEstoque, GlobalErpFiscalBaseContext, int, SaldoEstoqueDto>> logger) : base(injectedContext, mapper, logger)
+        public SaldoEstoquePagedRepository(GlobalErpFiscalBaseContext injectedContext, IMapper mapper, ILogger<GenericRepositoryDto<SaldoEstoque, GlobalErpFiscalBaseContext, int, SaldoEstoqueDto>> logger) : base(injectedContext, mapper, logger)
         {
         }
 

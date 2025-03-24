@@ -12,7 +12,6 @@ namespace GlobalErpData.Dto
     public class SaidasVolumeDto
     {
         public int NrSaida { get; set; }
-        public int CdEmpresa { get; set; }
         public int? QVol { get; set; }
         public string? Esp { get; set; }
         public string? Marca { get; set; }

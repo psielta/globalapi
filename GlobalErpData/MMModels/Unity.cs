@@ -69,6 +69,9 @@ public partial class Unity
     public virtual ICollection<FotosProduto> FotosProdutos { get; set; } = new List<FotosProduto>();
 
     [InverseProperty("UnityNavigation")]
+    public virtual ICollection<Frete> Fretes { get; set; } = new List<Frete>();
+
+    [InverseProperty("UnityNavigation")]
     public virtual ICollection<Funcionario> Funcionarios { get; set; } = new List<Funcionario>();
 
     [InverseProperty("UnityNavigation")]

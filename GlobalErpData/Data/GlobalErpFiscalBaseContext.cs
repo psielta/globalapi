@@ -1085,11 +1085,11 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
             entity.Property(e => e.Quant).HasDefaultValueSql("0");
 
-            entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.Fretes)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("frete_fk");
-
             entity.HasOne(d => d.NrSaidaNavigation).WithMany(p => p.Fretes).HasConstraintName("frete_fk1");
+
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.Fretes)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("frete_fk3");
 
             entity.HasOne(d => d.Transportadora).WithMany(p => p.Fretes).HasConstraintName("frete_fk2");
         });
@@ -2203,10 +2203,6 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
             entity.Property(e => e.Integrated).HasDefaultValue(0);
             entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
-
-            entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.SaidasVolumes)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("saidas_volumes_fk");
 
             entity.HasOne(d => d.NrSaidaNavigation).WithMany(p => p.SaidasVolumes)
                 .OnDelete(DeleteBehavior.ClientSetNull)

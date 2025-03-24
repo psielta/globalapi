@@ -18,9 +18,6 @@ public partial class SaidasVolume : IIdentifiable<int>
     [Column("nr_saida")]
     public int NrSaida { get; set; }
 
-    [Column("cd_empresa")]
-    public int CdEmpresa { get; set; }
-
     [Column("q_vol")]
     public int? QVol { get; set; }
 
@@ -49,11 +46,6 @@ public partial class SaidasVolume : IIdentifiable<int>
     [Column("peso_b")]
     [Precision(18, 3)]
     public decimal? PesoB { get; set; }
-
-    [JsonIgnore]
-    [ForeignKey("CdEmpresa")]
-    [InverseProperty("SaidasVolumes")]
-    public virtual Empresa CdEmpresaNavigation { get; set; } = null!;
 
     [JsonIgnore]
     [ForeignKey("NrSaida")]

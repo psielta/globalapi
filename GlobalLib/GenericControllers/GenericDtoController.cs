@@ -44,7 +44,7 @@ namespace GlobalLib.GenericControllers
         {
             try
             {
-                TEntity? entity = await repo.RetrieveAsync(id);
+                TEntity? entity = await repo.RetrieveAsyncAsNoTracking(id);
                 if (entity == null)
                 {
                     return NotFound($"Entity with ID {id} not found."); // 404 Resource not found
@@ -96,7 +96,7 @@ namespace GlobalLib.GenericControllers
                 {
                     return BadRequest("Invalid data provided."); // 400 Bad request
                 }
-                TEntity? existing = await repo.RetrieveAsync(id);
+                TEntity? existing = await repo.RetrieveAsyncAsNoTracking(id);
                 if (existing == null)
                 {
                     return NotFound($"Entity with ID {id} not found."); // 404 Resource not found
@@ -104,7 +104,7 @@ namespace GlobalLib.GenericControllers
                 await repo.UpdateAsync(id, dto);
 
                 // Retrieve the updated entity
-                TEntity updated = await repo.RetrieveAsync(id);
+                TEntity updated = await repo.RetrieveAsyncAsNoTracking(id);
                 return Ok(updated); // 200 OK with updated object
             }
             catch (Exception ex)
@@ -119,7 +119,7 @@ namespace GlobalLib.GenericControllers
         {
             try
             {
-                TEntity? existing = await repo.RetrieveAsync(id);
+                TEntity? existing = await repo.RetrieveAsyncAsNoTracking(id);
                 if (existing == null)
                 {
                     return NotFound($"Entity with ID {id} not found."); // 404 Resource not found

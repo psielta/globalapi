@@ -13,9 +13,6 @@ public partial class Frete
     [Column("nr_lanc")]
     public int NrLanc { get; set; }
 
-    [Column("cd_empresa")]
-    public int CdEmpresa { get; set; }
-
     [Column("nr_saida")]
     public int NrSaida { get; set; }
 
@@ -59,15 +56,18 @@ public partial class Frete
     [Column("integrated")]
     public int? Integrated { get; set; }
 
-    [ForeignKey("CdEmpresa")]
-    [InverseProperty("Fretes")]
-    public virtual Empresa CdEmpresaNavigation { get; set; } = null!;
+    [Column("unity")]
+    public int Unity { get; set; }
 
     [ForeignKey("NrSaida")]
     [InverseProperty("Fretes")]
     public virtual Saida NrSaidaNavigation { get; set; } = null!;
 
-    [ForeignKey("CdTransp, CdEmpresa")]
+    [ForeignKey("CdTransp, Unity")]
     [InverseProperty("Fretes")]
     public virtual Transportadora? Transportadora { get; set; }
+
+    [ForeignKey("Unity")]
+    [InverseProperty("Fretes")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
 }

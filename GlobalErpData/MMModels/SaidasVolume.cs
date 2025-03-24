@@ -16,9 +16,6 @@ public partial class SaidasVolume
     [Column("nr_saida")]
     public int NrSaida { get; set; }
 
-    [Column("cd_empresa")]
-    public int CdEmpresa { get; set; }
-
     [Column("q_vol")]
     public int? QVol { get; set; }
 
@@ -47,10 +44,6 @@ public partial class SaidasVolume
 
     [Column("integrated")]
     public int? Integrated { get; set; }
-
-    [ForeignKey("CdEmpresa")]
-    [InverseProperty("SaidasVolumes")]
-    public virtual Empresa CdEmpresaNavigation { get; set; } = null!;
 
     [ForeignKey("NrSaida")]
     [InverseProperty("SaidasVolumes")]

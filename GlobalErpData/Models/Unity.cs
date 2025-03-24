@@ -184,6 +184,10 @@ public partial class Unity : IIdentifiable<int>
 
     [JsonIgnore]
     [InverseProperty("UnityNavigation")]
+    public virtual ICollection<Frete> Fretes { get; set; } = new List<Frete>();
+
+    [JsonIgnore]
+    [InverseProperty("UnityNavigation")]
     public virtual ICollection<LivroCaixa> LivroCaixas { get; set; } = new List<LivroCaixa>();
 
     [GraphQLIgnore]
