@@ -13,6 +13,7 @@ using GlobalErpData.Services;
 using AutoMapper;
 using GlobalErpData.Data;
 using Microsoft.EntityFrameworkCore;
+using System.IO.Compression;
 
 namespace GlobalAPINFe.Controllers
 {
@@ -29,6 +30,77 @@ namespace GlobalAPINFe.Controllers
             this.mapper = mapper;
             context = _context;
         }
+
+        [HttpPost("/GetXML/{unity}")]
+        [Produces("application/zip")]
+        [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetXML([FromRoute] int unity, [FromBody] GetXmlDto data)
+        {
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine("SELECT * FROM saidas s");
+            sb.AppendLine($"WHERE s.unity = {unity}");
+
+            if (data.Empresas != null && data.Empresas.Count > 0)
+                sb.AppendLine($"AND s.empresa IN ({UtlStrings.CommaText<int>(data.Empresas)})");
+
+            if (data.Periodo != null)
+            {
+                var dataInicioStr = UtlStrings.QuotedStr(UtlStrings.DateToStr(data.Periodo.Inicio, "yyyy-MM-dd"));
+                var dataFimStr = UtlStrings.QuotedStr(UtlStrings.DateToStr(data.Periodo.Fim, "yyyy-MM-dd"));
+                sb.AppendLine($"AND s.data BETWEEN {dataInicioStr} AND {dataFimStr}");
+            }
+
+            if (data.Situacoes != null && data.Situacoes.Count > 0)
+                sb.AppendLine($"AND s.cd_situacao IN ({UtlStrings.CommaText(data.Situacoes, '\'')})");
+
+            var sql = sb.ToString();
+
+            var saidas = await context.Saidas
+                .FromSqlRaw(sql)
+                .Include(s => s.EmpresaNavigation)
+                .ToListAsync();
+
+            if (saidas == null || saidas.Count == 0)
+            {
+                return NotFound(new ProblemDetails
+                {
+                    Title = "Não encontrado",
+                    Detail = "Nenhuma NF encontrada para os filtros informados."
+                });
+            }
+
+            using var memoryStream = new MemoryStream();
+            using (var zipArchive = new ZipArchive(memoryStream, ZipArchiveMode.Create, leaveOpen: true))
+            {
+                foreach (var saida in saidas)
+                {
+                    if (string.IsNullOrEmpty(saida.XmNf))
+                        continue;
+                    var empresaNome = saida.EmpresaNavigation?.NmEmpresa ?? "EmpresaDesconhecida";
+                    var ano = saida.Data?.Year ?? 0;
+                    var mes = saida.Data?.Month ?? 0;
+                    string folderPath = $"Empresa {saida.Empresa} - {empresaNome}/{ano:D4}/{mes:D2}/";
+
+                    var chave = !string.IsNullOrWhiteSpace(saida.ChaveAcessoNfe) ?
+                        saida.ChaveAcessoNfe :
+                        $"Saida-{saida.NrLanc}";
+                    var fileName = $"{chave}.xml";
+
+                    var entry = zipArchive.CreateEntry($"{folderPath}{fileName}", CompressionLevel.Optimal);
+                    using var entryStream = entry.Open();
+                    using var writer = new StreamWriter(entryStream);
+                    writer.Write(saida.XmNf ?? "");
+                }
+            }
+
+            memoryStream.Seek(0, SeekOrigin.Begin);
+
+            // "application/zip" conforme anotamos acima
+            // FileContentResult: retorne os bytes do ZIP
+            return File(memoryStream.ToArray(), "application/zip", "NotasFiscais.zip");
+        }
+
 
         [HttpGet]
         [ProducesResponseType(typeof(PagedResponse<Saida>), 200)]
@@ -255,7 +327,7 @@ namespace GlobalAPINFe.Controllers
         [ProducesResponseType(200)]
         public async Task<IActionResult> CreateReportSaida()
         {
-                var projectRootPath = Environment.CurrentDirectory;
+            var projectRootPath = Environment.CurrentDirectory;
             var reportFilePath = System.IO.Path.Combine(projectRootPath, "reports", "ReportMvcSaida.frx");
             if (!System.IO.Directory.Exists(System.IO.Path.Combine(projectRootPath, "reports")))
             {
@@ -266,12 +338,12 @@ namespace GlobalAPINFe.Controllers
             //Produtos Saida
             //Empresa
             Saida? saida = await context.Saidas.
-                Include(p=> p.ClienteNavigation).
+                Include(p => p.ClienteNavigation).
                 Include(p => p.ProdutoSaida)
                 .Include(p => p.EmpresaNavigation)
                 .OrderByDescending(p => p.NrLanc)
                 .LastOrDefaultAsync();
-            
+
             if (saida == null)
             {
                 return BadRequest();
