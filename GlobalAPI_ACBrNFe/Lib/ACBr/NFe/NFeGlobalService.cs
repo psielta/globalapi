@@ -3,6 +3,7 @@ using ACBrLib.Core.DFe;
 using ACBrLib.Core.NFe;
 using ACBrLib.NFe;
 using AutoMapper;
+using FiscalBr.Common;
 using GlobalAPI_ACBrNFe.Lib.ACBr.NFe.Utils;
 using GlobalAPI_ACBrNFe.Lib.Enum;
 using GlobalAPI_ACBrNFe.Lib.Xml;
@@ -1267,7 +1268,8 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             }
 
             notaFiscal.Emitente.IM = empresa.NrInscrMunicipal;
-            notaFiscal.Emitente.CNAE = empresa.Cnae;
+            if (!string.IsNullOrEmpty(empresa.Cnae))
+                notaFiscal.Emitente.CNAE = UtlStrings.OnlyInteger(empresa.Cnae);
             notaFiscal.Emitente.IEST = empresa.Iest;
             if (((empresa.CpfcnpfAutorizado ?? "").Length > 0) && ((empresa.AutorizoXml ?? "").Equals("S")))
             {
@@ -1608,7 +1610,7 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
                     nfe.Config.DANFe.NomeDocumento = $"EVENTO{saida.NrLanc}";
                     string pathCompletoPDFEvento = System.IO.Path.Combine(nfe.Config.DANFe.PathPDF, $"EVENTO{saida.NrLanc}.pdf");
                     nfe.ImprimirEventoPDF(filePath, resposta.Arquivo);
-                    if(System.IO.File.Exists(pathCompletoPDFEvento))
+                    if (System.IO.File.Exists(pathCompletoPDFEvento))
                     {
                         saida.PdfCnc = System.IO.File.ReadAllBytes(pathCompletoPDFEvento);
                     }
@@ -1636,7 +1638,7 @@ namespace GlobalAPI_ACBrNFe.Lib.ACBr.NFe
             {
                 this.SetConfiguracaoNfe(saida.Empresa, empresa, cer);
                 nfe.LimparLista();
-                InutilizarNFeResposta resposta = nfe.Inutilizar(empresa.CdCnpj,sessionHubDto.justificativa, year, 55, Convert.ToInt32(saida.SerieNf), Convert.ToInt32(saida.NrNotaFiscal), Convert.ToInt32(saida.NrNotaFiscal));
+                InutilizarNFeResposta resposta = nfe.Inutilizar(empresa.CdCnpj, sessionHubDto.justificativa, year, 55, Convert.ToInt32(saida.SerieNf), Convert.ToInt32(saida.NrNotaFiscal), Convert.ToInt32(saida.NrNotaFiscal));
                 response.Message = $"Cancelamento do NFe: {resposta.XMotivo}. Data/Hora Situação: {resposta.DhRecbto.ToString("dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture)}";
                 const int CSTAT_DUPLICIDADE_EVENTO = 631;
                 if (resposta.CStat == CSTAT_DUPLICIDADE_EVENTO)

@@ -119,6 +119,11 @@ namespace GlobalAPINFe.Controllers
                 {
                     filteredQuery = filteredQuery.Where(p => p.CdProduto == cdProduto.Value);
                 }
+                
+                if (cdEmpresa.HasValue)
+                {
+                    filteredQuery = filteredQuery.Where(p => p.CdEmpresa == cdEmpresa.Value);
+                }
 
                 if (cdPlano.HasValue)
                 {
