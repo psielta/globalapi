@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 namespace GlobalErpData.Models;
 
 [Table("controle_numeracao_nfe")]
-[Index("IdEmpresa", "Serie", "Padrao", Name = "controle_numeracao_nfe_idx", IsUnique = true)]
+[Index("IdEmpresa", "Serie", Name = "controle_numeracao_nfe_idx", IsUnique = true)]
 public partial class ControleNumeracaoNfe : IIdentifiable<int>
 {
     [Key]
