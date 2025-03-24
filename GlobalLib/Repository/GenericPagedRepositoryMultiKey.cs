@@ -170,7 +170,7 @@ namespace GlobalLib.Repository
             }
         }
 
-        public async Task<TEntity?> RetrieveAsyncAsNoTracking(TKey1 idEmpresa, TKey2 idCadastro)
+        public virtual async Task<TEntity?> RetrieveAsyncAsNoTracking(TKey1 idEmpresa, TKey2 idCadastro)
         {
             try
             {

@@ -27,6 +27,74 @@ namespace GlobalErpData.Repository.PagedRepositoriesMultiKey
             _calculationService = calculationService;
             this.produtoEntradaRepository = produtoEntradaRepository;
         }
+
+        public override async Task<Entrada?> RetrieveAsync(int idEmpresa, int idCadastro)
+        {
+            try
+            {
+                // Descobrindo dinamicamente os nomes de propriedade de chave
+                var tempEntity = Activator.CreateInstance<Entrada>();
+                string keyName1 = tempEntity.GetKeyName1(); // nome da chave 1
+                string keyName2 = tempEntity.GetKeyName2(); // nome da chave 2
+
+                // Consulta usando EF.Property<> para colunas com nomes dinâmicos
+                var entity = await db.Set<Entrada>()
+                    .Include(e => e.Fornecedor)
+                    .Include(e => e.CdGrupoEstoqueNavigation)
+                    .Include(e => e.ProdutoEntrada)
+                    .SingleOrDefaultAsync(e =>
+                        EF.Property<int>(e, keyName1).Equals(idEmpresa) &&
+                        EF.Property<int>(e, keyName2).Equals(idCadastro));
+
+                if (entity == null)
+                {
+                    return null;
+                }
+
+                _calculationService.CalculateTotals(entity);
+
+                return entity;
+            }
+            catch (System.Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while retrieving entity with ID: {idEmpresa}-{idCadastro}", idEmpresa, idCadastro);
+                return null;
+            }
+        }
+        
+        public override async Task<Entrada?> RetrieveAsyncAsNoTracking(int idEmpresa, int idCadastro)
+        {
+            try
+            {
+                // Descobrindo dinamicamente os nomes de propriedade de chave
+                var tempEntity = Activator.CreateInstance<Entrada>();
+                string keyName1 = tempEntity.GetKeyName1(); // nome da chave 1
+                string keyName2 = tempEntity.GetKeyName2(); // nome da chave 2
+
+                // Consulta usando EF.Property<> para colunas com nomes dinâmicos
+                var entity = await db.Set<Entrada>().AsNoTracking()
+                    .Include(e => e.Fornecedor)
+                    .Include(e => e.CdGrupoEstoqueNavigation)
+                    .Include(e => e.ProdutoEntrada)
+                    .SingleOrDefaultAsync(e =>
+                        EF.Property<int>(e, keyName1).Equals(idEmpresa) &&
+                        EF.Property<int>(e, keyName2).Equals(idCadastro));
+
+                if (entity == null)
+                {
+                    return null;
+                }
+
+                _calculationService.CalculateTotals(entity);
+
+                return entity;
+            }
+            catch (System.Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while retrieving entity with ID: {idEmpresa}-{idCadastro}", idEmpresa, idCadastro);
+                return null;
+            }
+        }
         public Task<IQueryable<Entrada>> GetEntradaAsyncPorEmpresa(int unity)
         {
             try

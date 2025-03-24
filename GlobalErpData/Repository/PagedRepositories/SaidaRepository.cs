@@ -25,6 +25,70 @@ namespace GlobalErpData.Repository.PagedRepositories
             this.queryRepositoryNum = queryRepositoryNum;
         }
 
+        public override async Task<Saida?> RetrieveAsync(int id)
+        {
+            try
+            {
+                // Descobre dinamicamente o nome da propriedade de chave
+                var tempEntity = Activator.CreateInstance<Saida>();
+                var keyName = tempEntity.GetKeyName();
+
+                // Filtra por EF.Property<>
+                var entity = await db.Set<Saida>()
+                    .Include(f => f.Fretes)
+                    .Include(e => e.ClienteNavigation)
+                    .Include(p => p.CdGrupoEstoqueNavigation)
+                    .Include(p => p.ProdutoSaida)
+                    .SingleOrDefaultAsync(e => EF.Property<int>(e, keyName)!.Equals(id));
+
+                if (entity == null)
+                {
+                    return null;
+                }
+
+                _calculationService.CalculateTotals(entity);
+
+                return entity;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while retrieving entity with ID: {Id}", id);
+                return null;
+            }
+        }
+        
+        public override async Task<Saida?> RetrieveAsyncAsNoTracking(int id)
+        {
+            try
+            {
+                // Descobre dinamicamente o nome da propriedade de chave
+                var tempEntity = Activator.CreateInstance<Saida>();
+                var keyName = tempEntity.GetKeyName();
+
+                // Filtra por EF.Property<>
+                var entity = await db.Set<Saida>().AsNoTracking()
+                    .Include(f => f.Fretes)
+                    .Include(e => e.ClienteNavigation)
+                    .Include(p => p.CdGrupoEstoqueNavigation)
+                    .Include(p => p.ProdutoSaida)
+                    .SingleOrDefaultAsync(e => EF.Property<int>(e, keyName)!.Equals(id));
+
+                if (entity == null)
+                {
+                    return null;
+                }
+
+                _calculationService.CalculateTotals(entity);
+
+                return entity;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while retrieving entity with ID: {Id}", id);
+                return null;
+            }
+        }
+
         public Task<IQueryable<Saida>> GetSaidaAsyncPorEmpresa(int IdEmpresa)
         {
             try

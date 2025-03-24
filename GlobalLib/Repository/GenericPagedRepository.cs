@@ -92,6 +92,27 @@ namespace GlobalLib.Repository
                 return null;
             }
         }
+        
+        public virtual async Task<TEntity?> RetrieveAsyncAsNoTracking(TKey id)
+        {
+            try
+            {
+                // Descobre dinamicamente o nome da propriedade de chave
+                var tempEntity = Activator.CreateInstance<TEntity>();
+                var keyName = tempEntity.GetKeyName();
+
+                // Filtra por EF.Property<>
+                var entity = await db.Set<TEntity>().AsNoTracking()
+                    .SingleOrDefaultAsync(e => EF.Property<TKey>(e, keyName)!.Equals(id));
+
+                return entity;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while retrieving entity with ID: {Id}", id);
+                return null;
+            }
+        }
 
         public virtual async Task<TEntity?> UpdateAsync(TKey id, TDto dto)
         {
