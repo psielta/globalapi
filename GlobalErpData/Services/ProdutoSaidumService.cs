@@ -82,6 +82,7 @@ namespace GlobalErpData.Services
             InsercaoProdutoSaidumDto dto,
             ProdutoSaidumDto ProdutoSaidumDto, ProdutoEstoque produto, Cliente cliente)
         {
+            ProdutoSaidumDto.Unity = dto.Unity;
             ProdutoSaidumDto.NrSaida = dto.NrSaida;
             ProdutoSaidumDto.CdEmpresa = dto.CdEmpresa;
             ProdutoSaidumDto.CdProduto = produto.CdProduto;
