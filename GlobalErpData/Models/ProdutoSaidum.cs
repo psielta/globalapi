@@ -511,6 +511,11 @@ public partial class ProdutoSaidum : IIdentifiable<int>
     [ForeignKey("Unity")]
     [InverseProperty("ProdutoSaida")]
     public virtual Unity UnityNavigation { get; set; } = null!;
+
+    [JsonPropertyName("nmProduto")]
+    [NotMapped]
+    public string NmProduto => ProdutoEstoque?.NmProduto ?? "";
+
     [GraphQLIgnore]
     public int GetId()
     {
