@@ -540,9 +540,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.Integrated).HasDefaultValue(0);
             entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
-            entity.HasOne(d => d.IdEmpresaNavigation).WithOne(p => p.ControleNumeracaoNfe)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("controle_numeracao_nfe_fk");
+            entity.HasOne(d => d.IdEmpresaNavigation).WithOne(p => p.ControleNumeracaoNfe).HasConstraintName("controle_numeracao_nfe_fk");
 
             entity.HasOne(d => d.UnityNavigation).WithMany(p => p.ControleNumeracaoNves)
                 .OnDelete(DeleteBehavior.ClientSetNull)
