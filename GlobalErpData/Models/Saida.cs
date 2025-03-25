@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 namespace GlobalErpData.Models;
 
 [Table("saidas")]
+[Index("NrLanc", "Empresa", "CdGrupoEstoque", "TpSaida", "CdSituacao", Name = "saidas_idx", IsUnique = true)]
 public partial class Saida : IIdentifiable<int>
 {
     [Key]
@@ -92,7 +93,7 @@ public partial class Saida : IIdentifiable<int>
 
     [Column("cd_situacao")]
     [StringLength(2)]
-    public string? CdSituacao { get; set; }
+    public string CdSituacao { get; set; } = null!;
 
     [Column("txt_justificativa_cancelamento")]
     [StringLength(16384)]
@@ -250,7 +251,7 @@ public partial class Saida : IIdentifiable<int>
     public virtual Empresa EmpresaNavigation { get; set; } = null!;
 
     [JsonIgnore]
-    [InverseProperty("NrSaidaNavigation")]
+    [InverseProperty("Saida")]
     public virtual ICollection<ProdutoSaidum> ProdutoSaida { get; set; } = new List<ProdutoSaidum>();
 
     [GraphQLIgnore]

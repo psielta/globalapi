@@ -2047,8 +2047,6 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("produto_saida_fk3");
 
-            entity.HasOne(d => d.NrSaidaNavigation).WithMany(p => p.ProdutoSaida).HasConstraintName("produto_saida_fk2");
-
             entity.HasOne(d => d.UnityNavigation).WithMany(p => p.ProdutoSaida)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("produto_saida_fk");
@@ -2056,6 +2054,11 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.ProdutoEstoque).WithMany(p => p.ProdutoSaida)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("produto_saida_fk4");
+
+            entity.HasOne(d => d.Saida).WithMany(p => p.ProdutoSaida)
+                .HasPrincipalKey(p => new { p.NrLanc, p.Empresa, p.CdGrupoEstoque, p.TpSaida, p.CdSituacao })
+                .HasForeignKey(d => new { d.NrSaida, d.CdEmpresa, d.CdPlano, d.TpSaida, d.CdSituacao })
+                .HasConstraintName("produto_saida_fk2");
         });
 
         modelBuilder.Entity<ProdutosForn>(entity =>

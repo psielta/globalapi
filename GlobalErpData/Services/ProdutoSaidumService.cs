@@ -22,9 +22,11 @@ namespace GlobalErpData.Services
         }
         public async Task InserirDadosProduto(
             InsercaoProdutoSaidumEanDto dto,
-            ProdutoSaidumDto ProdutoSaidumDto, ProdutoEstoque produto, Cliente cliente)
+            ProdutoSaidumDto ProdutoSaidumDto, ProdutoEstoque produto, Cliente cliente, Saida saida)
         {
             ProdutoSaidumDto.NrSaida = dto.NrSaida;
+            ProdutoSaidumDto.TpSaida = saida.TpSaida;
+            ProdutoSaidumDto.CdSituacao = saida.CdSituacao;
             ProdutoSaidumDto.CdEmpresa = dto.CdEmpresa;
             ProdutoSaidumDto.CdProduto = produto.CdProduto;
             ProdutoSaidumDto.CdBarra = produto.CdBarra;
@@ -80,9 +82,11 @@ namespace GlobalErpData.Services
         
         public async Task InserirDadosProduto(
             InsercaoProdutoSaidumDto dto,
-            ProdutoSaidumDto ProdutoSaidumDto, ProdutoEstoque produto, Cliente cliente)
+            ProdutoSaidumDto ProdutoSaidumDto, ProdutoEstoque produto, Cliente cliente, Saida saida)
         {
             ProdutoSaidumDto.Unity = dto.Unity;
+            ProdutoSaidumDto.TpSaida = saida.TpSaida;
+            ProdutoSaidumDto.CdSituacao = saida.CdSituacao;
             ProdutoSaidumDto.NrSaida = dto.NrSaida;
             ProdutoSaidumDto.CdEmpresa = dto.CdEmpresa;
             ProdutoSaidumDto.CdProduto = produto.CdProduto;

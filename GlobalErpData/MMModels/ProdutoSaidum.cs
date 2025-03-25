@@ -484,6 +484,14 @@ public partial class ProdutoSaidum
     [Column("unity")]
     public int Unity { get; set; }
 
+    [Column("tp_saida")]
+    [StringLength(5)]
+    public string TpSaida { get; set; } = null!;
+
+    [Column("cd_situacao")]
+    [StringLength(5)]
+    public string CdSituacao { get; set; } = null!;
+
     [ForeignKey("CdEmpresa")]
     [InverseProperty("ProdutoSaida")]
     public virtual Empresa CdEmpresaNavigation { get; set; } = null!;
@@ -492,13 +500,13 @@ public partial class ProdutoSaidum
     [InverseProperty("ProdutoSaida")]
     public virtual PlanoEstoque CdPlanoNavigation { get; set; } = null!;
 
-    [ForeignKey("NrSaida")]
-    [InverseProperty("ProdutoSaida")]
-    public virtual Saida NrSaidaNavigation { get; set; } = null!;
-
     [ForeignKey("CdProduto, Unity")]
     [InverseProperty("ProdutoSaida")]
     public virtual ProdutoEstoque ProdutoEstoque { get; set; } = null!;
+
+    [ForeignKey("NrSaida, CdEmpresa, CdPlano, TpSaida, CdSituacao")]
+    [InverseProperty("ProdutoSaida")]
+    public virtual Saida Saida { get; set; } = null!;
 
     [ForeignKey("Unity")]
     [InverseProperty("ProdutoSaida")]

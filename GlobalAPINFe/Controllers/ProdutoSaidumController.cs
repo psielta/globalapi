@@ -226,7 +226,7 @@ namespace GlobalAPINFe.Controllers
                         .Include(s => s.ClienteNavigation).ThenInclude(c => c.CdCidadeNavigation)
                         .FirstOrDefaultAsync(obj => obj.NrLanc == dto.NrSaida && obj.Empresa == dto.CdEmpresa);
 
-                    await produtoSaidumService.InserirDadosProduto(dto, produtoSaidumDto, produto, saida.ClienteNavigation);
+                    await produtoSaidumService.InserirDadosProduto(dto, produtoSaidumDto, produto, saida.ClienteNavigation, saida);
                     
                     var response = await repo.CreateAsync(produtoSaidumDto);
 
@@ -286,18 +286,24 @@ namespace GlobalAPINFe.Controllers
                         throw new Exception("Valor de venda não encontrado.");
                     }
                     ProdutoSaidumDto ProdutoSaidumDto = new ProdutoSaidumDto();
-                    ProdutoSaidumDto.NrSaida = dto.NrSaida;
-                    ProdutoSaidumDto.CdEmpresa = dto.CdEmpresa ;
-                    ProdutoSaidumDto.CdBarra = produto.CdBarra;
-                    ProdutoSaidumDto.CdProduto = produto.CdProduto;
-                    ProdutoSaidumDto.NmProduto = produto.NmProduto;
-                    ProdutoSaidumDto.Lote = "-1";
-                    ProdutoSaidumDto.Desconto = 0;
-                    ProdutoSaidumDto.DtValidade = DateUtils.DateTimeToDateOnly(DateTime.Now);
-                    ProdutoSaidumDto.Quant = dto.Quant;
-                    ProdutoSaidumDto.CdPlano = dto.CdPlano;
-                    ProdutoSaidumDto.VlVenda = Math.Round(produto.VlAVista ?? 0, 4);
-                    ProdutoSaidumDto.VlTotal = Math.Round(ProdutoSaidumDto.Quant * ProdutoSaidumDto.VlVenda, 4);
+                    //ProdutoSaidumDto.NrSaida = dto.NrSaida;
+                    //ProdutoSaidumDto.CdEmpresa = dto.CdEmpresa ;
+                    //ProdutoSaidumDto.CdBarra = produto.CdBarra;
+                    //ProdutoSaidumDto.CdProduto = produto.CdProduto;
+                    //ProdutoSaidumDto.NmProduto = produto.NmProduto;
+                    //ProdutoSaidumDto.Lote = "-1";
+                    //ProdutoSaidumDto.Desconto = 0;
+                    //ProdutoSaidumDto.DtValidade = DateUtils.DateTimeToDateOnly(DateTime.Now);
+                    //ProdutoSaidumDto.Quant = dto.Quant;
+                    //ProdutoSaidumDto.CdPlano = dto.CdPlano;
+                    //ProdutoSaidumDto.VlVenda = Math.Round(produto.VlAVista ?? 0, 4);
+                    //ProdutoSaidumDto.VlTotal = Math.Round(ProdutoSaidumDto.Quant * ProdutoSaidumDto.VlVenda, 4);
+                    Saida? saida = await _context.Saidas
+                        .AsNoTracking()
+                        .Include(s => s.ClienteNavigation).ThenInclude(c => c.CdCidadeNavigation)
+                        .FirstOrDefaultAsync(obj => obj.NrLanc == dto.NrSaida && obj.Empresa == dto.CdEmpresa);
+
+                    await produtoSaidumService.InserirDadosProduto(dto, ProdutoSaidumDto, produto, saida.ClienteNavigation, saida);
 
                     var response = await repo.CreateAsync(ProdutoSaidumDto);
                     if (response == null)

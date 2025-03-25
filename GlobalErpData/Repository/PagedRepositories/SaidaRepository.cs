@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GlobalErpData.Services;
+using GlobalLib.Strings;
 
 namespace GlobalErpData.Repository.PagedRepositories
 {
@@ -204,15 +205,37 @@ namespace GlobalErpData.Repository.PagedRepositories
             if (affected == 1)
             {
                 logger.LogInformation("Entity updated with ID: {Id}", id);
-                var saida = await db.Set<Saida>().Include(f => f.Fretes).Include(e => e.ClienteNavigation)
+                var saida = await db.Set<Saida>().Include(f => f.Fretes).AsNoTracking()
+                    .Include(e => e.ClienteNavigation)
                     .Include(p => p.ProdutoSaida)
                     .Include(p => p.CdGrupoEstoqueNavigation)
                     .FirstOrDefaultAsync(e => e.NrLanc == id);
+                
                 if (saida is null)
                 {
                     logger.LogWarning("Failed to retrieve entity from database.");
                     return null;
                 }
+
+                if ((!saida.TpSaida.Equals(dto.TpSaida))
+                    || (!saida.CdSituacao.Equals(dto.CdSituacao))
+                    || (saida.Empresa != dto.Empresa)
+                    || (saida.CdGrupoEstoque != dto.CdGrupoEstoque))
+                {
+                    await this.db.Database.ExecuteSqlRawAsync(
+                      @$"UPDATE saidas SET 
+                            tp_saida = {UtlStrings.QuotedStr(dto.TpSaida)},
+                            cd_situacao = {UtlStrings.QuotedStr(dto.CdSituacao)},
+                            empresa = {dto.Empresa},
+                            cd_grupo_estoque = {dto.CdGrupoEstoque}
+                         WHERE nr_lanc = {id}");
+                    saida = await db.Set<Saida>().Include(f => f.Fretes).AsNoTracking()
+                    .Include(e => e.ClienteNavigation)
+                    .Include(p => p.ProdutoSaida)
+                    .Include(p => p.CdGrupoEstoqueNavigation)
+                    .FirstOrDefaultAsync(e => e.NrLanc == id);
+                }
+
                 _calculationService.CalculateTotals(saida);
                 return saida;
             }

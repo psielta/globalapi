@@ -9,6 +9,8 @@ namespace GlobalErpData.Dto
     public class ProdutoSaidumDto
     {
         public int NrSaida { get; set; }
+         public string CdSituacao { get; set; } = null!;
+        public string TpSaida { get; set; } = null!;
         public int CdProduto { get; set; }
         public int CdPlano { get; set; }
         public decimal Quant { get; set; }

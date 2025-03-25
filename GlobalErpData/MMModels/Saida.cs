@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace GlobalErpData.MMModels;
 
 [Table("saidas")]
+[Index("NrLanc", "Empresa", "CdGrupoEstoque", "TpSaida", "CdSituacao", Name = "saidas_idx", IsUnique = true)]
 public partial class Saida
 {
     [Key]
@@ -84,7 +85,7 @@ public partial class Saida
 
     [Column("cd_situacao")]
     [StringLength(2)]
-    public string? CdSituacao { get; set; }
+    public string CdSituacao { get; set; } = null!;
 
     [Column("txt_justificativa_cancelamento")]
     [StringLength(16384)]
@@ -223,7 +224,7 @@ public partial class Saida
     [InverseProperty("NrSaidaNavigation")]
     public virtual ICollection<Frete> Fretes { get; set; } = new List<Frete>();
 
-    [InverseProperty("NrSaidaNavigation")]
+    [InverseProperty("Saida")]
     public virtual ICollection<ProdutoSaidum> ProdutoSaida { get; set; } = new List<ProdutoSaidum>();
 
     [InverseProperty("NrSaidaNavigation")]

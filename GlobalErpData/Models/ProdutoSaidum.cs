@@ -484,9 +484,17 @@ public partial class ProdutoSaidum : IIdentifiable<int>
     [StringLength(20)]
     public string CdBarra { get; set; } = null!;
 
+    [Column("tp_saida")]
+    [StringLength(5)]
+    public string TpSaida { get; set; } = null!;
+
+    [Column("cd_situacao")]
+    [StringLength(5)]
+    public string CdSituacao { get; set; } = null!;
+
     [Column("unity")]
     public int Unity { get; set; }
-    
+
     [JsonIgnore]
     [ForeignKey("CdEmpresa")]
     [InverseProperty("ProdutoSaida")]
@@ -498,9 +506,9 @@ public partial class ProdutoSaidum : IIdentifiable<int>
     public virtual PlanoEstoque CdPlanoNavigation { get; set; } = null!;
 
     [JsonIgnore]
-    [ForeignKey("NrSaida")]
+    [ForeignKey("NrSaida, CdEmpresa, CdPlano, TpSaida, CdSituacao")]
     [InverseProperty("ProdutoSaida")]
-    public virtual Saida NrSaidaNavigation { get; set; } = null!;
+    public virtual Saida Saida { get; set; } = null!;
 
     [JsonIgnore]
     [ForeignKey("CdProduto, Unity")]

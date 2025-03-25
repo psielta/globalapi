@@ -50,7 +50,7 @@ namespace GlobalErpData.Dto
 
         public string? CdUf { get; set; }
 
-        public string? CdSituacao { get; set; }
+        public string CdSituacao { get; set; } = null!;
 
         public string? TxtJustificativaCancelamento { get; set; }
 

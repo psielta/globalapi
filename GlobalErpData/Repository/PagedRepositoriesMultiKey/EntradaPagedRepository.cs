@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GlobalLib.Strings;
 
 namespace GlobalErpData.Repository.PagedRepositoriesMultiKey
 {
@@ -171,6 +172,7 @@ namespace GlobalErpData.Repository.PagedRepositoriesMultiKey
 
                 }
                 Entrada? entradaGerada = await db.Set<Entrada>()
+                    .AsNoTracking()
                     .Where(e => e.CdEmpresa == idEmpresa && e.Nr == idCadastro)
                     .Include(e => e.Fornecedor)
                     .Include(e => e.CdGrupoEstoqueNavigation)
@@ -180,6 +182,24 @@ namespace GlobalErpData.Repository.PagedRepositoriesMultiKey
                 {
                     logger.LogWarning("Failed to retrieve entity from database.");
                     return null;
+                }
+                if ((entradaGerada.CdEmpresa != dto.CdEmpresa)
+                    || (entradaGerada.CdGrupoEstoque != dto.CdGrupoEstoque)
+                    || (!entradaGerada.TpEntrada.Equals(dto.TpEntrada)))
+                {
+                    await this.db.Database.ExecuteSqlRawAsync(
+                      @$"UPDATE entradas SET 
+                            tp_entrada = {UtlStrings.QuotedStr(dto.TpEntrada)},
+                            cd_empresa = {dto.CdEmpresa},
+                            cd_grupo_estoque = {dto.CdGrupoEstoque}
+                         WHERE nr = {idCadastro} and cd_empresa = {idEmpresa}");
+                    entradaGerada = await db.Set<Entrada>()
+                    .AsNoTracking()
+                    .Where(e => e.CdEmpresa == idEmpresa && e.Nr == idCadastro)
+                    .Include(e => e.Fornecedor)
+                    .Include(e => e.CdGrupoEstoqueNavigation)
+                    .Include(e => e.ProdutoEntrada)
+                    .FirstOrDefaultAsync();
                 }
                 _calculationService.CalculateTotals(entradaGerada);
                 return entradaGerada;
