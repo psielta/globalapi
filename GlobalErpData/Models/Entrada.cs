@@ -10,6 +10,7 @@ namespace GlobalErpData.Models;
 
 [PrimaryKey("Nr", "CdEmpresa")]
 [Table("entradas")]
+[Index("Nr", "CdEmpresa", "CdGrupoEstoque", Name = "entradas_idx1", IsUnique = true)]
 public partial class Entrada : IIdentifiableMultiKey<int, int>
 {
     [Key]

@@ -371,7 +371,7 @@ public partial class ProdutoEntradum
     [InverseProperty("ProdutoEntrada")]
     public virtual Empresa? CdEmpresaNavigation { get; set; }
 
-    [ForeignKey("NrEntrada, CdEmpresa")]
+    [ForeignKey("NrEntrada, CdEmpresa, CdPlano")]
     [InverseProperty("ProdutoEntrada")]
     public virtual Entrada? Entrada { get; set; }
 

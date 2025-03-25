@@ -415,7 +415,7 @@ public partial class ProdutoEntradum : IIdentifiable<int>
     public virtual Empresa? CdEmpresaNavigation { get; set; }
 
     [JsonIgnore]
-    [ForeignKey("NrEntrada, CdEmpresa")]
+    [ForeignKey("NrEntrada, CdEmpresa, CdPlano")]
     [InverseProperty("ProdutoEntrada")]
     public virtual Entrada? Entrada { get; set; }
 

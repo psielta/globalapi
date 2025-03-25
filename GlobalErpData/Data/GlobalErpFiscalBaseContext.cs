@@ -1811,6 +1811,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .HasConstraintName("produto_entrada_fk6");
 
             entity.HasOne(d => d.Entrada).WithMany(p => p.ProdutoEntrada)
+                .HasPrincipalKey(p => new { p.Nr, p.CdEmpresa, p.CdGrupoEstoque })
+                .HasForeignKey(d => new { d.NrEntrada, d.CdEmpresa, d.CdPlano })
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("produto_entrada_fk");
         });
@@ -2411,6 +2413,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         modelBuilder.HasSequence("seq_entrada_geral_10");
         modelBuilder.HasSequence("seq_entrada_geral_11");
         modelBuilder.HasSequence("seq_entrada_geral_12");
+        modelBuilder.HasSequence("seq_entradas_geral_1");
+        modelBuilder.HasSequence("seq_entradas_geral_11");
         modelBuilder.HasSequence("seq_entradas_geral_2");
         modelBuilder.HasSequence("seq_fornecedor_geral_1");
         modelBuilder.HasSequence("seq_fornecedor_geral_10");
