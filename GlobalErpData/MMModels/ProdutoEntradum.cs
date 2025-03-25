@@ -367,11 +367,15 @@ public partial class ProdutoEntradum
     [Column("unity")]
     public int Unity { get; set; }
 
+    [Column("tp_entrada")]
+    [StringLength(5)]
+    public string TpEntrada { get; set; } = null!;
+
     [ForeignKey("CdEmpresa")]
     [InverseProperty("ProdutoEntrada")]
     public virtual Empresa? CdEmpresaNavigation { get; set; }
 
-    [ForeignKey("NrEntrada, CdEmpresa, CdPlano")]
+    [ForeignKey("NrEntrada, CdEmpresa, CdPlano, TpEntrada")]
     [InverseProperty("ProdutoEntrada")]
     public virtual Entrada? Entrada { get; set; }
 

@@ -10,7 +10,7 @@ namespace GlobalErpData.Models;
 
 [PrimaryKey("Nr", "CdEmpresa")]
 [Table("entradas")]
-[Index("Nr", "CdEmpresa", "CdGrupoEstoque", Name = "entradas_idx1", IsUnique = true)]
+[Index("Nr", "CdEmpresa", "CdGrupoEstoque", "TpEntrada", Name = "entradas_idx1", IsUnique = true)]
 public partial class Entrada : IIdentifiableMultiKey<int, int>
 {
     [Key]
@@ -114,7 +114,7 @@ public partial class Entrada : IIdentifiableMultiKey<int, int>
 
     [Column("tp_entrada")]
     [StringLength(2)]
-    public string? TpEntrada { get; set; }
+    public string TpEntrada { get; set; } = null!;
 
     [Column("xml_nf")]
     public string? XmlNf { get; set; }

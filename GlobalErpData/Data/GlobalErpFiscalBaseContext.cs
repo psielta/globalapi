@@ -1811,8 +1811,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .HasConstraintName("produto_entrada_fk6");
 
             entity.HasOne(d => d.Entrada).WithMany(p => p.ProdutoEntrada)
-                .HasPrincipalKey(p => new { p.Nr, p.CdEmpresa, p.CdGrupoEstoque })
-                .HasForeignKey(d => new { d.NrEntrada, d.CdEmpresa, d.CdPlano })
+                .HasPrincipalKey(p => new { p.Nr, p.CdEmpresa, p.CdGrupoEstoque, p.TpEntrada })
+                .HasForeignKey(d => new { d.NrEntrada, d.CdEmpresa, d.CdPlano, d.TpEntrada })
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("produto_entrada_fk");
         });

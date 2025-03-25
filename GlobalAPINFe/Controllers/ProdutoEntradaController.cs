@@ -181,9 +181,16 @@ namespace GlobalAPINFe.Controllers
                 {
                     ProdutoEstoque? produto = await _context.ProdutoEstoques.FirstOrDefaultAsync(obj =>
                     obj.Unity == dto.Unity && obj.CdProduto == dto.CdProduto);
+                    Entrada? entrada = await _context.Entradas.FirstOrDefaultAsync(obj =>
+                    obj.Nr == dto.NrEntrada && obj.CdEmpresa == dto.CdEmpresa);
                     if (produto == null)
                     {
                         throw new Exception("Produto não encontrado.");
+                    }
+
+                    if (entrada == null)
+                    {
+                        throw new Exception("Entrada não encontrada.");
                     }
                     ProdutoEntradaDto produtoEntradaDto = new ProdutoEntradaDto();
                     produtoEntradaDto.NrEntrada = dto.NrEntrada;
@@ -193,6 +200,7 @@ namespace GlobalAPINFe.Controllers
                     produtoEntradaDto.CdPlano = dto.CdPlano;
                     produtoEntradaDto.VlUnitario = produto.VlCusto ?? 0;
                     produtoEntradaDto.Unity = dto.Unity;
+                    produtoEntradaDto.TpEntrada = entrada.TpEntrada;
 
                     var response = await repo.CreateAsync(produtoEntradaDto);
                     if (response == null)
@@ -231,9 +239,16 @@ namespace GlobalAPINFe.Controllers
                 {
                     ProdutoEstoque? produto = await _context.ProdutoEstoques.FirstOrDefaultAsync(obj =>
                     obj.Unity == dto.Unity && obj.CdBarra.Equals(dto.Ean));
+                    Entrada? entrada = await _context.Entradas.FirstOrDefaultAsync(obj =>
+                    obj.Nr == dto.NrEntrada && obj.CdEmpresa == dto.CdEmpresa);
                     if (produto == null)
                     {
                         throw new Exception("Produto não encontrado.");
+                    }
+
+                    if (entrada == null)
+                    {
+                        throw new Exception("Entrada não encontrada.");
                     }
                     ProdutoEntradaDto produtoEntradaDto = new ProdutoEntradaDto();
                     produtoEntradaDto.NrEntrada = dto.NrEntrada;
@@ -243,6 +258,7 @@ namespace GlobalAPINFe.Controllers
                     produtoEntradaDto.CdPlano = dto.CdPlano;
                     produtoEntradaDto.VlUnitario = produto.VlCusto ?? 0;
                     produtoEntradaDto.Unity = dto.Unity;
+                    produtoEntradaDto.TpEntrada = entrada.TpEntrada;
 
                     var response = await repo.CreateAsync(produtoEntradaDto);
                     if (response == null)

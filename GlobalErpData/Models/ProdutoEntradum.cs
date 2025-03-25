@@ -409,13 +409,17 @@ public partial class ProdutoEntradum : IIdentifiable<int>
     [Column("unity")]
     public int Unity { get; set; }
 
+    [Column("tp_entrada")]
+    [StringLength(5)]
+    public string TpEntrada { get; set; } = null!;
+
     [JsonIgnore]
     [ForeignKey("CdEmpresa")]
     [InverseProperty("ProdutoEntrada")]
     public virtual Empresa? CdEmpresaNavigation { get; set; }
 
     [JsonIgnore]
-    [ForeignKey("NrEntrada, CdEmpresa, CdPlano")]
+    [ForeignKey("NrEntrada, CdEmpresa, CdPlano, TpEntrada")]
     [InverseProperty("ProdutoEntrada")]
     public virtual Entrada? Entrada { get; set; }
 

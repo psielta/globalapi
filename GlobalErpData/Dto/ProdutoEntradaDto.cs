@@ -11,6 +11,7 @@ namespace GlobalErpData.Dto
     public class ProdutoEntradaDto
     {
         public int NrEntrada { get; set; }
+        public string? TpEntrada { get; set; }
 
         public int CdEmpresa { get; set; }
         public int Unity { get; set; }
