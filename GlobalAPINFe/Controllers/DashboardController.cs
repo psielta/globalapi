@@ -23,11 +23,11 @@ namespace GlobalAPINFe.Controllers
         [HttpGet("GetDashboardEstoqueTotalEntradas/{id}")]
         [ProducesResponseType(typeof(DashboardEstoqueTotalEntradas), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<DashboardEstoqueTotalEntradas>> GetDashboardEstoqueTotalEntradas(int id, int? month = null, int? year = null)
+        public async Task<ActionResult<DashboardEstoqueTotalEntradas>> GetDashboardEstoqueTotalEntradas(int id, int? month = null, int? year = null, int? idEmpresa = 1)
         {
             try
             {
-                var resultado = await _context.GetDashboardEstoqueTotalEntradas(id, month, year).FirstOrDefaultAsync();
+                var resultado = await _context.GetDashboardEstoqueTotalEntradas(id, month, year,idEmpresa).FirstOrDefaultAsync();
 
                 if (resultado == null)
                 {
@@ -47,11 +47,11 @@ namespace GlobalAPINFe.Controllers
         [HttpGet("GetDashboardEstoqueTotalSaidas/{id}")]
         [ProducesResponseType(typeof(DashboardEstoqueTotalSaidas), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<DashboardEstoqueTotalSaidas>> GetDashboardEstoqueTotalSaidas(int id, int? month = null, int? year = null)
+        public async Task<ActionResult<DashboardEstoqueTotalSaidas>> GetDashboardEstoqueTotalSaidas(int id, int? month = null, int? year = null, int? idEmpresa = 1)
         {
             try
             {
-                var resultado = await _context.GetDashboardEstoqueTotalSaidas(id, month, year).FirstOrDefaultAsync();
+                var resultado = await _context.GetDashboardEstoqueTotalSaidas(id, month, year,idEmpresa).FirstOrDefaultAsync();
 
                 if (resultado == null)
                 {
@@ -71,11 +71,11 @@ namespace GlobalAPINFe.Controllers
         [HttpGet("GetDashboardEstoqueTotalSaidasPorMes/{id}")]
         [ProducesResponseType(typeof(IEnumerable<DashboardEstoqueTotalSaidasPorMes>), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<IEnumerable<DashboardEstoqueTotalSaidasPorMes>>> GetDashboardEstoqueTotalSaidasPorMes(int id)
+        public async Task<ActionResult<IEnumerable<DashboardEstoqueTotalSaidasPorMes>>> GetDashboardEstoqueTotalSaidasPorMes(int id, int? idEmpresa = 1)
         {
             try
             {
-                var resultados = await _context.GetDashboardEstoqueTotalSaidasPorMes(id).ToListAsync();
+                var resultados = await _context.GetDashboardEstoqueTotalSaidasPorMes(id,idEmpresa).ToListAsync();
 
                 if (resultados == null || !resultados.Any())
                 {
@@ -95,11 +95,11 @@ namespace GlobalAPINFe.Controllers
         [HttpGet("GetDashboardEstoqueTotalEntradasPorMes/{id}")]
         [ProducesResponseType(typeof(IEnumerable<DashboardEstoqueTotalEntradasPorMes>), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<IEnumerable<DashboardEstoqueTotalEntradasPorMes>>> GetDashboardEstoqueTotalEntradasPorMes(int id)
+        public async Task<ActionResult<IEnumerable<DashboardEstoqueTotalEntradasPorMes>>> GetDashboardEstoqueTotalEntradasPorMes(int id, int? idEmpresa = 1)
         {
             try
             {
-                var resultados = await _context.GetDashboardEstoqueTotalEntradasPorMes(id).ToListAsync();
+                var resultados = await _context.GetDashboardEstoqueTotalEntradasPorMes(id, idEmpresa).ToListAsync();
 
                 if (resultados == null || !resultados.Any())
                 {
@@ -119,11 +119,11 @@ namespace GlobalAPINFe.Controllers
         [HttpGet("GetDashboardEstoqueTotalEntradasPorDia/{id}")]
         [ProducesResponseType(typeof(IEnumerable<DashboardEstoqueTotalEntradasPorDia>), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<IEnumerable<DashboardEstoqueTotalEntradasPorDia>>> GetDashboardEstoqueTotalEntradasPorDia(int id)
+        public async Task<ActionResult<IEnumerable<DashboardEstoqueTotalEntradasPorDia>>> GetDashboardEstoqueTotalEntradasPorDia(int id, int? idEmpresa = 1)
         {
             try
             {
-                var resultados = await _context.GetDashboardEstoqueTotalEntradasPorDia(id).ToListAsync();
+                var resultados = await _context.GetDashboardEstoqueTotalEntradasPorDia(id, idEmpresa).ToListAsync();
 
                 if (resultados == null || !resultados.Any())
                 {
@@ -143,11 +143,11 @@ namespace GlobalAPINFe.Controllers
         [HttpGet("GetDashboardEstoqueTotalSaidasPorDia/{id}")]
         [ProducesResponseType(typeof(IEnumerable<DashboardEstoqueTotalSaidasPorDia>), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<IEnumerable<DashboardEstoqueTotalSaidasPorDia>>> GetDashboardEstoqueTotalSaidasPorDia(int id)
+        public async Task<ActionResult<IEnumerable<DashboardEstoqueTotalSaidasPorDia>>> GetDashboardEstoqueTotalSaidasPorDia(int id, int? idEmpresa = 1)
         {
             try
             {
-                var resultados = await _context.GetDashboardEstoqueTotalSaidasPorDia(id).ToListAsync();
+                var resultados = await _context.GetDashboardEstoqueTotalSaidasPorDia(id, idEmpresa).ToListAsync();
 
                 if (resultados == null || !resultados.Any())
                 {
@@ -167,11 +167,11 @@ namespace GlobalAPINFe.Controllers
         [HttpGet("GetTotalPorGrupo/{id}")]
         [ProducesResponseType(typeof(IEnumerable<TotalPorGrupo>), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<IEnumerable<TotalPorGrupo>>> GetTotalPorGrupo(int id)
+        public async Task<ActionResult<IEnumerable<TotalPorGrupo>>> GetTotalPorGrupo(int id, int? idEmpresa = 1)
         {
             try
             {
-                var resultados = await _context.GetTotalPorGrupo(id).ToListAsync();
+                var resultados = await _context.GetTotalPorGrupo(id, idEmpresa).ToListAsync();
 
                 if (resultados == null || !resultados.Any())
                 {

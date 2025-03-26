@@ -333,6 +333,7 @@ namespace GlobalAPI_ACBrNFe.Controllers
                     ppp.CdEmpresa = idEmpresa;
                     ppp.Unity = unity;
                     ppp.NrEntrada = entrada.Nr;
+                    ppp.TpEntrada = entrada.TpEntrada;
                     ppp.NrItem = Convert.ToInt16(item.NrItem);
                     ppp.CdBarra = (string.IsNullOrEmpty(amarracao.CdBarra) ? "SEM GTIN" : amarracao.CdBarra);
                     ppp.CdProduto = Convert.ToInt32(amarracao.CdProduto);

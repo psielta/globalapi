@@ -2552,54 +2552,54 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         });
     }
 
-    public IQueryable<DashboardEstoqueTotalEntradas> GetDashboardEstoqueTotalEntradas(int pid_empresa, int? p_month = null, int? p_year = null)
+    public IQueryable<DashboardEstoqueTotalEntradas> GetDashboardEstoqueTotalEntradas(int punity, int? p_month = null, int? p_year = null, int? pid_empresa = -1)
     {
         // Se os parâmetros não forem fornecidos, usa o mês e ano atuais
         p_month ??= DateTime.Now.Month;
         p_year ??= DateTime.Now.Year;
 
         return cdsDashboardEstoqueTotalEntradas
-            .FromSqlInterpolated($"SELECT * FROM public.get_dashboard_estoque_total_entradas({pid_empresa}, {p_month}, {p_year})");
+            .FromSqlInterpolated($"SELECT * FROM public.get_dashboard_estoque_total_entradas({punity}, {p_month}, {p_year},{pid_empresa})");
     }
 
-    public IQueryable<DashboardEstoqueTotalSaidas> GetDashboardEstoqueTotalSaidas(int pid_empresa, int? p_month = null, int? p_year = null)
+    public IQueryable<DashboardEstoqueTotalSaidas> GetDashboardEstoqueTotalSaidas(int punity, int? p_month = null, int? p_year = null, int? pid_empresa = -1)
     {
         // Se os parâmetros não forem fornecidos, usa o mês e ano atuais
         p_month ??= DateTime.Now.Month;
         p_year ??= DateTime.Now.Year;
 
         return cdsDashboardEstoqueTotalSaidas
-            .FromSqlInterpolated($"SELECT * FROM public.get_dashboard_estoque_total_saidas({pid_empresa}, {p_month}, {p_year})");
+            .FromSqlInterpolated($"SELECT * FROM public.get_dashboard_estoque_total_saidas({punity}, {p_month}, {p_year},{pid_empresa})");
     }
 
-    public IQueryable<DashboardEstoqueTotalSaidasPorMes> GetDashboardEstoqueTotalSaidasPorMes(int pid_empresa)
+    public IQueryable<DashboardEstoqueTotalSaidasPorMes> GetDashboardEstoqueTotalSaidasPorMes(int punity, int? pid_empresa = -1)
     {
         return cdsDashboardEstoqueTotalSaidasPorMes
-            .FromSqlInterpolated($"SELECT * FROM public.get_dashboard_estoque_total_saidas_por_mes({pid_empresa})");
+            .FromSqlInterpolated($"SELECT * FROM public.get_dashboard_estoque_total_saidas_por_mes({punity},{pid_empresa})");
     }
 
-    public IQueryable<DashboardEstoqueTotalEntradasPorMes> GetDashboardEstoqueTotalEntradasPorMes(int pid_empresa)
+    public IQueryable<DashboardEstoqueTotalEntradasPorMes> GetDashboardEstoqueTotalEntradasPorMes(int punity, int? pid_empresa = -1)
     {
         return cdsDashboardEstoqueTotalEntradasPorMes
-            .FromSqlInterpolated($"SELECT * FROM public.get_dashboard_estoque_total_entradas_por_mes({pid_empresa})");
+            .FromSqlInterpolated($"SELECT * FROM public.get_dashboard_estoque_total_entradas_por_mes({punity},{pid_empresa})");
     }
 
-    public IQueryable<DashboardEstoqueTotalEntradasPorDia> GetDashboardEstoqueTotalEntradasPorDia(int pid_empresa)
+    public IQueryable<DashboardEstoqueTotalEntradasPorDia> GetDashboardEstoqueTotalEntradasPorDia(int punity, int? pid_empresa = -1)
     {
         return cdsDashboardEstoqueTotalEntradasPorDia
-            .FromSqlInterpolated($"SELECT * FROM public.get_dashboard_estoque_total_entradas_por_dia({pid_empresa})");
+            .FromSqlInterpolated($"SELECT * FROM public.get_dashboard_estoque_total_entradas_por_dia({punity},{pid_empresa})");
     }
 
-    public IQueryable<DashboardEstoqueTotalSaidasPorDia> GetDashboardEstoqueTotalSaidasPorDia(int pid_empresa)
+    public IQueryable<DashboardEstoqueTotalSaidasPorDia> GetDashboardEstoqueTotalSaidasPorDia(int punity, int? pid_empresa = -1)
     {
         return cdsDashboardEstoqueTotalSaidasPorDia
-            .FromSqlInterpolated($"SELECT * FROM public.get_dashboard_estoque_total_saidas_por_dia({pid_empresa})");
+            .FromSqlInterpolated($"SELECT * FROM public.get_dashboard_estoque_total_saidas_por_dia({punity},{pid_empresa})");
     }
 
-    public IQueryable<TotalPorGrupo> GetTotalPorGrupo(int pid_empresa)
+    public IQueryable<TotalPorGrupo> GetTotalPorGrupo(int punity, int? pid_empresa = -1)
     {
         return cdsTotalPorGrupo
-            .FromSqlInterpolated($"SELECT * FROM public.get_total_por_grupo({pid_empresa})");
+            .FromSqlInterpolated($"SELECT * FROM public.get_total_por_grupo({punity},{pid_empresa})");
     }
 
     public IQueryable<FnDistribuicaoDfeEntradasResult> GetDistribuicaoDfeEntradas(
