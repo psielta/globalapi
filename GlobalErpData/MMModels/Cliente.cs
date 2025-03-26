@@ -111,6 +111,9 @@ public partial class Cliente
     public virtual Usuario IdUsuarioCadNavigation { get; set; } = null!;
 
     [InverseProperty("IdClienteNavigation")]
+    public virtual ICollection<OrcamentoCab> OrcamentoCabs { get; set; } = new List<OrcamentoCab>();
+
+    [InverseProperty("IdClienteNavigation")]
     public virtual ICollection<RetiradaNfe> RetiradaNves { get; set; } = new List<RetiradaNfe>();
 
     [InverseProperty("ClienteNavigation")]

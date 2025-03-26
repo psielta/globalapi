@@ -15,6 +15,12 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         : base(options)
     {
     }
+    public virtual DbSet<Departamento> Departamentos { get; set; }
+    public virtual DbSet<OrcamentoCab> OrcamentoCabs { get; set; }
+    public virtual DbSet<OrcamentoIten> OrcamentoItens { get; set; }
+    public virtual DbSet<OsTabelaPreco> OsTabelaPrecos { get; set; }
+    public virtual DbSet<Servico> Servicos { get; set; }
+    public virtual DbSet<OrcamentoServico> OrcamentoServicos { get; set; }
     public virtual DbSet<EntregaNfe> EntregaNves { get; set; }
     public virtual DbSet<RetiradaNfe> RetiradaNves { get; set; }
     public virtual DbSet<Category> Categories { get; set; }
@@ -856,6 +862,15 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .HasConstraintName("cte_veiculo_fkey");
         });
 
+        modelBuilder.Entity<Departamento>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("departamento_pkey");
+
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.Departamentos)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("departamento_fk");
+        });
+
         modelBuilder.Entity<DistribuicaoDfe>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("distribuicao_dfe_pkey");
@@ -1619,12 +1634,97 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .HasConstraintName("older_items_fk6");
         });
 
+        modelBuilder.Entity<OrcamentoCab>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("orcamento_cab_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("uuid_generate_v4()");
+            entity.Property(e => e.Gerado).HasDefaultValueSql("'N'::character varying");
+            entity.Property(e => e.Sequencia).ValueGeneratedOnAdd();
+
+            entity.HasOne(d => d.CdPlanoNavigation).WithMany(p => p.OrcamentoCabs)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("orcamento_cab_fk4");
+
+            entity.HasOne(d => d.EmpresaNavigation).WithMany(p => p.OrcamentoCabs)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("orcamento_cab_fk3");
+
+            entity.HasOne(d => d.IdClienteNavigation).WithMany(p => p.OrcamentoCabs)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("orcamento_cab_fk1");
+
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.OrcamentoCabs)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("orcamento_cab_fk");
+
+            entity.HasOne(d => d.Funcionario).WithMany(p => p.OrcamentoCabs)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("orcamento_cab_fk2");
+        });
+
+        modelBuilder.Entity<OrcamentoIten>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("orcamento_itens_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("uuid_generate_v4()");
+            entity.Property(e => e.Qtde).HasDefaultValueSql("1");
+            entity.Property(e => e.Sequencia).ValueGeneratedOnAdd();
+
+            entity.HasOne(d => d.CdPlanoNavigation).WithMany(p => p.OrcamentoItens)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("orcamento_itens_fk2");
+
+            entity.HasOne(d => d.ProdutoEstoque).WithMany(p => p.OrcamentoItens)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("orcamento_itens_fk1");
+
+            entity.HasOne(d => d.OrcamentoCab).WithMany(p => p.OrcamentoItens)
+                .HasPrincipalKey(p => new { p.Id, p.Sequencia, p.Unity, p.Empresa, p.IdCliente, p.Gerado, p.IdFuncionario, p.PercentualComissao, p.CdPlano })
+                .HasForeignKey(d => new { d.IdCab, d.SequenciaCab, d.Unity, d.Empresa, d.IdCliente, d.Gerado, d.IdFuncionario, d.PercentualComissao, d.CdPlano })
+                .HasConstraintName("orcamento_itens_fk");
+        });
+
+        modelBuilder.Entity<OrcamentoServico>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("orcamento_servicos_pkey");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("uuid_generate_v4()");
+            entity.Property(e => e.Lado).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.Qtde).HasDefaultValueSql("1");
+            entity.Property(e => e.Sequencia).ValueGeneratedOnAdd();
+
+            entity.HasOne(d => d.IdServicoNavigation).WithMany(p => p.OrcamentoServicos)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("orcamento_servicos_fk1");
+
+            entity.HasOne(d => d.OrcamentoCab).WithMany(p => p.OrcamentoServicos)
+                .HasPrincipalKey(p => new { p.Id, p.Sequencia, p.Unity, p.Empresa, p.IdCliente, p.Gerado, p.IdFuncionario, p.PercentualComissao })
+                .HasForeignKey(d => new { d.IdCab, d.SequenciaCab, d.Unity, d.Empresa, d.IdCliente, d.Gerado, d.IdFuncionario, d.PercentualComissao })
+                .HasConstraintName("orcamento_servicos_fk");
+        });
+
         modelBuilder.Entity<OrigemCst>(entity =>
         {
             entity.HasKey(e => e.Codigo).HasName("origem_cst_pkey");
 
             entity.Property(e => e.Integrated).HasDefaultValue(0);
             entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
+        });
+
+        modelBuilder.Entity<OsTabelaPreco>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("os_tabela_preco_pkey");
+
+            entity.Property(e => e.DtUltAlteracao).HasDefaultValueSql("now()");
+
+            entity.HasOne(d => d.CdServicoNavigation).WithMany(p => p.OsTabelaPrecos)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("os_tabela_preco_fk1");
+
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.OsTabelaPrecos)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("os_tabela_preco_fk");
         });
 
         modelBuilder.Entity<PagtosParciaisCp>(entity =>
@@ -2281,6 +2381,17 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.UnityNavigation).WithMany(p => p.SectionItems)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("section_items_fk");
+        });
+
+        modelBuilder.Entity<Servico>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("servicos_pkey");
+
+            entity.Property(e => e.PagaComissao).HasDefaultValue(true);
+
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.Servicos)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("servicos_fk");
         });
 
         modelBuilder.Entity<TabelaAnp>(entity =>

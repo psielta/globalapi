@@ -364,4 +364,8 @@ public partial class Empresa : IIdentifiable<int>
     {
         return "CdEmpresa";
     }
+
+    [JsonIgnore]
+    [InverseProperty("EmpresaNavigation")]
+    public virtual ICollection<OrcamentoCab> OrcamentoCabs { get; set; } = new List<OrcamentoCab>();
 }

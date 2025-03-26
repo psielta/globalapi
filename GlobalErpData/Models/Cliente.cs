@@ -147,4 +147,8 @@ public partial class Cliente : IIdentifiable<int>
     [JsonPropertyName("uf")]
     [NotMapped]
     public string Uf => CdCidadeNavigation?.Uf ?? string.Empty;
+
+    [JsonIgnore]
+    [InverseProperty("IdClienteNavigation")]
+    public virtual ICollection<OrcamentoCab> OrcamentoCabs { get; set; } = new List<OrcamentoCab>();
 }

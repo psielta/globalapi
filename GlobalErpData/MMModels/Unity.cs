@@ -48,6 +48,9 @@ public partial class Unity
     public virtual ICollection<ControleNumeracaoNfe> ControleNumeracaoNves { get; set; } = new List<ControleNumeracaoNfe>();
 
     [InverseProperty("UnityNavigation")]
+    public virtual ICollection<Departamento> Departamentos { get; set; } = new List<Departamento>();
+
+    [InverseProperty("UnityNavigation")]
     public virtual ICollection<Empresa> Empresas { get; set; } = new List<Empresa>();
 
     [InverseProperty("UnityNavigation")]
@@ -99,6 +102,12 @@ public partial class Unity
     public virtual ICollection<OlderItem> OlderItems { get; set; } = new List<OlderItem>();
 
     [InverseProperty("UnityNavigation")]
+    public virtual ICollection<OrcamentoCab> OrcamentoCabs { get; set; } = new List<OrcamentoCab>();
+
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<OsTabelaPreco> OsTabelaPrecos { get; set; } = new List<OsTabelaPreco>();
+
+    [InverseProperty("UnityNavigation")]
     public virtual ICollection<PlanoDeCaixa> PlanoDeCaixas { get; set; } = new List<PlanoDeCaixa>();
 
     [InverseProperty("UnityNavigation")]
@@ -136,6 +145,9 @@ public partial class Unity
 
     [InverseProperty("UnityNavigation")]
     public virtual ICollection<SectionItem> SectionItems { get; set; } = new List<SectionItem>();
+
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<Servico> Servicos { get; set; } = new List<Servico>();
 
     [InverseProperty("UnityNavigation")]
     public virtual ICollection<Transportadora> Transportadoras { get; set; } = new List<Transportadora>();

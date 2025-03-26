@@ -183,4 +183,12 @@ public partial class Funcionario : IIdentifiableMultiKey<int, int>
     {
         return "CdFuncionario";
     }
+
+    [Column("percentual_comissao")]
+    [Precision(18, 4)]
+    public decimal PercentualComissao { get; set; }
+
+    [JsonIgnore]
+    [InverseProperty("Funcionario")]
+    public virtual ICollection<OrcamentoCab> OrcamentoCabs { get; set; } = new List<OrcamentoCab>();
 }

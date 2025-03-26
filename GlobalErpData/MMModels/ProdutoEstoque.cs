@@ -580,6 +580,9 @@ public partial class ProdutoEstoque
     public virtual ICollection<OlderItem> OlderItems { get; set; } = new List<OlderItem>();
 
     [InverseProperty("ProdutoEstoque")]
+    public virtual ICollection<OrcamentoIten> OrcamentoItens { get; set; } = new List<OrcamentoIten>();
+
+    [InverseProperty("ProdutoEstoque")]
     public virtual ICollection<ProductDetail> ProductDetails { get; set; } = new List<ProductDetail>();
 
     [InverseProperty("ProdutoEstoque")]

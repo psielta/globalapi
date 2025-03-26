@@ -248,6 +248,9 @@ public partial class Empresa
     [InverseProperty("IdEmpresaNavigation")]
     public virtual ICollection<Older> Olders { get; set; } = new List<Older>();
 
+    [InverseProperty("EmpresaNavigation")]
+    public virtual ICollection<OrcamentoCab> OrcamentoCabs { get; set; } = new List<OrcamentoCab>();
+
     [InverseProperty("CdEmpresaNavigation")]
     public virtual ICollection<PagtosParciaisCp> PagtosParciaisCps { get; set; } = new List<PagtosParciaisCp>();
 

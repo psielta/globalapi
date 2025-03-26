@@ -652,5 +652,9 @@ public partial class ProdutoEstoque : IIdentifiable<int>, IIdentifiableMultiKey<
     {
         return (Unity, CdProduto);
     }
-    
+
+    [JsonIgnore]
+    [InverseProperty("ProdutoEstoque")]
+    public virtual ICollection<OrcamentoIten> OrcamentoItens { get; set; } = new List<OrcamentoIten>();
+
 }

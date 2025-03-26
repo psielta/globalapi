@@ -80,4 +80,12 @@ public partial class PlanoEstoque : IIdentifiable<int>
     [ForeignKey("Unity")]
     [InverseProperty("PlanoEstoques")]
     public virtual Unity UnityNavigation { get; set; } = null!;
+
+    [JsonIgnore]
+    [InverseProperty("CdPlanoNavigation")]
+    public virtual ICollection<OrcamentoCab> OrcamentoCabs { get; set; } = new List<OrcamentoCab>();
+
+    [JsonIgnore]
+    [InverseProperty("CdPlanoNavigation")]
+    public virtual ICollection<OrcamentoIten> OrcamentoItens { get; set; } = new List<OrcamentoIten>();
 }

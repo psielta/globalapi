@@ -141,6 +141,10 @@ public partial class Funcionario
     [Column("unity")]
     public int Unity { get; set; }
 
+    [Column("percentual_comissao")]
+    [Precision(18, 4)]
+    public decimal PercentualComissao { get; set; }
+
     [ForeignKey("CdEmpresa")]
     [InverseProperty("Funcionarios")]
     public virtual Empresa CdEmpresaNavigation { get; set; } = null!;
@@ -148,6 +152,9 @@ public partial class Funcionario
     [ForeignKey("Cidade")]
     [InverseProperty("Funcionarios")]
     public virtual Cidade? CidadeNavigation { get; set; }
+
+    [InverseProperty("Funcionario")]
+    public virtual ICollection<OrcamentoCab> OrcamentoCabs { get; set; } = new List<OrcamentoCab>();
 
     [ForeignKey("Unity")]
     [InverseProperty("Funcionarios")]

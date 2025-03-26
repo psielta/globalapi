@@ -13,6 +13,8 @@ namespace GlobalErpData.Dto
     {
         public string NmFuncionario { get; set; } = null!;
 
+        public decimal PercentualComissao { get; set; }
+
         public DateOnly? DtNascimento { get; set; }
 
         public string? Endereco { get; set; }

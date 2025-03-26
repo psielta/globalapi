@@ -43,6 +43,12 @@ public partial class PlanoEstoque
     public virtual ICollection<Entrada> Entrada { get; set; } = new List<Entrada>();
 
     [InverseProperty("CdPlanoNavigation")]
+    public virtual ICollection<OrcamentoCab> OrcamentoCabs { get; set; } = new List<OrcamentoCab>();
+
+    [InverseProperty("CdPlanoNavigation")]
+    public virtual ICollection<OrcamentoIten> OrcamentoItens { get; set; } = new List<OrcamentoIten>();
+
+    [InverseProperty("CdPlanoNavigation")]
     public virtual ICollection<ProdutoSaidum> ProdutoSaida { get; set; } = new List<ProdutoSaidum>();
 
     [InverseProperty("CdGrupoEstoqueNavigation")]

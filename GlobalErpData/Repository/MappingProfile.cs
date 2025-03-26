@@ -123,6 +123,14 @@ namespace GlobalErpData.Repository
             CreateMap<Unity,UnityDto>().ReverseMap();
             CreateMap<UsuarioEmpresa, UsuarioEmpresaDto>().ReverseMap();
 
+            CreateMap<OrcamentoCab, OrcamentoCabDto>().ReverseMap();
+            CreateMap<OrcamentoIten, OrcamentoItensDto>().ReverseMap();
+            CreateMap<OrcamentoServico, OrcamentoServicosDto>().ReverseMap();
+
+            CreateMap<Departamento, DepartamentoDto>().ReverseMap();
+            CreateMap<Servico, ServicoDto>().ReverseMap();
+            CreateMap<OsTabelaPreco, OsTabelaPrecoDto>().ReverseMap();
+
         }
     }
 }

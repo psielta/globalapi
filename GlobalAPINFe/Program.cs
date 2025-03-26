@@ -130,6 +130,11 @@ builder.Services.AddScoped<IRepositoryDto<PerfilLoja, int, PerfilLojaDto>, Perfi
 builder.Services.AddScoped<IRepositoryDto<OlderItem, Guid, OlderItemDto>, OlderItemRepository>();
 builder.Services.AddScoped<IRepositoryDto<Unity, int, UnityDto>, UnityRepository>();
 builder.Services.AddScoped<IRepositoryDto<UsuarioEmpresa, int, UsuarioEmpresaDto>, UsuarioEmpresaRepository>();
+builder.Services.AddScoped<IRepositoryDto<OsTabelaPreco, long, OsTabelaPrecoDto>, OsTabelaPrecoRepository>();
+builder.Services.AddScoped<IRepositoryDto<OrcamentoIten, Guid, OrcamentoItensDto>, OrcamentoItensRepository>();
+builder.Services.AddScoped<IRepositoryDto<OrcamentoServico, Guid, OrcamentoServicosDto>, OrcamentoServicosRepository>();
+builder.Services.AddScoped<IRepositoryDto<Departamento, long, DepartamentoDto>, DepartamentoRepository>();
+
 builder.Services.AddScoped<IQueryRepository<Older, Guid, OlderDto>, OlderRepository>();
 builder.Services.AddScoped<IRepositoryDto<Category, int, CategoryDto>, CategoryRep>();
 builder.Services.AddScoped<IQueryRepository<ContaDoCaixa, int, ContaCaixaDto>, ContaCaixaRepository>();
@@ -158,6 +163,8 @@ builder.Services.AddScoped<IQueryRepository<PagtosParciaisCp, int, PagtosParciai
 builder.Services.AddScoped<IQueryRepository<DistribuicaoDfe, Guid, DistribuicaoDfeDto>, DistribuicaoDfeRepository>();
 builder.Services.AddScoped<IQueryRepository<EntradaOutrasDesp, int, EntradaOutrasDespDto>, EntradaOutrasDespRepository>();
 builder.Services.AddScoped<IQueryRepository<Cte, int, CteDto>, CteRepository>();
+builder.Services.AddScoped<IQueryRepository<OrcamentoCab, Guid, OrcamentoCabDto>, OrcamentoRepository>();
+builder.Services.AddScoped<IQueryRepository<Servico, long, ServicoDto>, ServicoRepository>();
 
 builder.Services.AddScoped<EntradaCalculationService>();
 builder.Services.AddScoped<SaidaCalculationService>();
