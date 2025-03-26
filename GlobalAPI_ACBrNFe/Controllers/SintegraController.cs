@@ -25,14 +25,14 @@ namespace GlobalAPI_ACBrNFe.Controllers
             _logger = logger;
         }
 
-        [HttpGet("{id}")]
+        [HttpPost("{id}")]
         [Produces("text/plain")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(FileContentResult))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         public async Task<IActionResult> GetSintegra(
             [FromRoute] int id,
-            [FromQuery] SintegraDto sintegraDto)
+            [FromBody] SintegraDto sintegraDto)
         {
             try
             {

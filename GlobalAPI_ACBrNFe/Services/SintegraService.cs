@@ -28,9 +28,9 @@ namespace GlobalAPI_ACBrNFe.Services
         private int mes;
         private int ano;
         private DateTime dataInicial;
-        private string dataInicialPtbrFormat;
+        private string dataInicialISO;
         private DateTime dataFinal;
-        private string dataFinalPtbrFormat;
+        private string dataFinalISO;
         private int CodFinalidadeArquivo;
 
         public SintegraService(GlobalErpFiscalBaseContext db, ILogger<SintegraService> logger, IMapper mapper, IHubContext<ImportProgressHub> hubContext)
@@ -67,7 +67,7 @@ namespace GlobalAPI_ACBrNFe.Services
             int pcd_plano = this.idPlano;
 
             var resultados = await db.ProcReg75EntradaResults
-                .FromSqlRaw($"SELECT * FROM public.proc_reg_75_entrada('{dataInicialPtbrFormat}', '{dataFinalPtbrFormat}', {pcd_empresa}, {pcd_plano})")
+                .FromSqlRaw($"SELECT * FROM public.proc_reg_75_entrada('{dataInicialISO}', '{dataFinalISO}', {pcd_empresa}, {pcd_plano})")
                 .ToListAsync();
 
             string resultString = string.Empty;
@@ -106,7 +106,7 @@ namespace GlobalAPI_ACBrNFe.Services
             int pcd_plano = this.idPlano;
 
             var resultados = await db.ProcReg75SaidaResults
-                .FromSqlRaw($"SELECT * FROM public.proc_reg_75_saida('{dataInicialPtbrFormat}', '{dataFinalPtbrFormat}', {pcd_empresa}, {pcd_plano})")
+                .FromSqlRaw($"SELECT * FROM public.proc_reg_75_saida('{dataInicialISO}', '{dataFinalISO}', {pcd_empresa}, {pcd_plano})")
                 .ToListAsync();
 
             string resultString = string.Empty;
@@ -171,7 +171,7 @@ namespace GlobalAPI_ACBrNFe.Services
             int pcd_plano = this.idPlano;
 
             var resultados = await db.ProcReg54SaidaResults
-                .FromSqlRaw($"SELECT * FROM public.proc_reg_54_saida('{dataInicialPtbrFormat}', '{dataFinalPtbrFormat}', {pcd_empresa}, {pcd_plano})")
+                .FromSqlRaw($"SELECT * FROM public.proc_reg_54_saida('{dataInicialISO}', '{dataFinalISO}', {pcd_empresa}, {pcd_plano})")
                 .ToListAsync();
 
             string resultString = string.Empty;
@@ -191,7 +191,17 @@ namespace GlobalAPI_ACBrNFe.Services
                     throw new Exception($"CFOP não informado (Saida Nr: {item.snr_nota_fiscal}, serie {item.sserie_nf})");
                 r54.Cfop = int.Parse(item.scfop);
                 if (string.IsNullOrEmpty(item.scst))
-                    throw new Exception($"CST não informado (Saida Nr: {item.snr_nota_fiscal}, serie {item.sserie_nf})");
+                {
+                    if (empresa.TipoRegime == 1)
+                    {
+                        var charArrayCfop = item.scfop.ToCharArray();
+                        if (charArrayCfop[1] == '1') { r54.Cst = "000"; }
+                        else if (charArrayCfop[1] == '4') { r54.Cst = "060"; }
+                        else { r54.Cst = "000"; }
+                    }
+                    else
+                        throw new Exception($"CST não informado (Saida Nr: {item.snr_nota_fiscal}, serie {item.sserie_nf})");
+                }
                 if (item.scst.Length > 3)
                     r54.Cst = item.scst.Substring(1, 3);
                 else
@@ -235,7 +245,7 @@ namespace GlobalAPI_ACBrNFe.Services
             int pcd_plano = this.idPlano;
 
             var resultados = await db.ProcReg50SaidaResults
-                .FromSqlRaw($"SELECT * FROM public.proc_reg_50_saida('{dataInicialPtbrFormat}', '{dataFinalPtbrFormat}', {cd_empresa}, {pcd_plano})")
+                .FromSqlRaw($"SELECT * FROM public.proc_reg_50_saida('{dataInicialISO}', '{dataFinalISO}', {cd_empresa}, {pcd_plano})")
                 .ToListAsync();
 
             string resultString = string.Empty;
@@ -271,6 +281,8 @@ namespace GlobalAPI_ACBrNFe.Services
                 registro50.AliquotaIcms = item.spor_icms;
                 registro50.ValorIsentaOuNaoTributadas = 0;
                 registro50.ValorOutras = 0;
+
+                listRegistro50.Add(registro50);
             }
 
             foreach (var r50 in listRegistro50)
@@ -291,7 +303,7 @@ namespace GlobalAPI_ACBrNFe.Services
             int pcd_plano = idPlano;
 
             var resultados = await db.ProcReg54EntradaResults
-                .FromSqlRaw($"SELECT * FROM public.proc_reg_54_entrada('{dataInicialPtbrFormat}', '{dataFinalPtbrFormat}', {pcd_empresa}, {pcd_plano})")
+                .FromSqlRaw($"SELECT * FROM public.proc_reg_54_entrada('{dataInicialISO}', '{dataFinalISO}', {pcd_empresa}, {pcd_plano})")
                 .ToListAsync();
 
             var ListaRegistros54 = new List<Registro54>();
@@ -312,6 +324,9 @@ namespace GlobalAPI_ACBrNFe.Services
             {
                 var item = resultados[idx];
 
+                if (string.IsNullOrEmpty(item.scd_cfop))
+                    throw new Exception($"CFOP não informado (Entrada Nr (NFe): {item.snr_nf}, serie {item.sserie_nf})");
+
                 var wregistro54 = new Registro54
                 {
                     Cnpj = UtlStrings.OnlyInteger(item.scnpj ?? ""),
@@ -320,6 +335,19 @@ namespace GlobalAPI_ACBrNFe.Services
                     Numero = int.Parse(item.snr_nf),
                     Cfop = int.Parse(item.scd_cfop),
                 };
+
+                if (string.IsNullOrEmpty(item.scst))
+                {
+                    if (empresa.TipoRegime == 1)
+                    {
+                        var charArrayCfop = item.scd_cfop.ToCharArray();
+                        if (charArrayCfop[1] == '1') { wregistro54.Cst = "000"; }
+                        else if (charArrayCfop[1] == '4') { wregistro54.Cst = "060"; }
+                        else { wregistro54.Cst = "000"; }
+                    }
+                    else
+                        throw new Exception($"CST não informado (Entrada Nr (NFe): {item.snr_nf}, serie {item.sserie_nf})");
+                }
 
                 string cstAjustado = item.scst;
                 if (!string.IsNullOrEmpty(cstAjustado))
@@ -471,9 +499,9 @@ namespace GlobalAPI_ACBrNFe.Services
             this.mes = sintegraDto.Mes;
             this.ano = sintegraDto.Ano;
             dataInicial = new DateTime(ano, mes, 1);
-            dataInicialPtbrFormat = dataInicial.ToString("dd/MM/yyyy");
+            dataInicialISO = dataInicial.ToString("yyyy-MM-dd");
             dataFinal = new DateTime(ano, mes, DateTime.DaysInMonth(ano, mes));
-            dataFinalPtbrFormat = dataFinal.ToString("dd/MM/yyyy");
+            dataFinalISO = dataFinal.ToString("yyyy-MM-dd");
             this.idPlano = sintegraDto.Plano;
             this.CodFinalidadeArquivo = sintegraDto.CodFinalidadeArquivo;
 
@@ -532,7 +560,7 @@ namespace GlobalAPI_ACBrNFe.Services
             int pcd_empresa = empresa.CdEmpresa;
             int pcd_plano = idPlano;
 
-            string sql = $"SELECT * FROM public.proc_reg_50_entrada('{this.dataInicialPtbrFormat}', '{this.dataFinalPtbrFormat}', {empresa.CdEmpresa}, {idPlano})";
+            string sql = $"SELECT * FROM public.proc_reg_50_entrada('{this.dataInicialISO}', '{this.dataFinalISO}', {empresa.CdEmpresa}, {idPlano})";
 
             var resultados = await db.ProcReg50EntradaResults
                 .FromSqlRaw(sql)
