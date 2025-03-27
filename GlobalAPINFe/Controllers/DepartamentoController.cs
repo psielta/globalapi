@@ -28,10 +28,10 @@ namespace GlobalAPINFe.Controllers
             return await base.GetEntities();
         }
 
-        [HttpGet("GetByUnity/{unity}")]
+        [HttpGet("GetDepartamentoByUnity/{unity}")]
         [ProducesResponseType(typeof(IEnumerable<Departamento>), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<IEnumerable<Departamento>>> GetByUnity([FromRoute] int unity)
+        public async Task<ActionResult<IEnumerable<Departamento>>> GetDepartamentoByUnity([FromRoute] int unity)
         {
             try
             {
