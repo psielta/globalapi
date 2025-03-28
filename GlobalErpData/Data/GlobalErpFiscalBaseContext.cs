@@ -2389,6 +2389,10 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
             entity.Property(e => e.PagaComissao).HasDefaultValue(true);
 
+            entity.HasOne(d => d.IdDepartamentoNavigation).WithMany(p => p.Servicos)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("servicos_fk1");
+
             entity.HasOne(d => d.UnityNavigation).WithMany(p => p.Servicos)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("servicos_fk");

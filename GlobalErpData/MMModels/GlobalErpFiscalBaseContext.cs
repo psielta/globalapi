@@ -175,11 +175,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
     public virtual DbSet<OrcamentoCab> OrcamentoCabs { get; set; }
 
-    public virtual DbSet<OrcamentoCab0eqeti> OrcamentoCab0eqetis { get; set; }
-
     public virtual DbSet<OrcamentoIten> OrcamentoItens { get; set; }
-
-    public virtual DbSet<OrcamentoItens0xvirh> OrcamentoItens0xvirhs { get; set; }
 
     public virtual DbSet<OrcamentoServico> OrcamentoServicos { get; set; }
 
@@ -2389,6 +2385,10 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasKey(e => e.Id).HasName("servicos_pkey");
 
             entity.Property(e => e.PagaComissao).HasDefaultValue(true);
+
+            entity.HasOne(d => d.IdDepartamentoNavigation).WithMany(p => p.Servicos)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("servicos_fk1");
 
             entity.HasOne(d => d.UnityNavigation).WithMany(p => p.Servicos)
                 .OnDelete(DeleteBehavior.ClientSetNull)

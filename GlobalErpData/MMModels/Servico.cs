@@ -17,7 +17,7 @@ public partial class Servico
     public int Unity { get; set; }
 
     [Column("id_departamento")]
-    public int IdDepartamento { get; set; }
+    public long IdDepartamento { get; set; }
 
     [Column("paga_comissao")]
     public bool PagaComissao { get; set; }
@@ -25,6 +25,14 @@ public partial class Servico
     [Column("valor_unitario")]
     [Precision(18, 4)]
     public decimal ValorUnitario { get; set; }
+
+    [Column("nm_servico")]
+    [StringLength(255)]
+    public string NmServico { get; set; } = null!;
+
+    [ForeignKey("IdDepartamento")]
+    [InverseProperty("Servicos")]
+    public virtual Departamento IdDepartamentoNavigation { get; set; } = null!;
 
     [InverseProperty("IdServicoNavigation")]
     public virtual ICollection<OrcamentoServico> OrcamentoServicos { get; set; } = new List<OrcamentoServico>();

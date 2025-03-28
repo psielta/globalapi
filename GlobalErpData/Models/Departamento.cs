@@ -38,4 +38,8 @@ public partial class Departamento : IIdentifiable<long>
     {
         return "Id";
     }
+
+    [JsonIgnore]
+    [InverseProperty("IdDepartamentoNavigation")]
+    public virtual ICollection<Servico> Servicos { get; set; } = new List<Servico>();
 }

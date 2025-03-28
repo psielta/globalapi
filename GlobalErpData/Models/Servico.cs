@@ -20,7 +20,7 @@ public partial class Servico : IIdentifiable<long>
     public int Unity { get; set; }
 
     [Column("id_departamento")]
-    public int IdDepartamento { get; set; }
+    public long IdDepartamento { get; set; }
 
     [Column("paga_comissao")]
     public bool PagaComissao { get; set; }
@@ -28,6 +28,19 @@ public partial class Servico : IIdentifiable<long>
     [Column("valor_unitario")]
     [Precision(18, 4)]
     public decimal ValorUnitario { get; set; }
+
+    [Column("nm_servico")]
+    [StringLength(255)]
+    public string NmServico { get; set; } = null!;
+
+    [JsonIgnore]
+    [ForeignKey("IdDepartamento")]
+    [InverseProperty("Servicos")]
+    public virtual Departamento IdDepartamentoNavigation { get; set; } = null!;
+
+    [JsonPropertyName("nmDepartamento")]
+    [NotMapped]
+    public string NmDepartamento => IdDepartamentoNavigation?.NmDepartamento ?? "";
 
     [JsonIgnore]
     [InverseProperty("IdServicoNavigation")]

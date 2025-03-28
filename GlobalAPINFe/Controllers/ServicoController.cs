@@ -23,8 +23,10 @@ namespace GlobalAPINFe.Controllers
 {
     public class ServicoController : GenericPagedController<Servico, long, ServicoDto>
     {
-        public ServicoController(IQueryRepository<Servico, long, ServicoDto> repo, ILogger<GenericPagedController<Servico, long, ServicoDto>> logger) : base(repo, logger)
+        private readonly GlobalErpFiscalBaseContext globalErpFiscalBaseContext;
+        public ServicoController(IQueryRepository<Servico, long, ServicoDto> repo, ILogger<GenericPagedController<Servico, long, ServicoDto>> logger, GlobalErpFiscalBaseContext context) : base(repo, logger)
         {
+            this.globalErpFiscalBaseContext = context;
         }
 
         [HttpGet]
@@ -48,7 +50,35 @@ namespace GlobalAPINFe.Controllers
         [ProducesResponseType(400)]
         public override async Task<ActionResult<Servico>> Create([FromBody] ServicoDto dto)
         {
-            return await base.Create(dto);
+            try
+            {
+                if (dto == null)
+                {
+                    return BadRequest("Invalid data provided."); // 400 Bad request
+                }
+                Servico? added = await repo.CreateAsync(dto);
+                if (added == null)
+                {
+                    return BadRequest("Failed to create the entity.");
+                }
+                else
+                {
+                    added = await repo.RetrieveAsyncAsNoTracking(added.GetId());
+                    if (added == null)
+                    {
+                        return BadRequest("Failed to create the entity.");
+                    }
+                    return CreatedAtAction( // 201 Created
+                      nameof(GetEntity),
+                      new { id = added.GetId() },
+                      added);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while creating an entity.");
+                return StatusCode(500, $"An error occurred while creating the entity: {ex.GetType().Name} - {ex.Message} - {ex.InnerException}");
+            }
         }
 
         [HttpPost("bulk")]
@@ -75,6 +105,53 @@ namespace GlobalAPINFe.Controllers
         public override async Task<IActionResult> Delete(long id)
         {
             return await base.Delete(id);
+        }
+
+        [HttpGet("GetServicosPorUnity", Name = nameof(GetServicosPorUnity))]
+        [ProducesResponseType(typeof(PagedResponse<Servico>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<PagedResponse<Servico>>> GetServicosPorUnity(
+            int unity, 
+            [FromQuery] int pageNumber = 1, 
+            [FromQuery] int pageSize = 10,
+            [FromQuery] int? departamentoId = null,
+            [FromQuery] string? departamentoNome = null)
+        {
+            try
+            {
+                var query = ((ServicoRepository)repo).GetServicosPorUnity(unity);
+                if ((!string.IsNullOrEmpty(departamentoNome)) || departamentoId.HasValue)
+                {
+                    string SQL = $@"
+                        SELECT * FROM servicos s WHERE
+                        (1=1)
+                        AND s.unity = {unity}
+                        {((!string.IsNullOrEmpty(departamentoNome)) ? $" AND Upper(Trim(s.nm_servico)) LIKE '%{departamentoNome.ToUpper().Trim()}%' " : "" )}
+                        {(departamentoId.HasValue ? $" AND s.id_departamento = {departamentoId} " : "")}
+                        ORDER BY s.id
+                    ";
+
+                    query = this.globalErpFiscalBaseContext.Servicos.FromSqlRaw(SQL).Include(x => x.IdDepartamentoNavigation).AsQueryable();
+                }
+
+                if (query == null)
+                {
+                    return NotFound("Entities not found."); // 404 Resource not found
+                }
+                var pagedList = await query.ToPagedListAsync(pageNumber, pageSize);
+                var response = new PagedResponse<Servico>(pagedList);
+
+                if (response.Items == null || response.Items.Count == 0)
+                {
+                    return NotFound("Entities not found."); // 404 Resource not found
+                }
+                return Ok(response); // 200 OK
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while retrieving paged entities.");
+                return StatusCode(500, "An error occurred while retrieving entities. Please try again later.");
+            }
         }
     }
 }

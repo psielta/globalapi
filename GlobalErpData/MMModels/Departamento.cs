@@ -20,6 +20,9 @@ public partial class Departamento
     [StringLength(255)]
     public string NmDepartamento { get; set; } = null!;
 
+    [InverseProperty("IdDepartamentoNavigation")]
+    public virtual ICollection<Servico> Servicos { get; set; } = new List<Servico>();
+
     [ForeignKey("Unity")]
     [InverseProperty("Departamentos")]
     public virtual Unity UnityNavigation { get; set; } = null!;

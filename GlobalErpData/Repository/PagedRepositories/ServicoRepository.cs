@@ -4,6 +4,7 @@ using GlobalErpData.Dto;
 using GlobalErpData.Models;
 using GlobalLib.Repository;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -19,11 +20,67 @@ namespace GlobalErpData.Repository.PagedRepositories
         {
         }
 
-        public async Task<IEnumerable<Servico>> GetServicosPorUnity(int unity)
+        public IQueryable<Servico> GetServicosPorUnity(int unity)
         {
-            return await db.Set<Servico>()
+            return db.Set<Servico>().Include(x => x.IdDepartamentoNavigation)
                 .Where(e => e.Unity == unity)
-                .ToListAsync();
+                .AsQueryable();
+        }
+
+        public override Task<IQueryable<Servico>> RetrieveAllAsync()
+        {
+            try
+            {
+                // Retorna o IQueryable do EF, sem cache estático
+                return Task.FromResult(db.Set<Servico>().Include(x => x.IdDepartamentoNavigation).AsQueryable());
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while retrieving all entities.");
+                return Task.FromResult(Enumerable.Empty<Servico>().AsQueryable());
+            }
+        }
+
+        public override async Task<Servico?> RetrieveAsync(long id)
+        {
+            try
+            {
+                // Descobre dinamicamente o nome da propriedade de chave
+                var tempEntity = Activator.CreateInstance<Servico>();
+                var keyName = tempEntity.GetKeyName();
+
+                // Filtra por EF.Property<>
+                var entity = await db.Set<Servico>().Include(x => x.IdDepartamentoNavigation)
+                    .SingleOrDefaultAsync(e => EF.Property<long>(e, keyName)!.Equals(id));
+
+                return entity;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while retrieving entity with ID: {Id}", id);
+                return null;
+            }
+        }
+
+        public override async Task<Servico?> RetrieveAsyncAsNoTracking(long id)
+        {
+            try
+            {
+                // Descobre dinamicamente o nome da propriedade de chave
+                var tempEntity = Activator.CreateInstance<Servico>();
+                var keyName = tempEntity.GetKeyName();
+
+                // Filtra por EF.Property<>
+                var entity = await db.Set<Servico>().AsNoTracking().Include(x => x.IdDepartamentoNavigation)
+                    .SingleOrDefaultAsync(e => EF.Property<long>(e, keyName)!.Equals(id));
+
+                return entity;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while retrieving entity with ID: {Id}", id);
+                return null;
+            }
         }
     }
 }

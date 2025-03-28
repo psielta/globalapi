@@ -17,5 +17,7 @@ namespace GlobalErpData.Dto
         public bool PagaComissao { get; set; }
 
         public decimal ValorUnitario { get; set; }
+        public string NmServico { get; set; } = null!;
+         
     }
 }
