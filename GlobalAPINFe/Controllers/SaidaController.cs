@@ -425,5 +425,120 @@ namespace GlobalAPINFe.Controllers
             }
         }
 
+        [HttpGet("CreateSaidaReportGeral", Name = nameof(CreateSaidaReportGeral))]
+        [ProducesResponseType(200)]
+        public async Task<IActionResult> CreateSaidaReportGeral()
+        {
+            var projectRootPath = Environment.CurrentDirectory;
+            var reportFilePath = System.IO.Path.Combine(projectRootPath, "reports", "ReportMvcSaidaGeral.frx");
+            if (!System.IO.Directory.Exists(System.IO.Path.Combine(projectRootPath, "reports")))
+            {
+                System.IO.Directory.CreateDirectory(System.IO.Path.Combine(projectRootPath, "reports"));
+            }
+            var freport = new FastReport.Report();
+            //Saida
+            //Produtos Saida
+            //Empresa
+            Saida? saida = await context.Saidas.
+                Include(p => p.ClienteNavigation).
+                Include(p => p.ProdutoSaida)
+                .Include(p => p.EmpresaNavigation)
+                .Include(u => u.UnityNavigation)
+                .OrderByDescending(p => p.NrLanc)
+                .LastOrDefaultAsync();
+
+            if (saida == null)
+            {
+                return BadRequest();
+            }
+            var SaidaMapped = mapper.Map<SaidaGetDto>(saida);
+            var EmpresaMapper = mapper.Map<EmpresaGetDto>(saida.EmpresaNavigation);
+            var unityMapper = mapper.Map<UnityGetDto>(saida.UnityNavigation);
+            // Registra os objetos no dicionário do relatório
+            freport.Dictionary.RegisterBusinessObject(new List<SaidaGetDto>() { SaidaMapped }, "Saida", 1, true);
+            freport.Dictionary.RegisterBusinessObject(new List<UnityGetDto>() { unityMapper }, "Unity", 1, true);
+
+            // Habilita os datasources
+            freport.GetDataSource("Saida").Enabled = true;
+            freport.GetDataSource("Unity").Enabled = true;
+
+            freport.Report.Save(reportFilePath);
+
+            return Ok($" Relatorio gerado : {reportFilePath}");
+        }
+
+        [HttpGet("GetSaidaGeralReport")]
+        [ProducesResponseType(typeof(FileContentResult), 200)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetSaidaGeralReport([FromQuery] int unity, [FromQuery] int? Empresa = null,
+            [FromQuery] int? cliente = null, [FromQuery] string? dataInicialISO = null, [FromQuery] string? dataFinalISO = null,
+            [FromQuery] string? cdSituacao = null, [FromQuery] string? tpSaida = null)
+        {
+            try
+            {
+                var Sql = $@"
+Select * from saidas s
+where
+s.unity = {unity}
+{((Empresa.HasValue) ? ($" and s.empresa = {Empresa} ") : (""))}
+{((cliente.HasValue) ? ($" and s.cliente = {cliente} ") : (""))}
+{(((!string.IsNullOrEmpty(dataFinalISO)) && (!string.IsNullOrEmpty(dataFinalISO))) ? ($" and s.dt_saida between '{dataInicialISO}' and '{dataFinalISO}' ") : (""))}
+{((!string.IsNullOrEmpty(cdSituacao)) ? ($" s.cd_situacao = {cdSituacao} ") : (""))}
+{((!string.IsNullOrEmpty(tpSaida)) ? ($" and s.tp_saida = {tpSaida} ") : (""))}
+";
+                var projectRootPath = Environment.CurrentDirectory;
+                var reportFilePath = System.IO.Path.Combine(projectRootPath, "reports", "ReportMvcSaidaGeral.frx");
+
+                if (!System.IO.File.Exists(reportFilePath))
+                {
+                    return NotFound("Template de relatório não encontrado no servidor.");
+                }
+
+                var saidas = await context.Saidas.FromSqlRaw(Sql).Include(p => p.ClienteNavigation)
+                    .Include(p => p.ProdutoSaida).ThenInclude(prods => prods.ProdutoEstoque)
+                    .Include(p => p.EmpresaNavigation).ThenInclude(cidade => cidade.CdCidadeNavigation)
+                    .ToListAsync();
+                if (saidas == null || saidas.Count <= 0)
+                {
+                    return NotFound($"Nenhuma saída encontrada");
+                }
+                List<SaidaGetDto> SaidaMapped = new List<SaidaGetDto>();
+                foreach (var item in saidas)
+                {
+                    _calculationService.CalculateTotals(item);
+                    SaidaMapped.Add(mapper.Map<SaidaGetDto>(item));
+                }
+
+                Unity? unityobj = await context.Unities.FindAsync(unity);
+                if (unityobj == null)
+                    return NotFound($"NotFound Unity");
+                UnityGetDto UnityMapped = mapper.Map<UnityGetDto>(unityobj);
+
+                using var freport = new FastReport.Report();
+                freport.Load(reportFilePath);
+
+                freport.RegisterData(new List<UnityGetDto>() { UnityMapped }, "Unity");
+                freport.RegisterData(SaidaMapped, "Saida");
+
+                freport.GetDataSource("Unity").Enabled = true;
+                freport.GetDataSource("Saida").Enabled = true;
+
+                freport.Prepare();
+
+                using var ms = new MemoryStream();
+                var pdfExport = new FastReport.Export.PdfSimple.PDFSimpleExport();
+                freport.Export(pdfExport, ms);
+                ms.Position = 0;
+
+                return File(ms.ToArray(), "application/pdf", $"Saida_Geral.pdf");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Erro ao gerar relatório da saída geral");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um erro ao gerar o relatório.");
+            }
+        }
+
     }
 }

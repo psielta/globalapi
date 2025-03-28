@@ -152,7 +152,7 @@ namespace GlobalAPINFe.Controllers
             }
         }
 
-        [HttpGet("CreateReport", Name = nameof(CreateReport))]
+        [HttpGet("CreateReport")]
         [ProducesResponseType(200)]
         public async Task<IActionResult> CreateReport()
         {
@@ -180,7 +180,7 @@ namespace GlobalAPINFe.Controllers
             return Ok($" Relatorio gerado : {reportFilePath}");
         }
 
-        [HttpGet("ClienteReport", Name = nameof(ClienteReport))]
+        [HttpGet("ClienteReport")]
         [ProducesResponseType(typeof(FileContentResult), 200)]
         [ProducesResponseType(404)]
         public async Task<IActionResult> ClienteReport(

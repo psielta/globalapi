@@ -200,6 +200,10 @@ public partial class Saida : IIdentifiable<int>
     [NotMapped]
     public double? SubTotal { get; set; }
 
+    [JsonPropertyName("nmEmpresa")]
+    [NotMapped]
+    public string NmEmpresa => (EmpresaNavigation == null) ? "" : EmpresaNavigation.NmEmpresa;
+
     [JsonPropertyName("valorTotalDesconto")]
     [NotMapped]
     public double? ValorTotalDesconto { get; set; }

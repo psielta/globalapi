@@ -131,6 +131,9 @@ namespace GlobalErpData.Repository
             CreateMap<Servico, ServicoDto>().ReverseMap();
             CreateMap<OsTabelaPreco, OsTabelaPrecoDto>().ReverseMap();
 
+            CreateMap<Saida, SaidaDtoV2>().ReverseMap();
+            CreateMap<Unity, UnityGetDto>().ReverseMap();
+
         }
     }
 }

@@ -1,17 +1,12 @@
-﻿using GlobalErpData.Models;
-using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace GlobalErpData.Dto
 {
-    public class SaidaGetDto
+    public class SaidaDtoV2
     {
         public int NrLanc { get; set; }
 
@@ -20,6 +15,10 @@ namespace GlobalErpData.Dto
         public int Empresa { get; set; }
 
         public int Cliente { get; set; }
+
+        public DateTime? LastUpdate { get; set; }
+
+        public int? Integrated { get; set; }
 
         public string? Requisicao { get; set; }
 
@@ -53,7 +52,7 @@ namespace GlobalErpData.Dto
 
         public string? CdUf { get; set; }
 
-        public string? CdSituacao { get; set; }
+        public string CdSituacao { get; set; } = null!;
 
         public string? TxtJustificativaCancelamento { get; set; }
 
@@ -86,7 +85,9 @@ namespace GlobalErpData.Dto
         public int? IdEndEntrega { get; set; }
 
         public int? IdEndRetirada { get; set; }
+
         public int? NrCnf { get; set; }
+
         public int? IdTabelaPrecos { get; set; }
 
         public int? IdTipoOperacaoIntermediador { get; set; }
@@ -127,9 +128,6 @@ namespace GlobalErpData.Dto
 
         public string? NrProtoInu { get; set; }
 
-        public string? NmPlano { get; set; }
-
-        public string? NmCliente { get; set; }
-        public string? NmEmpresa { get; set; }
+        public int Unity { get; set; }
     }
 }

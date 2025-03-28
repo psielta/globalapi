@@ -1,0 +1,154 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" ReportInfo.Created="03/28/2025 11:54:03" ReportInfo.Modified="03/28/2025 12:44:14" ReportInfo.CreatorVersion="2025.1.0.0">
+  <ScriptText>using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Windows.Forms;
+using System.Drawing;
+using System.Data;
+using FastReport;
+using FastReport.Data;
+using FastReport.Dialog;
+using FastReport.Barcode;
+using FastReport.Table;
+using FastReport.Utils;
+
+namespace FastReport
+{
+  public class ReportScript
+  {
+    string GetDescricaoCdSituacao(string codigo)
+    {
+      switch (codigo)
+      {
+        case &quot;01&quot;: return &quot;Normal&quot;;
+        case &quot;02&quot;: return &quot;Transmitida&quot;;
+        case &quot;11&quot;: return &quot;Cancelado&quot;;
+        case &quot;99&quot;: return &quot;Contingência&quot;;
+        case &quot;70&quot;: return &quot;Inutilizado&quot;;
+        default: return &quot;Não informado&quot;;
+      }
+    }
+    
+    string GetDescricaoTpSaida(string codigo)
+    {
+      switch (codigo)
+      {
+        case &quot;V&quot;: return &quot;Venda&quot;;
+        case &quot;TR&quot;: return &quot;Transferência&quot;;
+        case &quot;TP&quot;: return &quot;Transferência para Produção&quot;;
+        case &quot;DC&quot;: return &quot;Devolução de Compra&quot;;
+        case &quot;A&quot;: return &quot;Acerto&quot;;
+        case &quot;DV&quot;: return &quot;Devolução de Venda&quot;;
+        case &quot;E&quot;: return &quot;Entrada&quot;;
+        case &quot;RA&quot;: return &quot;Remessa para Armazenagem&quot;;
+        case &quot;CO&quot;: return &quot;Consignação&quot;;
+        case &quot;BO&quot;: return &quot;Bonificação&quot;;
+        case &quot;AG&quot;: return &quot;Amostra Grátis&quot;;
+        case &quot;OU&quot;: return &quot;Outras Operações&quot;;
+        default: return &quot;Não informado&quot;;
+      }
+    }
+
+  }
+}
+</ScriptText>
+  <Dictionary>
+    <BusinessObjectDataSource Name="Saida" ReferenceName="Saida" DataType="System.Int32" Enabled="true">
+      <Column Name="NrLanc" DataType="System.Int32"/>
+      <Column Name="Data" DataType="System.Int32"/>
+      <Column Name="Empresa" DataType="System.Int32"/>
+      <Column Name="Cliente" DataType="System.Int32"/>
+      <Column Name="Requisicao" DataType="System.String"/>
+      <Column Name="Observacao" DataType="System.String"/>
+      <Column Name="TpSaida" DataType="System.String"/>
+      <Column Name="TpPagt" DataType="System.String"/>
+      <Column Name="DtSaida" DataType="System.Int32"/>
+      <Column Name="DtPedido" DataType="System.Int32"/>
+      <Column Name="TabelaVenda" DataType="System.String"/>
+      <Column Name="Pagou" DataType="System.String"/>
+      <Column Name="Cfop" DataType="System.String"/>
+      <Column Name="CdCarga" DataType="System.Int32"/>
+      <Column Name="TxtObsNf" DataType="System.String"/>
+      <Column Name="CdVendedor" DataType="System.Int32"/>
+      <Column Name="PagaComissao" DataType="System.String"/>
+      <Column Name="NrNotaFiscal" DataType="System.String"/>
+      <Column Name="ChaveAcessoNfe" DataType="System.String"/>
+      <Column Name="CdUf" DataType="System.String"/>
+      <Column Name="CdSituacao" DataType="System.String"/>
+      <Column Name="TxtJustificativaCancelamento" DataType="System.String"/>
+      <Column Name="NrProtoCancelamento" DataType="System.String"/>
+      <Column Name="DtPagouComis" DataType="System.Int32"/>
+      <Column Name="XmNf" DataType="System.String"/>
+      <Column Name="VlOutro" DataType="System.Int32"/>
+      <Column Name="VlDescGlobal" DataType="System.Int32"/>
+      <Column Name="NrAutorizacaoNfe" DataType="System.String"/>
+      <Column Name="IdPontoVenda" DataType="System.Int32"/>
+      <Column Name="ChaveNfeSaida" DataType="System.String"/>
+      <Column Name="IdConvenio" DataType="System.Int32"/>
+      <Column Name="IdMedico" DataType="System.Int32"/>
+      <Column Name="IdPaciente" DataType="System.Int32"/>
+      <Column Name="DtCirugia" DataType="System.Int32"/>
+      <Column Name="HrSaida" DataType="System.Int32"/>
+      <Column Name="IdEndEntrega" DataType="System.Int32"/>
+      <Column Name="IdEndRetirada" DataType="System.Int32"/>
+      <Column Name="NrCnf" DataType="System.Int32"/>
+      <Column Name="IdTabelaPrecos" DataType="System.Int32"/>
+      <Column Name="IdTipoOperacaoIntermediador" DataType="System.Int32"/>
+      <Column Name="IdTipoIndicador" DataType="System.Int32"/>
+      <Column Name="SerieNf" DataType="System.String"/>
+      <Column Name="CnpjMarket" DataType="System.String"/>
+      <Column Name="NmMarket" DataType="System.String"/>
+      <Column Name="LocalSalvoNota" DataType="System.String"/>
+      <Column Name="TpOperacao" DataType="System.String"/>
+      <Column Name="XmNfCnc" DataType="System.String"/>
+      <Column Name="CdGrupoEstoque" DataType="System.Int32"/>
+      <Column Name="VlSeguro" DataType="System.Int32"/>
+      <Column Name="ValorTotalNfe" DataType="System.Int32"/>
+      <Column Name="SubTotal" DataType="System.Int32"/>
+      <Column Name="ValorTotalDesconto" DataType="System.Int32"/>
+      <Column Name="ValorTotalProdutos" DataType="System.Int32"/>
+      <Column Name="Pdf" DataType="System.Byte[]" BindableControl="Picture"/>
+      <Column Name="PdfCnc" DataType="System.Byte[]" BindableControl="Picture"/>
+      <Column Name="PdfInu" DataType="System.Byte[]" BindableControl="Picture"/>
+      <Column Name="XmNfInu" DataType="System.String"/>
+      <Column Name="NrProtoInu" DataType="System.String"/>
+      <Column Name="NmPlano" DataType="System.String"/>
+      <Column Name="NmCliente" DataType="System.String"/>
+      <Column Name="NmEmpresa" DataType="System.String"/>
+    </BusinessObjectDataSource>
+    <BusinessObjectDataSource Name="Unity" ReferenceName="Unity" DataType="System.Int32" Enabled="true">
+      <Column Name="Id" DataType="System.Int32"/>
+      <Column Name="Name" DataType="System.String"/>
+    </BusinessObjectDataSource>
+  </Dictionary>
+  <ReportPage Name="Page1" Watermark.Font="Arial, 60pt">
+    <ReportTitleBand Name="ReportTitle1" Width="718.2" Height="28.35">
+      <TextObject Name="Text1" Left="174.83" Top="4.73" Width="368.55" Height="18.9" Text="RELATORIO DE SAIDAS POR EMPRESA" HorzAlign="Center" Font="Arial, 12pt, style=Bold"/>
+    </ReportTitleBand>
+    <PageHeaderBand Name="PageHeader1" Top="32.35" Width="718.2" Height="9.45"/>
+    <GroupHeaderBand Name="GroupHeader1" Top="45.8" Width="718.2" Height="21.35" Fill.Color="Gainsboro" Condition="[Saida.Empresa]">
+      <TextObject Name="Text5" Left="1.4" Top="2.45" Width="689.85" Height="18.9" Text="Empresa: [Saida.Empresa] - [Saida.NmEmpresa]" Font="Arial, 10pt, style=Bold"/>
+      <DataBand Name="Data1" Top="71.15" Width="718.2" Height="56.7" DataSource="Saida">
+        <TextObject Name="Text8" Left="1.4" Width="122.85" Height="18.9" Text="ID: [Saida.NrLanc]" Font="Arial, 10pt, style=Bold"/>
+        <TextObject Name="Text10" Left="126.2" Width="170.1" Height="18.9" Text="Nro. NFe: [Saida.NrNotaFiscal]" Font="Arial, 10pt, style=Bold"/>
+        <TextObject Name="Text12" Left="296.3" Width="66.15" Height="18.9" Text="Serie: [Saida.SerieNf]" Font="Arial, 10pt, style=Bold"/>
+        <TextObject Name="Text14" Left="1.4" Top="18.9" Width="718.2" Height="18.9" Text="Cliente: [Saida.Cliente] - [Saida.NmCliente]" Font="Arial, 10pt, style=Bold"/>
+        <TextObject Name="Text15" Left="189" Top="37.8" Width="207.9" Height="18.9" Text="Tipo de Saida: [GetDescricaoTpSaida([Saida.TpSaida])]&#10;" Font="Arial, 10pt, style=Bold"/>
+        <TextObject Name="Text17" Left="396.9" Top="37.8" Width="207.9" Height="18.9" Text="Situacao: [GetDescricaoCdSituacao([Saida.CdSituacao])]&#13;&#10;" Font="Arial, 10pt, style=Bold"/>
+        <TextObject Name="Text18" Left="1.4" Top="37.8" Width="198.45" Height="18.9" Text="Data da Saida: [Saida.Data]" Font="Arial, 10pt, style=Bold"/>
+        <TextObject Name="Text19" Left="529.2" Top="37.8" Width="189" Height="18.9" Text="Total: [Saida.ValorTotalNfe]" Format="Currency" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.CurrencySymbol="R$" Format.PositivePattern="0" Format.NegativePattern="0" HorzAlign="Right" Font="Arial, 10pt, style=Bold"/>
+        <TextObject Name="Text11" Left="362.45" Width="359.1" Height="18.9" Text="{[Saida.ChaveAcessoNfe]}" HorzAlign="Right" Font="Arial, 10pt, style=Bold"/>
+        <Sort>
+          <Sort Expression="[Saida.DtSaida]"/>
+        </Sort>
+      </DataBand>
+      <GroupFooterBand Name="GroupFooter1" Top="131.85" Width="718.2" Height="18.9" Fill.Color="Gainsboro"/>
+    </GroupHeaderBand>
+    <PageFooterBand Name="PageFooter1" Top="154.75" Width="718.2" Height="18.9">
+      <TextObject Name="Text3" Left="1.4" Width="94.5" Height="18.9" Text="[Date]" Format="Date" Format.Format="d" Font="Arial, 10pt, style=Bold"/>
+      <TextObject Name="Text4" Left="623.7" Width="94.5" Height="18.9" Text="[Page]" HorzAlign="Right" Font="Arial, 10pt, style=Bold"/>
+    </PageFooterBand>
+  </ReportPage>
+</Report>
