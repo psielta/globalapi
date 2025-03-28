@@ -15,6 +15,7 @@ namespace GlobalErpData.Dto
     {
         public int NrLanc { get; set; }
 
+        public int Unity { get; set; }
         public DateOnly? Data { get; set; }
 
         public int Empresa { get; set; }

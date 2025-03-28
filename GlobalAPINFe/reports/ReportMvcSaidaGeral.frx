@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Report ScriptLanguage="CSharp" ReportInfo.Created="03/28/2025 11:54:03" ReportInfo.Modified="03/28/2025 12:44:14" ReportInfo.CreatorVersion="2025.1.0.0">
+<Report ScriptLanguage="CSharp" ReportInfo.Created="03/28/2025 11:54:03" ReportInfo.Modified="03/28/2025 14:49:30" ReportInfo.CreatorVersion="2025.1.0.0">
   <ScriptText>using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -57,6 +57,7 @@ namespace FastReport
   <Dictionary>
     <BusinessObjectDataSource Name="Saida" ReferenceName="Saida" DataType="System.Int32" Enabled="true">
       <Column Name="NrLanc" DataType="System.Int32"/>
+      <Column Name="Unity" DataType="System.Int32"/>
       <Column Name="Data" DataType="System.Int32"/>
       <Column Name="Empresa" DataType="System.Int32"/>
       <Column Name="Cliente" DataType="System.Int32"/>
@@ -122,33 +123,44 @@ namespace FastReport
       <Column Name="Id" DataType="System.Int32"/>
       <Column Name="Name" DataType="System.String"/>
     </BusinessObjectDataSource>
+    <Total Name="Total" Expression="[Saida.ValorTotalNfe]" Evaluator="Data1" PrintOn="GroupFooter2"/>
+    <Total Name="Total1" Expression="[Saida.ValorTotalNfe]" Evaluator="Data1" PrintOn="GroupFooter1"/>
   </Dictionary>
   <ReportPage Name="Page1" Watermark.Font="Arial, 60pt">
     <ReportTitleBand Name="ReportTitle1" Width="718.2" Height="28.35">
       <TextObject Name="Text1" Left="174.83" Top="4.73" Width="368.55" Height="18.9" Text="RELATORIO DE SAIDAS POR EMPRESA" HorzAlign="Center" Font="Arial, 12pt, style=Bold"/>
     </ReportTitleBand>
     <PageHeaderBand Name="PageHeader1" Top="32.35" Width="718.2" Height="9.45"/>
-    <GroupHeaderBand Name="GroupHeader1" Top="45.8" Width="718.2" Height="21.35" Fill.Color="Gainsboro" Condition="[Saida.Empresa]">
-      <TextObject Name="Text5" Left="1.4" Top="2.45" Width="689.85" Height="18.9" Text="Empresa: [Saida.Empresa] - [Saida.NmEmpresa]" Font="Arial, 10pt, style=Bold"/>
-      <DataBand Name="Data1" Top="71.15" Width="718.2" Height="56.7" DataSource="Saida">
-        <TextObject Name="Text8" Left="1.4" Width="122.85" Height="18.9" Text="ID: [Saida.NrLanc]" Font="Arial, 10pt, style=Bold"/>
-        <TextObject Name="Text10" Left="126.2" Width="170.1" Height="18.9" Text="Nro. NFe: [Saida.NrNotaFiscal]" Font="Arial, 10pt, style=Bold"/>
-        <TextObject Name="Text12" Left="296.3" Width="66.15" Height="18.9" Text="Serie: [Saida.SerieNf]" Font="Arial, 10pt, style=Bold"/>
-        <TextObject Name="Text14" Left="1.4" Top="18.9" Width="718.2" Height="18.9" Text="Cliente: [Saida.Cliente] - [Saida.NmCliente]" Font="Arial, 10pt, style=Bold"/>
-        <TextObject Name="Text15" Left="189" Top="37.8" Width="207.9" Height="18.9" Text="Tipo de Saida: [GetDescricaoTpSaida([Saida.TpSaida])]&#10;" Font="Arial, 10pt, style=Bold"/>
-        <TextObject Name="Text17" Left="396.9" Top="37.8" Width="207.9" Height="18.9" Text="Situacao: [GetDescricaoCdSituacao([Saida.CdSituacao])]&#13;&#10;" Font="Arial, 10pt, style=Bold"/>
-        <TextObject Name="Text18" Left="1.4" Top="37.8" Width="198.45" Height="18.9" Text="Data da Saida: [Saida.Data]" Font="Arial, 10pt, style=Bold"/>
-        <TextObject Name="Text19" Left="529.2" Top="37.8" Width="189" Height="18.9" Text="Total: [Saida.ValorTotalNfe]" Format="Currency" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.CurrencySymbol="R$" Format.PositivePattern="0" Format.NegativePattern="0" HorzAlign="Right" Font="Arial, 10pt, style=Bold"/>
-        <TextObject Name="Text11" Left="362.45" Width="359.1" Height="18.9" Text="{[Saida.ChaveAcessoNfe]}" HorzAlign="Right" Font="Arial, 10pt, style=Bold"/>
-        <Sort>
-          <Sort Expression="[Saida.DtSaida]"/>
-        </Sort>
-      </DataBand>
-      <GroupFooterBand Name="GroupFooter1" Top="131.85" Width="718.2" Height="18.9" Fill.Color="Gainsboro"/>
+    <GroupHeaderBand Name="GroupHeader1" Top="45.8" Width="718.2" Fill.Color="White" Condition="[Saida.Unity]">
+      <GroupHeaderBand Name="GroupHeader2" Top="49.8" Width="718.2" Height="28.67" Fill.Color="Gainsboro" Condition="[Saida.Empresa]">
+        <TextObject Name="Text5" Left="3.28" Top="4.89" Width="689.85" Height="18.9" Text="Empresa: [Saida.Empresa] - [Saida.NmEmpresa]" Font="Arial, 10pt, style=Bold"/>
+        <DataBand Name="Data1" Top="82.47" Width="718.2" Height="56.7" DataSource="Saida">
+          <TextObject Name="Text8" Left="3.28" Width="122.85" Height="18.9" Text="ID: [Saida.NrLanc]" Font="Arial, 10pt, style=Bold"/>
+          <TextObject Name="Text10" Left="126.2" Width="170.1" Height="18.9" Text="Nro. NFe: [Saida.NrNotaFiscal]" Font="Arial, 10pt, style=Bold"/>
+          <TextObject Name="Text12" Left="296.3" Width="66.15" Height="18.9" Text="Serie: [Saida.SerieNf]" Font="Arial, 10pt, style=Bold"/>
+          <TextObject Name="Text14" Left="3.28" Top="18.9" Width="718.2" Height="18.9" Text="Cliente: [Saida.Cliente] - [Saida.NmCliente]" Font="Arial, 10pt"/>
+          <TextObject Name="Text15" Left="189" Top="37.8" Width="207.9" Height="18.9" Text="Tipo de Saida: [GetDescricaoTpSaida([Saida.TpSaida])]&#10;" Font="Arial, 10pt"/>
+          <TextObject Name="Text17" Left="396.9" Top="37.8" Width="207.9" Height="18.9" Text="Situacao: [GetDescricaoCdSituacao([Saida.CdSituacao])]&#13;&#10;" Font="Arial, 10pt"/>
+          <TextObject Name="Text18" Left="3.28" Top="37.8" Width="198.45" Height="18.9" Text="Data da Saida: [Saida.Data]" Font="Arial, 10pt"/>
+          <TextObject Name="Text19" Left="529.2" Top="37.8" Width="189" Height="18.9" Text="Total: [Saida.ValorTotalNfe]" Format="Currency" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.CurrencySymbol="R$" Format.PositivePattern="0" Format.NegativePattern="0" HorzAlign="Right" Font="Arial, 10pt"/>
+          <TextObject Name="Text11" Left="362.45" Width="359.1" Height="18.9" Text="{[Saida.ChaveAcessoNfe]}" HorzAlign="Right" Font="Arial, 10pt"/>
+          <Sort>
+            <Sort Expression="[Saida.DtSaida]"/>
+          </Sort>
+        </DataBand>
+        <GroupFooterBand Name="GroupFooter2" Top="143.17" Width="718.2" Height="26.46">
+          <ShapeObject Name="Shape1" Width="718.2" Height="26.46" Border.Color="Transparent" Fill.Color="Gainsboro"/>
+          <TextObject Name="Text20" Left="330.75" Top="4.69" Width="387.45" Height="18.9" Text="Total da Empresa: [Total]" Format="Currency" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.CurrencySymbol="R$" Format.PositivePattern="0" Format.NegativePattern="0" HorzAlign="Right" Font="Arial, 10pt, style=Bold"/>
+        </GroupFooterBand>
+      </GroupHeaderBand>
+      <GroupFooterBand Name="GroupFooter1" Top="173.63" Width="718.2" Height="32.13">
+        <LineObject Name="Line3" Left="28.35"/>
+        <TextObject Name="Text21" Left="330.75" Top="9.45" Width="387.45" Height="18.9" Text="Total da Geral: [Total1]" Format="Currency" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.CurrencySymbol="R$" Format.PositivePattern="0" Format.NegativePattern="0" HorzAlign="Right" Font="Arial, 10pt, style=Bold"/>
+      </GroupFooterBand>
     </GroupHeaderBand>
-    <PageFooterBand Name="PageFooter1" Top="154.75" Width="718.2" Height="18.9">
-      <TextObject Name="Text3" Left="1.4" Width="94.5" Height="18.9" Text="[Date]" Format="Date" Format.Format="d" Font="Arial, 10pt, style=Bold"/>
-      <TextObject Name="Text4" Left="623.7" Width="94.5" Height="18.9" Text="[Page]" HorzAlign="Right" Font="Arial, 10pt, style=Bold"/>
+    <PageFooterBand Name="PageFooter1" Top="209.76" Width="718.2" Height="28.35">
+      <TextObject Name="Text3" Left="3.28" Top="9.45" Width="94.5" Height="18.9" Text="[Date]" Format="Date" Format.Format="d" Font="Arial, 10pt, style=Bold"/>
+      <TextObject Name="Text4" Left="623.7" Top="9.45" Width="94.5" Height="18.9" Text="[Page]" HorzAlign="Right" Font="Arial, 10pt, style=Bold"/>
     </PageFooterBand>
   </ReportPage>
 </Report>

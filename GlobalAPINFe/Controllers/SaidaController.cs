@@ -484,8 +484,8 @@ s.unity = {unity}
 {((Empresa.HasValue) ? ($" and s.empresa = {Empresa} ") : (""))}
 {((cliente.HasValue) ? ($" and s.cliente = {cliente} ") : (""))}
 {(((!string.IsNullOrEmpty(dataFinalISO)) && (!string.IsNullOrEmpty(dataFinalISO))) ? ($" and s.dt_saida between '{dataInicialISO}' and '{dataFinalISO}' ") : (""))}
-{((!string.IsNullOrEmpty(cdSituacao)) ? ($" s.cd_situacao = {cdSituacao} ") : (""))}
-{((!string.IsNullOrEmpty(tpSaida)) ? ($" and s.tp_saida = {tpSaida} ") : (""))}
+{((!string.IsNullOrEmpty(cdSituacao)) ? ($" and s.cd_situacao = {UtlStrings.QuotedStr(cdSituacao)} ") : (""))}
+{((!string.IsNullOrEmpty(tpSaida)) ? ($" and s.tp_saida = {UtlStrings.QuotedStr(tpSaida)} ") : (""))}
 ";
                 var projectRootPath = Environment.CurrentDirectory;
                 var reportFilePath = System.IO.Path.Combine(projectRootPath, "reports", "ReportMvcSaidaGeral.frx");
