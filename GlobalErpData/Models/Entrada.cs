@@ -233,6 +233,10 @@ public partial class Entrada : IIdentifiableMultiKey<int, int>
     [Precision(18, 2)]
     public decimal? IcmstotVNf { get; set; }
 
+    [JsonPropertyName("nmEmpresa")]
+    [NotMapped]
+    public string NmEmpresa => (CdEmpresaNavigation == null) ? "" : CdEmpresaNavigation.NmEmpresa;
+
     [JsonPropertyName("nmPlano")]
     [NotMapped]
     public string NmPlano => CdGrupoEstoqueNavigation?.NmPlano ?? string.Empty;

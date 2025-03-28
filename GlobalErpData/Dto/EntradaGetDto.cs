@@ -13,6 +13,7 @@ namespace GlobalErpData.Dto
     {
         public int Nr { get; set; }
 
+        public int Unity { get; set; }
         public DateOnly Data { get; set; }
 
         public int CdForn { get; set; }
@@ -32,6 +33,7 @@ namespace GlobalErpData.Dto
         public decimal? VlFrete { get; set; }
 
         public string Transferiu { get; set; }
+        public string? NmEmpresa { get; set; }
 
         public int? NrPedidoCompra { get; set; }
 

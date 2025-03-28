@@ -350,5 +350,119 @@ namespace GlobalAPINFe.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um erro ao gerar o relatório.");
             }
         }
+
+        [HttpGet("CreateEntradaReportGeral", Name = nameof(CreateEntradaReportGeral))]
+        [ProducesResponseType(200)]
+        public async Task<IActionResult> CreateEntradaReportGeral()
+        {
+            var projectRootPath = Environment.CurrentDirectory;
+            var reportFilePath = System.IO.Path.Combine(projectRootPath, "reports", "ReportMvcEntradaGeral.frx");
+            if (!System.IO.Directory.Exists(System.IO.Path.Combine(projectRootPath, "reports")))
+            {
+                System.IO.Directory.CreateDirectory(System.IO.Path.Combine(projectRootPath, "reports"));
+            }
+            var freport = new FastReport.Report();
+            //Entrada
+            //Produtos Entrada
+            //Empresa
+            Entrada? Entrada = await context.Entradas.
+                Include(p => p.Fornecedor).
+                Include(p => p.ProdutoEntrada)
+                .Include(p => p.CdEmpresaNavigation)
+                .Include(u => u.UnityNavigation)
+                .OrderByDescending(p => p.Nr)
+                .LastOrDefaultAsync();
+
+            if (Entrada == null)
+            {
+                return BadRequest();
+            }
+            var EntradaMapped = mapper.Map<EntradaGetDto>(Entrada);
+            var unityMapper = mapper.Map<UnityGetDto>(Entrada.UnityNavigation);
+            // Registra os objetos no dicionário do relatório
+            freport.Dictionary.RegisterBusinessObject(new List<EntradaGetDto>() { EntradaMapped }, "Entrada", 1, true);
+            freport.Dictionary.RegisterBusinessObject(new List<UnityGetDto>() { unityMapper }, "Unity", 1, true);
+
+            // Habilita os datasources
+            freport.GetDataSource("Entrada").Enabled = true;
+            freport.GetDataSource("Unity").Enabled = true;
+
+            freport.Report.Save(reportFilePath);
+
+            return Ok($" Relatorio gerado : {reportFilePath}");
+        }
+
+        [HttpGet("GetEntradaGeralReport")]
+        [ProducesResponseType(typeof(FileContentResult), 200)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetEntradaGeralReport([FromQuery] int unity, [FromQuery] int? Empresa = null,
+            [FromQuery] int? fornecedor = null, [FromQuery] string? dataInicialISO = null, [FromQuery] string? dataFinalISO = null,
+            [FromQuery] string? tpEntrada = null)
+        {
+            try
+            {
+                var Sql = $@"
+Select * from entradas s
+where
+s.unity = {unity}
+{((Empresa.HasValue) ? ($" and s.cd_empresa = {Empresa} ") : (""))}
+{((fornecedor.HasValue) ? ($" and s.cd_forn = {fornecedor} ") : (""))}
+{(((!string.IsNullOrEmpty(dataFinalISO)) && (!string.IsNullOrEmpty(dataFinalISO))) ? ($" and s.data between '{dataInicialISO}' and '{dataFinalISO}' ") : (""))}
+{((!string.IsNullOrEmpty(tpEntrada)) ? ($" and s.tp_entrada = {UtlStrings.QuotedStr(tpEntrada)} ") : (""))}
+";
+                var projectRootPath = Environment.CurrentDirectory;
+                var reportFilePath = System.IO.Path.Combine(projectRootPath, "reports", "ReportMvcEntradaGeral.frx");
+
+                if (!System.IO.File.Exists(reportFilePath))
+                {
+                    return NotFound("Template de relatório não encontrado no servidor.");
+                }
+
+                var Entradas = await context.Entradas.FromSqlRaw(Sql).Include(p => p.Fornecedor)
+                    .Include(e => e.CdEmpresaNavigation)
+                    .Include(p => p.ProdutoEntrada).ThenInclude(prods => prods.ProdutoEstoque)
+                    .Include(p => p.CdEmpresaNavigation).ThenInclude(cidade => cidade.CdCidadeNavigation)
+                    .ToListAsync();
+                if (Entradas == null || Entradas.Count <= 0)
+                {
+                    return NotFound($"Nenhuma entrada encontrada");
+                }
+                List<EntradaGetDto> EntradaMapped = new List<EntradaGetDto>();
+                foreach (var item in Entradas)
+                {
+                    _calculationService.CalculateTotals(item);
+                    EntradaMapped.Add(mapper.Map<EntradaGetDto>(item));
+                }
+
+                Unity? unityobj = await context.Unities.FindAsync(unity);
+                if (unityobj == null)
+                    return NotFound($"NotFound Unity");
+                UnityGetDto UnityMapped = mapper.Map<UnityGetDto>(unityobj);
+
+                using var freport = new FastReport.Report();
+                freport.Load(reportFilePath);
+
+                freport.RegisterData(new List<UnityGetDto>() { UnityMapped }, "Unity");
+                freport.RegisterData(EntradaMapped, "Entrada");
+
+                freport.GetDataSource("Unity").Enabled = true;
+                freport.GetDataSource("Entrada").Enabled = true;
+
+                freport.Prepare();
+
+                using var ms = new MemoryStream();
+                var pdfExport = new FastReport.Export.PdfSimple.PDFSimpleExport();
+                freport.Export(pdfExport, ms);
+                ms.Position = 0;
+
+                return File(ms.ToArray(), "application/pdf", $"Entrada_Geral.pdf");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Erro ao gerar relatório da entrada geral");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um erro ao gerar o relatório.");
+            }
+        }
     }
 }
