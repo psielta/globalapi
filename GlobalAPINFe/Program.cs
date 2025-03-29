@@ -137,6 +137,7 @@ builder.Services.AddScoped<IRepositoryDto<Departamento, long, DepartamentoDto>, 
 
 builder.Services.AddScoped<IQueryRepository<Older, Guid, OlderDto>, OlderRepository>();
 builder.Services.AddScoped<IRepositoryDto<Category, int, CategoryDto>, CategoryRep>();
+builder.Services.AddScoped<IRepositoryDto<PlanoSimultaneo, int, PlanoSimultaneoDto>, PlanoSimultaneoRepository>();
 builder.Services.AddScoped<IQueryRepository<ContaDoCaixa, int, ContaCaixaDto>, ContaCaixaRepository>();
 builder.Services.AddScoped<IQueryRepository<PlanoDeCaixa, int, PlanoCaixaDto>, PlanoCaixaRepository>();
 builder.Services.AddScoped<IQueryRepository<HistoricoCaixa, int, HistoricoCaixaDto>, HistoricoCaixaRepository>();

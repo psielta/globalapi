@@ -81,10 +81,16 @@ namespace GlobalLib.GenericControllers
                 }
                 else
                 {
+                    (TKey1, TKey2) key = added.GetId();
+                    TEntity? entity = await repo.RetrieveAsyncAsNoTracking(key.Item1, key.Item2);
+                    if (entity == null)
+                    {
+                        return BadRequest("Failed to create the entity.");
+                    }
                     return CreatedAtAction( // 201 Created
                       nameof(GetEntity),
                       new { idEmpresa = added.GetId().Item1, idCadastro = added.GetId().Item2 },
-                      added);
+                      entity);
                 }
             }
             catch (Exception ex)

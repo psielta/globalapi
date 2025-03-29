@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using GlobalErpData.MMModels;
 using GlobalLib.Database;
 using Microsoft.EntityFrameworkCore;
 
@@ -88,4 +89,12 @@ public partial class PlanoEstoque : IIdentifiable<int>
     [JsonIgnore]
     [InverseProperty("CdPlanoNavigation")]
     public virtual ICollection<OrcamentoIten> OrcamentoItens { get; set; } = new List<OrcamentoIten>();
+
+    [JsonIgnore]
+    [InverseProperty("CdPlanoPrincNavigation")]
+    public virtual ICollection<PlanoSimultaneo> PlanoSimultaneoCdPlanoPrincNavigations { get; set; } = new List<PlanoSimultaneo>();
+
+    [JsonIgnore]
+    [InverseProperty("CdPlanoReplicaNavigation")]
+    public virtual ICollection<PlanoSimultaneo> PlanoSimultaneoCdPlanoReplicaNavigations { get; set; } = new List<PlanoSimultaneo>();
 }

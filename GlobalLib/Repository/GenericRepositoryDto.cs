@@ -29,7 +29,62 @@ namespace GlobalLib.Repository
             this.logger = logger;
         }
 
-        public async Task<TEntity?> CreateAsync(TDto dto)
+        public virtual async Task<TEntity?> RetrieveAsyncAsNoTracking(TKey id)
+        {
+            try
+            {
+                var tempEntity = Activator.CreateInstance<TEntity>();
+                string keyName = tempEntity.GetKeyName();
+
+                // NO TRACKING: Retorna a entidade sem cache estático
+                var entity = await db.Set<TEntity>().AsNoTracking()
+                    .SingleOrDefaultAsync(e => EF.Property<TKey>(e, keyName).Equals(id));
+
+                return entity;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while retrieving entity with ID: {Id}", id);
+                return null;
+            }
+        }
+
+        public virtual async Task<TEntity?> RetrieveAsync(TKey id)
+        {
+            try
+            {
+                // Descobre dinamicamente o nome da propriedade de chave
+                var tempEntity = Activator.CreateInstance<TEntity>();
+                string keyName = tempEntity.GetKeyName();
+
+                // Filtra com EF.Property<TKey>(...) para encontrar o registro pela PK
+                var entity = await db.Set<TEntity>()
+                    .SingleOrDefaultAsync(e => EF.Property<TKey>(e, keyName).Equals(id));
+
+                return entity;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while retrieving entity with ID: {Id}", id);
+                return null;
+            }
+        }
+
+        public virtual async Task<IEnumerable<TEntity>> RetrieveAllAsync()
+        {
+            try
+            {
+                // Retorna todas as entidades direto do banco (sem cache estático)
+                return await db.Set<TEntity>().ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while retrieving all entities.");
+                return Enumerable.Empty<TEntity>();
+            }
+        }
+
+        public virtual async Task<TEntity?> CreateAsync(TDto dto)
         {
             try
             {
@@ -54,42 +109,7 @@ namespace GlobalLib.Repository
             }
         }
 
-        public async Task<IEnumerable<TEntity>> RetrieveAllAsync()
-        {
-            try
-            {
-                // Retorna todas as entidades direto do banco (sem cache estático)
-                return await db.Set<TEntity>().ToListAsync();
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error occurred while retrieving all entities.");
-                return Enumerable.Empty<TEntity>();
-            }
-        }
-
-        public async Task<TEntity?> RetrieveAsync(TKey id)
-        {
-            try
-            {
-                // Descobre dinamicamente o nome da propriedade de chave
-                var tempEntity = Activator.CreateInstance<TEntity>();
-                string keyName = tempEntity.GetKeyName();
-
-                // Filtra com EF.Property<TKey>(...) para encontrar o registro pela PK
-                var entity = await db.Set<TEntity>()
-                    .SingleOrDefaultAsync(e => EF.Property<TKey>(e, keyName).Equals(id));
-
-                return entity;
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error occurred while retrieving entity with ID: {Id}", id);
-                return null;
-            }
-        }
-
-        public async Task<TEntity?> UpdateAsync(TKey id, TDto dto)
+        public virtual async Task<TEntity?> UpdateAsync(TKey id, TDto dto)
         {
             try
             {
@@ -123,7 +143,7 @@ namespace GlobalLib.Repository
             }
         }
 
-        public async Task<bool?> DeleteAsync(TKey id)
+        public virtual async Task<bool?> DeleteAsync(TKey id)
         {
             try
             {
@@ -156,26 +176,6 @@ namespace GlobalLib.Repository
             catch (Exception ex)
             {
                 logger.LogError(ex, "Error occurred while deleting entity with ID: {Id}", id);
-                return null;
-            }
-        }
-
-        public async Task<TEntity?> RetrieveAsyncAsNoTracking(TKey id)
-        {
-            try
-            {
-                var tempEntity = Activator.CreateInstance<TEntity>();
-                string keyName = tempEntity.GetKeyName();
-
-                // NO TRACKING: Retorna a entidade sem cache estático
-                var entity = await db.Set<TEntity>().AsNoTracking()
-                    .SingleOrDefaultAsync(e => EF.Property<TKey>(e, keyName).Equals(id));
-
-                return entity;
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error occurred while retrieving entity with ID: {Id}", id);
                 return null;
             }
         }

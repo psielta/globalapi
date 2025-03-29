@@ -15,6 +15,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         : base(options)
     {
     }
+    public virtual DbSet<PlanoSimultaneo> PlanoSimultaneos { get; set; }
     public virtual DbSet<Departamento> Departamentos { get; set; }
     public virtual DbSet<OrcamentoCab> OrcamentoCabs { get; set; }
     public virtual DbSet<OrcamentoIten> OrcamentoItens { get; set; }
@@ -1812,6 +1813,23 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.UnityNavigation).WithMany(p => p.PlanoEstoques)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("plano_estoque_fk1");
+        });
+
+        modelBuilder.Entity<PlanoSimultaneo>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("plano_simultaneos_pkey");
+
+            entity.HasOne(d => d.CdPlanoPrincNavigation).WithMany(p => p.PlanoSimultaneoCdPlanoPrincNavigations)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("plano_simultaneos_fk1");
+
+            entity.HasOne(d => d.CdPlanoReplicaNavigation).WithMany(p => p.PlanoSimultaneoCdPlanoReplicaNavigations)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("plano_simultaneos_fk2");
+
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.PlanoSimultaneos)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("plano_simultaneos_fk");
         });
 
         modelBuilder.Entity<ProductDetail>(entity =>

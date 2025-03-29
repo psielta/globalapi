@@ -106,10 +106,15 @@ namespace GlobalLib.GenericControllers
                 }
                 else
                 {
+                    TEntity? entity = await repo.RetrieveAsyncAsNoTracking(added.GetId());
+                    if (entity == null)
+                    {
+                        return BadRequest("Failed to create the entity.");
+                    }
                     return CreatedAtAction( // 201 Created
                       nameof(GetEntity),
                       new { id = added.GetId() },
-                      added);
+                      entity);
                 }
             }
             catch (Exception ex)

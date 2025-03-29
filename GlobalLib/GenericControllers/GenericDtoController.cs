@@ -74,10 +74,15 @@ namespace GlobalLib.GenericControllers
                 }
                 else
                 {
+                    TEntity? existing = await repo.RetrieveAsyncAsNoTracking(added.GetId());
+                    if (existing == null)
+                    {
+                        return BadRequest("Failed to create the entity.");
+                    }
                     return CreatedAtAction( // 201 Created
                       nameof(GetEntity),
                       new { id = added.GetId() },
-                      added);
+                      existing);
                 }
             }
             catch (Exception ex)

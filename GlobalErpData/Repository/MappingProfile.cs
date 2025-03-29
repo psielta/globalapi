@@ -133,6 +133,7 @@ namespace GlobalErpData.Repository
 
             CreateMap<Saida, SaidaDtoV2>().ReverseMap();
             CreateMap<Unity, UnityGetDto>().ReverseMap();
+            CreateMap<PlanoSimultaneo, PlanoSimultaneoDto>().ReverseMap();
 
         }
     }

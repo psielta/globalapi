@@ -114,6 +114,9 @@ public partial class Unity
     public virtual ICollection<PlanoEstoque> PlanoEstoques { get; set; } = new List<PlanoEstoque>();
 
     [InverseProperty("UnityNavigation")]
+    public virtual ICollection<PlanoSimultaneo> PlanoSimultaneos { get; set; } = new List<PlanoSimultaneo>();
+
+    [InverseProperty("UnityNavigation")]
     public virtual ICollection<ProductDetail> ProductDetails { get; set; } = new List<ProductDetail>();
 
     [InverseProperty("UnityNavigation")]

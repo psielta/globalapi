@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 
 namespace GlobalErpData.MMModels;
@@ -117,11 +116,6 @@ public partial class Entrada
 
     [Column("xml_nf")]
     public string? XmlNf { get; set; }
-
-
-    [JsonPropertyName("nmEmpresa")]
-    [NotMapped]
-    public string NmEmpresa => (CdEmpresaNavigation == null) ? "" : CdEmpresaNavigation.NmEmpresa;
 
     [Column("dt_emissao")]
     public DateOnly? DtEmissao { get; set; }
