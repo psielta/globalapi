@@ -60,6 +60,10 @@ public partial class LivroCaixa : IIdentifiable<long>
     [InverseProperty("LivroCaixas")]
     public virtual Empresa CdEmpresaNavigation { get; set; } = null!;
 
+    [JsonPropertyName("nmEmpresa")]
+    [NotMapped]
+    public string NmEmpresa => (CdEmpresaNavigation == null) ? "" : CdEmpresaNavigation.NmEmpresa;
+
     [JsonIgnore]
     [ForeignKey("Unity, CdHistorico, CdPlano")]
     [InverseProperty("LivroCaixas")]
@@ -74,14 +78,27 @@ public partial class LivroCaixa : IIdentifiable<long>
     [InverseProperty("LivroCaixas")]
     public virtual ContaDoCaixa NrContaNavigation { get; set; } = null!;
 
+    [JsonPropertyName("nmConta")]
+    [NotMapped]
+    public string NmConta => (NrContaNavigation == null) ? string.Empty : NrContaNavigation.NmConta;
+
     [JsonIgnore]
     [ForeignKey("NrCp")]
     [InverseProperty("LivroCaixas")]
     public virtual ContasAPagar? NrCpNavigation { get; set; }
+
+    [JsonPropertyName("fornecedor")]
+    [NotMapped]
+    public string Fornecedor => (NrCpNavigation == null || NrCpNavigation.Fornecedor == null) ? string.Empty : $"{NrCpNavigation.Fornecedor.CdForn} - {NrCpNavigation.Fornecedor.NmForn}";
+
     [JsonIgnore]
     [ForeignKey("NrCr")]
     [InverseProperty("LivroCaixas")]
     public virtual ContasAReceber? NrCrNavigation { get; set; }
+
+    [JsonPropertyName("cliente")]
+    [NotMapped]
+    public string Cliente => (NrCrNavigation == null || NrCrNavigation.CdClienteNavigation == null) ? string.Empty : $"{NrCrNavigation.CdClienteNavigation.Id} - {NrCrNavigation.CdClienteNavigation.NmCliente}";
 
     [JsonIgnore]
     [ForeignKey("Unity")]

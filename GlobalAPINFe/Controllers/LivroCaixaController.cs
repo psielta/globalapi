@@ -1,4 +1,6 @@
 ﻿using System.Globalization;
+using AutoMapper;
+using GlobalErpData.Data;
 using GlobalErpData.Dto;
 using GlobalErpData.Models;
 using GlobalErpData.Repository.PagedRepositories;
@@ -18,8 +20,12 @@ namespace GlobalAPINFe.Controllers
     [ApiController]
     public class LivroCaixaController : GenericPagedController<LivroCaixa, long, LivroCaixaDto>
     {
-        public LivroCaixaController(IQueryRepository<LivroCaixa, long, LivroCaixaDto> repo, ILogger<GenericPagedController<LivroCaixa, long, LivroCaixaDto>> logger) : base(repo, logger)
+        private readonly IMapper mapper;
+        private readonly GlobalErpFiscalBaseContext context;
+        public LivroCaixaController(IQueryRepository<LivroCaixa, long, LivroCaixaDto> repo, ILogger<GenericPagedController<LivroCaixa, long, LivroCaixaDto>> logger, GlobalErpFiscalBaseContext _context, IMapper mapper) : base(repo, logger)
         {
+            this.mapper = mapper;
+            context = _context;
         }
 
         [HttpGet]
@@ -197,6 +203,118 @@ namespace GlobalAPINFe.Controllers
             {
                 logger.LogError(ex, "Error occurred while retrieving paged entities.");
                 return StatusCode(500, "An error occurred while retrieving entities. Please try again later.");
+            }
+        }
+
+        [HttpGet("CreateLivroCaixaReportGeral", Name = nameof(CreateLivroCaixaReportGeral))]
+        [ProducesResponseType(200)]
+        public async Task<IActionResult> CreateLivroCaixaReportGeral()
+        {
+            var projectRootPath = Environment.CurrentDirectory;
+            var reportFilePath = System.IO.Path.Combine(projectRootPath, "reports", "ReportMvcLivroCaixaGeral.frx");
+            if (!System.IO.Directory.Exists(System.IO.Path.Combine(projectRootPath, "reports")))
+            {
+                System.IO.Directory.CreateDirectory(System.IO.Path.Combine(projectRootPath, "reports"));
+            }
+            var freport = new FastReport.Report();
+            //Entrada
+            //Produtos Entrada
+            //Empresa
+            LivroCaixa? livro = await context.LivroCaixas.
+                Include(p => p.NrContaNavigation)
+                .Include(l => l.HistoricoCaixa)
+                .Include(p => p.NrCpNavigation).ThenInclude(p => p.Fornecedor)
+                .Include(p => p.NrCrNavigation).ThenInclude(p => p.CdClienteNavigation)
+                .Include(p => p.CdEmpresaNavigation)
+                .Include(u => u.UnityNavigation)
+                .OrderByDescending(p => p.NrLanc)
+                .LastOrDefaultAsync();
+
+            if (livro == null)
+            {
+                return BadRequest();
+            }
+            var LivroMapped = mapper.Map<LivroCaixaGetDto>(livro);
+            // Registra os objetos no dicionário do relatório
+            freport.Dictionary.RegisterBusinessObject(new List<LivroCaixaGetDto>() { LivroMapped }, "Livro", 1, true);
+
+            // Habilita os datasources
+            freport.GetDataSource("Livro").Enabled = true;
+
+            freport.Report.Save(reportFilePath);
+
+            return Ok($" Relatorio gerado : {reportFilePath}");
+        }
+
+        [HttpGet("GetLivroCaixaGeralReport")]
+        [ProducesResponseType(typeof(FileContentResult), 200)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetLivroCaixaGeralReport([FromQuery] int unity, [FromQuery] int? Empresa = null,
+            [FromQuery] string? historico = null, [FromQuery] string? dataInicialISO = null, [FromQuery] string? dataFinalISO = null,
+            [FromQuery] string? plano = null, [FromQuery] string? tipo = null)
+        {
+            try
+            {
+                var Sql = $@"
+                    Select s.* from livro_caixa s
+                    inner join historico_caixa h on h.cd_sub_plano = s.cd_historico
+                    where
+                    s.unity = {unity}
+                    {((Empresa.HasValue) ? ($" and s.cd_empresa = {Empresa} ") : (""))}
+                    {((!string.IsNullOrEmpty(plano)) ? ($" and s.cd_plano = {UtlStrings.QuotedStr(plano)} ") : (""))}
+                    {((!string.IsNullOrEmpty(historico)) ? ($" and s.cd_historico = {UtlStrings.QuotedStr(historico)} ") : (""))}
+                    {((!string.IsNullOrEmpty(tipo)) ? ($" and h.tipo = {UtlStrings.QuotedStr(tipo)} ") : (""))}
+                    {(((!string.IsNullOrEmpty(dataFinalISO)) && (!string.IsNullOrEmpty(dataFinalISO))) ? ($" and s.dt_lanc between '{dataInicialISO}' and '{dataFinalISO}' ") : (""))}
+                    ";
+                var projectRootPath = Environment.CurrentDirectory;
+                var reportFilePath = System.IO.Path.Combine(projectRootPath, "reports", "ReportMvcLivroCaixaGeral.frx");
+
+                if (!System.IO.File.Exists(reportFilePath))
+                {
+                    return NotFound("Template de relatório não encontrado no servidor.");
+                }
+
+                var Livros = await context.LivroCaixas.
+                    FromSqlRaw(Sql).
+                Include(p => p.NrContaNavigation)
+                .Include(l => l.HistoricoCaixa)
+                .Include(p => p.NrCpNavigation).ThenInclude(p => p.Fornecedor)
+                .Include(p => p.NrCrNavigation).ThenInclude(p => p.CdClienteNavigation)
+                .Include(p => p.CdEmpresaNavigation)
+                .Include(u => u.UnityNavigation)
+                .OrderByDescending(p => p.NrLanc)
+                .ToListAsync();
+                if (Livros == null || Livros.Count <= 0)
+                {
+                    return NotFound($"Nenhum livro encontrado");
+                }
+                List<LivroCaixaGetDto> LivrosMapped = new List<LivroCaixaGetDto>();
+                foreach (var item in Livros)
+                {
+                    LivrosMapped.Add(mapper.Map<LivroCaixaGetDto>(item));
+                }
+
+                using var freport = new FastReport.Report();
+                freport.Load(reportFilePath);
+
+                freport.RegisterData(LivrosMapped, "Livro");
+
+                freport.GetDataSource("Livro").Enabled = true;
+
+                freport.Prepare();
+
+                using var ms = new MemoryStream();
+                var pdfExport = new FastReport.Export.PdfSimple.PDFSimpleExport();
+                freport.Export(pdfExport, ms);
+                ms.Position = 0;
+
+                return File(ms.ToArray(), "application/pdf", $"Livro_Geral.pdf");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Erro ao gerar relatório da livro de caixa geral");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um erro ao gerar o relatório.");
             }
         }
     }
