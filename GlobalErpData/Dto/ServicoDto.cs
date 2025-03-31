@@ -18,6 +18,19 @@ namespace GlobalErpData.Dto
 
         public decimal ValorUnitario { get; set; }
         public string NmServico { get; set; } = null!;
-         
+        public virtual ICollection<OsTabelaPrecoDto> OsTabelaPrecos { get; set; } = new List<OsTabelaPrecoDto>();
+
+    }
+
+    public class ServicoPutDto
+    {
+        public long Id { get; set; }
+        public int Unity { get; set; }
+        public int IdDepartamento { get; set; }
+        public bool PagaComissao { get; set; }
+        public decimal ValorUnitario { get; set; }
+        public string NmServico { get; set; } = null!;
+        public virtual ICollection<OsTabelaPrecoPutDto> OsTabelaPrecos { get; set; } = new List<OsTabelaPrecoPutDto>();
+
     }
 }

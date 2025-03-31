@@ -46,7 +46,6 @@ public partial class Servico : IIdentifiable<long>
     [InverseProperty("IdServicoNavigation")]
     public virtual ICollection<OrcamentoServico> OrcamentoServicos { get; set; } = new List<OrcamentoServico>();
 
-    [JsonIgnore]
     [InverseProperty("CdServicoNavigation")]
     public virtual ICollection<OsTabelaPreco> OsTabelaPrecos { get; set; } = new List<OsTabelaPreco>();
 

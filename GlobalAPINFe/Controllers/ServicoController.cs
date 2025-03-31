@@ -153,5 +153,125 @@ namespace GlobalAPINFe.Controllers
                 return StatusCode(500, "An error occurred while retrieving entities. Please try again later.");
             }
         }
+
+        [HttpPost("PostWithOsTabelaPreco")]
+        [ProducesResponseType(typeof(Servico), 201)]
+        [ProducesResponseType(400)]
+        public async Task<ActionResult<Servico>> PostWithOsTabelaPreco([FromBody] ServicoDto dto)
+        {
+            try
+            {
+                var novoServico = new Servico
+                {
+                    Unity = dto.Unity,
+                    IdDepartamento = dto.IdDepartamento,
+                    PagaComissao = dto.PagaComissao,
+                    ValorUnitario = dto.ValorUnitario,
+                    NmServico = dto.NmServico
+                };
+
+                foreach (var osTabelaPrecoDto in dto.OsTabelaPrecos)
+                {
+                    var novoOsTabela = new OsTabelaPreco
+                    {
+                        CdServicoNavigation = novoServico,
+                        IdTabelaPreco = osTabelaPrecoDto.IdTabelaPreco,
+                        PrecoVenda = osTabelaPrecoDto.PrecoVenda,
+                        DtUltAlteracao = osTabelaPrecoDto.DtUltAlteracao,
+                        Descricao = osTabelaPrecoDto.Descricao,
+                        Unity = dto.Unity
+                    };
+
+                    novoServico.OsTabelaPrecos.Add(novoOsTabela);
+                }
+
+                this.globalErpFiscalBaseContext.Servicos.Add(novoServico);
+                await this.globalErpFiscalBaseContext.SaveChangesAsync();
+
+                return CreatedAtAction(nameof(GetEntity), new { id = novoServico.Id }, novoServico);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Erro no PostWithOsTabelaPreco");
+                return StatusCode(500, $"Erro ao criar Servico com TabelaPrecos: {ex.Message}");
+            }
+        }
+
+
+        [HttpPost("PutWithOsTabelaPreco")]
+        [ProducesResponseType(typeof(Servico), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<Servico>> PutWithOsTabelaPreco([FromBody] ServicoPutDto dto)
+        {
+            try
+            {
+                var servicoExistente = await globalErpFiscalBaseContext.Servicos
+                    .Include(s => s.OsTabelaPrecos)
+                    .FirstOrDefaultAsync(s => s.Id == dto.Id);
+
+                if (servicoExistente == null)
+                {
+                    return NotFound($"Servico id={dto.Id} não encontrado");
+                }
+
+                servicoExistente.Unity = dto.Unity;
+                servicoExistente.IdDepartamento = dto.IdDepartamento;
+                servicoExistente.PagaComissao = dto.PagaComissao;
+                servicoExistente.ValorUnitario = dto.ValorUnitario;
+                servicoExistente.NmServico = dto.NmServico;
+
+                var dictTabelaPrecosExistentes = servicoExistente.OsTabelaPrecos
+                    .ToDictionary(x => x.Id, x => x);
+
+                foreach (var itemDto in dto.OsTabelaPrecos)
+                {
+                    if (itemDto.Id.HasValue && dictTabelaPrecosExistentes.ContainsKey(itemDto.Id.Value))
+                    {
+                        // a) Atualizar item existente
+                        var registroBanco = dictTabelaPrecosExistentes[itemDto.Id.Value];
+                        registroBanco.IdTabelaPreco = itemDto.IdTabelaPreco;
+                        registroBanco.PrecoVenda = itemDto.PrecoVenda;
+                        registroBanco.DtUltAlteracao = itemDto.DtUltAlteracao;
+                        registroBanco.Descricao = itemDto.Descricao;
+
+                        registroBanco.Unity = dto.Unity;
+                        registroBanco.CdServico = servicoExistente.Id;
+
+                        dictTabelaPrecosExistentes.Remove(itemDto.Id.Value);
+                    }
+                    else
+                    {
+                        var novoOsTabela = new OsTabelaPreco
+                        {
+                            IdTabelaPreco = itemDto.IdTabelaPreco,
+                            PrecoVenda = itemDto.PrecoVenda,
+                            DtUltAlteracao = itemDto.DtUltAlteracao,
+                            Descricao = itemDto.Descricao,
+
+                            CdServicoNavigation = servicoExistente,
+                            Unity = dto.Unity
+                        };
+
+                        servicoExistente.OsTabelaPrecos.Add(novoOsTabela);
+                    }
+                }
+
+                foreach (var itemNaoEnviado in dictTabelaPrecosExistentes.Values)
+                {
+                    globalErpFiscalBaseContext.OsTabelaPrecos.Remove(itemNaoEnviado);
+                }
+
+                await globalErpFiscalBaseContext.SaveChangesAsync();
+
+                return Ok(servicoExistente);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Erro no PutWithOsTabelaPreco");
+                return StatusCode(500, $"Erro ao atualizar Servico c/ TabelaPrecos: {ex.Message}");
+            }
+        }
+
     }
 }

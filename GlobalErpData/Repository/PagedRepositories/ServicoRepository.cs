@@ -23,6 +23,7 @@ namespace GlobalErpData.Repository.PagedRepositories
         public IQueryable<Servico> GetServicosPorUnity(int unity)
         {
             return db.Set<Servico>().Include(x => x.IdDepartamentoNavigation)
+                .Include(x => x.OsTabelaPrecos)
                 .Where(e => e.Unity == unity)
                 .AsQueryable();
         }
@@ -32,7 +33,10 @@ namespace GlobalErpData.Repository.PagedRepositories
             try
             {
                 // Retorna o IQueryable do EF, sem cache estático
-                return Task.FromResult(db.Set<Servico>().Include(x => x.IdDepartamentoNavigation).AsQueryable());
+                return Task.FromResult(db.Set<Servico>()
+                    .Include(x => x.IdDepartamentoNavigation)
+                    .Include(x => x.OsTabelaPrecos)
+                    .AsQueryable());
             }
             catch (Exception ex)
             {
@@ -50,7 +54,9 @@ namespace GlobalErpData.Repository.PagedRepositories
                 var keyName = tempEntity.GetKeyName();
 
                 // Filtra por EF.Property<>
-                var entity = await db.Set<Servico>().Include(x => x.IdDepartamentoNavigation)
+                var entity = await db.Set<Servico>()
+                    .Include(x => x.IdDepartamentoNavigation)
+                    .Include(x => x.OsTabelaPrecos)
                     .SingleOrDefaultAsync(e => EF.Property<long>(e, keyName)!.Equals(id));
 
                 return entity;
@@ -71,7 +77,9 @@ namespace GlobalErpData.Repository.PagedRepositories
                 var keyName = tempEntity.GetKeyName();
 
                 // Filtra por EF.Property<>
-                var entity = await db.Set<Servico>().AsNoTracking().Include(x => x.IdDepartamentoNavigation)
+                var entity = await db.Set<Servico>().AsNoTracking()
+                    .Include(x => x.IdDepartamentoNavigation)
+                    .Include(x => x.OsTabelaPrecos)
                     .SingleOrDefaultAsync(e => EF.Property<long>(e, keyName)!.Equals(id));
 
                 return entity;

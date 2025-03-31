@@ -21,4 +21,18 @@ namespace GlobalErpData.Dto
 
         public string? Descricao { get; set; }
     }
+    
+    public class OsTabelaPrecoPutDto
+    {
+        public long? Id { get; set; }
+        public long CdServico { get; set; }
+
+        public int IdTabelaPreco { get; set; }
+
+        public decimal PrecoVenda { get; set; }
+
+        public DateTime DtUltAlteracao { get; set; }
+
+        public string? Descricao { get; set; }
+    }
 }
