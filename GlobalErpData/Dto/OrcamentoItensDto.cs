@@ -28,4 +28,6 @@ namespace GlobalErpData.Dto
         public long SequenciaCab { get; set; }
         public int CdPlano { get; set; }
     }
+    
+    
 }

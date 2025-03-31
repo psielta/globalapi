@@ -87,11 +87,9 @@ public partial class OrcamentoCab : IIdentifiable<Guid>
     [InverseProperty("OrcamentoCabs")]
     public virtual Cliente IdClienteNavigation { get; set; } = null!;
 
-    [JsonIgnore]
     [InverseProperty("OrcamentoCab")]
     public virtual ICollection<OrcamentoIten> OrcamentoItens { get; set; } = new List<OrcamentoIten>();
 
-    [JsonIgnore]
     [InverseProperty("OrcamentoCab")]
     public virtual ICollection<OrcamentoServico> OrcamentoServicos { get; set; } = new List<OrcamentoServico>();
 

@@ -44,4 +44,6 @@
 
         public long SequenciaCab { get; set; }
     }
+    
+    
 }

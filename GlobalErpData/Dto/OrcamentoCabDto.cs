@@ -36,4 +36,6 @@ namespace GlobalErpData.Dto
 
         public int CdPlano { get; set; }
     }
+    
+    
 }
