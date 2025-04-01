@@ -11,6 +11,8 @@ namespace GlobalErpData.Dto
 {
     public class NfceFormaPgtDto
     {
+        public int? Id { get; set; }
+        public int Unity { get; set; }
         public int? IdSaida { get; set; }
 
         public int CdEmpresa { get; set; }

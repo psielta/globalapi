@@ -11,6 +11,7 @@ namespace GlobalErpData.Dto
 {
     public class NfceSaidaDto
     {
+        public int? Id { get; set; }
         public DateOnly? Data { get; set; }
         public int Empresa { get; set; }
         public int Cliente { get; set; }
@@ -67,5 +68,6 @@ namespace GlobalErpData.Dto
         public int? CdAnimal { get; set; }
         public DateTime? LastUpdate { get; set; }
         public int? Integrated { get; set; }
+        public int Unity { get; set; }
     }
 }

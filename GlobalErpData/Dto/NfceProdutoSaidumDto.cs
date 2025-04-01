@@ -11,6 +11,8 @@ namespace GlobalErpData.Dto
 {
     public class NfceProdutoSaidumDto
     {
+        public int? Id { get; set; }
+        public int Unity { get; set; }
         public int IdSaida { get; set; }
 
         public int CdProduto { get; set; }
@@ -188,6 +190,5 @@ namespace GlobalErpData.Dto
         public DateTime? LastUpdate { get; set; }
 
         public int? Integrated { get; set; }
-    public int Unity { get; set; }
     }
 }

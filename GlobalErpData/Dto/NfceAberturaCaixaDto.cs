@@ -11,6 +11,7 @@ namespace GlobalErpData.Dto
 {
     public class NfceAberturaCaixaDto
     {
+        public int? NrLanc { get; set; }
         public DateTime? DataLanc { get; set; }
         public int CdEmpresa { get; set; }
         public DateOnly DataAbertura { get; set; }
@@ -43,5 +44,6 @@ namespace GlobalErpData.Dto
         public decimal? ITotal { get; set; }
         public DateTime? LastUpdate { get; set; }
         public int? Integrated { get; set; }
+        public int Unity { get; set; }
     }
 }

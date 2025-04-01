@@ -11,6 +11,7 @@ namespace GlobalErpData.Dto
 {
     public class SangriaCaixaDto
     {
+        public int? Id { get; set; }
         public int CdEmpresa { get; set; }
         public DateOnly? Data { get; set; }
         public TimeOnly? Hora { get; set; }
@@ -22,5 +23,6 @@ namespace GlobalErpData.Dto
         public string? Obs { get; set; }
         public DateTime? LastUpdate { get; set; }
         public int? Integrated { get; set; }
+        public int Unity { get; set; }
     }
 }

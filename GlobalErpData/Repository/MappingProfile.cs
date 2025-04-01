@@ -120,17 +120,15 @@ namespace GlobalErpData.Repository
             CreateMap<NfceProdutoSaidum, NfceProdutoSaidumDto>().ReverseMap();
             CreateMap<NfceFormaPgt, NfceFormaPgtDto>().ReverseMap();
             CreateMap<SangriaCaixa, SangriaCaixaDto>().ReverseMap();
+
             CreateMap<Unity,UnityDto>().ReverseMap();
             CreateMap<UsuarioEmpresa, UsuarioEmpresaDto>().ReverseMap();
-
             CreateMap<OrcamentoCab, OrcamentoCabDto>().ReverseMap();
             CreateMap<OrcamentoIten, OrcamentoItensDto>().ReverseMap();
             CreateMap<OrcamentoServico, OrcamentoServicosDto>().ReverseMap();
-
             CreateMap<Departamento, DepartamentoDto>().ReverseMap();
             CreateMap<Servico, ServicoDto>().ReverseMap();
             CreateMap<OsTabelaPreco, OsTabelaPrecoDto>().ReverseMap();
-
             CreateMap<Saida, SaidaDtoV2>().ReverseMap();
             CreateMap<Unity, UnityGetDto>().ReverseMap();
             CreateMap<PlanoSimultaneo, PlanoSimultaneoDto>().ReverseMap();
