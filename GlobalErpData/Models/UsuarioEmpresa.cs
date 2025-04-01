@@ -46,4 +46,10 @@ public partial class UsuarioEmpresa : IIdentifiable<int>
     {
         return "Id";
     }
+
+    [Column("last_update", TypeName = "timestamp(0) without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+    [Column("integrated")]
+    public int? Integrated { get; set; }
 }

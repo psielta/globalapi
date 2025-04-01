@@ -2500,6 +2500,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasKey(e => new { e.CdUsuario, e.CdEmpresa }).HasName("usuario_empresa_pkey");
 
             entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
             entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.UsuarioEmpresas).HasConstraintName("usuario_empresa_fk1");
 

@@ -23,6 +23,12 @@ public partial class UsuarioEmpresa
     [Column("id")]
     public int Id { get; set; }
 
+    [Column("last_update", TypeName = "timestamp(0) without time zone")]
+    public DateTime? LastUpdate { get; set; }
+
+    [Column("integrated")]
+    public int? Integrated { get; set; }
+
     [ForeignKey("CdEmpresa")]
     [InverseProperty("UsuarioEmpresas")]
     public virtual Empresa CdEmpresaNavigation { get; set; } = null!;
