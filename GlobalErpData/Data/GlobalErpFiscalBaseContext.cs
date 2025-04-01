@@ -1437,6 +1437,10 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.VlVendaTicket).HasDefaultValueSql("0");
 
             entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.NfceAberturaCaixas).HasConstraintName("nfce_abertura_caixa_fk");
+
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.NfceAberturaCaixas)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("nfce_abertura_caixa_fk2");
         });
 
         modelBuilder.Entity<NfceFormaPgt>(entity =>
@@ -1454,6 +1458,10 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.NfceFormaPgts)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("nfce_forma_pgt_fk");
+
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.NfceFormaPgts)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("nfce_forma_pgt_fk2");
 
             entity.HasOne(d => d.NfceSaida).WithMany(p => p.NfceFormaPgts).HasConstraintName("nfce_forma_pgt_fk1");
         });
@@ -1586,6 +1594,10 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.EmpresaNavigation).WithMany(p => p.NfceSaida)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("nfce_saidas_fk1");
+
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.NfceSaida)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("nfce_saidas_fk");
         });
 
         modelBuilder.Entity<ObsNf>(entity =>
@@ -2369,6 +2381,10 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.SangriaCaixas)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("sangria_caixa_fk");
+
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.SangriaCaixas)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("sangria_caixa_fk2");
         });
 
         modelBuilder.Entity<Section>(entity =>

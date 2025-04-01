@@ -77,6 +77,9 @@ public partial class NfceFormaPgt
     [Column("integrated")]
     public int? Integrated { get; set; }
 
+    [Column("unity")]
+    public int Unity { get; set; }
+
     [ForeignKey("CdEmpresa")]
     [InverseProperty("NfceFormaPgts")]
     public virtual Empresa CdEmpresaNavigation { get; set; } = null!;
@@ -84,4 +87,8 @@ public partial class NfceFormaPgt
     [ForeignKey("IdSaida, CdEmpresa")]
     [InverseProperty("NfceFormaPgts")]
     public virtual NfceSaida? NfceSaida { get; set; }
+
+    [ForeignKey("Unity")]
+    [InverseProperty("NfceFormaPgts")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
 }

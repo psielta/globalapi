@@ -51,7 +51,14 @@ public partial class SangriaCaixa
     [Column("integrated")]
     public int? Integrated { get; set; }
 
+    [Column("unity")]
+    public int Unity { get; set; }
+
     [ForeignKey("CdEmpresa")]
     [InverseProperty("SangriaCaixas")]
     public virtual Empresa CdEmpresaNavigation { get; set; } = null!;
+
+    [ForeignKey("Unity")]
+    [InverseProperty("SangriaCaixas")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
 }

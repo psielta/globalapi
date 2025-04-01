@@ -215,6 +215,9 @@ public partial class NfceSaida
     [Column("integrated")]
     public int? Integrated { get; set; }
 
+    [Column("unity")]
+    public int Unity { get; set; }
+
     [ForeignKey("Empresa")]
     [InverseProperty("NfceSaida")]
     public virtual Empresa EmpresaNavigation { get; set; } = null!;
@@ -224,4 +227,8 @@ public partial class NfceSaida
 
     [InverseProperty("NfceSaida")]
     public virtual ICollection<NfceProdutoSaidum> NfceProdutoSaida { get; set; } = new List<NfceProdutoSaidum>();
+
+    [ForeignKey("Unity")]
+    [InverseProperty("NfceSaida")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
 }

@@ -159,4 +159,12 @@ public partial class NfceAberturaCaixa : IIdentifiableMultiKey<int, int>
     {
         return "CdEmpresa";
     }
+
+    [Column("unity")]
+    public int Unity { get; set; }
+
+    [JsonIgnore]
+    [ForeignKey("Unity")]
+    [InverseProperty("NfceAberturaCaixas")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
 }

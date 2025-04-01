@@ -74,4 +74,12 @@ public partial class SangriaCaixa : IIdentifiableMultiKey<int, int>
     {
         return "CdEmpresa";
     }
+
+    [Column("unity")]
+    public int Unity { get; set; }
+
+    [JsonIgnore]
+    [ForeignKey("Unity")]
+    [InverseProperty("SangriaCaixas")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
 }

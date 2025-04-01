@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
-using GlobalErpData.MMModels;
 using GlobalLib.Database;
 using Microsoft.EntityFrameworkCore;
 
@@ -222,4 +221,20 @@ public partial class Unity : IIdentifiable<int>
     [JsonIgnore]
     [InverseProperty("UnityNavigation")]
     public virtual ICollection<PlanoSimultaneo> PlanoSimultaneos { get; set; } = new List<PlanoSimultaneo>();
+
+    [JsonIgnore]
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<NfceSaida> NfceSaida { get; set; } = new List<NfceSaida>();
+
+    [JsonIgnore]
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<NfceAberturaCaixa> NfceAberturaCaixas { get; set; } = new List<NfceAberturaCaixa>();
+
+    [JsonIgnore]
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<NfceFormaPgt> NfceFormaPgts { get; set; } = new List<NfceFormaPgt>();
+
+    [JsonIgnore]
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<SangriaCaixa> SangriaCaixas { get; set; } = new List<SangriaCaixa>();
 }

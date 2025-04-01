@@ -93,7 +93,16 @@ public partial class Unity
     public virtual ICollection<NcmProtocoloEstado> NcmProtocoloEstados { get; set; } = new List<NcmProtocoloEstado>();
 
     [InverseProperty("UnityNavigation")]
+    public virtual ICollection<NfceAberturaCaixa> NfceAberturaCaixas { get; set; } = new List<NfceAberturaCaixa>();
+
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<NfceFormaPgt> NfceFormaPgts { get; set; } = new List<NfceFormaPgt>();
+
+    [InverseProperty("UnityNavigation")]
     public virtual ICollection<NfceProdutoSaidum> NfceProdutoSaida { get; set; } = new List<NfceProdutoSaidum>();
+
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<NfceSaida> NfceSaida { get; set; } = new List<NfceSaida>();
 
     [InverseProperty("UnityNavigation")]
     public virtual ICollection<ObsNf> ObsNfs { get; set; } = new List<ObsNf>();
@@ -145,6 +154,9 @@ public partial class Unity
 
     [InverseProperty("UnityNavigation")]
     public virtual ICollection<SaldoEstoque> SaldoEstoques { get; set; } = new List<SaldoEstoque>();
+
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<SangriaCaixa> SangriaCaixas { get; set; } = new List<SangriaCaixa>();
 
     [InverseProperty("UnityNavigation")]
     public virtual ICollection<SectionItem> SectionItems { get; set; } = new List<SectionItem>();

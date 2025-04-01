@@ -247,4 +247,12 @@ public partial class NfceSaida : IIdentifiableMultiKey<int, int>
     {
         return "Empresa";
     }
+
+    [Column("unity")]
+    public int Unity { get; set; }
+
+    [JsonIgnore]
+    [ForeignKey("Unity")]
+    [InverseProperty("NfceSaida")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
 }

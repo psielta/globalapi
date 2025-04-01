@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 namespace GlobalErpData.MMModels;
 
 [PrimaryKey("NrLanc", "CdEmpresa")]
-
 [Table("nfce_abertura_caixa")]
 public partial class NfceAberturaCaixa
 {
@@ -136,7 +135,14 @@ public partial class NfceAberturaCaixa
     [Column("integrated")]
     public int? Integrated { get; set; }
 
+    [Column("unity")]
+    public int Unity { get; set; }
+
     [ForeignKey("CdEmpresa")]
     [InverseProperty("NfceAberturaCaixas")]
     public virtual Empresa CdEmpresaNavigation { get; set; } = null!;
+
+    [ForeignKey("Unity")]
+    [InverseProperty("NfceAberturaCaixas")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
 }

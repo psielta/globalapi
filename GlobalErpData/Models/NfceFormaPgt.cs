@@ -106,4 +106,13 @@ public partial class NfceFormaPgt : IIdentifiableMultiKey<int, int>
     {
         return "CdEmpresa";
     }
+
+    [Column("unity")]
+    public int Unity { get; set; }
+
+    [JsonIgnore]
+    [ForeignKey("Unity")]
+    [InverseProperty("NfceFormaPgts")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
+
 }
