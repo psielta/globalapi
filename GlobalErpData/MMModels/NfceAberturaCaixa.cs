@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace GlobalErpData.MMModels;
 
 [PrimaryKey("NrLanc", "CdEmpresa")]
+
 [Table("nfce_abertura_caixa")]
 public partial class NfceAberturaCaixa
 {
