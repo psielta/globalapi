@@ -40,6 +40,9 @@ public partial class Vendedor
     [Column("integrated")]
     public int? Integrated { get; set; }
 
+    [Column("unity")]
+    public int? Unity { get; set; }
+
     [ForeignKey("CdEmpresa")]
     [InverseProperty("Vendedors")]
     public virtual Empresa CdEmpresaNavigation { get; set; } = null!;
@@ -47,4 +50,8 @@ public partial class Vendedor
     [ForeignKey("CdFuncionario, CdEmpresa")]
     [InverseProperty("VendedorNavigation")]
     public virtual Funcionario Funcionario { get; set; } = null!;
+
+    [ForeignKey("Unity")]
+    [InverseProperty("Vendedors")]
+    public virtual Unity? UnityNavigation { get; set; }
 }

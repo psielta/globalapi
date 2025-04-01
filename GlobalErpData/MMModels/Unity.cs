@@ -172,4 +172,7 @@ public partial class Unity
 
     [InverseProperty("UnityNavigation")]
     public virtual ICollection<Usuario> Usuarios { get; set; } = new List<Usuario>();
+
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<Vendedor> Vendedors { get; set; } = new List<Vendedor>();
 }

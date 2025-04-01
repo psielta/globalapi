@@ -237,4 +237,8 @@ public partial class Unity : IIdentifiable<int>
     [JsonIgnore]
     [InverseProperty("UnityNavigation")]
     public virtual ICollection<SangriaCaixa> SangriaCaixas { get; set; } = new List<SangriaCaixa>();
+
+    [JsonIgnore]
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<Vendedor> Vendedors { get; set; } = new List<Vendedor>();
 }

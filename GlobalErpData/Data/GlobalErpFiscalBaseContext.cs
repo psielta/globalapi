@@ -2552,6 +2552,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
             entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.Vendedors).HasConstraintName("vendedor_fk_empresa");
 
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.Vendedors).HasConstraintName("vendedor_fk1");
+
             entity.HasOne(d => d.Funcionario).WithOne(p => p.VendedorNavigation).HasConstraintName("vendedor_fk");
         });
         modelBuilder.HasSequence("cte_doc_anterior_nfe_id_cte_doc_anterior_nfe_seq", "cte");
