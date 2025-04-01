@@ -87,6 +87,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
     public virtual DbSet<CteVeiculo> CteVeiculos { get; set; }
 
+    public virtual DbSet<DeletedRecord> DeletedRecords { get; set; }
+
     public virtual DbSet<Departamento> Departamentos { get; set; }
 
     public virtual DbSet<DistribuicaoDfe> DistribuicaoDves { get; set; }
@@ -859,6 +861,14 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.CteVeiculos)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("cte_veiculo_fkey");
+        });
+
+        modelBuilder.Entity<DeletedRecord>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("deleted_records_pkey");
+
+            entity.Property(e => e.DtDeleted).HasDefaultValueSql("now()");
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
         });
 
         modelBuilder.Entity<Departamento>(entity =>

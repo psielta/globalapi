@@ -863,6 +863,14 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .HasConstraintName("cte_veiculo_fkey");
         });
 
+        modelBuilder.Entity<DeletedRecord>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("deleted_records_pkey");
+
+            entity.Property(e => e.DtDeleted).HasDefaultValueSql("now()");
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+        });
+
         modelBuilder.Entity<Departamento>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("departamento_pkey");
