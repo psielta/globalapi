@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using GlobalErpData.MMModels;
 using GlobalLib.Database;
 using Microsoft.EntityFrameworkCore;
 
