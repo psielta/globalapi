@@ -8,6 +8,7 @@ namespace GlobalErpData.MMModels;
 
 [PrimaryKey("Id", "CdEmpresa")]
 [Table("nfce_forma_pgt")]
+[Index("Sequence", Name = "nfce_forma_pgt_u_idx1", IsUnique = true)]
 public partial class NfceFormaPgt
 {
     [Key]
@@ -79,6 +80,9 @@ public partial class NfceFormaPgt
 
     [Column("unity")]
     public int Unity { get; set; }
+
+    [Column("sequence")]
+    public long Sequence { get; set; }
 
     [ForeignKey("CdEmpresa")]
     [InverseProperty("NfceFormaPgts")]

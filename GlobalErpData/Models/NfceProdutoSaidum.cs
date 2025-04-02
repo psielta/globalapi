@@ -10,6 +10,7 @@ namespace GlobalErpData.Models;
 
 [PrimaryKey("Id", "CdEmpresa")]
 [Table("nfce_produto_saida")]
+[Index("Sequence", Name = "nfce_produto_saida_u_idx1", IsUnique = true)]
 public partial class NfceProdutoSaidum : IIdentifiableMultiKey<int, int>
 {
     [Key]
@@ -401,4 +402,7 @@ public partial class NfceProdutoSaidum : IIdentifiableMultiKey<int, int>
     {
         return "CdEmpresa";
     }
+
+    [Column("sequence")]
+    public long Sequence { get; set; }
 }

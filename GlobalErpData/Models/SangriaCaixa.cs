@@ -10,6 +10,7 @@ namespace GlobalErpData.Models;
 
 [PrimaryKey("Id", "CdEmpresa")]
 [Table("sangria_caixa")]
+[Index("Sequence", Name = "sangria_caixa_u_idx1", IsUnique = true)]
 public partial class SangriaCaixa : IIdentifiableMultiKey<int, int>
 {
     [Key]
@@ -82,4 +83,7 @@ public partial class SangriaCaixa : IIdentifiableMultiKey<int, int>
     [ForeignKey("Unity")]
     [InverseProperty("SangriaCaixas")]
     public virtual Unity UnityNavigation { get; set; } = null!;
+
+    [Column("sequence")]
+    public long Sequence { get; set; }
 }

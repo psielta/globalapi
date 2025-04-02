@@ -11,6 +11,7 @@ namespace GlobalErpData.Models;
 
 [PrimaryKey("CdProduto", "Unity")]
 [Table("produto_estoque")]
+[Index("Sequence", Name = "produto_estoque_idx1", IsUnique = true)]
 public partial class ProdutoEstoque : IIdentifiable<int>, IIdentifiableMultiKey<int, int>
 {
     [Key]
@@ -656,5 +657,8 @@ public partial class ProdutoEstoque : IIdentifiable<int>, IIdentifiableMultiKey<
     [JsonIgnore]
     [InverseProperty("ProdutoEstoque")]
     public virtual ICollection<OrcamentoIten> OrcamentoItens { get; set; } = new List<OrcamentoIten>();
+
+    [Column("sequence")]
+    public long Sequence { get; set; }
 
 }

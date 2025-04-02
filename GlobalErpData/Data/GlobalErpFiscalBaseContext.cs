@@ -1141,6 +1141,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.NrTelefone).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.NrTelefone2).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.Numero).HasDefaultValue(0);
+            entity.Property(e => e.Sequence).ValueGeneratedOnAdd();
             entity.Property(e => e.Sexo).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.TxtObs).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.Vendedor).HasDefaultValueSql("'N'::character varying");
@@ -1433,6 +1434,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.DataLanc).HasDefaultValueSql("now()");
             entity.Property(e => e.Integrated).HasDefaultValue(0);
             entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
+            entity.Property(e => e.Sequence).ValueGeneratedOnAdd();
             entity.Property(e => e.VlBaixaFiado).HasDefaultValueSql("0");
             entity.Property(e => e.VlMoedas).HasDefaultValueSql("0");
             entity.Property(e => e.VlSangria).HasDefaultValueSql("0");
@@ -1460,6 +1462,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.Integrated).HasDefaultValue(0);
             entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
             entity.Property(e => e.NrAberturaCaixa).HasDefaultValueSql("'-1'::integer");
+            entity.Property(e => e.Sequence).ValueGeneratedOnAdd();
             entity.Property(e => e.Troco).HasDefaultValueSql("0");
             entity.Property(e => e.Valor).HasDefaultValueSql("0");
 
@@ -1510,6 +1513,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.QtTotal).HasDefaultValueSql("1");
             entity.Property(e => e.Quant).HasDefaultValueSql("1");
             entity.Property(e => e.QuantEstorno).HasDefaultValueSql("0");
+            entity.Property(e => e.Sequence).ValueGeneratedOnAdd();
             entity.Property(e => e.SequenciaItem).HasDefaultValue(0);
             entity.Property(e => e.St).HasDefaultValueSql("0");
             entity.Property(e => e.Tamanho).HasDefaultValueSql("''::character varying");
@@ -1592,6 +1596,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.PagaComissao).HasDefaultValueSql("'N'::character varying");
             entity.Property(e => e.Pagou).HasDefaultValueSql("'N'::character varying");
             entity.Property(e => e.Requisicao).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.Sequence).ValueGeneratedOnAdd();
             entity.Property(e => e.TabelaVenda).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.TxtJustificativaCancelamento).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.TxtObsNf).HasDefaultValueSql("''::character varying");
@@ -2039,6 +2044,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.QtUnitario).HasDefaultValueSql("1");
             entity.Property(e => e.QtdeMax).HasDefaultValueSql("0");
             entity.Property(e => e.RegMs).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.Sequence).ValueGeneratedOnAdd();
             entity.Property(e => e.StEcf).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.Suspenso).HasDefaultValueSql("'N'::character varying");
             entity.Property(e => e.TaxaCofins).HasDefaultValueSql("0");
@@ -2384,6 +2390,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.Hora).HasDefaultValueSql("('now'::text)::time with time zone");
             entity.Property(e => e.Integrated).HasDefaultValue(0);
             entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
+            entity.Property(e => e.Sequence).ValueGeneratedOnAdd();
             entity.Property(e => e.Tipo).HasDefaultValueSql("''::character varying");
 
             entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.SangriaCaixas)

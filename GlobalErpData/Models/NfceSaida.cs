@@ -10,6 +10,7 @@ namespace GlobalErpData.Models;
 
 [PrimaryKey("Id", "Empresa")]
 [Table("nfce_saidas")]
+[Index("Sequence", Name = "nfce_saidas_u_idx1", IsUnique = true)]
 public partial class NfceSaida : IIdentifiableMultiKey<int, int>
 {
     [Key]
@@ -255,4 +256,7 @@ public partial class NfceSaida : IIdentifiableMultiKey<int, int>
     [ForeignKey("Unity")]
     [InverseProperty("NfceSaida")]
     public virtual Unity UnityNavigation { get; set; } = null!;
+
+    [Column("sequence")]
+    public long Sequence { get; set; }
 }

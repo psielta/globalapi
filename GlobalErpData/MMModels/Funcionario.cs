@@ -8,6 +8,7 @@ namespace GlobalErpData.MMModels;
 
 [PrimaryKey("CdFuncionario", "CdEmpresa")]
 [Table("funcionario")]
+[Index("Sequence", Name = "funcionario_idx1", IsUnique = true)]
 public partial class Funcionario
 {
     [Key]
@@ -144,6 +145,9 @@ public partial class Funcionario
     [Column("percentual_comissao")]
     [Precision(18, 4)]
     public decimal PercentualComissao { get; set; }
+
+    [Column("sequence")]
+    public int Sequence { get; set; }
 
     [ForeignKey("CdEmpresa")]
     [InverseProperty("Funcionarios")]

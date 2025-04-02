@@ -8,6 +8,7 @@ namespace GlobalErpData.MMModels;
 
 [PrimaryKey("CdProduto", "Unity")]
 [Table("produto_estoque")]
+[Index("Sequence", Name = "produto_estoque_idx1", IsUnique = true)]
 public partial class ProdutoEstoque
 {
     [Key]
@@ -557,6 +558,9 @@ public partial class ProdutoEstoque
     [Key]
     [Column("unity")]
     public int Unity { get; set; }
+
+    [Column("sequence")]
+    public long Sequence { get; set; }
 
     [ForeignKey("Category")]
     [InverseProperty("ProdutoEstoques")]

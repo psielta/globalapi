@@ -10,6 +10,7 @@ namespace GlobalErpData.Models;
 
 [PrimaryKey("CdFuncionario", "CdEmpresa")]
 [Table("funcionario")]
+[Index("Sequence", Name = "funcionario_idx1", IsUnique = true)]
 public partial class Funcionario : IIdentifiableMultiKey<int, int>
 {
     [Key]
@@ -187,6 +188,9 @@ public partial class Funcionario : IIdentifiableMultiKey<int, int>
     [Column("percentual_comissao")]
     [Precision(18, 4)]
     public decimal PercentualComissao { get; set; }
+
+    [Column("sequence")]
+    public int Sequence { get; set; }
 
     [JsonIgnore]
     [InverseProperty("Funcionario")]

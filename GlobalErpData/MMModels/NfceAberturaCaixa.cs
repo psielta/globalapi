@@ -8,6 +8,7 @@ namespace GlobalErpData.MMModels;
 
 [PrimaryKey("NrLanc", "CdEmpresa")]
 [Table("nfce_abertura_caixa")]
+[Index("Sequence", Name = "nfce_abertura_caixa_u_idx1", IsUnique = true)]
 public partial class NfceAberturaCaixa
 {
     [Key]
@@ -137,6 +138,9 @@ public partial class NfceAberturaCaixa
 
     [Column("unity")]
     public int Unity { get; set; }
+
+    [Column("sequence")]
+    public long Sequence { get; set; }
 
     [ForeignKey("CdEmpresa")]
     [InverseProperty("NfceAberturaCaixas")]

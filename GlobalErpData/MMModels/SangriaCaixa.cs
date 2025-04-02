@@ -8,6 +8,7 @@ namespace GlobalErpData.MMModels;
 
 [PrimaryKey("Id", "CdEmpresa")]
 [Table("sangria_caixa")]
+[Index("Sequence", Name = "sangria_caixa_u_idx1", IsUnique = true)]
 public partial class SangriaCaixa
 {
     [Key]
@@ -53,6 +54,9 @@ public partial class SangriaCaixa
 
     [Column("unity")]
     public int Unity { get; set; }
+
+    [Column("sequence")]
+    public long Sequence { get; set; }
 
     [ForeignKey("CdEmpresa")]
     [InverseProperty("SangriaCaixas")]

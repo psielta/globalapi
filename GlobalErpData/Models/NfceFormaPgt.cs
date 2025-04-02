@@ -10,11 +10,15 @@ namespace GlobalErpData.Models;
 
 [PrimaryKey("Id", "CdEmpresa")]
 [Table("nfce_forma_pgt")]
+[Index("Sequence", Name = "nfce_forma_pgt_u_idx1", IsUnique = true)]
 public partial class NfceFormaPgt : IIdentifiableMultiKey<int, int>
 {
     [Key]
     [Column("id")]
     public int Id { get; set; }
+
+    [Column("sequence")]
+    public long Sequence { get; set; }
 
     [Column("id_saida")]
     public int? IdSaida { get; set; }

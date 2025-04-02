@@ -10,11 +10,15 @@ namespace GlobalErpData.Models;
 
 [PrimaryKey("NrLanc", "CdEmpresa")]
 [Table("nfce_abertura_caixa")]
+[Index("Sequence", Name = "nfce_abertura_caixa_u_idx1", IsUnique = true)]
 public partial class NfceAberturaCaixa : IIdentifiableMultiKey<int, int>
 {
     [Key]
     [Column("nr_lanc")]
     public int NrLanc { get; set; }
+
+    [Column("sequence")]
+    public long Sequence { get; set; }
 
     [Column("data_lanc", TypeName = "timestamp without time zone")]
     public DateTime? DataLanc { get; set; }
