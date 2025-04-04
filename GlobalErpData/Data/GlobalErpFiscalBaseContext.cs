@@ -2413,7 +2413,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("sections_category_id_fkey");
 
-            entity.HasOne(d => d.IdEmpresaNavigation).WithMany(p => p.Sections).HasConstraintName("sections_id_empresa_fkey");
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.Sections).HasConstraintName("sections_id_empresa_fkey");
         });
 
         modelBuilder.Entity<SectionItem>(entity =>

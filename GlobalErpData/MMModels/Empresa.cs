@@ -278,9 +278,6 @@ public partial class Empresa
     [InverseProperty("CdEmpresaNavigation")]
     public virtual ICollection<SangriaCaixa> SangriaCaixas { get; set; } = new List<SangriaCaixa>();
 
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<Section> Sections { get; set; } = new List<Section>();
-
     [ForeignKey("Unity")]
     [InverseProperty("Empresas")]
     public virtual Unity UnityNavigation { get; set; } = null!;

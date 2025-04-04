@@ -24,8 +24,8 @@ public partial class Section
     [StringLength(100)]
     public string? Name { get; set; }
 
-    [Column("id_empresa")]
-    public int IdEmpresa { get; set; }
+    [Column("unity")]
+    public int Unity { get; set; }
 
     [Column("last_update", TypeName = "timestamp without time zone")]
     public DateTime? LastUpdate { get; set; }
@@ -37,13 +37,13 @@ public partial class Section
     [InverseProperty("Sections")]
     public virtual Category? Category { get; set; }
 
-    [ForeignKey("IdEmpresa")]
-    [InverseProperty("Sections")]
-    public virtual Empresa IdEmpresaNavigation { get; set; } = null!;
-
     [InverseProperty("Section")]
     public virtual ICollection<ProdutoEstoque> ProdutoEstoques { get; set; } = new List<ProdutoEstoque>();
 
     [InverseProperty("Section")]
     public virtual ICollection<SectionItem> SectionItems { get; set; } = new List<SectionItem>();
+
+    [ForeignKey("Unity")]
+    [InverseProperty("Sections")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
 }

@@ -334,13 +334,6 @@ public partial class Empresa : IIdentifiable<int>
     public virtual ICollection<SangriaCaixa> SangriaCaixas { get; set; } = new List<SangriaCaixa>();
 
     [JsonIgnore]
-    [InverseProperty("IdEmpresaNavigation")]
-    public virtual ICollection<Section> Sections { get; set; } = new List<Section>();
-
-
-    
-
-    [JsonIgnore]
     [ForeignKey("Unity")]
     [InverseProperty("Empresas")]
     public virtual Unity UnityNavigation { get; set; } = null!;

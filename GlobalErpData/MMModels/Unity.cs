@@ -162,6 +162,9 @@ public partial class Unity
     public virtual ICollection<SectionItem> SectionItems { get; set; } = new List<SectionItem>();
 
     [InverseProperty("UnityNavigation")]
+    public virtual ICollection<Section> Sections { get; set; } = new List<Section>();
+
+    [InverseProperty("UnityNavigation")]
     public virtual ICollection<Servico> Servicos { get; set; } = new List<Servico>();
 
     [InverseProperty("UnityNavigation")]

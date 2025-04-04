@@ -26,8 +26,8 @@ public partial class Section : IIdentifiable<int>
     [StringLength(100)]
     public string? Name { get; set; }
 
-    [Column("id_empresa")]
-    public int IdEmpresa { get; set; }
+    [Column("unity")]
+    public int Unity { get; set; }
 
     [Column("last_update", TypeName = "timestamp without time zone")]
     public DateTime? LastUpdate { get; set; }
@@ -39,11 +39,6 @@ public partial class Section : IIdentifiable<int>
     [ForeignKey("CategoryId")]
     [InverseProperty("Sections")]
     public virtual Category? Category { get; set; }
-
-    [JsonIgnore]
-    [ForeignKey("IdEmpresa")]
-    [InverseProperty("Sections")]
-    public virtual Empresa IdEmpresaNavigation { get; set; } = null!;
 
     [JsonIgnore]
     [InverseProperty("Section")]
@@ -64,4 +59,9 @@ public partial class Section : IIdentifiable<int>
     {
         return "Id";
     }
+
+    [JsonIgnore]
+    [ForeignKey("Unity")]
+    [InverseProperty("Sections")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
 }
