@@ -54,6 +54,8 @@ namespace GlobalAPIDominio.Controllers
         }
 
         [HttpPost("login")]
+        [ProducesResponseType(typeof(Token), 200)]
+        [ProducesResponseType(400)]
         [ProducesResponseType(400)]
         [ProducesResponseType(401)]
         [ProducesResponseType(404)]
@@ -124,7 +126,12 @@ namespace GlobalAPIDominio.Controllers
             var permissoes = await repositoryPermissao.RetrieveAllAsync();
             var permissoesUsuario = await ((UsuarioPermissaoRepositoryDto)repositoryUsuarioPermissao).RetrieveAllAsyncPerUser(usuario.NmUsuario);
 
-            var token = GenerateJwtToken(usuario, permissoes, permissoesUsuario, empresas, unity);
+            ResponseLogin? token = GenerateJwtToken(usuario, permissoes, permissoesUsuario, empresas, unity);
+
+            if (token == null)
+            {
+                return BadRequest("FatalError: Token is invalid");
+            }
             return Ok(new { token });
         }
 

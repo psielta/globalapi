@@ -2,6 +2,10 @@
 
 namespace GlobalErpData.Dto
 {
+    public class Token
+    {
+        public ResponseLogin token { get; set; }
+    }
     public class ResponseLogin
     {
         public string Token { get; set; }
