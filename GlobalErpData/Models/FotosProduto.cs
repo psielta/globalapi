@@ -64,4 +64,7 @@ public partial class FotosProduto : IIdentifiableMultiKey<int, int>
     {
         return "Id";
     }
+
+    [Column("foto")]
+    public byte[]? Foto { get; set; }
 }

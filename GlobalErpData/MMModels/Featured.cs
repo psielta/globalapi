@@ -46,6 +46,9 @@ public partial class Featured
     [Column("integrated")]
     public int? Integrated { get; set; }
 
+    [Column("image")]
+    public byte[]? Image { get; set; }
+
     [ForeignKey("CategoryId")]
     [InverseProperty("Featureds")]
     public virtual Category Category { get; set; } = null!;

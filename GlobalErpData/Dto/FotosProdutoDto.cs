@@ -16,5 +16,6 @@ namespace GlobalErpData.Dto
         public string CaminhoFoto { get; set; } = null!;
         public bool Excluiu { get; set; }
         public string? DescricaoFoto { get; set; }
+        public byte[]? Foto { get; set; }
     }
 }

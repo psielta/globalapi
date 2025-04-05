@@ -73,4 +73,7 @@ public partial class Featured : IIdentifiableMultiKey<int, int>
     {
         return "Id";
     }
+
+    [Column("image")]
+    public byte[]? Image { get; set; }
 }

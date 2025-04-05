@@ -21,7 +21,7 @@ namespace GlobalErpData.Repository.Repositories
         public async Task<IEnumerable<Section>> GetSectionsByEmpresaAsync(int IdEmpresa)
         {
             return await db.Set<Section>()
-                .Where(s => s.IdEmpresa == IdEmpresa)
+                .Where(s => s.Unity == IdEmpresa)
                 .ToListAsync();
         }
     }

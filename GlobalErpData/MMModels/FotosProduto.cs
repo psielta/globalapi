@@ -37,6 +37,9 @@ public partial class FotosProduto
     [Column("integrated")]
     public int? Integrated { get; set; }
 
+    [Column("foto")]
+    public byte[]? Foto { get; set; }
+
     [ForeignKey("CdProduto, Unity")]
     [InverseProperty("FotosProdutos")]
     public virtual ProdutoEstoque ProdutoEstoque { get; set; } = null!;

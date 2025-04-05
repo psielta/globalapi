@@ -18,5 +18,6 @@ namespace GlobalErpData.Dto
         public string? ImageAlt { get; set; }
         public int Unity { get; set; }
         public bool? Excluiu { get; set; }
+        public byte[]? Image { get; set; }
     }
 }
