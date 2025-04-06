@@ -65,7 +65,7 @@ public partial class Cliente
     public DateOnly? DtCadastro { get; set; }
 
     [Column("id_usuario_cad")]
-    public int IdUsuarioCad { get; set; }
+    public int? IdUsuarioCad { get; set; }
 
     [Column("id_cte_antigo")]
     public int? IdCteAntigo { get; set; }
@@ -105,10 +105,6 @@ public partial class Cliente
 
     [InverseProperty("IdClienteNavigation")]
     public virtual ICollection<EntregaNfe> EntregaNves { get; set; } = new List<EntregaNfe>();
-
-    [ForeignKey("IdUsuarioCad")]
-    [InverseProperty("Clientes")]
-    public virtual Usuario IdUsuarioCadNavigation { get; set; } = null!;
 
     [InverseProperty("IdClienteNavigation")]
     public virtual ICollection<OrcamentoCab> OrcamentoCabs { get; set; } = new List<OrcamentoCab>();

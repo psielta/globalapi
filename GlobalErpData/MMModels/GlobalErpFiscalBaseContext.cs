@@ -371,12 +371,6 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("cliente_fk1");
 
-            entity.HasOne(d => d.IdUsuarioCadNavigation).WithMany(p => p.Clientes)
-                .HasPrincipalKey(p => p.Id)
-                .HasForeignKey(d => d.IdUsuarioCad)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("cliente_fk2");
-
             entity.HasOne(d => d.UnityNavigation).WithMany(p => p.Clientes)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("cliente_fk");

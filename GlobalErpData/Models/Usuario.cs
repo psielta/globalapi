@@ -68,10 +68,6 @@ public partial class Usuario : IIdentifiable<string>
     public int Unity { get; set; }
 
     [JsonIgnore]
-    [InverseProperty("IdUsuarioCadNavigation")]
-    public virtual ICollection<Cliente> Clientes { get; set; } = new List<Cliente>();
-
-    [JsonIgnore]
     [InverseProperty("IdUsuarioNavigation")]
     public virtual ICollection<ConfiguracoesUsuario> ConfiguracoesUsuarios { get; set; } = new List<ConfiguracoesUsuario>();
 

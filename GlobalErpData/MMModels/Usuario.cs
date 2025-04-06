@@ -62,9 +62,6 @@ public partial class Usuario
     [Column("unity")]
     public int Unity { get; set; }
 
-    [InverseProperty("IdUsuarioCadNavigation")]
-    public virtual ICollection<Cliente> Clientes { get; set; } = new List<Cliente>();
-
     [InverseProperty("IdUsuarioNavigation")]
     public virtual ICollection<ConfiguracoesUsuario> ConfiguracoesUsuarios { get; set; } = new List<ConfiguracoesUsuario>();
 
