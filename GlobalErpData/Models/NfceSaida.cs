@@ -259,4 +259,63 @@ public partial class NfceSaida : IIdentifiableMultiKey<int, int>
 
     [Column("sequence")]
     public long Sequence { get; set; }
+
+    /// <summary>Total bruto dos itens (vl_total + vl_st), já ignorando itens cancelados.</summary>
+    [NotMapped]
+    [JsonPropertyName("vl_itens_bruto")]
+    public decimal VlItensBruto =>
+        NfceProdutoSaida?
+            .Where(p => p.Cancelou != "S")                       // mesmo filtro usado no SQL
+            .Sum(p => p.VlTotal + (p.VlSt ?? 0m))                // vl_total + vl_st
+        ?? 0m;
+
+    /// <summary>Valor líquido da NFC‑e (itens – desconto + frete).</summary>
+    [NotMapped]
+    [JsonPropertyName("vl_total")]
+    public decimal VlTotal =>
+        VlItensBruto
+        - (VlDescGlobal ?? 0m)
+        + (Frete ?? 0m);
+
+    /* ---------- Pagamentos ---------- */
+
+    /// <summary>Soma de todas as formas de pagamento.</summary>
+    [NotMapped]
+    [JsonPropertyName("vl_pagamentos")]
+    public decimal VlPagamentos =>
+        NfceFormaPgts?.Sum(f => f.Valor ?? 0m) ?? 0m;
+
+    /// <summary>Troco total devolvido.</summary>
+    [NotMapped]
+    [JsonPropertyName("vl_troco")]
+    public decimal VlTroco =>
+        NfceFormaPgts?.Sum(f => f.Troco ?? 0m) ?? 0m;
+
+    /// <summary>Quanto realmente entrou no caixa (pagamentos – troco).</summary>
+    [NotMapped]
+    [JsonPropertyName("vl_recebido")]
+    public decimal VlRecebido => VlPagamentos - VlTroco;
+
+    /// <summary>Saldo ainda pendente (total da nota – recebido).</summary>
+    [NotMapped]
+    [JsonPropertyName("vl_saldo")]
+    public decimal VlSaldo => VlTotal - VlRecebido;
+
+    /* ---------- Textos auxiliares ---------- */
+
+    /// <summary>Descrição amigável da situação da NFC‑e.</summary>
+    [NotMapped]
+    [JsonPropertyName("txt_situacao")]
+    public string TxtSituacao => CdSituacao switch
+    {
+        "01" or "10" => "Normal",
+        "02" => "Transmitida",
+        "03" => "Enviada",
+        "11" => "Cancelado",
+        "70" => "Inutilizada",
+        "80" => "Recibo",
+        "99" => "Contingência",
+        _ => string.Empty
+    };
+
 }
