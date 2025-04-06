@@ -106,6 +106,9 @@ public partial class Cliente
     [InverseProperty("IdClienteNavigation")]
     public virtual ICollection<EntregaNfe> EntregaNves { get; set; } = new List<EntregaNfe>();
 
+    [InverseProperty("ClienteNavigation")]
+    public virtual ICollection<NfceSaida> NfceSaida { get; set; } = new List<NfceSaida>();
+
     [InverseProperty("IdClienteNavigation")]
     public virtual ICollection<OrcamentoCab> OrcamentoCabs { get; set; } = new List<OrcamentoCab>();
 

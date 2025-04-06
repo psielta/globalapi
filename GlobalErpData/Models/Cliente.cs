@@ -147,4 +147,8 @@ public partial class Cliente : IIdentifiable<int>
     [JsonIgnore]
     [InverseProperty("IdClienteNavigation")]
     public virtual ICollection<OrcamentoCab> OrcamentoCabs { get; set; } = new List<OrcamentoCab>();
+
+    [JsonIgnore]
+    [InverseProperty("ClienteNavigation")]
+    public virtual ICollection<NfceSaida> NfceSaida { get; set; } = new List<NfceSaida>();
 }

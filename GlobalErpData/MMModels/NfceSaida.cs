@@ -222,6 +222,10 @@ public partial class NfceSaida
     [Column("sequence")]
     public long Sequence { get; set; }
 
+    [ForeignKey("Cliente")]
+    [InverseProperty("NfceSaida")]
+    public virtual Cliente ClienteNavigation { get; set; } = null!;
+
     [ForeignKey("Empresa")]
     [InverseProperty("NfceSaida")]
     public virtual Empresa EmpresaNavigation { get; set; } = null!;

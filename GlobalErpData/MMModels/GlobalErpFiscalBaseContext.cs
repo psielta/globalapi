@@ -1598,6 +1598,10 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.VlOutro).HasDefaultValueSql("0");
             entity.Property(e => e.XmNf).HasDefaultValueSql("''::text");
 
+            entity.HasOne(d => d.ClienteNavigation).WithMany(p => p.NfceSaida)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("nfce_saidas_fk2");
+
             entity.HasOne(d => d.EmpresaNavigation).WithMany(p => p.NfceSaida)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("nfce_saidas_fk1");

@@ -318,4 +318,13 @@ public partial class NfceSaida : IIdentifiableMultiKey<int, int>
         _ => string.Empty
     };
 
+    [JsonIgnore]
+    [ForeignKey("Cliente")]
+    [InverseProperty("NfceSaida")]
+    public virtual Cliente ClienteNavigation { get; set; } = null!;
+
+    [NotMapped]
+    [JsonPropertyName("nm_cliente")]
+    public string? NmCliente => ClienteNavigation?.NmCliente ?? string.Empty;
+
 }
