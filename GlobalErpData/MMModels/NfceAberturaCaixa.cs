@@ -146,6 +146,9 @@ public partial class NfceAberturaCaixa
     [InverseProperty("NfceAberturaCaixas")]
     public virtual Empresa CdEmpresaNavigation { get; set; } = null!;
 
+    [InverseProperty("NfceAberturaCaixa")]
+    public virtual ICollection<SangriaCaixa> SangriaCaixas { get; set; } = new List<SangriaCaixa>();
+
     [ForeignKey("Unity")]
     [InverseProperty("NfceAberturaCaixas")]
     public virtual Unity UnityNavigation { get; set; } = null!;

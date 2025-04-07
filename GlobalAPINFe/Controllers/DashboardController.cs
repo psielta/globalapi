@@ -1,5 +1,6 @@
 ﻿using GlobalErpData.Data;
 using GlobalErpData.Models;
+using GlobalLib.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -184,6 +185,89 @@ namespace GlobalAPINFe.Controllers
             catch (Exception ex)
             {
                 _log.LogError(ex, "Erro ao obter total por grupo para o ID {Id}", id);
+                return StatusCode(StatusCodes.Status500InternalServerError, "Erro ao processar a solicitação.");
+            }
+        }
+
+        [HttpGet("NfceGetTotalDia/{unity}")]
+        [ProducesResponseType(typeof(IEnumerable<TotalDiaResult>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<IEnumerable<TotalDiaResult>>> NfceGetTotalDia(int unity, int? empresa = -1, DateOnly? data = null)
+        {
+            try
+            {
+
+                var resultados = await _context.GetTotalDia(unity, empresa ?? -1, data).ToListAsync();
+
+                if (resultados == null || !resultados.Any())
+                {
+                    _log.LogWarning("Nenhum resultado encontrado para a unidade {Unity}", unity);
+                    return NotFound();
+                }
+
+                return Ok(resultados);
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "Erro ao obter o total por dia para a unidade {Unity}", unity);
+                return StatusCode(StatusCodes.Status500InternalServerError, "Erro ao processar a solicitação.");
+            }
+        }
+
+        [HttpGet("NfceGetTotalPeriodo/{unity}")]
+        [ProducesResponseType(typeof(IEnumerable<TotalPeriodoResult>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<IEnumerable<TotalPeriodoResult>>> NfceGetTotalPeriodo(
+            int unity,
+            DateOnly dataInicial,
+            DateOnly dataFinal,
+            int? empresa = -1)
+        {
+            try
+            {
+                var resultados = await _context.GetTotalPeriodo(unity, dataInicial, dataFinal, empresa ?? -1).ToListAsync();
+
+                if (resultados == null || !resultados.Any())
+                {
+                    _log.LogWarning("Nenhum resultado encontrado para a unidade {Unity} no período de {DataInicial} a {DataFinal}",
+                        unity, dataInicial, dataFinal);
+                    return NotFound();
+                }
+
+                return Ok(resultados);
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "Erro ao obter o total por período para a unidade {Unity}", unity);
+                return StatusCode(StatusCodes.Status500InternalServerError, "Erro ao processar a solicitação.");
+            }
+        }
+
+        [HttpGet("NfceGetFormasPagamento/{unity}")]
+        [ProducesResponseType(typeof(IEnumerable<FormaPagamentoResult>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<IEnumerable<FormaPagamentoResult>>> NfceGetFormasPagamento(
+            int unity,
+            DateOnly data,
+            int? empresa = -1)
+        {
+            try
+            {
+
+                var resultados = await _context.GetFormasPagamento(unity, data, empresa ?? -1).ToListAsync();
+
+                if (resultados == null || !resultados.Any())
+                {
+                    _log.LogWarning("Nenhuma forma de pagamento encontrada para a unidade {Unity} na data {Data}",
+                        unity, data);
+                    return NotFound();
+                }
+
+                return Ok(resultados);
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "Erro ao obter formas de pagamento para a unidade {Unity}", unity);
                 return StatusCode(StatusCodes.Status500InternalServerError, "Erro ao processar a solicitação.");
             }
         }

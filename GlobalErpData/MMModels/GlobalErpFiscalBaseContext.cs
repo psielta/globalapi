@@ -2398,6 +2398,10 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.UnityNavigation).WithMany(p => p.SangriaCaixas)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("sangria_caixa_fk2");
+
+            entity.HasOne(d => d.NfceAberturaCaixa).WithMany(p => p.SangriaCaixas)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("sangria_caixa_fk1");
         });
 
         modelBuilder.Entity<Section>(entity =>
@@ -2582,6 +2586,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         modelBuilder.HasSequence("seq_entrada_geral_10");
         modelBuilder.HasSequence("seq_entrada_geral_11");
         modelBuilder.HasSequence("seq_entrada_geral_12");
+        modelBuilder.HasSequence("seq_entrada_geral_13");
         modelBuilder.HasSequence("seq_entradas_geral_1");
         modelBuilder.HasSequence("seq_entradas_geral_11");
         modelBuilder.HasSequence("seq_entradas_geral_2");
@@ -2589,33 +2594,43 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         modelBuilder.HasSequence("seq_fornecedor_geral_10");
         modelBuilder.HasSequence("seq_fornecedor_geral_11");
         modelBuilder.HasSequence("seq_fornecedor_geral_12");
+        modelBuilder.HasSequence("seq_fornecedor_geral_13");
         modelBuilder.HasSequence("seq_fornecedor_geral_2");
         modelBuilder.HasSequence("seq_fotos_geral_1");
         modelBuilder.HasSequence("seq_fotos_geral_10");
         modelBuilder.HasSequence("seq_fotos_geral_11");
         modelBuilder.HasSequence("seq_fotos_geral_12");
+        modelBuilder.HasSequence("seq_fotos_geral_13");
         modelBuilder.HasSequence("seq_funcionario_geral_1");
         modelBuilder.HasSequence("seq_funcionario_geral_10");
         modelBuilder.HasSequence("seq_funcionario_geral_11");
         modelBuilder.HasSequence("seq_funcionario_geral_12");
+        modelBuilder.HasSequence("seq_funcionario_geral_13");
         modelBuilder.HasSequence("seq_funcionario_geral_2");
         modelBuilder.HasSequence("seq_nfce_abertura_caixa_geral_10");
         modelBuilder.HasSequence("seq_nfce_abertura_caixa_geral_11");
         modelBuilder.HasSequence("seq_nfce_abertura_caixa_geral_12");
+        modelBuilder.HasSequence("seq_nfce_abertura_caixa_geral_13");
+        modelBuilder.HasSequence("seq_nfce_forma_pgt_geral_13");
+        modelBuilder.HasSequence("seq_nfce_produto_saida_geral_13");
         modelBuilder.HasSequence("seq_nfce_saidas_geral_1");
         modelBuilder.HasSequence("seq_nfce_saidas_geral_10");
         modelBuilder.HasSequence("seq_nfce_saidas_geral_11");
         modelBuilder.HasSequence("seq_nfce_saidas_geral_12");
+        modelBuilder.HasSequence("seq_nfce_saidas_geral_13");
         modelBuilder.HasSequence("seq_produto_estoque_geral_1");
+        modelBuilder.HasSequence("seq_produto_estoque_geral_3");
         modelBuilder.HasSequence("seq_produto_geral_1").StartsAt(832L);
         modelBuilder.HasSequence("seq_produto_geral_10");
         modelBuilder.HasSequence("seq_produto_geral_11");
         modelBuilder.HasSequence("seq_produto_geral_12");
+        modelBuilder.HasSequence("seq_produto_geral_13");
         modelBuilder.HasSequence("seq_produto_geral_2");
         modelBuilder.HasSequence("seq_transportadora_geral_1");
         modelBuilder.HasSequence("seq_transportadora_geral_10");
         modelBuilder.HasSequence("seq_transportadora_geral_11");
         modelBuilder.HasSequence("seq_transportadora_geral_12");
+        modelBuilder.HasSequence("seq_transportadora_geral_13");
 
         OnModelCreatingPartial(modelBuilder);
     }

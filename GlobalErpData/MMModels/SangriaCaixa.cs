@@ -62,6 +62,10 @@ public partial class SangriaCaixa
     [InverseProperty("SangriaCaixas")]
     public virtual Empresa CdEmpresaNavigation { get; set; } = null!;
 
+    [ForeignKey("IdAberturaCaixa, CdEmpresa")]
+    [InverseProperty("SangriaCaixas")]
+    public virtual NfceAberturaCaixa NfceAberturaCaixa { get; set; } = null!;
+
     [ForeignKey("Unity")]
     [InverseProperty("SangriaCaixas")]
     public virtual Unity UnityNavigation { get; set; } = null!;

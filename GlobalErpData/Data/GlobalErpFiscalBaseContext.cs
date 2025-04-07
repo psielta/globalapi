@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using GlobalErpData.Models;
+using GlobalLib.Utils;
 using Microsoft.EntityFrameworkCore;
 
 namespace GlobalErpData.Data;
@@ -246,6 +247,11 @@ public partial class GlobalErpFiscalBaseContext : DbContext
     public DbSet<ProcReg54SaidaResult> ProcReg54SaidaResults { get; set; }
     public DbSet<ProcReg75SaidaResult> ProcReg75SaidaResults { get; set; }
     public DbSet<ProcReg75EntradaResult> ProcReg75EntradaResults { get; set; }
+
+    public DbSet<TotalDiaResult> cdsTotalDia { get; set; }
+    public DbSet<TotalPeriodoResult> cdsTotalPeriodo { get; set; }
+
+    public DbSet<FormaPagamentoResult> cdsFormasPagamento { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
@@ -2668,6 +2674,24 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         modelBuilder.Entity<ProcReg75SaidaResult>().HasNoKey();
         modelBuilder.Entity<ProcReg75EntradaResult>().HasNoKey();
 
+        modelBuilder.Entity<TotalDiaResult>(entity =>
+        {
+            entity.HasNoKey();
+            entity.ToFunction("f_nfce_get_total_dia");
+        });
+
+        modelBuilder.Entity<TotalPeriodoResult>(entity =>
+        {
+            entity.HasNoKey();
+            entity.ToFunction("f_nfce_get_total_periodo");
+        });
+
+        modelBuilder.Entity<FormaPagamentoResult>(entity =>
+        {
+            entity.HasNoKey();
+            entity.ToFunction("f_nfce_get_formas_pagamento");
+        });
+
         OnModelCreatingPartial(modelBuilder);
     }
 
@@ -2785,6 +2809,27 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                    {cnpj}
                )"
             );
+    }
+
+    public IQueryable<TotalDiaResult> GetTotalDia(int punity, int pempresa = -1, DateOnly? pdata = null)
+    {
+        return cdsTotalDia
+            .FromSqlInterpolated($"SELECT * FROM public.f_nfce_get_total_dia({punity}, {pempresa}, {pdata})");
+    }
+
+    public IQueryable<TotalPeriodoResult> GetTotalPeriodo(int punity, DateOnly pdata1, DateOnly pdata2, int pempresa = -1)
+    {
+        return cdsTotalPeriodo
+            .FromSqlInterpolated($"SELECT * FROM public.f_nfce_get_total_periodo({punity}, {pdata1}, {pdata2}, {pempresa})");
+    }
+
+    public IQueryable<FormaPagamentoResult> GetFormasPagamento(int punity, DateOnly pdata, int pempresa = -1)
+    {
+        // Converter para UTC e formatar como string para evitar problemas de fuso horário
+        var dataFormatada = pdata.ToString("yyyy-MM-dd");
+
+        return cdsFormasPagamento
+            .FromSqlRaw($"SELECT * FROM public.f_nfce_get_formas_pagamento({punity}, '{dataFormatada}'::date, {pempresa})");
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
