@@ -252,6 +252,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
     public DbSet<TotalPeriodoResult> cdsTotalPeriodo { get; set; }
 
     public DbSet<FormaPagamentoResult> cdsFormasPagamento { get; set; }
+
+    public DbSet<Produto5MaisVendidosResult> cdsProduto5MaisVendidos { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
@@ -2692,6 +2694,12 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.ToFunction("f_nfce_get_formas_pagamento");
         });
 
+        modelBuilder.Entity<Produto5MaisVendidosResult>(entity =>
+        {
+            entity.HasNoKey();
+            entity.ToFunction("f_nfce_get_produto_5mais_vendidos");
+        });
+
         OnModelCreatingPartial(modelBuilder);
     }
 
@@ -2830,6 +2838,15 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
         return cdsFormasPagamento
             .FromSqlRaw($"SELECT * FROM public.f_nfce_get_formas_pagamento({punity}, '{dataFormatada}'::date, {pempresa})");
+    }
+
+    public IQueryable<Produto5MaisVendidosResult> GetProduto5MaisVendidos(int punity, DateOnly pdate, int pempresa = -1)
+    {
+        // Converter para formato de data sem hora para evitar problemas de fuso horário
+        var dataFormatada = pdate.ToString("yyyy-MM-dd");
+
+        return cdsProduto5MaisVendidos
+            .FromSqlRaw($"SELECT * FROM public.f_nfce_get_produto_5mais_vendidos({punity}, '{dataFormatada}'::date, {pempresa})");
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);

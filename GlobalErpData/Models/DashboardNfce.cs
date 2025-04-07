@@ -39,4 +39,16 @@ namespace GlobalErpData.Models
         [Column("total")]
         public decimal Total { get; set; }
     }
+
+    public class Produto5MaisVendidosResult
+    {
+        [Column("cd_produto")]
+        public int CdProduto { get; set; }
+
+        [Column("nm_produto")]
+        public string NmProduto { get; set; }
+
+        [Column("quant")]
+        public decimal Quant { get; set; }
+    }
 }

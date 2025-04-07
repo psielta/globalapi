@@ -271,5 +271,33 @@ namespace GlobalAPINFe.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Erro ao processar a solicitação.");
             }
         }
+
+        [HttpGet("NfceGetProduto5MaisVendidos/{unity}")]
+        [ProducesResponseType(typeof(IEnumerable<Produto5MaisVendidosResult>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<IEnumerable<Produto5MaisVendidosResult>>> NfceGetProduto5MaisVendidos(
+            int unity,
+            DateOnly data,
+            int? empresa = -1)
+        {
+            try
+            {
+                var resultados = await _context.GetProduto5MaisVendidos(unity, data, empresa ?? -1).ToListAsync();
+
+                if (resultados == null || !resultados.Any())
+                {
+                    _log.LogWarning("Nenhum produto encontrado para a unidade {Unity} na data {Data}",
+                        unity, data);
+                    return NotFound();
+                }
+
+                return Ok(resultados);
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "Erro ao obter os 5 produtos mais vendidos para a unidade {Unity}", unity);
+                return StatusCode(StatusCodes.Status500InternalServerError, "Erro ao processar a solicitação.");
+            }
+        }
     }
 }
