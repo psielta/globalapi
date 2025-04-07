@@ -31,30 +31,6 @@ namespace GlobalLib.Repository
             this.logger = logger;
         }
 
-        public virtual async Task<TEntity?> CreateAsync(TDto dto)
-        {
-            try
-            {
-                TEntity entity = mapper.Map<TEntity>(dto);
-                EntityEntry<TEntity> added = await db.Set<TEntity>().AddAsync(entity);
-                int affected = await db.SaveChangesAsync();
-
-                if (affected == 1)
-                {
-                    logger.LogInformation("Entity created with ID: {Id}", entity.GetId());
-                    return entity;
-                }
-
-                logger.LogWarning("Failed to create entity from DTO.");
-                return null;
-            }
-            catch (System.Exception ex)
-            {
-                logger.LogError(ex, "Error while creating entity");
-                throw;
-            }
-        }
-
         public virtual Task<IQueryable<TEntity>> RetrieveAllAsync()
         {
             try
@@ -90,6 +66,54 @@ namespace GlobalLib.Repository
             {
                 logger.LogError(ex, "Error occurred while retrieving entity with ID: {idEmpresa}-{idCadastro}", idEmpresa, idCadastro);
                 return null;
+            }
+        }
+
+        public virtual async Task<TEntity?> RetrieveAsyncAsNoTracking(TKey1 idEmpresa, TKey2 idCadastro)
+        {
+            try
+            {
+                // Descobrindo dinamicamente os nomes de propriedade de chave
+                var tempEntity = Activator.CreateInstance<TEntity>();
+                string keyName1 = tempEntity.GetKeyName1(); // nome da chave 1
+                string keyName2 = tempEntity.GetKeyName2(); // nome da chave 2
+
+                // Consulta usando EF.Property<> para colunas com nomes dinâmicos
+                var entity = await db.Set<TEntity>()
+                    .AsNoTracking()
+                    .SingleOrDefaultAsync(e =>
+                        EF.Property<TKey1>(e, keyName1).Equals(idEmpresa) &&
+                        EF.Property<TKey2>(e, keyName2).Equals(idCadastro));
+
+                return entity;
+            }
+            catch (System.Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while retrieving entity with ID: {idEmpresa}-{idCadastro}", idEmpresa, idCadastro);
+                return null;
+            }
+        }
+        public virtual async Task<TEntity?> CreateAsync(TDto dto)
+        {
+            try
+            {
+                TEntity entity = mapper.Map<TEntity>(dto);
+                EntityEntry<TEntity> added = await db.Set<TEntity>().AddAsync(entity);
+                int affected = await db.SaveChangesAsync();
+
+                if (affected == 1)
+                {
+                    logger.LogInformation("Entity created with ID: {Id}", entity.GetId());
+                    return entity;
+                }
+
+                logger.LogWarning("Failed to create entity from DTO.");
+                return null;
+            }
+            catch (System.Exception ex)
+            {
+                logger.LogError(ex, "Error while creating entity");
+                throw;
             }
         }
 
@@ -167,31 +191,6 @@ namespace GlobalLib.Repository
             {
                 logger.LogError(ex, "Error occurred while deleting entity {idEmpresa}-{idCadastro}", idEmpresa, idCadastro);
                 throw;
-            }
-        }
-
-        public virtual async Task<TEntity?> RetrieveAsyncAsNoTracking(TKey1 idEmpresa, TKey2 idCadastro)
-        {
-            try
-            {
-                // Descobrindo dinamicamente os nomes de propriedade de chave
-                var tempEntity = Activator.CreateInstance<TEntity>();
-                string keyName1 = tempEntity.GetKeyName1(); // nome da chave 1
-                string keyName2 = tempEntity.GetKeyName2(); // nome da chave 2
-
-                // Consulta usando EF.Property<> para colunas com nomes dinâmicos
-                var entity = await db.Set<TEntity>()
-                    .AsNoTracking()
-                    .SingleOrDefaultAsync(e =>
-                        EF.Property<TKey1>(e, keyName1).Equals(idEmpresa) &&
-                        EF.Property<TKey2>(e, keyName2).Equals(idCadastro));
-
-                return entity;
-            }
-            catch (System.Exception ex)
-            {
-                logger.LogError(ex, "Error occurred while retrieving entity with ID: {idEmpresa}-{idCadastro}", idEmpresa, idCadastro);
-                return null;
             }
         }
     }

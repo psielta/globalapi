@@ -327,4 +327,8 @@ public partial class NfceSaida : IIdentifiableMultiKey<int, int>
     [JsonPropertyName("nm_cliente")]
     public string? NmCliente => ClienteNavigation?.NmCliente ?? string.Empty;
 
+    [NotMapped]
+    [JsonPropertyName("nm_empresa")]
+    public string? NmEmpresa => EmpresaNavigation?.NmEmpresa ?? string.Empty;
+
 }
