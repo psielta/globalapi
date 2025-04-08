@@ -2626,6 +2626,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         modelBuilder.HasSequence("seq_produto_geral_12");
         modelBuilder.HasSequence("seq_produto_geral_13");
         modelBuilder.HasSequence("seq_produto_geral_2");
+        modelBuilder.HasSequence("seq_sangria_caixa_geral_13");
         modelBuilder.HasSequence("seq_transportadora_geral_1");
         modelBuilder.HasSequence("seq_transportadora_geral_10");
         modelBuilder.HasSequence("seq_transportadora_geral_11");

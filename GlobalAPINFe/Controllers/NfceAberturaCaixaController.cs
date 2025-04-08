@@ -86,6 +86,7 @@ namespace GlobalAPINFe.Controllers
 
                 var query = this._context.NfceAberturaCaixas.FromSqlRaw(SQL)
                     .Include(e => e.CdEmpresaNavigation)
+                    .OrderByDescending(e => e.DataLanc)
                     .AsQueryable();
                 if (query == null)
                 {
@@ -104,6 +105,36 @@ namespace GlobalAPINFe.Controllers
             {
                 logger.LogError("Erro ao obter NFCeSaida", ex);
                 return StatusCode(500, $"Erro ao obter NFCeSaida: {ex.Message}");
+            }
+        }
+
+        [HttpGet("/NfceAberturaCaixaBySequence/{sequence}")]
+        [ProducesResponseType(typeof(NfceAberturaCaixaDtoBySequence), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<NfceAberturaCaixaDtoBySequence>> NfceAberturaCaixaBySequence(int sequence)
+        {
+            try
+            {
+                NfceAberturaCaixa? entity = await _context.NfceAberturaCaixas
+                    .Include(e => e.CdEmpresaNavigation)
+                    .Include(e => e.SangriaCaixas)
+                    .AsNoTracking().Where(x => x.Sequence == sequence).FirstOrDefaultAsync();
+                if (entity == null)
+                {
+                    return NotFound($"Entity with ID {sequence} not found."); // 404 Resource not found
+                }
+
+                NfceAberturaCaixaDtoBySequence dto = new NfceAberturaCaixaDtoBySequence();
+
+                dto.abertura = entity;
+                dto.sangrias = entity.SangriaCaixas;
+
+                return Ok(dto); // 200 OK
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error occurred while retrieving the entity with ID {sequence}.", sequence);
+                return StatusCode(500, $"An error occurred while retrieving the entity with ID {sequence}. Please try again later.");
             }
         }
     }

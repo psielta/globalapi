@@ -86,4 +86,9 @@ public partial class SangriaCaixa : IIdentifiableMultiKey<int, int>
 
     [Column("sequence")]
     public long Sequence { get; set; }
+
+    [JsonIgnore]
+    [ForeignKey("IdAberturaCaixa, CdEmpresa")]
+    [InverseProperty("SangriaCaixas")]
+    public virtual NfceAberturaCaixa NfceAberturaCaixa { get; set; } = null!;
 }

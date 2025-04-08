@@ -175,4 +175,8 @@ public partial class NfceAberturaCaixa : IIdentifiableMultiKey<int, int>
     [NotMapped]
     [JsonPropertyName("nm_empresa")]
     public string? NmEmpresa => CdEmpresaNavigation?.NmEmpresa ?? string.Empty;
+
+    [JsonIgnore]
+    [InverseProperty("NfceAberturaCaixa")]
+    public virtual ICollection<SangriaCaixa> SangriaCaixas { get; set; } = new List<SangriaCaixa>();
 }
