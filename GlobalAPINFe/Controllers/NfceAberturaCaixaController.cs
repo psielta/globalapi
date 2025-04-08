@@ -1,10 +1,13 @@
-﻿using GlobalErpData.Dto;
+﻿using GlobalErpData.Data;
+using GlobalErpData.Dto;
 using GlobalErpData.Models;
 using GlobalLib.Dto;
 using GlobalLib.GenericControllers;
 using GlobalLib.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using X.PagedList.EF;
 
 namespace GlobalAPINFe.Controllers
 {
@@ -12,8 +15,10 @@ namespace GlobalAPINFe.Controllers
     [ApiController]
     public class NfceAberturaCaixaController : GenericPagedControllerMultiKey<NfceAberturaCaixa, int, int, NfceAberturaCaixaDto>
     {
-        public NfceAberturaCaixaController(IQueryRepositoryMultiKey<NfceAberturaCaixa, int, int, NfceAberturaCaixaDto> repo, ILogger<GenericPagedControllerMultiKey<NfceAberturaCaixa, int, int, NfceAberturaCaixaDto>> logger) : base(repo, logger)
+        private readonly GlobalErpFiscalBaseContext _context;
+        public NfceAberturaCaixaController(IQueryRepositoryMultiKey<NfceAberturaCaixa, int, int, NfceAberturaCaixaDto> repo, ILogger<GenericPagedControllerMultiKey<NfceAberturaCaixa, int, int, NfceAberturaCaixaDto>> logger, GlobalErpFiscalBaseContext context) : base(repo, logger)
         {
+            _context = context;
         }
         [HttpGet]
         [ProducesResponseType(typeof(PagedResponse<NfceAberturaCaixa>), 200)]
@@ -55,6 +60,51 @@ namespace GlobalAPINFe.Controllers
         public override async Task<IActionResult> Delete(int idEmpresa, int idCadastro)
         {
             return await base.Delete(idEmpresa, idCadastro);
+        }
+
+        [HttpGet("/GetNfceAberturaCaixaByUnity/{unity}")]
+        [ProducesResponseType(typeof(PagedResponse<NfceAberturaCaixa>), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<PagedResponse<NfceAberturaCaixa>>> GetNfceAberturaCaixaByUnity(
+            [FromRoute] int unity,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] int? empresa = null,
+            [FromQuery] string? dataInicioIsoString = null,
+            [FromQuery] string? dataFimIsoString = null
+        )
+        {
+            try
+            {
+                string SQL = $@"
+                    SELECT * from nfce_abertura_caixa where unity = {unity} 
+                    {((empresa.HasValue) ? ($" and cd_empresa = {empresa} ") : (""))}
+                    {((string.IsNullOrEmpty(dataInicioIsoString)) ? ("") : ($" and data_lanc >= '{dataInicioIsoString}' "))} 
+                    {((string.IsNullOrEmpty(dataFimIsoString)) ? ("") : ($" and data_lanc <= '{dataFimIsoString}' "))} 
+                ";
+
+                var query = this._context.NfceAberturaCaixas.FromSqlRaw(SQL)
+                    .Include(e => e.CdEmpresaNavigation)
+                    .AsQueryable();
+                if (query == null)
+                {
+                    return NotFound("Entities not found."); // 404 Resource not found
+                }
+                var pagedList = await query.ToPagedListAsync(pageNumber, pageSize);
+                var response = new PagedResponse<NfceAberturaCaixa>(pagedList);
+
+                if (response.Items == null || response.Items.Count == 0)
+                {
+                    return NotFound("Entities not found."); // 404 Resource not found
+                }
+                return Ok(response); // 200 OK
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Erro ao obter NFCeSaida", ex);
+                return StatusCode(500, $"Erro ao obter NFCeSaida: {ex.Message}");
+            }
         }
     }
 }

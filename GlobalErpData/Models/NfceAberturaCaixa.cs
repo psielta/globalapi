@@ -171,4 +171,8 @@ public partial class NfceAberturaCaixa : IIdentifiableMultiKey<int, int>
     [ForeignKey("Unity")]
     [InverseProperty("NfceAberturaCaixas")]
     public virtual Unity UnityNavigation { get; set; } = null!;
+
+    [NotMapped]
+    [JsonPropertyName("nm_empresa")]
+    public string? NmEmpresa => CdEmpresaNavigation?.NmEmpresa ?? string.Empty;
 }
