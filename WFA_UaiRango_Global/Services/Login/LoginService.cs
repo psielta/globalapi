@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using WFA_UaiRango_Global.Dto;
+using GlobalErpData.Uairango.Dto;
 
 namespace WFA_UaiRango_Global.Services.Login
 {

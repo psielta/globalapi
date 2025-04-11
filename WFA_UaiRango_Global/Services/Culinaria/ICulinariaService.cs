@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GlobalErpData.Dto;
-using WFA_UaiRango_Global.Dto;
+using GlobalErpData.Uairango.Dto;
 
 namespace WFA_UaiRango_Global.Services.Culinaria
 {

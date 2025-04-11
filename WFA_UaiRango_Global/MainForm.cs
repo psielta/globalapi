@@ -4,7 +4,7 @@ using GlobalErpData.Dto;
 using GlobalErpData.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using WFA_UaiRango_Global.Dto;
+using GlobalErpData.Uairango.Dto;
 using WFA_UaiRango_Global.Services.Culinaria;
 using WFA_UaiRango_Global.Services.Estabelecimentos;
 using WFA_UaiRango_Global.Services.Login;

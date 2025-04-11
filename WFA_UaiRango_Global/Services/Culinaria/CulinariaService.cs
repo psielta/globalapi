@@ -11,7 +11,7 @@ using GlobalLib.Files;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using WFA_UaiRango_Global.Dto;
+using GlobalErpData.Uairango.Dto;
 using static GlobalLib.Files.ConfiguracoesUaiRango;
 
 namespace WFA_UaiRango_Global.Services.Culinaria

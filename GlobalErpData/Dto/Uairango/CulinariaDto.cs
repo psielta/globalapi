@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace WFA_UaiRango_Global.Dto
+namespace GlobalErpData.Uairango.Dto
 {
     public class CulinariaDto
     {
