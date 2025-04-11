@@ -23,4 +23,7 @@ public partial class UairangoCulinaria
     [Column("id_culinaria_uairango")]
     [StringLength(255)]
     public string? IdCulinariaUairango { get; set; }
+
+    [Column("last_update", TypeName = "timestamp(0) without time zone")]
+    public DateTime? LastUpdate { get; set; }
 }

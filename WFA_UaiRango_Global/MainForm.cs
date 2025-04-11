@@ -129,7 +129,7 @@ namespace WFA_UaiRango_Global
             }
         }
 
-
+        #region Core
         private async Task UairangoIntegrarAsync()
         {
             var ultimoLogin = await _db.UairangoTokens
@@ -166,7 +166,7 @@ namespace WFA_UaiRango_Global
                 _logger.LogError("Erro desconhecido ao fazer login no UaiRango");
             }
         }
-
+        #region Services_Calls
         private async Task GetCulinarias(string token)
         {
             AdicionarLinhaRichTextBox($"Obtendo culinarias ({DateTime.Now})");
@@ -214,6 +214,8 @@ namespace WFA_UaiRango_Global
             }
         }
 
+        #endregion
+        #endregion
         private void notifyIcon1_MouseClick(object sender, MouseEventArgs e)
         {
             //if (e.Button == MouseButtons.Left)
