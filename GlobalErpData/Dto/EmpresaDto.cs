@@ -45,5 +45,11 @@ namespace GlobalErpData.Dto
         public string? Complemento { get; set; }
         public string? Cnae { get; set; }
         public int Unity { get; set; }
+
+        public bool? UairangoVinculado { get; set; }
+
+        public string? UairangoIdEstabelecimento { get; set; }
+
+        public string? UairangoTokenVinculo { get; set; }
     }
 }

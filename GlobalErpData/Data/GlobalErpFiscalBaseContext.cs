@@ -931,6 +931,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.Telefone).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.TipoRegime).HasDefaultValue(1);
             entity.Property(e => e.TxtObs).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.UairangoVinculado).HasDefaultValue(false);
 
             entity.HasOne(d => d.CdCidadeNavigation).WithMany(p => p.Empresas)
                 .OnDelete(DeleteBehavior.ClientSetNull)

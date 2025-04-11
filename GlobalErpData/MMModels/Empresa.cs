@@ -115,6 +115,17 @@ public partial class Empresa
     [Column("unity")]
     public int Unity { get; set; }
 
+    [Column("uairango_vinculado")]
+    public bool? UairangoVinculado { get; set; }
+
+    [Column("uairango_id_estabelecimento")]
+    [StringLength(256)]
+    public string? UairangoIdEstabelecimento { get; set; }
+
+    [Column("uairango_token_vinculo")]
+    [StringLength(512)]
+    public string? UairangoTokenVinculo { get; set; }
+
     [ForeignKey("CdCidade")]
     [InverseProperty("Empresas")]
     public virtual Cidade CdCidadeNavigation { get; set; } = null!;

@@ -365,4 +365,15 @@ public partial class Empresa : IIdentifiable<int>
     [JsonIgnore]
     [InverseProperty("EmpresaNavigation")]
     public virtual ICollection<UairangoRequest> UairangoRequests { get; set; } = new List<UairangoRequest>();
+
+    [Column("uairango_vinculado")]
+    public bool? UairangoVinculado { get; set; }
+
+    [Column("uairango_id_estabelecimento")]
+    [StringLength(256)]
+    public string? UairangoIdEstabelecimento { get; set; }
+
+    [Column("uairango_token_vinculo")]
+    [StringLength(512)]
+    public string? UairangoTokenVinculo { get; set; }
 }
