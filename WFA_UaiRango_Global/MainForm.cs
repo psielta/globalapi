@@ -159,13 +159,20 @@ namespace WFA_UaiRango_Global
             if (token != null)
             {
                 AdicionarLinhaRichTextBox($"Logado com sucesso ({DateTime.Now})");
+                #region EntitidadesComunsATodosEstabelecimentos
                 await GetCulinarias(token);
+                #endregion
+                #region IterarEstabelecimentos
+                await IterarEstabelecimento(token);
+                #endregion
             }
             else
             {
                 _logger.LogError("Erro desconhecido ao fazer login no UaiRango");
             }
         }
+
+
         #region Services_Calls
         private async Task GetCulinarias(string token)
         {
@@ -211,6 +218,105 @@ namespace WFA_UaiRango_Global
             {
                 _logger.LogError($"Erro ao obter culinarias: {ex.Message}", ex);
                 AdicionarLinhaRichTextBox($"Erro ao obter culinárias do UaiRango ({DateTime.Now}): {ex.Message}");
+            }
+        }
+
+        private async Task IterarEstabelecimento(string token)
+        {
+            AdicionarLinhaRichTextBox($"Iniciando iteracao por estabelecimentos ({DateTime.Now})");
+            try
+            {
+                var empresasComTokenVinculo = await _db.Empresas.FromSqlRaw($@"
+                    select * from empresa s
+                    where length(coalesce(s.uairango_token_vinculo, '')) > 0
+                    ").ToListAsync();
+                if (empresasComTokenVinculo != null)
+                {
+                    List<Estabelecimento>? lEstabelecimentos = null;
+                    foreach (Empresa empresa in empresasComTokenVinculo)
+                    {
+                        if ((!(empresa.UairangoVinculado ?? false)) ||
+                            string.IsNullOrEmpty(empresa.UairangoIdEstabelecimento))
+                        {
+                            await VincularEstabelecimentoDeveloper(empresa, token);
+                        }
+                        #region Core_Iteracao_Estabelecimento
+                        if ((!string.IsNullOrEmpty(empresa.UairangoIdEstabelecimento)) 
+                            && (empresa.UairangoVinculado ?? false)
+                            && (empresa.UairangoIdEstabelecimento.Length > 0))
+                        {
+                            AdicionarLinhaRichTextBox("Core");
+                        } else if (string.IsNullOrEmpty(empresa.UairangoIdEstabelecimento) &&
+                            (empresa.UairangoVinculado ?? false))
+                        {
+                            _logger.LogWarning($"Estabelecimento sem IdUairango porem vinculado: {empresa.NmEmpresa}");
+                            AdicionarLinhaRichTextBox($"Estabelecimento sem IdUairango porem vinculado: {empresa.NmEmpresa} ({DateTime.Now})");
+                        }
+                        #endregion
+                    }
+                }
+                else
+                {
+                    _logger.LogWarning("Nenhum estabelecimento encontrado");
+                    AdicionarLinhaRichTextBox($"Nenhum estabelecimento encontrado ({DateTime.Now})");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Erro ao iterar estabelecimentos: {ex.Message}", ex);
+                AdicionarLinhaRichTextBox($"Erro ao iterar estabelecimentos ({DateTime.Now}): {ex.Message}");
+            }
+            finally
+            {
+                _logger.LogInformation($"Finalizando iteracao por estabelecimentos ({DateTime.Now})");
+                AdicionarLinhaRichTextBox($"Finalizando iteracao por estabelecimentos ({DateTime.Now})");
+            }
+
+        }
+
+        private async Task VincularEstabelecimentoDeveloper(Empresa empresa, string token)
+        {
+            var response = await this._estabelecimentoService.ChecarVinculoPorTokenAsync(token, empresa.UairangoTokenVinculo);
+            if (response != null)
+            {
+                if (response.Vinculado)
+                {
+                    empresa.UairangoVinculado = true;
+                    //empresa.UairangoIdEstabelecimento = response.IdEstabelecimento.ToString();
+                    _db.Empresas.Update(empresa);
+                    await _db.SaveChangesAsync();
+                    AdicionarLinhaRichTextBox($"Estabelecimento vinculado ({DateTime.Now})");
+                }
+                else
+                {
+                    var responseVincular = await this._estabelecimentoService.VincularEstabelecimentoAsync(token, empresa.UairangoTokenVinculo);
+                    if (responseVincular != null)
+                    {
+                        if (responseVincular.Success)
+                        {
+                            empresa.UairangoVinculado = true;
+                            empresa.UairangoIdEstabelecimento = responseVincular.IdEstabelecimento.ToString();
+                            _db.Empresas.Update(empresa);
+                            await _db.SaveChangesAsync();
+                            AdicionarLinhaRichTextBox($"Estabelecimento vinculado ({DateTime.Now})");
+                        }
+                        else
+                        {
+                            _logger.LogError($"Erro ao vincular estabelecimento: {responseVincular.Message}");
+                            AdicionarLinhaRichTextBox($"Erro ao vincular estabelecimento ({DateTime.Now}): {responseVincular.Message}");
+                        }
+                    }
+                    else
+                    {
+                        _logger.LogError("Erro desconhecido ao vincular estabelecimento");
+                        AdicionarLinhaRichTextBox($"Erro desconhecido ao vincular estabelecimento ({DateTime.Now})");
+                    }
+                }
+            }
+            else
+            {
+                _logger.LogError("Erro desconhecido ao checar vinculo do estabelecimento");
+                AdicionarLinhaRichTextBox($"Erro desconhecido ao checar vinculo do estabelecimento ({DateTime.Now})");
             }
         }
 
