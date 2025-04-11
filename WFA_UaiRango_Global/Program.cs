@@ -7,6 +7,8 @@ using Serilog;
 using Microsoft.Extensions.Configuration;
 using WFA_UaiRango_Global.Services.Culinaria;
 using GlobalErpData.Data;
+using WFA_UaiRango_Global.Services.Login;
+using WFA_UaiRango_Global.Services.Estabelecimentos;
 
 
 namespace WFA_UaiRango_Global
@@ -29,7 +31,6 @@ namespace WFA_UaiRango_Global
                 options.UseNpgsql(IniFile.GetConnectionString()));
 
             // Registrar serviços
-            //services.AddScoped<IMeuServico, MeuServico>();
 
 
             Log.Logger = new LoggerConfiguration()
@@ -55,6 +56,12 @@ namespace WFA_UaiRango_Global
             services.AddSingleton<IConfiguration>(configuration);
 
             services.AddHttpClient();
+
+            #region Services
+            services.AddScoped<ILoginService, LoginService>();
+            services.AddScoped<ICulinariaService, CulinariaService>();
+            services.AddScoped<IEstabelecimentoService, EstabelecimentoService>();
+            #endregion
 
             var provider = services.BuildServiceProvider();
             Application.Run(ActivatorUtilities.CreateInstance<MainForm>(provider));

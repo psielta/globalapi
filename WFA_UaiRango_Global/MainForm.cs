@@ -1,7 +1,12 @@
 using System.Timers;
 using GlobalErpData.Data;
 using GlobalErpData.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using WFA_UaiRango_Global.Dto;
+using WFA_UaiRango_Global.Services.Culinaria;
+using WFA_UaiRango_Global.Services.Estabelecimentos;
+using WFA_UaiRango_Global.Services.Login;
 
 namespace WFA_UaiRango_Global
 {
@@ -14,7 +19,20 @@ namespace WFA_UaiRango_Global
         private readonly GlobalErpFiscalBaseContext _db;
         private readonly ILogger<MainForm> _logger;
 
-        public MainForm(GlobalErpFiscalBaseContext db, ILogger<MainForm> logger)
+        private DateTime _proximaExecucao;
+        private readonly TimeSpan _intervaloExecucao = TimeSpan.FromMinutes(30);
+
+        #region Inject services
+        private readonly ILoginService _loginService;
+        private readonly IEstabelecimentoService _estabelecimentoService;
+        private readonly ICulinariaService _culinariaService;
+        #endregion
+
+        public MainForm(GlobalErpFiscalBaseContext db, ILogger<MainForm> logger,
+            ILoginService loginService,
+            IEstabelecimentoService estabelecimentoService,
+            ICulinariaService culinariaService
+            )
         {
             StartPosition = FormStartPosition.CenterScreen;
             InitializeComponent();
@@ -28,67 +46,148 @@ namespace WFA_UaiRango_Global
 
             _ultimaExecucao = DateTime.Now;
 
-            _timer = new System.Timers.Timer(20 * 60 * 1000); // 20 minutos
+            #region Inject Services
+            _loginService = loginService;
+            _culinariaService = culinariaService;
+            _estabelecimentoService = estabelecimentoService;
+            #endregion
+
+            _proximaExecucao = DateTime.Now; // ou DateTime.Now.AddMinutes(30)
+
+            _timer = new System.Timers.Timer(1000); // ticks a cada 1 seg. (exemplo)
             _timer.Elapsed += TimerElapsed;
             _timer.Start();
 
-            // Timer para atualizar o textBox1 a cada 1 segundo
             _uiTimer = new System.Windows.Forms.Timer();
-            _uiTimer.Interval = 1000; // 1 segundo
+            _uiTimer.Interval = 1000;
             _uiTimer.Tick += UiTimer_Tick;
             _uiTimer.Start();
         }
 
+        private void AdicionarLinhaRichTextBox(string texto)
+        {
+            if (richTextBox1.InvokeRequired)
+            {
+                // se estamos em outra thread, chamamos Invoke no controle (UI)
+                richTextBox1.Invoke(new Action(() => AdicionarLinhaRichTextBox(texto)));
+            }
+            else
+            {
+                // se estamos na thread da UI, podemos atualizar direto
+                if (richTextBox1.Text.Length > 0)
+                    richTextBox1.AppendText(Environment.NewLine + texto);
+                else
+                    richTextBox1.AppendText(texto);
+            }
+        }
+
+
         private void TimerElapsed(object sender, ElapsedEventArgs e)
         {
-            Task.Run(async () =>
+            if (!_executando && DateTime.Now >= _proximaExecucao)
             {
-                _executando = true;
-                _ultimaExecucao = DateTime.Now;
-
-                try
+                Task.Run(async () =>
                 {
-                    await IntegrarComIFoodAsync();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Erro na integração: {ex.Message}");
-                }
+                    _executando = true;
+                    _ultimaExecucao = DateTime.Now; // registra o momento em que começou
 
-                _executando = false;
-            });
+                    try
+                    {
+                        await UairangoIntegrarAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"Erro na integração: {ex.Message}", ex);
+                    }
+                    finally
+                    {
+                        // terminou de executar, então configura o próximo horário
+                        _executando = false;
+                        _proximaExecucao = DateTime.Now.Add(_intervaloExecucao);
+                    }
+                });
+            }
         }
 
         private void UiTimer_Tick(object sender, EventArgs e)
         {
-            TimeSpan tempo;
-
             if (_executando)
             {
-                tempo = DateTime.Now - _ultimaExecucao;
+                var tempo = DateTime.Now - _ultimaExecucao;
                 textBox1.ForeColor = Color.Green;
                 textBox1.Text = $"Executando há: {tempo:hh\\:mm\\:ss}";
             }
             else
             {
-                tempo = (_ultimaExecucao.AddMinutes(20)) - DateTime.Now;
-
-                if (tempo.TotalSeconds < 0)
-                    tempo = TimeSpan.Zero;
+                var restante = _proximaExecucao - DateTime.Now;
+                if (restante < TimeSpan.Zero)
+                    restante = TimeSpan.Zero;
 
                 textBox1.ForeColor = Color.Red;
-                textBox1.Text = $"Próxima execução em: {tempo:hh\\:mm\\:ss}";
+                textBox1.Text = $"Próxima execução em: {restante:hh\\:mm\\:ss}";
             }
         }
 
 
-        private async Task IntegrarComIFoodAsync()
+        private async Task UairangoIntegrarAsync()
         {
-            // Simula delay da chamada HTTP
-            await Task.Delay(1000);
+            LoginUaiRangoResponseDto login = await this._loginService.LoginAsync();
+            if (login != null)
+            {
+                AdicionarLinhaRichTextBox($"Logado com sucesso {DateTime.Now}");
+                await GetCulinarias(login);
+            }
+            else
+            {
+                _logger.LogError("Erro desconhecido ao fazer login no UaiRango");
+            }
+        }
 
-            // Aqui você faz a lógica real: fetch, gravação no banco via EF, etc.
-            Console.WriteLine("Integrando com iFood em segundo plano...");
+        private async Task GetCulinarias(LoginUaiRangoResponseDto login)
+        {
+            AdicionarLinhaRichTextBox($"Obtendo culinarias {DateTime.Now}");
+            try
+            {
+                var culinarias = await this._culinariaService.ObterCulinariasAsync(login.Token);
+                if (culinarias != null)
+                {
+                    foreach (var culinariaDto in culinarias)
+                    {
+                        var culinariaExistente = await _db.UairangoCulinarias
+                            .FirstOrDefaultAsync(c => c.IdCulinariaUairango.Equals(culinariaDto.IdCulinaria.ToString()));
+
+                        if (culinariaExistente != null)
+                        {
+                            culinariaExistente.NmCulinaria = culinariaDto.Nome;
+                            culinariaExistente.MeioMeio = culinariaDto.MeioMeio;
+                            _db.UairangoCulinarias.Update(culinariaExistente);
+                        }
+                        else
+                        {
+                            var novaCulinaria = new UairangoCulinaria
+                            {
+                                IdCulinariaUairango = culinariaDto.IdCulinaria.ToString(),
+                                NmCulinaria = culinariaDto.Nome,
+                                MeioMeio = culinariaDto.MeioMeio
+                            };
+                            await _db.UairangoCulinarias.AddAsync(novaCulinaria);
+                        }
+                    }
+
+                    await _db.SaveChangesAsync();
+                    AdicionarLinhaRichTextBox($"Culinarias obtidas {DateTime.Now}");
+                }
+                else
+                {
+                    _logger.LogError("Erro desconhecido ao obter culinárias do UaiRango");
+                    AdicionarLinhaRichTextBox($"Erro desconhecido ao obter culinárias do UaiRango {DateTime.Now}");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Erro ao obter culinarias: {ex.Message}", ex);
+                AdicionarLinhaRichTextBox($"Erro ao obter culinárias do UaiRango {DateTime.Now}: {ex.Message}");
+            }
         }
 
         private void notifyIcon1_MouseClick(object sender, MouseEventArgs e)

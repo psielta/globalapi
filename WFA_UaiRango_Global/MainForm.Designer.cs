@@ -36,6 +36,7 @@
             backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             textBox1 = new TextBox();
             bindingSource1 = new BindingSource(components);
+            richTextBox1 = new RichTextBox();
             ((System.ComponentModel.ISupportInitialize)bindingSource1).BeginInit();
             SuspendLayout();
             // 
@@ -79,11 +80,21 @@
             textBox1.TabIndex = 2;
             textBox1.TabStop = false;
             // 
+            // richTextBox1
+            // 
+            richTextBox1.Location = new Point(12, 41);
+            richTextBox1.Name = "richTextBox1";
+            richTextBox1.ReadOnly = true;
+            richTextBox1.Size = new Size(374, 245);
+            richTextBox1.TabIndex = 3;
+            richTextBox1.Text = "";
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(398, 327);
+            Controls.Add(richTextBox1);
             Controls.Add(textBox1);
             Controls.Add(buttonFechar);
             Controls.Add(buttonMinimizar);
@@ -104,5 +115,6 @@
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
         private TextBox textBox1;
         private BindingSource bindingSource1;
+        private RichTextBox richTextBox1;
     }
 }

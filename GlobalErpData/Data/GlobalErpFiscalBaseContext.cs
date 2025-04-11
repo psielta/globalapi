@@ -16,6 +16,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         : base(options)
     {
     }
+    public virtual DbSet<UairangoCulinaria> UairangoCulinarias { get; set; }
     public virtual DbSet<PlanoSimultaneo> PlanoSimultaneos { get; set; }
     public virtual DbSet<Departamento> Departamentos { get; set; }
     public virtual DbSet<OrcamentoCab> OrcamentoCabs { get; set; }
@@ -1830,6 +1831,11 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.UnityNavigation).WithMany(p => p.PlanoDeCaixas)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("plano_de_caixa_fk");
+        });
+
+        modelBuilder.Entity<UairangoCulinaria>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("uairango_culinarias_pkey");
         });
 
         modelBuilder.Entity<PlanoEstoque>(entity =>

@@ -237,6 +237,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
     public virtual DbSet<Transportadora> Transportadoras { get; set; }
 
+    public virtual DbSet<UairangoCulinaria> UairangoCulinarias { get; set; }
+
     public virtual DbSet<UairangoRequest> UairangoRequests { get; set; }
 
     public virtual DbSet<UairangoToken> UairangoTokens { get; set; }
@@ -2483,6 +2485,11 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.UnityNavigation).WithMany(p => p.Transportadoras)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("transportadora_fk");
+        });
+
+        modelBuilder.Entity<UairangoCulinaria>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("uairango_culinarias_pkey");
         });
 
         modelBuilder.Entity<UairangoRequest>(entity =>
