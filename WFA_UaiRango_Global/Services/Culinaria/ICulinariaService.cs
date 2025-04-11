@@ -10,6 +10,6 @@ namespace WFA_UaiRango_Global.Services.Culinaria
 {
     public interface ICulinariaService
     {
-        Task<List<CulinariaDto>> ObterCulinariasAsync();
+        Task<List<CulinariaDto>> ObterCulinariasAsync(string token);
     }
 }

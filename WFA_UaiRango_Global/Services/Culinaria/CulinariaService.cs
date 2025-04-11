@@ -31,23 +31,16 @@ namespace WFA_UaiRango_Global.Services.Culinaria
             configuracao = GetConfUaiRango(config);
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _httpClient.BaseAddress = new Uri(configuracao.base_url);
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", configuracao.token_de_acesso);
 
             _logger = logger;
             _db = db;
         }
 
-        public async Task<List<CulinariaDto>> ObterCulinariasAsync()
+        public async Task<List<CulinariaDto>> ObterCulinariasAsync(string token)
         {
             try
             {
-                // Verificando se o token está configurado
-                if (_httpClient.DefaultRequestHeaders.Authorization == null)
-                {
-                    _logger.LogWarning("Token de autorização não configurado");
-                    _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", configuracao.token_de_acesso);
-                }
-
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
                 HttpResponseMessage response = await _httpClient.GetAsync("/auth/culinarias");
                 response.EnsureSuccessStatusCode();
                 string conteudo = await response.Content.ReadAsStringAsync();

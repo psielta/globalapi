@@ -228,6 +228,10 @@ public partial class GlobalErpFiscalBaseContext : DbContext
     public virtual DbSet<UsuarioPermissao> UsuarioPermissaos { get; set; }
     public virtual DbSet<TipoNf> TipoNfs { get; set; }
 
+    public virtual DbSet<UairangoRequest> UairangoRequests { get; set; }
+
+    public virtual DbSet<UairangoToken> UairangoTokens { get; set; }
+
     /************************************************************/
     /* DBSET PERSONALIZADOS => Triggers & Views => NAO APAGAR */
     /************************************************************/
@@ -2487,6 +2491,22 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.UnityNavigation).WithMany(p => p.Transportadoras)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("transportadora_fk");
+        });
+
+        modelBuilder.Entity<UairangoRequest>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("uairango_requests_pkey");
+
+            entity.Property(e => e.Datahora).HasDefaultValueSql("now()");
+
+            entity.HasOne(d => d.EmpresaNavigation).WithMany(p => p.UairangoRequests).HasConstraintName("uairango_requests_fk");
+        });
+
+        modelBuilder.Entity<UairangoToken>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("uairango_tokens_pkey");
+
+            entity.Property(e => e.DataHoraGeracao).HasDefaultValueSql("now()");
         });
 
         modelBuilder.Entity<UnidadeMedida>(entity =>

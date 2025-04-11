@@ -361,4 +361,8 @@ public partial class Empresa : IIdentifiable<int>
     [JsonIgnore]
     [InverseProperty("EmpresaNavigation")]
     public virtual ICollection<OrcamentoCab> OrcamentoCabs { get; set; } = new List<OrcamentoCab>();
+
+    [JsonIgnore]
+    [InverseProperty("EmpresaNavigation")]
+    public virtual ICollection<UairangoRequest> UairangoRequests { get; set; } = new List<UairangoRequest>();
 }
