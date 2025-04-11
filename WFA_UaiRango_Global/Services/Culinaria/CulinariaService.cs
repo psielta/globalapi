@@ -20,28 +20,25 @@ namespace WFA_UaiRango_Global.Services.Culinaria
     {
         private readonly HttpClient _httpClient;
         private readonly ILogger<CulinariaService> _logger;
-        private readonly GlobalErpFiscalBaseContext _db;
         private readonly IConfiguration _config;
         private SConfUaiRango configuracao;
 
-        public CulinariaService(HttpClient httpClient, ILogger<CulinariaService> logger, GlobalErpFiscalBaseContext db,
+        public CulinariaService(HttpClient httpClient, ILogger<CulinariaService> logger, 
             IConfiguration config)
         {
             _config = config;
             configuracao = GetConfUaiRango(config);
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-            _httpClient.BaseAddress = new Uri(configuracao.base_url);
-
             _logger = logger;
-            _db = db;
         }
 
         public async Task<List<CulinariaDto>> ObterCulinariasAsync(string token)
         {
             try
             {
+                var Endpoint = $"{configuracao.base_url}/auth/culinarias";
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                HttpResponseMessage response = await _httpClient.GetAsync("/auth/culinarias");
+                HttpResponseMessage response = await _httpClient.GetAsync(Endpoint);
                 response.EnsureSuccessStatusCode();
                 string conteudo = await response.Content.ReadAsStringAsync();
                 List<CulinariaDto> culinarias = JsonConvert.DeserializeObject<List<CulinariaDto>>(conteudo);

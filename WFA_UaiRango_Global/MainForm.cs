@@ -1,5 +1,6 @@
 using System.Timers;
 using GlobalErpData.Data;
+using GlobalErpData.Dto;
 using GlobalErpData.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -131,11 +132,34 @@ namespace WFA_UaiRango_Global
 
         private async Task UairangoIntegrarAsync()
         {
-            LoginUaiRangoResponseDto login = await this._loginService.LoginAsync();
-            if (login != null)
+            var ultimoLogin = await _db.UairangoTokens
+                .OrderByDescending(t => t.DataHoraGeracao)
+                .FirstOrDefaultAsync();
+            bool idadeDoTokenMenorQueUmDia =
+                ultimoLogin != null
+                && ultimoLogin.DataHoraGeracao.HasValue
+                && (DateTime.Now - ultimoLogin.DataHoraGeracao.Value).TotalHours < 24;
+
+            string? token = ultimoLogin?.TokenAcesso;
+            if (ultimoLogin == null || idadeDoTokenMenorQueUmDia)
             {
-                AdicionarLinhaRichTextBox($"Logado com sucesso {DateTime.Now}");
-                await GetCulinarias(login);
+                LoginUaiRangoResponseDto login = await this._loginService.LoginAsync();
+                token = login.Token;
+
+                UairangoToken uairangoToken = new UairangoToken
+                {
+                    TokenAcesso = token,
+                    DataHoraGeracao = DateTime.Now
+                };
+
+                await _db.UairangoTokens.AddAsync(uairangoToken);
+                await _db.SaveChangesAsync();
+            }
+
+            if (token != null)
+            {
+                AdicionarLinhaRichTextBox($"Logado com sucesso ({DateTime.Now})");
+                await GetCulinarias(token);
             }
             else
             {
@@ -143,12 +167,12 @@ namespace WFA_UaiRango_Global
             }
         }
 
-        private async Task GetCulinarias(LoginUaiRangoResponseDto login)
+        private async Task GetCulinarias(string token)
         {
-            AdicionarLinhaRichTextBox($"Obtendo culinarias {DateTime.Now}");
+            AdicionarLinhaRichTextBox($"Obtendo culinarias ({DateTime.Now})");
             try
             {
-                var culinarias = await this._culinariaService.ObterCulinariasAsync(login.Token);
+                var culinarias = await this._culinariaService.ObterCulinariasAsync(token);
                 if (culinarias != null)
                 {
                     foreach (var culinariaDto in culinarias)
@@ -175,18 +199,18 @@ namespace WFA_UaiRango_Global
                     }
 
                     await _db.SaveChangesAsync();
-                    AdicionarLinhaRichTextBox($"Culinarias obtidas {DateTime.Now}");
+                    AdicionarLinhaRichTextBox($"Culinarias obtidas ({DateTime.Now})");
                 }
                 else
                 {
                     _logger.LogError("Erro desconhecido ao obter culinárias do UaiRango");
-                    AdicionarLinhaRichTextBox($"Erro desconhecido ao obter culinárias do UaiRango {DateTime.Now}");
+                    AdicionarLinhaRichTextBox($"Erro desconhecido ao obter culinárias do UaiRango ({DateTime.Now})");
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Erro ao obter culinarias: {ex.Message}", ex);
-                AdicionarLinhaRichTextBox($"Erro ao obter culinárias do UaiRango {DateTime.Now}: {ex.Message}");
+                AdicionarLinhaRichTextBox($"Erro ao obter culinárias do UaiRango ({DateTime.Now}): {ex.Message}");
             }
         }
 
