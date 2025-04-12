@@ -92,4 +92,10 @@ public class IniFile
 
         return $"Host={hostname};Port={port};Database={database};Username={user};Password={password}";
     }
+
+    [DllImport("kernel32")]
+    public static extern long WritePrivateProfileString(string section, string key, string val, string filePath);
+
+    [DllImport("kernel32")]
+    public static extern int GetPrivateProfileString(string section, string key, string def, byte[] retVal, int size, string filePath);
 }

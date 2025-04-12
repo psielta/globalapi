@@ -33,6 +33,8 @@ namespace WFA_UaiRango_Global
         private readonly IFormasPagamentoService _formasPagamentoService;
         #endregion
 
+        private string iniFilePath;
+
         public MainForm(GlobalErpFiscalBaseContext db, ILogger<MainForm> logger,
         #region Inject Services
             ILoginService loginService,
@@ -60,6 +62,10 @@ namespace WFA_UaiRango_Global
             _estabelecimentoService = estabelecimentoService;
             _formasPagamentoService = formasPagamentoService;
             #endregion
+
+            iniFilePath = Path.Combine(Application.StartupPath, "configuracao_integrador_uairango.ini");
+
+            CarregarEstadoCheckBox();
 
             _proximaExecucao = DateTime.Now; // ou DateTime.Now.AddMinutes(30)
 
@@ -93,11 +99,12 @@ namespace WFA_UaiRango_Global
 
         private void TimerElapsed(object sender, ElapsedEventArgs e)
         {
-            if (!_executando)
+            bool ativo = checkBox1.Checked;
+            if ((!_executando) && ativo)
             {
+                _executando = true;
                 Task.Run(async () =>
                 {
-                    _executando = true;
                     try
                     {
                         await EnviarSomenteModificacao();
@@ -132,6 +139,34 @@ namespace WFA_UaiRango_Global
                 });
             }
         }
+
+
+
+        private void UiTimer_Tick(object sender, EventArgs e)
+        {
+            if (!checkBox1.Checked)
+            {
+                textBox1.ForeColor = Color.Red;
+                textBox1.Text = $"Desativado...";
+            }
+            else if (_executandoGetRecorrente)
+            {
+                var tempo = DateTime.Now - _ultimaExecucao;
+                textBox1.ForeColor = Color.Green;
+                textBox1.Text = $"Executando há: {tempo:hh\\:mm\\:ss}";
+            }
+            else
+            {
+                var restante = _proximaExecucao - DateTime.Now;
+                if (restante < TimeSpan.Zero)
+                    restante = TimeSpan.Zero;
+
+                textBox1.ForeColor = Color.Red;
+                textBox1.Text = $"Próxima execução em: {restante:hh\\:mm\\:ss}";
+            }
+        }
+
+        #region Core
 
         private async Task EnviarSomenteModificacao()
         {
@@ -252,27 +287,6 @@ namespace WFA_UaiRango_Global
                 AdicionarLinhaRichTextBox($"Erro ao enviar formas de pagamento (r) ({DateTime.Now}): {ex.Message}");
             }
         }
-
-        private void UiTimer_Tick(object sender, EventArgs e)
-        {
-            if (_executandoGetRecorrente)
-            {
-                var tempo = DateTime.Now - _ultimaExecucao;
-                textBox1.ForeColor = Color.Green;
-                textBox1.Text = $"Executando há: {tempo:hh\\:mm\\:ss}";
-            }
-            else
-            {
-                var restante = _proximaExecucao - DateTime.Now;
-                if (restante < TimeSpan.Zero)
-                    restante = TimeSpan.Zero;
-
-                textBox1.ForeColor = Color.Red;
-                textBox1.Text = $"Próxima execução em: {restante:hh\\:mm\\:ss}";
-            }
-        }
-
-        #region Core
         private async Task UairangoIntegrarAsync()
         {
             var ultimoLogin = await _db.UairangoTokens
@@ -575,13 +589,7 @@ namespace WFA_UaiRango_Global
         #endregion
         private void notifyIcon1_MouseClick(object sender, MouseEventArgs e)
         {
-            //if (e.Button == MouseButtons.Left)
-            //{
-            //    // Restaura a janela
-            //    this.Show();
-            //    this.WindowState = FormWindowState.Normal;
-            //    this.ShowInTaskbar = true;
-            //}
+
         }
 
         private void buttonMinimizar_Click(object sender, EventArgs e)
@@ -635,5 +643,35 @@ namespace WFA_UaiRango_Global
             }
         }
 
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            SalvarEstadoCheckBox(checkBox1.Checked);
+        }
+
+        private void SalvarEstadoCheckBox(bool isChecked)
+        {
+            string valor = isChecked ? "1" : "0";
+            IniFile.WritePrivateProfileString("Configuracoes", "CheckBox1", valor, iniFilePath);
+        }
+
+        private bool LerEstadoCheckBox()
+        {
+            byte[] buffer = new byte[255];
+            IniFile.GetPrivateProfileString("Configuracoes", "CheckBox1", "0", buffer, buffer.Length, iniFilePath);
+            string valor = System.Text.Encoding.ASCII.GetString(buffer).TrimEnd('\0');
+            return valor == "1";
+        }
+
+        private void CarregarEstadoCheckBox()
+        {
+            if (File.Exists(iniFilePath))
+            {
+                checkBox1.Checked = LerEstadoCheckBox();
+            }
+            else
+            {
+                SalvarEstadoCheckBox(false);
+            }
+        }
     }
 }

@@ -37,6 +37,7 @@
             textBox1 = new TextBox();
             bindingSource1 = new BindingSource(components);
             richTextBox1 = new RichTextBox();
+            checkBox1 = new CheckBox();
             ((System.ComponentModel.ISupportInitialize)bindingSource1).BeginInit();
             SuspendLayout();
             // 
@@ -89,11 +90,23 @@
             richTextBox1.TabIndex = 3;
             richTextBox1.Text = "";
             // 
+            // checkBox1
+            // 
+            checkBox1.AutoSize = true;
+            checkBox1.Location = new Point(12, 292);
+            checkBox1.Name = "checkBox1";
+            checkBox1.Size = new Size(54, 19);
+            checkBox1.TabIndex = 4;
+            checkBox1.Text = "Ativo";
+            checkBox1.UseVisualStyleBackColor = true;
+            checkBox1.CheckedChanged += checkBox1_CheckedChanged;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(398, 327);
+            Controls.Add(checkBox1);
             Controls.Add(richTextBox1);
             Controls.Add(textBox1);
             Controls.Add(buttonFechar);
@@ -116,5 +129,6 @@
         private TextBox textBox1;
         private BindingSource bindingSource1;
         private RichTextBox richTextBox1;
+        private CheckBox checkBox1;
     }
 }
