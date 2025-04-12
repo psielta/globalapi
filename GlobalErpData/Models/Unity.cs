@@ -249,4 +249,8 @@ public partial class Unity : IIdentifiable<int>
     [JsonIgnore]
     [InverseProperty("UnityNavigation")]
     public virtual ICollection<UairangoFormasPagamento> UairangoFormasPagamentos { get; set; } = new List<UairangoFormasPagamento>();
+
+    [JsonIgnore]
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<UairangoConfiguraco> UairangoConfiguracos { get; set; } = new List<UairangoConfiguraco>();
 }

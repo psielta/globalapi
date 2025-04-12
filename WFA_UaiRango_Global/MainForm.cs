@@ -10,6 +10,7 @@ using WFA_UaiRango_Global.Services.Estabelecimentos;
 using WFA_UaiRango_Global.Services.Login;
 using WFA_UaiRango_Global.Services.FormasPagamento;
 using Microsoft.AspNetCore.Mvc.Filters;
+using WFA_UaiRango_Global.Services.Config;
 
 namespace WFA_UaiRango_Global
 {
@@ -31,6 +32,7 @@ namespace WFA_UaiRango_Global
         private readonly IEstabelecimentoService _estabelecimentoService;
         private readonly ICulinariaService _culinariaService;
         private readonly IFormasPagamentoService _formasPagamentoService;
+        private readonly IConfigService _configService;
         #endregion
 
         private string iniFilePath;
@@ -40,7 +42,8 @@ namespace WFA_UaiRango_Global
             ILoginService loginService,
             IEstabelecimentoService estabelecimentoService,
             ICulinariaService culinariaService,
-            IFormasPagamentoService formasPagamentoService
+            IFormasPagamentoService formasPagamentoService,
+            IConfigService configService
         #endregion
             )
         {
@@ -61,6 +64,7 @@ namespace WFA_UaiRango_Global
             _culinariaService = culinariaService;
             _estabelecimentoService = estabelecimentoService;
             _formasPagamentoService = formasPagamentoService;
+            _configService = configService;
             #endregion
 
             iniFilePath = Path.Combine(Application.StartupPath, "configuracao_integrador_uairango.ini");
@@ -195,6 +199,25 @@ namespace WFA_UaiRango_Global
                                 && (empresa.UairangoVinculado ?? false)
                                 && (empresa.UairangoIdEstabelecimento.Length > 0))
                             {
+                                /**************************************************
+                                 **************************************************
+                                 **************************************************
+                                 **************************************************
+                                 **************************************************
+                                 **************************************************
+                                 *                                                *
+                                 *                                                *
+                                 *                                                *
+                                 *         ITERACAO POR ESTABELECIMENTO           *
+                                 *                                                *
+                                 *                                                *
+                                 *                                                *
+                                 **************************************************
+                                 **************************************************
+                                 **************************************************
+                                 **************************************************
+                                 **************************************************
+                                 **************************************************/
                                 await EnviarFormasPagamento(ultimoLogin.TokenAcesso, empresa);
                             }
                         }
@@ -338,7 +361,27 @@ namespace WFA_UaiRango_Global
             {
                 AdicionarLinhaRichTextBox($"Logado com sucesso ({DateTime.Now})");
                 #region EntitidadesComunsATodosEstabelecimentos
+                /**************************************************
+                 **************************************************
+                 **************************************************
+                 **************************************************
+                 **************************************************
+                 **************************************************
+                 *                                                *
+                 *                                                *
+                 *                                                *
+                 *            Entitidades Comuns                  *
+                 *                                                *
+                 *                                                *
+                 *                                                *
+                 **************************************************
+                 **************************************************
+                 **************************************************
+                 **************************************************
+                 **************************************************
+                 **************************************************/
                 await GetCulinarias(token);
+                await GetPrazos(token);
                 #endregion
                 #region IterarEstabelecimentos
                 await IterarEstabelecimento(token);
@@ -347,6 +390,58 @@ namespace WFA_UaiRango_Global
             else
             {
                 _logger.LogError("Erro desconhecido ao fazer login no UaiRango");
+            }
+        }
+
+        private async Task GetPrazos(string token)
+        {
+            try
+            {
+                AdicionarLinhaRichTextBox($"Obtendo prazos ({DateTime.Now})");
+                var prazos = await this._configService.ObterPrazosAsync(token);
+                if (prazos != null)
+                {
+                    foreach (var prazoDto in prazos)
+                    {
+                        var prazoExistente = await _db.UairangoPrazos
+                            .FirstOrDefaultAsync(c => (c.IdTempo ?? -1) == prazoDto.IdTempo);
+                        if (prazoExistente != null)
+                        {
+                            prazoExistente.Min = prazoDto.Min;
+                            prazoExistente.Max = prazoDto.Max;
+                            prazoExistente.Status = prazoDto.Status;
+                            _db.UairangoPrazos.Update(prazoExistente);
+                        }
+                        else
+                        {
+                            var novoPrazo = new UairangoPrazo
+                            {
+                                IdTempo = prazoDto.IdTempo,
+                                Status = prazoDto.Status,
+                                Min = prazoDto.Min,
+                                Max = prazoDto.Max
+                            };
+                            await _db.UairangoPrazos.AddAsync(novoPrazo);
+                        }
+                    }
+                    await _db.SaveChangesAsync();
+                    AdicionarLinhaRichTextBox($"Prazos obtidos ({DateTime.Now})");
+                }
+                else
+                {
+                    _logger.LogError("Erro desconhecido ao obter prazos do UaiRango");
+                    AdicionarLinhaRichTextBox($"Erro desconhecido ao obter prazos do UaiRango ({DateTime.Now})");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Erro ao obter prazos: {ex.Message}", ex);
+                AdicionarLinhaRichTextBox($"Erro ao obter prazos ({DateTime.Now}): {ex.Message}");
+            }
+            finally
+            {
+                _logger.LogInformation($"Finalizando obtenção de prazos ({DateTime.Now})");
+                AdicionarLinhaRichTextBox($"Finalizando obtenção de prazos ({DateTime.Now})");
             }
         }
 
@@ -423,13 +518,26 @@ namespace WFA_UaiRango_Global
                             && (empresa.UairangoVinculado ?? false)
                             && (empresa.UairangoIdEstabelecimento.Length > 0))
                         {
+                            /**************************************************
+                             **************************************************
+                             **************************************************
+                             **************************************************
+                             **************************************************
+                             **************************************************
+                             *                                                *
+                             *                                                *
+                             *                                                *
+                             *         ITERACAO POR ESTABELECIMENTO           *
+                             *                                                *
+                             *                                                *
+                             *                                                *
+                             **************************************************
+                             **************************************************
+                             **************************************************
+                             **************************************************
+                             **************************************************
+                             **************************************************/
                             await ReceberFormasPagamento(empresa, token);
-
-
-
-
-
-
 
 
 

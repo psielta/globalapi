@@ -16,6 +16,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         : base(options)
     {
     }
+    public virtual DbSet<UairangoPrazo> UairangoPrazos { get; set; }
+    public virtual DbSet<UairangoConfiguraco> UairangoConfiguracoes { get; set; }
     public virtual DbSet<UairangoFormasPagamento> UairangoFormasPagamentos { get; set; }
     public virtual DbSet<UairangoCulinaria> UairangoCulinarias { get; set; }
     public virtual DbSet<PlanoSimultaneo> PlanoSimultaneos { get; set; }
@@ -244,7 +246,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
     public DbSet<DashboardEstoqueTotalEntradasPorMes> cdsDashboardEstoqueTotalEntradasPorMes { get; set; }
     public DbSet<DashboardEstoqueTotalEntradasPorDia> cdsDashboardEstoqueTotalEntradasPorDia { get; set; }
     public DbSet<DashboardEstoqueTotalSaidasPorDia> cdsDashboardEstoqueTotalSaidasPorDia { get; set; }
-    public  DbSet<FnDistribuicaoDfeEntradasResult> FnDistribuicaoDfeEntradasResults { get; set; }
+    public DbSet<FnDistribuicaoDfeEntradasResult> FnDistribuicaoDfeEntradasResults { get; set; }
 
     public DbSet<TotalPorGrupo> cdsTotalPorGrupo { get; set; }
     public DbSet<ProcReg50EntradaResult> ProcReg50EntradaResults { get; set; }
@@ -2496,6 +2498,22 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .HasConstraintName("transportadora_fk");
         });
 
+        modelBuilder.Entity<UairangoConfiguraco>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("uairango_configuracoes_pkey");
+
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
+
+            entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.UairangoConfiguracos)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("uairango_configuracoes_fk");
+
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.UairangoConfiguracos)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("uairango_configuracoes_fk1");
+        });
+
         modelBuilder.Entity<UairangoCulinaria>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("uairango_culinarias_pkey");
@@ -2515,6 +2533,13 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.UnityNavigation).WithMany(p => p.UairangoFormasPagamentos)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("uairango_formas_pagamento_fk");
+        });
+
+        modelBuilder.Entity<UairangoPrazo>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("uairango_prazos_pkey");
+
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
         });
 
         modelBuilder.Entity<UairangoRequest>(entity =>
@@ -2639,6 +2664,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         modelBuilder.HasSequence("seq_entrada_geral_11");
         modelBuilder.HasSequence("seq_entrada_geral_12");
         modelBuilder.HasSequence("seq_entrada_geral_13");
+        modelBuilder.HasSequence("seq_entrada_geral_15");
         modelBuilder.HasSequence("seq_entradas_geral_1");
         modelBuilder.HasSequence("seq_entradas_geral_11");
         modelBuilder.HasSequence("seq_entradas_geral_2");
@@ -2647,22 +2673,26 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         modelBuilder.HasSequence("seq_fornecedor_geral_11");
         modelBuilder.HasSequence("seq_fornecedor_geral_12");
         modelBuilder.HasSequence("seq_fornecedor_geral_13");
+        modelBuilder.HasSequence("seq_fornecedor_geral_15");
         modelBuilder.HasSequence("seq_fornecedor_geral_2");
         modelBuilder.HasSequence("seq_fotos_geral_1");
         modelBuilder.HasSequence("seq_fotos_geral_10");
         modelBuilder.HasSequence("seq_fotos_geral_11");
         modelBuilder.HasSequence("seq_fotos_geral_12");
         modelBuilder.HasSequence("seq_fotos_geral_13");
+        modelBuilder.HasSequence("seq_fotos_geral_15");
         modelBuilder.HasSequence("seq_funcionario_geral_1");
         modelBuilder.HasSequence("seq_funcionario_geral_10");
         modelBuilder.HasSequence("seq_funcionario_geral_11");
         modelBuilder.HasSequence("seq_funcionario_geral_12");
         modelBuilder.HasSequence("seq_funcionario_geral_13");
+        modelBuilder.HasSequence("seq_funcionario_geral_15");
         modelBuilder.HasSequence("seq_funcionario_geral_2");
         modelBuilder.HasSequence("seq_nfce_abertura_caixa_geral_10");
         modelBuilder.HasSequence("seq_nfce_abertura_caixa_geral_11");
         modelBuilder.HasSequence("seq_nfce_abertura_caixa_geral_12");
         modelBuilder.HasSequence("seq_nfce_abertura_caixa_geral_13");
+        modelBuilder.HasSequence("seq_nfce_abertura_caixa_geral_15");
         modelBuilder.HasSequence("seq_nfce_forma_pgt_geral_13");
         modelBuilder.HasSequence("seq_nfce_produto_saida_geral_13");
         modelBuilder.HasSequence("seq_nfce_saidas_geral_1");
@@ -2670,6 +2700,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         modelBuilder.HasSequence("seq_nfce_saidas_geral_11");
         modelBuilder.HasSequence("seq_nfce_saidas_geral_12");
         modelBuilder.HasSequence("seq_nfce_saidas_geral_13");
+        modelBuilder.HasSequence("seq_nfce_saidas_geral_15");
         modelBuilder.HasSequence("seq_produto_estoque_geral_1");
         modelBuilder.HasSequence("seq_produto_estoque_geral_3");
         modelBuilder.HasSequence("seq_produto_geral_1").StartsAt(832L);
@@ -2677,6 +2708,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         modelBuilder.HasSequence("seq_produto_geral_11");
         modelBuilder.HasSequence("seq_produto_geral_12");
         modelBuilder.HasSequence("seq_produto_geral_13");
+        modelBuilder.HasSequence("seq_produto_geral_15");
         modelBuilder.HasSequence("seq_produto_geral_2");
         modelBuilder.HasSequence("seq_sangria_caixa_geral_13");
         modelBuilder.HasSequence("seq_transportadora_geral_1");
@@ -2684,6 +2716,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         modelBuilder.HasSequence("seq_transportadora_geral_11");
         modelBuilder.HasSequence("seq_transportadora_geral_12");
         modelBuilder.HasSequence("seq_transportadora_geral_13");
+        modelBuilder.HasSequence("seq_transportadora_geral_15");
 
         /************************************************************/
         /* MODELOS PERSONALIZADOS => Triggers & Views => NAO APAGAR */
@@ -2719,15 +2752,9 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         });
         modelBuilder.Entity<FnDistribuicaoDfeEntradasResult>(entity =>
         {
-            entity.HasNoKey();          // Indica que essa 'entidade' não tem PK
-            entity.ToView(null);        // Diz ao EF Core que não há uma view/tabela real
-
-            // Se os nomes das propriedades não baterem com as colunas do SELECT,
-            // precisamos usar .Property(...)...HasColumnName("coluna_do_banco") 
-            // Exemplo:
-            // entity.Property(e => e.Nr_Nota_Fiscal).HasColumnName("nr_nota_fiscal");
+            entity.HasNoKey();
+            entity.ToView(null);
         });
-
 
         setProcReg50(modelBuilder);
         setProcReg54(modelBuilder);
@@ -2766,30 +2793,11 @@ public partial class GlobalErpFiscalBaseContext : DbContext
     private void setProcReg54(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<ProcReg54EntradaResult>().HasNoKey();
-        /*DateTime pdt1 = new DateTime(2024, 01, 01);
-        DateTime pdt2 = new DateTime(2024, 12, 31);
-        int pcd_empresa = 1;
-        int pcd_plano = -1;
-
-        var resultados = await context.ProcReg54EntradaResults
-            .FromSqlRaw("SELECT * FROM public.proc_reg_54_entrada({0}, {1}, {2}, {3})", pdt1, pdt2, pcd_empresa, pcd_plano)
-            .ToListAsync();
-*/
     }
 
     private void setProcReg50(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<ProcReg50EntradaResult>().HasNoKey();
-        /*// Exemplo de uso:
-            DateTime pdt1 = new DateTime(2024, 01, 01);
-            DateTime pdt2 = new DateTime(2024, 12, 31);
-            int pcd_empresa = 1;
-            int pcd_plano = -1;
-
-            var resultados = await context.ProcReg50EntradaResults
-                .FromSqlRaw("SELECT * FROM public.proc_reg_50_entrada({0}, {1}, {2}, {3})", pdt1, pdt2, pcd_empresa, pcd_plano)
-                .ToListAsync();
-        */
     }
 
     private void ConfigFunctionGetDashboardEstoqueTotalEntradas(ModelBuilder modelBuilder)
@@ -2800,7 +2808,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.ToFunction("get_dashboard_estoque_total_entradas");
         });
     }
-    
+
     private void ConfigFunctionGetDashboardEstoqueTotalSaidas(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<DashboardEstoqueTotalSaidas>(entity =>
@@ -2812,7 +2820,6 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
     public IQueryable<DashboardEstoqueTotalEntradas> GetDashboardEstoqueTotalEntradas(int punity, int? p_month = null, int? p_year = null, int? pid_empresa = -1)
     {
-        // Se os parâmetros não forem fornecidos, usa o mês e ano atuais
         p_month ??= DateTime.Now.Month;
         p_year ??= DateTime.Now.Year;
 
@@ -2822,7 +2829,6 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
     public IQueryable<DashboardEstoqueTotalSaidas> GetDashboardEstoqueTotalSaidas(int punity, int? p_month = null, int? p_year = null, int? pid_empresa = -1)
     {
-        // Se os parâmetros não forem fornecidos, usa o mês e ano atuais
         p_month ??= DateTime.Now.Month;
         p_year ??= DateTime.Now.Year;
 
@@ -2893,7 +2899,6 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
     public IQueryable<FormaPagamentoResult> GetFormasPagamento(int punity, DateOnly pdata, int pempresa = -1)
     {
-        // Converter para UTC e formatar como string para evitar problemas de fuso horário
         var dataFormatada = pdata.ToString("yyyy-MM-dd");
 
         return cdsFormasPagamento
@@ -2902,7 +2907,6 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
     public IQueryable<Produto5MaisVendidosResult> GetProduto5MaisVendidos(int punity, DateOnly pdate, int pempresa = -1)
     {
-        // Converter para formato de data sem hora para evitar problemas de fuso horário
         var dataFormatada = pdate.ToString("yyyy-MM-dd");
 
         return cdsProduto5MaisVendidos

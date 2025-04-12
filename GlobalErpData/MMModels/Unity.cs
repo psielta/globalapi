@@ -171,6 +171,9 @@ public partial class Unity
     public virtual ICollection<Transportadora> Transportadoras { get; set; } = new List<Transportadora>();
 
     [InverseProperty("UnityNavigation")]
+    public virtual ICollection<UairangoConfiguraco> UairangoConfiguracos { get; set; } = new List<UairangoConfiguraco>();
+
+    [InverseProperty("UnityNavigation")]
     public virtual ICollection<UairangoFormasPagamento> UairangoFormasPagamentos { get; set; } = new List<UairangoFormasPagamento>();
 
     [InverseProperty("UnityNavigation")]

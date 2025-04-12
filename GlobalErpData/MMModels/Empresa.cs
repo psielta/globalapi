@@ -289,6 +289,9 @@ public partial class Empresa
     [InverseProperty("CdEmpresaNavigation")]
     public virtual ICollection<SangriaCaixa> SangriaCaixas { get; set; } = new List<SangriaCaixa>();
 
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<UairangoConfiguraco> UairangoConfiguracos { get; set; } = new List<UairangoConfiguraco>();
+
     [InverseProperty("EmpresaNavigation")]
     public virtual ICollection<UairangoFormasPagamento> UairangoFormasPagamentos { get; set; } = new List<UairangoFormasPagamento>();
 

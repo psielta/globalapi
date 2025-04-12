@@ -380,4 +380,8 @@ public partial class Empresa : IIdentifiable<int>
     [JsonIgnore]
     [InverseProperty("EmpresaNavigation")]
     public virtual ICollection<UairangoFormasPagamento> UairangoFormasPagamentos { get; set; } = new List<UairangoFormasPagamento>();
+
+    [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<UairangoConfiguraco> UairangoConfiguracos { get; set; } = new List<UairangoConfiguraco>();
 }

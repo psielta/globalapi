@@ -237,9 +237,13 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
     public virtual DbSet<Transportadora> Transportadoras { get; set; }
 
+    public virtual DbSet<UairangoConfiguraco> UairangoConfiguracoes { get; set; }
+
     public virtual DbSet<UairangoCulinaria> UairangoCulinarias { get; set; }
 
     public virtual DbSet<UairangoFormasPagamento> UairangoFormasPagamentos { get; set; }
+
+    public virtual DbSet<UairangoPrazo> UairangoPrazos { get; set; }
 
     public virtual DbSet<UairangoRequest> UairangoRequests { get; set; }
 
@@ -2490,6 +2494,22 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .HasConstraintName("transportadora_fk");
         });
 
+        modelBuilder.Entity<UairangoConfiguraco>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("uairango_configuracoes_pkey");
+
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
+
+            entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.UairangoConfiguracos)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("uairango_configuracoes_fk");
+
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.UairangoConfiguracos)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("uairango_configuracoes_fk1");
+        });
+
         modelBuilder.Entity<UairangoCulinaria>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("uairango_culinarias_pkey");
@@ -2509,6 +2529,13 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.UnityNavigation).WithMany(p => p.UairangoFormasPagamentos)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("uairango_formas_pagamento_fk");
+        });
+
+        modelBuilder.Entity<UairangoPrazo>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("uairango_prazos_pkey");
+
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
         });
 
         modelBuilder.Entity<UairangoRequest>(entity =>
@@ -2633,6 +2660,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         modelBuilder.HasSequence("seq_entrada_geral_11");
         modelBuilder.HasSequence("seq_entrada_geral_12");
         modelBuilder.HasSequence("seq_entrada_geral_13");
+        modelBuilder.HasSequence("seq_entrada_geral_15");
         modelBuilder.HasSequence("seq_entradas_geral_1");
         modelBuilder.HasSequence("seq_entradas_geral_11");
         modelBuilder.HasSequence("seq_entradas_geral_2");
@@ -2641,22 +2669,26 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         modelBuilder.HasSequence("seq_fornecedor_geral_11");
         modelBuilder.HasSequence("seq_fornecedor_geral_12");
         modelBuilder.HasSequence("seq_fornecedor_geral_13");
+        modelBuilder.HasSequence("seq_fornecedor_geral_15");
         modelBuilder.HasSequence("seq_fornecedor_geral_2");
         modelBuilder.HasSequence("seq_fotos_geral_1");
         modelBuilder.HasSequence("seq_fotos_geral_10");
         modelBuilder.HasSequence("seq_fotos_geral_11");
         modelBuilder.HasSequence("seq_fotos_geral_12");
         modelBuilder.HasSequence("seq_fotos_geral_13");
+        modelBuilder.HasSequence("seq_fotos_geral_15");
         modelBuilder.HasSequence("seq_funcionario_geral_1");
         modelBuilder.HasSequence("seq_funcionario_geral_10");
         modelBuilder.HasSequence("seq_funcionario_geral_11");
         modelBuilder.HasSequence("seq_funcionario_geral_12");
         modelBuilder.HasSequence("seq_funcionario_geral_13");
+        modelBuilder.HasSequence("seq_funcionario_geral_15");
         modelBuilder.HasSequence("seq_funcionario_geral_2");
         modelBuilder.HasSequence("seq_nfce_abertura_caixa_geral_10");
         modelBuilder.HasSequence("seq_nfce_abertura_caixa_geral_11");
         modelBuilder.HasSequence("seq_nfce_abertura_caixa_geral_12");
         modelBuilder.HasSequence("seq_nfce_abertura_caixa_geral_13");
+        modelBuilder.HasSequence("seq_nfce_abertura_caixa_geral_15");
         modelBuilder.HasSequence("seq_nfce_forma_pgt_geral_13");
         modelBuilder.HasSequence("seq_nfce_produto_saida_geral_13");
         modelBuilder.HasSequence("seq_nfce_saidas_geral_1");
@@ -2664,6 +2696,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         modelBuilder.HasSequence("seq_nfce_saidas_geral_11");
         modelBuilder.HasSequence("seq_nfce_saidas_geral_12");
         modelBuilder.HasSequence("seq_nfce_saidas_geral_13");
+        modelBuilder.HasSequence("seq_nfce_saidas_geral_15");
         modelBuilder.HasSequence("seq_produto_estoque_geral_1");
         modelBuilder.HasSequence("seq_produto_estoque_geral_3");
         modelBuilder.HasSequence("seq_produto_geral_1").StartsAt(832L);
@@ -2671,6 +2704,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         modelBuilder.HasSequence("seq_produto_geral_11");
         modelBuilder.HasSequence("seq_produto_geral_12");
         modelBuilder.HasSequence("seq_produto_geral_13");
+        modelBuilder.HasSequence("seq_produto_geral_15");
         modelBuilder.HasSequence("seq_produto_geral_2");
         modelBuilder.HasSequence("seq_sangria_caixa_geral_13");
         modelBuilder.HasSequence("seq_transportadora_geral_1");
@@ -2678,6 +2712,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         modelBuilder.HasSequence("seq_transportadora_geral_11");
         modelBuilder.HasSequence("seq_transportadora_geral_12");
         modelBuilder.HasSequence("seq_transportadora_geral_13");
+        modelBuilder.HasSequence("seq_transportadora_geral_15");
 
         OnModelCreatingPartial(modelBuilder);
     }
