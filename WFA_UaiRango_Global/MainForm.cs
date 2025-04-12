@@ -187,7 +187,7 @@ namespace WFA_UaiRango_Global
                         select * from empresa s
                         where length(coalesce(s.uairango_token_vinculo, '')) > 0
                     ").ToListAsync();
-                    if (empresasComTokenVinculo != null)
+                    if (empresasComTokenVinculo != null  && empresasComTokenVinculo.Count > 0)
                     {
                         foreach (Empresa empresa in empresasComTokenVinculo)
                         {
@@ -198,6 +198,10 @@ namespace WFA_UaiRango_Global
                                 await EnviarFormasPagamento(ultimoLogin.TokenAcesso, empresa);
                             }
                         }
+                    } else
+                    {
+                        _logger.LogWarning("Nenhum estabelecimento encontrado");
+                        AdicionarLinhaRichTextBox($"Nenhum estabelecimento encontrado ({DateTime.Now})");
                     }
                 }
             }
@@ -387,7 +391,7 @@ namespace WFA_UaiRango_Global
                     select * from empresa s
                     where length(coalesce(s.uairango_token_vinculo, '')) > 0
                     ").ToListAsync();
-                if (empresasComTokenVinculo != null)
+                if (empresasComTokenVinculo != null && empresasComTokenVinculo.Count > 0)
                 {
                     List<Estabelecimento>? lEstabelecimentos = null;
                     foreach (Empresa empresa in empresasComTokenVinculo)
