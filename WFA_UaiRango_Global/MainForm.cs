@@ -8,6 +8,8 @@ using GlobalErpData.Uairango.Dto;
 using WFA_UaiRango_Global.Services.Culinaria;
 using WFA_UaiRango_Global.Services.Estabelecimentos;
 using WFA_UaiRango_Global.Services.Login;
+using WFA_UaiRango_Global.Services.FormasPagamento;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace WFA_UaiRango_Global
 {
@@ -27,12 +29,16 @@ namespace WFA_UaiRango_Global
         private readonly ILoginService _loginService;
         private readonly IEstabelecimentoService _estabelecimentoService;
         private readonly ICulinariaService _culinariaService;
+        private readonly IFormasPagamentoService _formasPagamentoService;
         #endregion
 
         public MainForm(GlobalErpFiscalBaseContext db, ILogger<MainForm> logger,
+        #region Inject Services
             ILoginService loginService,
             IEstabelecimentoService estabelecimentoService,
-            ICulinariaService culinariaService
+            ICulinariaService culinariaService,
+            IFormasPagamentoService formasPagamentoService
+        #endregion
             )
         {
             StartPosition = FormStartPosition.CenterScreen;
@@ -51,6 +57,7 @@ namespace WFA_UaiRango_Global
             _loginService = loginService;
             _culinariaService = culinariaService;
             _estabelecimentoService = estabelecimentoService;
+            _formasPagamentoService = formasPagamentoService;
             #endregion
 
             _proximaExecucao = DateTime.Now; // ou DateTime.Now.AddMinutes(30)
@@ -241,12 +248,22 @@ namespace WFA_UaiRango_Global
                             await VincularEstabelecimentoDeveloper(empresa, token);
                         }
                         #region Core_Iteracao_Estabelecimento
-                        if ((!string.IsNullOrEmpty(empresa.UairangoIdEstabelecimento)) 
+                        if ((!string.IsNullOrEmpty(empresa.UairangoIdEstabelecimento))
                             && (empresa.UairangoVinculado ?? false)
                             && (empresa.UairangoIdEstabelecimento.Length > 0))
                         {
-                            AdicionarLinhaRichTextBox("Core");
-                        } else if (string.IsNullOrEmpty(empresa.UairangoIdEstabelecimento) &&
+                            await CrudFormasPagamento(empresa, token);
+
+
+
+
+
+
+
+
+
+                        }
+                        else if (string.IsNullOrEmpty(empresa.UairangoIdEstabelecimento) &&
                             (empresa.UairangoVinculado ?? false))
                         {
                             _logger.LogWarning($"Estabelecimento sem IdUairango porem vinculado: {empresa.NmEmpresa}");
@@ -272,6 +289,102 @@ namespace WFA_UaiRango_Global
                 AdicionarLinhaRichTextBox($"Finalizando iteracao por estabelecimentos ({DateTime.Now})");
             }
 
+        }
+
+        private async Task CrudFormasPagamento(Empresa empresa, string token)
+        {
+            try
+            {
+                var formasDelivery = await this._formasPagamentoService.ObterFormasPagamentoAsync(Convert.ToInt32(empresa.UairangoIdEstabelecimento), "D", token);
+                var formasRetirada = await this._formasPagamentoService.ObterFormasPagamentoAsync(Convert.ToInt32(empresa.UairangoIdEstabelecimento), "R", token);
+                var allFormasPorEmpresa = await _db.UairangoFormasPagamentos.FromSqlRaw($@"
+                        select * from uairango_formas_pagamento u
+                        where empresa = {empresa.CdEmpresa}
+                        and unity = {empresa.Unity}
+                        ").ToListAsync();
+                var formasDeliveryPrecisamEnviar = allFormasPorEmpresa
+                    .Where(x => x.TipoEntrega == "D" && (x.Integrated ?? 0) != 1)
+                    .ToList();
+
+                var formasRetiradaPrecisamEnviar = allFormasPorEmpresa
+                    .Where(x => x.TipoEntrega == "R" && (x.Integrated ?? 0) != 1)
+                    .ToList();
+
+                if ((formasDeliveryPrecisamEnviar == null || formasDeliveryPrecisamEnviar.Count == 0) && formasDelivery != null)
+                {
+                    foreach (var item in formasDelivery)
+                    {
+                        var formaDb = allFormasPorEmpresa
+                            .FirstOrDefault(x => x.IdFormaUairango == item.IdForma.ToString() && x.TipoEntrega == "D");
+                        if (formaDb != null)
+                        {
+                            formaDb.Nome = item.Nome;
+                            formaDb.Ativo = item.Ativo;
+                            formaDb.Integrated = 1;
+                            _db.UairangoFormasPagamentos.Update(formaDb);
+                        }
+                        else
+                        {
+                            var novaForma = new UairangoFormasPagamento
+                            {
+                                IdFormaUairango = item.IdForma.ToString(),
+                                Nome = item.Nome,
+                                Ativo = item.Ativo,
+                                TipoEntrega = "D",
+                                Integrated = 1,
+                                Empresa = empresa.CdEmpresa,
+                                Unity = empresa.Unity
+                            };
+                            await _db.UairangoFormasPagamentos.AddAsync(novaForma);
+                        }
+                    }
+                    await _db.SaveChangesAsync();
+                }
+                if ((formasRetiradaPrecisamEnviar == null || formasRetiradaPrecisamEnviar.Count == 0) && formasRetirada != null)
+                {
+                    foreach (var item in formasRetirada)
+                    {
+                        var formaDb = allFormasPorEmpresa
+                            .FirstOrDefault(x => x.IdFormaUairango == item.IdForma.ToString() && x.TipoEntrega == "R");
+                        if (formaDb != null)
+                        {
+                            formaDb.Nome = item.Nome;
+                            formaDb.Ativo = item.Ativo;
+                            formaDb.Integrated = 1;
+                            _db.UairangoFormasPagamentos.Update(formaDb);
+                        }
+                        else
+                        {
+                            var novaForma = new UairangoFormasPagamento
+                            {
+                                IdFormaUairango = item.IdForma.ToString(),
+                                Nome = item.Nome,
+                                Ativo = item.Ativo,
+                                TipoEntrega = "R",
+                                Integrated = 1,
+                                Empresa = empresa.CdEmpresa,
+                                Unity = empresa.Unity
+                            };
+                            await _db.UairangoFormasPagamentos.AddAsync(novaForma);
+                        }
+                    }
+                    await _db.SaveChangesAsync();
+                }
+
+                _logger.LogInformation($"Formas de pagamento atualizadas/inseridas com sucesso ({DateTime.Now})");
+                AdicionarLinhaRichTextBox($"Formas de pagamento atualizadas/inseridas com sucesso ({DateTime.Now})");
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Erro ao atualizar formas de pagamento: {e.Message}", e);
+                AdicionarLinhaRichTextBox($"Erro ao atualizar formas de pagamento ({DateTime.Now}): {e.Message}");
+            }
+            finally
+            {
+                _logger.LogInformation($"Finalizando atualização de formas de pagamento ({DateTime.Now})");
+                AdicionarLinhaRichTextBox($"Finalizando atualização de formas de pagamento ({DateTime.Now})");
+            }
         }
 
         private async Task VincularEstabelecimentoDeveloper(Empresa empresa, string token)

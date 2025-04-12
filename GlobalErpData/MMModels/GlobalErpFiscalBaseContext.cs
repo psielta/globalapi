@@ -239,6 +239,8 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
     public virtual DbSet<UairangoCulinaria> UairangoCulinarias { get; set; }
 
+    public virtual DbSet<UairangoFormasPagamento> UairangoFormasPagamentos { get; set; }
+
     public virtual DbSet<UairangoRequest> UairangoRequests { get; set; }
 
     public virtual DbSet<UairangoToken> UairangoTokens { get; set; }
@@ -2491,6 +2493,22 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         modelBuilder.Entity<UairangoCulinaria>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("uairango_culinarias_pkey");
+        });
+
+        modelBuilder.Entity<UairangoFormasPagamento>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("uairango_formas_pagamento_pkey");
+
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
+
+            entity.HasOne(d => d.EmpresaNavigation).WithMany(p => p.UairangoFormasPagamentos)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("uairango_formas_pagamento_fk1");
+
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.UairangoFormasPagamentos)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("uairango_formas_pagamento_fk");
         });
 
         modelBuilder.Entity<UairangoRequest>(entity =>

@@ -9,6 +9,7 @@ using WFA_UaiRango_Global.Services.Culinaria;
 using GlobalErpData.Data;
 using WFA_UaiRango_Global.Services.Login;
 using WFA_UaiRango_Global.Services.Estabelecimentos;
+using WFA_UaiRango_Global.Services.FormasPagamento;
 
 
 namespace WFA_UaiRango_Global
@@ -61,6 +62,7 @@ namespace WFA_UaiRango_Global
             services.AddScoped<ILoginService, LoginService>();
             services.AddScoped<ICulinariaService, CulinariaService>();
             services.AddScoped<IEstabelecimentoService, EstabelecimentoService>();
+            services.AddScoped<IFormasPagamentoService, FormasPagamentoService>();
             #endregion
 
             var provider = services.BuildServiceProvider();

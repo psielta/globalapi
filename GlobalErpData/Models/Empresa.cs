@@ -376,4 +376,8 @@ public partial class Empresa : IIdentifiable<int>
     [Column("uairango_token_vinculo")]
     [StringLength(512)]
     public string? UairangoTokenVinculo { get; set; }
+
+    [JsonIgnore]
+    [InverseProperty("EmpresaNavigation")]
+    public virtual ICollection<UairangoFormasPagamento> UairangoFormasPagamentos { get; set; } = new List<UairangoFormasPagamento>();
 }

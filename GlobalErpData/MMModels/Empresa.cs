@@ -290,6 +290,9 @@ public partial class Empresa
     public virtual ICollection<SangriaCaixa> SangriaCaixas { get; set; } = new List<SangriaCaixa>();
 
     [InverseProperty("EmpresaNavigation")]
+    public virtual ICollection<UairangoFormasPagamento> UairangoFormasPagamentos { get; set; } = new List<UairangoFormasPagamento>();
+
+    [InverseProperty("EmpresaNavigation")]
     public virtual ICollection<UairangoRequest> UairangoRequests { get; set; } = new List<UairangoRequest>();
 
     [ForeignKey("Unity")]
