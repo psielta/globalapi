@@ -19,6 +19,7 @@ namespace WFA_UaiRango_Global
         private System.Windows.Forms.Timer _uiTimer; // para atualizar o textBox1
         private DateTime _ultimaExecucao;
         private bool _executando = false;
+        private bool _executandoGetRecorrente = false;
         private readonly GlobalErpFiscalBaseContext _db;
         private readonly ILogger<MainForm> _logger;
 
@@ -92,34 +93,169 @@ namespace WFA_UaiRango_Global
 
         private void TimerElapsed(object sender, ElapsedEventArgs e)
         {
-            if (!_executando && DateTime.Now >= _proximaExecucao)
+            if (!_executando)
             {
                 Task.Run(async () =>
                 {
                     _executando = true;
-                    _ultimaExecucao = DateTime.Now; // registra o momento em que começou
-
                     try
                     {
-                        await UairangoIntegrarAsync();
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError($"Erro na integração: {ex.Message}", ex);
+                        await EnviarSomenteModificacao();
+
+                        if (DateTime.Now >= _proximaExecucao)
+                        {
+                            _ultimaExecucao = DateTime.Now; // registra o momento em que começou
+
+                            try
+                            {
+                                _executandoGetRecorrente = true;
+                                await UairangoIntegrarAsync();
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError($"Erro na integração: {ex.Message}", ex);
+                            }
+                            finally
+                            {
+                                _executandoGetRecorrente = false;
+                                // terminou de executar, então configura o próximo horário
+                                _proximaExecucao = DateTime.Now.Add(_intervaloExecucao);
+                                _logger.LogInformation($"Próxima execução agendada para: {_proximaExecucao}");
+                                AdicionarLinhaRichTextBox($"Próxima execução agendada para: {_proximaExecucao}");
+                            }
+                        }
                     }
                     finally
                     {
-                        // terminou de executar, então configura o próximo horário
-                        _executando = false;
-                        _proximaExecucao = DateTime.Now.Add(_intervaloExecucao);
+                        _executando = false; // marca como não executando
                     }
                 });
             }
         }
 
+        private async Task EnviarSomenteModificacao()
+        {
+            _logger.LogInformation($"ESM iniciando ({DateTime.Now})");
+            AdicionarLinhaRichTextBox($"ESM iniciando ({DateTime.Now})");
+            try
+            {
+                var ultimoLogin = await _db.UairangoTokens
+                    .FromSqlRaw($@"select * from uairango_tokens order by id desc limit 1")
+                    .FirstOrDefaultAsync();
+                bool idadeDoTokenMenorQueUmDia =
+                    ultimoLogin != null
+                    && ultimoLogin.DataHoraGeracao.HasValue
+                    && (DateTime.Now - ultimoLogin.DataHoraGeracao.Value).TotalHours < 24;
+                if (idadeDoTokenMenorQueUmDia)
+                {
+                    var empresasComTokenVinculo = await _db.Empresas.FromSqlRaw($@"
+                        select * from empresa s
+                        where length(coalesce(s.uairango_token_vinculo, '')) > 0
+                    ").ToListAsync();
+                    if (empresasComTokenVinculo != null)
+                    {
+                        foreach (Empresa empresa in empresasComTokenVinculo)
+                        {
+                            if ((!string.IsNullOrEmpty(empresa.UairangoIdEstabelecimento))
+                                && (empresa.UairangoVinculado ?? false)
+                                && (empresa.UairangoIdEstabelecimento.Length > 0))
+                            {
+                                await EnviarFormasPagamento(ultimoLogin.TokenAcesso, empresa);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Erro ao enviar somente modificações: {ex.Message}", ex);
+                AdicionarLinhaRichTextBox($"Erro ao enviar somente modificações ({DateTime.Now}): {ex.Message}");
+            }
+            finally
+            {
+                _logger.LogInformation($"ESM finalizando ({DateTime.Now})");
+                AdicionarLinhaRichTextBox($"ESM finalizando ({DateTime.Now})");
+            }
+        }
+
+        private async Task EnviarFormasPagamento(string tokenAcesso, Empresa empresa)
+        {
+            _db.ChangeTracker.Clear();
+            var allFormasPorEmpresa = await _db.UairangoFormasPagamentos
+                .FromSqlRaw($@"
+                    select * from uairango_formas_pagamento u
+                    where empresa = {empresa.CdEmpresa}
+                    and unity = {empresa.Unity}
+                ")
+                .ToListAsync();
+            var formasDeliveryPrecisamEnviar = allFormasPorEmpresa
+                .Where(x => x.TipoEntrega == "D" && (x.Integrated ?? 0) != 1)
+                .ToList();
+
+            var formasRetiradaPrecisamEnviar = allFormasPorEmpresa
+                .Where(x => x.TipoEntrega == "R" && (x.Integrated ?? 0) != 1)
+                .ToList();
+            try
+            {
+                if (formasDeliveryPrecisamEnviar != null && formasDeliveryPrecisamEnviar.Count > 0)
+                {
+                    var formasDelivery = allFormasPorEmpresa
+                        .Where(x => x.Ativo == 1 && x.TipoEntrega == "D")
+                        .Select(x => Convert.ToInt32(x.IdFormaUairango))
+                        .ToList();
+                    var retorno = await _formasPagamentoService.AtualizarFormasPagamentoAsync(Convert.ToInt32(empresa.UairangoIdEstabelecimento), "D", formasDelivery, tokenAcesso);
+                    if (retorno)
+                    {
+                        var _formasDelivery = allFormasPorEmpresa
+                            .Where(x => x.TipoEntrega == "D")
+                            .ToList();
+                        foreach (var item in _formasDelivery)
+                        {
+                            item.Integrated = 1;
+                            _db.UairangoFormasPagamentos.Update(item);
+                        }
+                        await _db.SaveChangesAsync();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Erro ao enviar formas de pagamento (d): {ex.Message}", ex);
+                AdicionarLinhaRichTextBox($"Erro ao enviar formas de pagamento (d) ({DateTime.Now}): {ex.Message}");
+            }
+            try
+            {
+                if (formasRetiradaPrecisamEnviar != null && formasRetiradaPrecisamEnviar.Count > 0)
+                {
+                    var formasRetirada = allFormasPorEmpresa
+                        .Where(x => x.Ativo == 1 && x.TipoEntrega == "R")
+                        .Select(x => Convert.ToInt32(x.IdFormaUairango))
+                        .ToList();
+                    var retorno = await _formasPagamentoService.AtualizarFormasPagamentoAsync(Convert.ToInt32(empresa.UairangoIdEstabelecimento), "R", formasRetirada, tokenAcesso);
+                    if (retorno)
+                    {
+                        var _formasRetirada = allFormasPorEmpresa
+                            .Where(x => x.TipoEntrega == "R")
+                            .ToList();
+                        foreach (var item in _formasRetirada)
+                        {
+                            item.Integrated = 1;
+                            _db.UairangoFormasPagamentos.Update(item);
+                        }
+                        await _db.SaveChangesAsync();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Erro ao enviar formas de pagamento (r): {ex.Message}", ex);
+                AdicionarLinhaRichTextBox($"Erro ao enviar formas de pagamento (r) ({DateTime.Now}): {ex.Message}");
+            }
+        }
+
         private void UiTimer_Tick(object sender, EventArgs e)
         {
-            if (_executando)
+            if (_executandoGetRecorrente)
             {
                 var tempo = DateTime.Now - _ultimaExecucao;
                 textBox1.ForeColor = Color.Green;
@@ -252,7 +388,7 @@ namespace WFA_UaiRango_Global
                             && (empresa.UairangoVinculado ?? false)
                             && (empresa.UairangoIdEstabelecimento.Length > 0))
                         {
-                            await CrudFormasPagamento(empresa, token);
+                            await ReceberFormasPagamento(empresa, token);
 
 
 
@@ -291,10 +427,12 @@ namespace WFA_UaiRango_Global
 
         }
 
-        private async Task CrudFormasPagamento(Empresa empresa, string token)
+        private async Task ReceberFormasPagamento(Empresa empresa, string token)
         {
             try
             {
+                _db.ChangeTracker.Clear();
+
                 var formasDelivery = await this._formasPagamentoService.ObterFormasPagamentoAsync(Convert.ToInt32(empresa.UairangoIdEstabelecimento), "D", token);
                 var formasRetirada = await this._formasPagamentoService.ObterFormasPagamentoAsync(Convert.ToInt32(empresa.UairangoIdEstabelecimento), "R", token);
                 var allFormasPorEmpresa = await _db.UairangoFormasPagamentos.FromSqlRaw($@"
