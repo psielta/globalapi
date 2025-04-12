@@ -187,7 +187,7 @@ namespace WFA_UaiRango_Global
                         select * from empresa s
                         where length(coalesce(s.uairango_token_vinculo, '')) > 0
                     ").ToListAsync();
-                    if (empresasComTokenVinculo != null  && empresasComTokenVinculo.Count > 0)
+                    if (empresasComTokenVinculo != null && empresasComTokenVinculo.Count > 0)
                     {
                         foreach (Empresa empresa in empresasComTokenVinculo)
                         {
@@ -198,7 +198,8 @@ namespace WFA_UaiRango_Global
                                 await EnviarFormasPagamento(ultimoLogin.TokenAcesso, empresa);
                             }
                         }
-                    } else
+                    }
+                    else
                     {
                         _logger.LogWarning("Nenhum estabelecimento encontrado");
                         AdicionarLinhaRichTextBox($"Nenhum estabelecimento encontrado ({DateTime.Now})");
@@ -242,18 +243,26 @@ namespace WFA_UaiRango_Global
                         .Where(x => x.Ativo == 1 && x.TipoEntrega == "D")
                         .Select(x => Convert.ToInt32(x.IdFormaUairango))
                         .ToList();
-                    var retorno = await _formasPagamentoService.AtualizarFormasPagamentoAsync(Convert.ToInt32(empresa.UairangoIdEstabelecimento), "D", formasDelivery, tokenAcesso);
-                    if (retorno)
+                    if (formasDelivery.Count == 0)
                     {
-                        var _formasDelivery = allFormasPorEmpresa
-                            .Where(x => x.TipoEntrega == "D")
-                            .ToList();
-                        foreach (var item in _formasDelivery)
+                        AdicionarLinhaRichTextBox($"Você precisa informar pelo menos 1 forma de pagamento. Tipo de entrega (D) ({DateTime.Now})");
+                        _logger.LogWarning($"Você precisa informar pelo menos 1 forma de pagamento. Tipo de entrega (D) ({DateTime.Now}) Empresa({empresa.CdEmpresa})");
+                    }
+                    else
+                    {
+                        var retorno = await _formasPagamentoService.AtualizarFormasPagamentoAsync(Convert.ToInt32(empresa.UairangoIdEstabelecimento), "D", formasDelivery, tokenAcesso);
+                        if (retorno)
                         {
-                            item.Integrated = 1;
-                            _db.UairangoFormasPagamentos.Update(item);
+                            var _formasDelivery = allFormasPorEmpresa
+                                .Where(x => x.TipoEntrega == "D")
+                                .ToList();
+                            foreach (var item in _formasDelivery)
+                            {
+                                item.Integrated = 1;
+                                _db.UairangoFormasPagamentos.Update(item);
+                            }
+                            await _db.SaveChangesAsync();
                         }
-                        await _db.SaveChangesAsync();
                     }
                 }
             }
@@ -270,18 +279,26 @@ namespace WFA_UaiRango_Global
                         .Where(x => x.Ativo == 1 && x.TipoEntrega == "R")
                         .Select(x => Convert.ToInt32(x.IdFormaUairango))
                         .ToList();
-                    var retorno = await _formasPagamentoService.AtualizarFormasPagamentoAsync(Convert.ToInt32(empresa.UairangoIdEstabelecimento), "R", formasRetirada, tokenAcesso);
-                    if (retorno)
+                    if (formasRetirada.Count == 0)
                     {
-                        var _formasRetirada = allFormasPorEmpresa
-                            .Where(x => x.TipoEntrega == "R")
-                            .ToList();
-                        foreach (var item in _formasRetirada)
+                        AdicionarLinhaRichTextBox($"Você precisa informar pelo menos 1 forma de pagamento. Tipo de entrega (R) ({DateTime.Now})");
+                        _logger.LogWarning($"Você precisa informar pelo menos 1 forma de pagamento. Tipo de entrega (R) ({DateTime.Now}) Empresa({empresa.CdEmpresa})");
+                    }
+                    else
+                    {
+                        var retorno = await _formasPagamentoService.AtualizarFormasPagamentoAsync(Convert.ToInt32(empresa.UairangoIdEstabelecimento), "R", formasRetirada, tokenAcesso);
+                        if (retorno)
                         {
-                            item.Integrated = 1;
-                            _db.UairangoFormasPagamentos.Update(item);
+                            var _formasRetirada = allFormasPorEmpresa
+                                .Where(x => x.TipoEntrega == "R")
+                                .ToList();
+                            foreach (var item in _formasRetirada)
+                            {
+                                item.Integrated = 1;
+                                _db.UairangoFormasPagamentos.Update(item);
+                            }
+                            await _db.SaveChangesAsync();
                         }
-                        await _db.SaveChangesAsync();
                     }
                 }
             }
@@ -676,6 +693,16 @@ namespace WFA_UaiRango_Global
             {
                 SalvarEstadoCheckBox(false);
             }
+        }
+
+        private void sairToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void abrirToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            notifyIcon1_MouseDoubleClick(sender, new MouseEventArgs(MouseButtons.Left, 1, 0, 0, 0));
         }
     }
 }
