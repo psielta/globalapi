@@ -174,7 +174,7 @@ namespace WFA_UaiRango_Global
         }
 
         #region Core
-
+        #region Enviar
         private async Task EnviarSomenteModificacao()
         {
             _logger.LogInformation($"ESM iniciando ({DateTime.Now})");
@@ -390,6 +390,8 @@ namespace WFA_UaiRango_Global
                 AdicionarLinhaRichTextBox($"Erro ao enviar formas de pagamento (r) ({DateTime.Now}): {ex.Message}");
             }
         }
+        #endregion
+        #region Receber
         private async Task UairangoIntegrarAsync()
         {
             var ultimoLogin = await _db.UairangoTokens
@@ -505,7 +507,7 @@ namespace WFA_UaiRango_Global
         }
 
 
-        #region Services_Calls
+
         private async Task GetCulinarias(string token)
         {
             AdicionarLinhaRichTextBox($"Obtendo culinarias ({DateTime.Now})");
