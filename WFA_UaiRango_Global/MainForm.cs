@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using WFA_UaiRango_Global.Services.Config;
 using GlobalErpData.Dto.Uairango;
 using System;
+using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 
 namespace WFA_UaiRango_Global
 {
@@ -221,6 +222,7 @@ namespace WFA_UaiRango_Global
                                  **************************************************
                                  **************************************************/
                                 await EnviarFormasPagamento(ultimoLogin.TokenAcesso, empresa);
+                                await EnviarConfiguracoes(empresa, ultimoLogin.TokenAcesso);
                             }
                         }
                     }
@@ -240,6 +242,61 @@ namespace WFA_UaiRango_Global
             {
                 _logger.LogInformation($"ESM finalizando ({DateTime.Now})");
                 AdicionarLinhaRichTextBox($"ESM finalizando ({DateTime.Now})");
+            }
+        }
+
+        private async Task EnviarConfiguracoes(Empresa empresa, string tokenAcesso)
+        {
+            try
+            {
+                _db.ChangeTracker.Clear();
+                var configuracoes = await _db.UairangoConfiguracoes
+                    .FromSqlRaw($@"
+                    select * from uairango_configuracoes u
+                    where empresa = {empresa.CdEmpresa}
+                    and unity = {empresa.Unity}
+                    and (coalesce(integrated,0) in (0,2))
+                    and chave in (
+                        '{ChavesConfigUairango.STATUS_ESTABELECIMENTO}',
+                        '{ChavesConfigUairango.STATUS_DELIVERY}',
+                        '{ChavesConfigUairango.ID_TEMPO_DELIVERY}',
+                        '{ChavesConfigUairango.PRAZO_DELIVERY}',
+                        '{ChavesConfigUairango.STATUS_RETIRADA}',
+                        '{ChavesConfigUairango.ID_TEMPO_RETIRADA}',
+                        '{ChavesConfigUairango.PRAZO_RETIRADA}'
+                    )
+                ")
+                    .ToListAsync();
+                if (configuracoes != null && configuracoes.Count > 0)
+                {
+                    foreach (var item in configuracoes)
+                    {
+                        bool sucesso = await _configService.AtualizarEstabelecimentoAsync(
+                         tokenAcesso,
+                         Convert.ToInt32(empresa.UairangoIdEstabelecimento),
+                         item.Chave,
+                         item.Valor);
+                        if (sucesso)
+                        {
+                            item.Integrated = 1;
+                            _db.UairangoConfiguracoes.Update(item);
+                        }
+                    }
+                    await _db.SaveChangesAsync();
+                    _logger.LogInformation($"Configurações enviadas com sucesso ({DateTime.Now})");
+                    AdicionarLinhaRichTextBox($"Configurações enviadas com sucesso ({DateTime.Now})");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Erro ao enviar configurações: {ex.Message}", ex);
+                AdicionarLinhaRichTextBox($"Erro ao enviar configurações ({DateTime.Now}): {ex.Message}");
+            }
+            finally
+            {
+                _logger.LogInformation($"Finalizando envio de configurações ({DateTime.Now})");
+                AdicionarLinhaRichTextBox($"Finalizando envio de configurações ({DateTime.Now})");
+
             }
         }
 
