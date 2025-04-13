@@ -253,17 +253,15 @@ namespace WFA_UaiRango_Global
                 var configuracoes = await _db.UairangoConfiguracoes
                     .FromSqlRaw($@"
                     select * from uairango_configuracoes u
-                    where empresa = {empresa.CdEmpresa}
+                    where cd_empresa = {empresa.CdEmpresa}
                     and unity = {empresa.Unity}
                     and (coalesce(integrated,0) in (0,2))
                     and chave in (
                         '{ChavesConfigUairango.STATUS_ESTABELECIMENTO}',
                         '{ChavesConfigUairango.STATUS_DELIVERY}',
                         '{ChavesConfigUairango.ID_TEMPO_DELIVERY}',
-                        '{ChavesConfigUairango.PRAZO_DELIVERY}',
                         '{ChavesConfigUairango.STATUS_RETIRADA}',
-                        '{ChavesConfigUairango.ID_TEMPO_RETIRADA}',
-                        '{ChavesConfigUairango.PRAZO_RETIRADA}'
+                        '{ChavesConfigUairango.ID_TEMPO_RETIRADA}'
                     )
                 ")
                     .ToListAsync();
@@ -444,9 +442,7 @@ namespace WFA_UaiRango_Global
                 await GetCulinarias(token);
                 await GetPrazos(token);
                 #endregion
-                #region IterarEstabelecimentos
                 await IterarEstabelecimento(token);
-                #endregion
             }
             else
             {
@@ -711,9 +707,12 @@ namespace WFA_UaiRango_Global
                             ChavesConfigUairango.STATUS_ESTABELECIMENTO).FirstOrDefault();
                         if (uairangoConfiguraco_STATUS_ESTABELECIMENTO != null)
                         {
-                            uairangoConfiguraco_STATUS_ESTABELECIMENTO.Valor = config.StatusEstabelecimento.ToString();
-                            uairangoConfiguraco_STATUS_ESTABELECIMENTO.Integrated = 1;
-                            _db.UairangoConfiguracoes.Update(uairangoConfiguraco_STATUS_ESTABELECIMENTO);
+                            if ((uairangoConfiguraco_STATUS_ESTABELECIMENTO.Integrated ?? 0) == 1)
+                            {
+                                uairangoConfiguraco_STATUS_ESTABELECIMENTO.Valor = config.StatusEstabelecimento.ToString();
+                                uairangoConfiguraco_STATUS_ESTABELECIMENTO.Integrated = 1;
+                                _db.UairangoConfiguracoes.Update(uairangoConfiguraco_STATUS_ESTABELECIMENTO);
+                            }
                         }
                         else
                         {
@@ -731,9 +730,12 @@ namespace WFA_UaiRango_Global
                             ChavesConfigUairango.STATUS_DELIVERY).FirstOrDefault();
                         if (uairangoConfiguraco_STATUS_DELIVERY != null)
                         {
-                            uairangoConfiguraco_STATUS_DELIVERY.Valor = config.StatusDelivery.ToString();
-                            uairangoConfiguraco_STATUS_DELIVERY.Integrated = 1;
-                            _db.UairangoConfiguracoes.Update(uairangoConfiguraco_STATUS_DELIVERY);
+                            if ((uairangoConfiguraco_STATUS_DELIVERY.Integrated ?? 0) == 1)
+                            {
+                                uairangoConfiguraco_STATUS_DELIVERY.Valor = config.StatusDelivery.ToString();
+                                uairangoConfiguraco_STATUS_DELIVERY.Integrated = 1;
+                                _db.UairangoConfiguracoes.Update(uairangoConfiguraco_STATUS_DELIVERY);
+                            }
                         }
                         else
                         {
@@ -751,9 +753,12 @@ namespace WFA_UaiRango_Global
                             ChavesConfigUairango.ID_TEMPO_DELIVERY).FirstOrDefault();
                         if (uairangoConfiguraco_ID_TEMPO_DELIVERY != null)
                         {
-                            uairangoConfiguraco_ID_TEMPO_DELIVERY.Valor = config.IdTempoDelivery.ToString();
-                            uairangoConfiguraco_ID_TEMPO_DELIVERY.Integrated = 1;
-                            _db.UairangoConfiguracoes.Update(uairangoConfiguraco_ID_TEMPO_DELIVERY);
+                            if ((uairangoConfiguraco_ID_TEMPO_DELIVERY.Integrated ?? 0) == 1)
+                            {
+                                uairangoConfiguraco_ID_TEMPO_DELIVERY.Valor = config.IdTempoDelivery.ToString();
+                                uairangoConfiguraco_ID_TEMPO_DELIVERY.Integrated = 1;
+                                _db.UairangoConfiguracoes.Update(uairangoConfiguraco_ID_TEMPO_DELIVERY);
+                            }
                         }
                         else
                         {
@@ -766,34 +771,40 @@ namespace WFA_UaiRango_Global
                                 Integrated = 1
                             });
                         }
-                        UairangoConfiguraco? uairangoConfiguraco_PRAZO_DELIVERY =
-                            listagemConfiguracoes.Where(X => X.Chave ==
-                            ChavesConfigUairango.PRAZO_DELIVERY).FirstOrDefault();
-                        if (uairangoConfiguraco_PRAZO_DELIVERY != null)
-                        {
-                            uairangoConfiguraco_PRAZO_DELIVERY.Valor = config.PrazoDelivery.ToString();
-                            uairangoConfiguraco_PRAZO_DELIVERY.Integrated = 1;
-                            _db.UairangoConfiguracoes.Update(uairangoConfiguraco_PRAZO_DELIVERY);
-                        }
-                        else
-                        {
-                            await _db.UairangoConfiguracoes.AddAsync(new UairangoConfiguraco
-                            {
-                                CdEmpresa = empresa.CdEmpresa,
-                                Unity = empresa.Unity,
-                                Chave = ChavesConfigUairango.PRAZO_DELIVERY,
-                                Valor = config.PrazoDelivery.ToString(),
-                                Integrated = 1
-                            });
-                        }
+                        //UairangoConfiguraco? uairangoConfiguraco_PRAZO_DELIVERY =
+                        //    listagemConfiguracoes.Where(X => X.Chave ==
+                        //    ChavesConfigUairango.PRAZO_DELIVERY).FirstOrDefault();
+                        //if (uairangoConfiguraco_PRAZO_DELIVERY != null)
+                        //{
+                        //    if ((uairangoConfiguraco_PRAZO_DELIVERY.Integrated ?? 0) == 1)
+                        //    {
+                        //        uairangoConfiguraco_PRAZO_DELIVERY.Valor = config.PrazoDelivery.ToString();
+                        //        uairangoConfiguraco_PRAZO_DELIVERY.Integrated = 1;
+                        //        _db.UairangoConfiguracoes.Update(uairangoConfiguraco_PRAZO_DELIVERY);
+                        //    }
+                        //}
+                        //else
+                        //{
+                        //    await _db.UairangoConfiguracoes.AddAsync(new UairangoConfiguraco
+                        //    {
+                        //        CdEmpresa = empresa.CdEmpresa,
+                        //        Unity = empresa.Unity,
+                        //        Chave = ChavesConfigUairango.PRAZO_DELIVERY,
+                        //        Valor = config.PrazoDelivery.ToString(),
+                        //        Integrated = 1
+                        //    });
+                        //}
                         UairangoConfiguraco? uairangoConfiguraco_STATUS_RETIRADA =
                             listagemConfiguracoes.Where(X => X.Chave ==
                             ChavesConfigUairango.STATUS_RETIRADA).FirstOrDefault();
                         if (uairangoConfiguraco_STATUS_RETIRADA != null)
                         {
-                            uairangoConfiguraco_STATUS_RETIRADA.Valor = config.StatusRetirada.ToString();
-                            uairangoConfiguraco_STATUS_RETIRADA.Integrated = 1;
-                            _db.UairangoConfiguracoes.Update(uairangoConfiguraco_STATUS_RETIRADA);
+                            if ((uairangoConfiguraco_STATUS_RETIRADA.Integrated ?? 0) == 1)
+                            {
+                                uairangoConfiguraco_STATUS_RETIRADA.Valor = config.StatusRetirada.ToString();
+                                uairangoConfiguraco_STATUS_RETIRADA.Integrated = 1;
+                                _db.UairangoConfiguracoes.Update(uairangoConfiguraco_STATUS_RETIRADA);
+                            }
                         }
                         else
                         {
@@ -811,9 +822,12 @@ namespace WFA_UaiRango_Global
                             ChavesConfigUairango.ID_TEMPO_RETIRADA).FirstOrDefault();
                         if (uairangoConfiguraco_ID_TEMPO_RETIRADA != null)
                         {
-                            uairangoConfiguraco_ID_TEMPO_RETIRADA.Valor = config.IdTempoRetirada.ToString();
-                            uairangoConfiguraco_ID_TEMPO_RETIRADA.Integrated = 1;
-                            _db.UairangoConfiguracoes.Update(uairangoConfiguraco_ID_TEMPO_RETIRADA);
+                            if ((uairangoConfiguraco_ID_TEMPO_RETIRADA.Integrated ?? 0) == 1)
+                            {
+                                uairangoConfiguraco_ID_TEMPO_RETIRADA.Valor = config.IdTempoRetirada.ToString();
+                                uairangoConfiguraco_ID_TEMPO_RETIRADA.Integrated = 1;
+                                _db.UairangoConfiguracoes.Update(uairangoConfiguraco_ID_TEMPO_RETIRADA);
+                            }
                         }
                         else
                         {
@@ -826,26 +840,29 @@ namespace WFA_UaiRango_Global
                                 Integrated = 1
                             });
                         }
-                        UairangoConfiguraco? uairangoConfiguraco_PRAZO_RETIRADA =
-                            listagemConfiguracoes.Where(X => X.Chave ==
-                            ChavesConfigUairango.PRAZO_RETIRADA).FirstOrDefault();
-                        if (uairangoConfiguraco_PRAZO_RETIRADA != null)
-                        {
-                            uairangoConfiguraco_PRAZO_RETIRADA.Valor = config.PrazoRetirada.ToString();
-                            uairangoConfiguraco_PRAZO_RETIRADA.Integrated = 1;
-                            _db.UairangoConfiguracoes.Update(uairangoConfiguraco_PRAZO_RETIRADA);
-                        }
-                        else
-                        {
-                            await _db.UairangoConfiguracoes.AddAsync(new UairangoConfiguraco
-                            {
-                                CdEmpresa = empresa.CdEmpresa,
-                                Unity = empresa.Unity,
-                                Chave = ChavesConfigUairango.PRAZO_RETIRADA,
-                                Valor = config.PrazoRetirada.ToString(),
-                                Integrated = 1
-                            });
-                        }
+                        //UairangoConfiguraco? uairangoConfiguraco_PRAZO_RETIRADA =
+                        //    listagemConfiguracoes.Where(X => X.Chave ==
+                        //    ChavesConfigUairango.PRAZO_RETIRADA).FirstOrDefault();
+                        //if (uairangoConfiguraco_PRAZO_RETIRADA != null)
+                        //{
+                        //    if ((uairangoConfiguraco_PRAZO_RETIRADA.Integrated ?? 0) == 1)
+                        //    {
+                        //        uairangoConfiguraco_PRAZO_RETIRADA.Valor = config.PrazoRetirada.ToString();
+                        //        uairangoConfiguraco_PRAZO_RETIRADA.Integrated = 1;
+                        //        _db.UairangoConfiguracoes.Update(uairangoConfiguraco_PRAZO_RETIRADA);
+                        //    }
+                        //}
+                        //else
+                        //{
+                        //    await _db.UairangoConfiguracoes.AddAsync(new UairangoConfiguraco
+                        //    {
+                        //        CdEmpresa = empresa.CdEmpresa,
+                        //        Unity = empresa.Unity,
+                        //        Chave = ChavesConfigUairango.PRAZO_RETIRADA,
+                        //        Valor = config.PrazoRetirada.ToString(),
+                        //        Integrated = 1
+                        //    });
+                        //}
                     }
                     await _db.SaveChangesAsync();
                     AdicionarLinhaRichTextBox($"Configuração do estabelecimento atualizada ({DateTime.Now})");
