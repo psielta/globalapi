@@ -28,7 +28,7 @@ namespace WFA_UaiRango_Global
         private readonly ILogger<MainForm> _logger;
 
         private DateTime _proximaExecucao;
-        private readonly TimeSpan _intervaloExecucao = TimeSpan.FromMinutes(30);
+        private readonly TimeSpan _intervaloExecucao = TimeSpan.FromMinutes(9);
 
         #region Inject services
         private readonly ILoginService _loginService;
