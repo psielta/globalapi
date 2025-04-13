@@ -290,12 +290,6 @@ namespace WFA_UaiRango_Global
                 _logger.LogError($"Erro ao enviar configurações: {ex.Message}", ex);
                 AdicionarLinhaRichTextBox($"Erro ao enviar configurações ({DateTime.Now}): {ex.Message}");
             }
-            finally
-            {
-                _logger.LogInformation($"Finalizando envio de configurações ({DateTime.Now})");
-                AdicionarLinhaRichTextBox($"Finalizando envio de configurações ({DateTime.Now})");
-
-            }
         }
 
         private async Task EnviarFormasPagamento(string tokenAcesso, Empresa empresa)
