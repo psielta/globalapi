@@ -634,6 +634,7 @@ namespace WFA_UaiRango_Global
             {
                 var categoriasUairango = await this._categoriaService
                     .ObterCategoriasAsync(token, Convert.ToInt32(empresa.UairangoIdEstabelecimento));
+
                 if (categoriasUairango != null && categoriasUairango.Count > 0)
                 {
                     var todasCategoriasExistentes = await _db.GrupoEstoques.FromSqlRaw($@"
@@ -645,70 +646,34 @@ namespace WFA_UaiRango_Global
                             and coalesce(g.uairango_id_categoria, 0) > 0
                         )
                     ").ToListAsync();
-                    if (todasCategoriasExistentes != null && todasCategoriasExistentes.Count > 0)
+
+                    foreach (var _categoriaUairango in categoriasUairango)
                     {
-                        foreach (var _categoriaUairango in categoriasUairango)
+                        var categoriaEspecifica = todasCategoriasExistentes?
+                            .FirstOrDefault(x => x.UairangoIdCategoria == _categoriaUairango.IdCategoria);
+
+                        if (categoriaEspecifica != null)
                         {
-                            var categoriaEspefica = todasCategoriasExistentes.Where(x => x.UairangoIdCategoria
-                            == _categoriaUairango.IdCategoria).FirstOrDefault();
-                            if (categoriaEspefica != null)
-                            {
-                                categoriaEspefica.UairangoIdCategoria = _categoriaUairango.IdCategoria;
-                                categoriaEspefica.UairangoOrder = "";
-                                categoriaEspefica.UairangoCodigo = _categoriaUairango.Codigo;
-                                categoriaEspefica.UairangoDescricao = _categoriaUairango.Descricao;
-                                categoriaEspefica.UairangoInicio = DateUtils.StringFormatHHMMSSToTimeOnly(_categoriaUairango.Inicio);
-                                categoriaEspefica.UairangoFim = DateUtils.StringFormatHHMMSSToTimeOnly(_categoriaUairango.Fim);
-                                categoriaEspefica.UairangoAtivo = _categoriaUairango.Ativo;
-                                categoriaEspefica.UairangoOpcaoMeia = _categoriaUairango.OpcaoMeia;
-                                categoriaEspefica.UairangoDisponivelDomingo = _categoriaUairango.Disponivel.Domingo;
-                                categoriaEspefica.UairangoDisponivelSegunda = _categoriaUairango.Disponivel.Segunda;
-                                categoriaEspefica.UairangoDisponivelTerca = _categoriaUairango.Disponivel.Terca;
-                                categoriaEspefica.UairangoDisponivelQuarta = _categoriaUairango.Disponivel.Quarta;
-                                categoriaEspefica.UairangoDisponivelQuinta = _categoriaUairango.Disponivel.Quinta;
-                                categoriaEspefica.UairangoDisponivelSexta = _categoriaUairango.Disponivel.Sexta;
-                                categoriaEspefica.UairangoDisponivelSabado = _categoriaUairango.Disponivel.Sabado;
-                                _db.GrupoEstoques.Update(categoriaEspefica);
-                            }
-                            else
-                            {
-                                GrupoEstoque grupo = new GrupoEstoque
-                                {
-                                    NmGrupo = _categoriaUairango.Nome,
-                                    UairangoIdCategoria = _categoriaUairango.IdCategoria,
-                                    UairangoOrder = "",
-                                    UairangoCodigo = _categoriaUairango.Codigo,
-                                    UairangoDescricao = _categoriaUairango.Descricao,
-                                    UairangoInicio = DateUtils.StringFormatHHMMSSToTimeOnly(_categoriaUairango.Inicio),
-                                    UairangoFim = DateUtils.StringFormatHHMMSSToTimeOnly(_categoriaUairango.Fim),
-                                    UairangoAtivo = _categoriaUairango.Ativo,
-                                    UairangoOpcaoMeia = _categoriaUairango.OpcaoMeia,
-                                    UairangoDisponivelDomingo = _categoriaUairango.Disponivel.Domingo,
-                                    UairangoDisponivelSegunda = _categoriaUairango.Disponivel.Segunda,
-                                    UairangoDisponivelTerca = _categoriaUairango.Disponivel.Terca,
-                                    UairangoDisponivelQuarta = _categoriaUairango.Disponivel.Quarta,
-                                    UairangoDisponivelQuinta = _categoriaUairango.Disponivel.Quinta,
-                                    UairangoDisponivelSexta = _categoriaUairango.Disponivel.Sexta,
-                                    UairangoDisponivelSabado = _categoriaUairango.Disponivel.Sabado,
-                                    Integrated = 1,
-                                    Unity = empresa.Unity
-                                };
-                                await _db.GrupoEstoques.AddAsync(grupo);
-                                await _db.SaveChangesAsync();
-                                UairangoEmpresaCategorium uairangoEmpresaCategorium = new UairangoEmpresaCategorium
-                                {
-                                    CdGrupo = grupo.CdGrupo,
-                                    CdEmpresa = empresa.CdEmpresa,
-                                    Unity = empresa.Unity
-                                };
-                                await _db.UairangoEmpresaCategoria.AddAsync(uairangoEmpresaCategorium);
-                                await _db.SaveChangesAsync();
-                            }
+                            categoriaEspecifica.UairangoIdCategoria = _categoriaUairango.IdCategoria;
+                            categoriaEspecifica.UairangoOrder = "";
+                            categoriaEspecifica.UairangoCodigo = _categoriaUairango.Codigo;
+                            categoriaEspecifica.UairangoDescricao = _categoriaUairango.Descricao;
+                            categoriaEspecifica.UairangoInicio = DateUtils.StringFormatHHMMSSToTimeOnly(_categoriaUairango.Inicio);
+                            categoriaEspecifica.UairangoFim = DateUtils.StringFormatHHMMSSToTimeOnly(_categoriaUairango.Fim);
+                            categoriaEspecifica.UairangoAtivo = _categoriaUairango.Ativo;
+                            categoriaEspecifica.UairangoOpcaoMeia = _categoriaUairango.OpcaoMeia;
+                            categoriaEspecifica.UairangoDisponivelDomingo = _categoriaUairango.Disponivel.Domingo;
+                            categoriaEspecifica.UairangoDisponivelSegunda = _categoriaUairango.Disponivel.Segunda;
+                            categoriaEspecifica.UairangoDisponivelTerca = _categoriaUairango.Disponivel.Terca;
+                            categoriaEspecifica.UairangoDisponivelQuarta = _categoriaUairango.Disponivel.Quarta;
+                            categoriaEspecifica.UairangoDisponivelQuinta = _categoriaUairango.Disponivel.Quinta;
+                            categoriaEspecifica.UairangoDisponivelSexta = _categoriaUairango.Disponivel.Sexta;
+                            categoriaEspecifica.UairangoDisponivelSabado = _categoriaUairango.Disponivel.Sabado;
+                            categoriaEspecifica.Integrated = 1;
+
+                            _db.GrupoEstoques.Update(categoriaEspecifica);
                         }
-                    }
-                    else
-                    {
-                        foreach (var _categoriaUairango in categoriasUairango)
+                        else
                         {
                             GrupoEstoque grupo = new GrupoEstoque
                             {
@@ -731,22 +696,22 @@ namespace WFA_UaiRango_Global
                                 Integrated = 1,
                                 Unity = empresa.Unity
                             };
-                            await _db.GrupoEstoques.AddAsync(grupo);
-                            await _db.SaveChangesAsync();
 
-                            UairangoEmpresaCategorium uairangoEmpresaCategorium = new UairangoEmpresaCategorium
+                            UairangoEmpresaCategorium associacao = new UairangoEmpresaCategorium
                             {
-                                CdGrupo = grupo.CdGrupo,
                                 CdEmpresa = empresa.CdEmpresa,
-                                Unity = empresa.Unity
+                                Unity = empresa.Unity,
+                                Integrated = 1
                             };
 
-                            await _db.UairangoEmpresaCategoria.AddAsync(uairangoEmpresaCategorium);
-                            await _db.SaveChangesAsync();
+                            grupo.UairangoEmpresaCategoria.Add(associacao);
+
+                            _db.GrupoEstoques.Add(grupo);
                         }
                     }
-                }
 
+                    await _db.SaveChangesAsync();
+                }
             }
             catch (Exception ex)
             {
