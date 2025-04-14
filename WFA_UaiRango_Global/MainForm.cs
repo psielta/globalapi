@@ -16,6 +16,7 @@ using System;
 using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 using WFA_UaiRango_Global.Services.Categoria;
 using GlobalLib.Utils;
+using WFA_UaiRango_Global.Services.CategoriaOpcao;
 
 namespace WFA_UaiRango_Global
 {
@@ -40,6 +41,7 @@ namespace WFA_UaiRango_Global
         private readonly IConfigService _configService;
 
         private readonly ICategoriaService _categoriaService;
+        private readonly ICategoriaOpcaoService _categoriaOpcaoService;
         #endregion
 
         private string iniFilePath;
@@ -51,7 +53,8 @@ namespace WFA_UaiRango_Global
             ICulinariaService culinariaService,
             IFormasPagamentoService formasPagamentoService,
             IConfigService configService,
-            ICategoriaService categoriaService
+            ICategoriaService categoriaService,
+            ICategoriaOpcaoService categoriaOpcaoService
         #endregion
             )
         {
@@ -74,6 +77,7 @@ namespace WFA_UaiRango_Global
             _formasPagamentoService = formasPagamentoService;
             _configService = configService;
             _categoriaService = categoriaService;
+            _categoriaOpcaoService = categoriaOpcaoService;
             #endregion
 
             iniFilePath = Path.Combine(Application.StartupPath, "configuracao_integrador_uairango.ini");
@@ -645,7 +649,9 @@ namespace WFA_UaiRango_Global
                             where e.cd_empresa = {empresa.CdEmpresa}
                             and coalesce(g.uairango_id_categoria, 0) > 0
                         )
-                    ").ToListAsync();
+                    ")
+                        .Include(x => x.UairangoOpcoesCategoria)
+                        .ToListAsync();
 
                     foreach (var _categoriaUairango in categoriasUairango)
                     {
@@ -654,24 +660,74 @@ namespace WFA_UaiRango_Global
 
                         if (categoriaEspecifica != null)
                         {
-                            categoriaEspecifica.UairangoIdCategoria = _categoriaUairango.IdCategoria;
-                            categoriaEspecifica.UairangoOrder = "";
-                            categoriaEspecifica.UairangoCodigo = _categoriaUairango.Codigo;
-                            categoriaEspecifica.UairangoDescricao = _categoriaUairango.Descricao;
-                            categoriaEspecifica.UairangoInicio = DateUtils.StringFormatHHMMSSToTimeOnly(_categoriaUairango.Inicio);
-                            categoriaEspecifica.UairangoFim = DateUtils.StringFormatHHMMSSToTimeOnly(_categoriaUairango.Fim);
-                            categoriaEspecifica.UairangoAtivo = _categoriaUairango.Ativo;
-                            categoriaEspecifica.UairangoOpcaoMeia = _categoriaUairango.OpcaoMeia;
-                            categoriaEspecifica.UairangoDisponivelDomingo = _categoriaUairango.Disponivel.Domingo;
-                            categoriaEspecifica.UairangoDisponivelSegunda = _categoriaUairango.Disponivel.Segunda;
-                            categoriaEspecifica.UairangoDisponivelTerca = _categoriaUairango.Disponivel.Terca;
-                            categoriaEspecifica.UairangoDisponivelQuarta = _categoriaUairango.Disponivel.Quarta;
-                            categoriaEspecifica.UairangoDisponivelQuinta = _categoriaUairango.Disponivel.Quinta;
-                            categoriaEspecifica.UairangoDisponivelSexta = _categoriaUairango.Disponivel.Sexta;
-                            categoriaEspecifica.UairangoDisponivelSabado = _categoriaUairango.Disponivel.Sabado;
-                            categoriaEspecifica.Integrated = 1;
+                            if ((categoriaEspecifica.Integrated ?? 0) == 1)
+                            {
+                                categoriaEspecifica.UairangoIdCategoria = _categoriaUairango.IdCategoria;
+                                categoriaEspecifica.UairangoOrder = "";
+                                categoriaEspecifica.UairangoCodigo = _categoriaUairango.Codigo;
+                                categoriaEspecifica.UairangoDescricao = _categoriaUairango.Descricao;
+                                categoriaEspecifica.UairangoInicio = DateUtils.StringFormatHHMMSSToTimeOnly(_categoriaUairango.Inicio);
+                                categoriaEspecifica.UairangoFim = DateUtils.StringFormatHHMMSSToTimeOnly(_categoriaUairango.Fim);
+                                categoriaEspecifica.UairangoAtivo = _categoriaUairango.Ativo;
+                                categoriaEspecifica.UairangoOpcaoMeia = _categoriaUairango.OpcaoMeia;
+                                categoriaEspecifica.UairangoDisponivelDomingo = _categoriaUairango.Disponivel.Domingo;
+                                categoriaEspecifica.UairangoDisponivelSegunda = _categoriaUairango.Disponivel.Segunda;
+                                categoriaEspecifica.UairangoDisponivelTerca = _categoriaUairango.Disponivel.Terca;
+                                categoriaEspecifica.UairangoDisponivelQuarta = _categoriaUairango.Disponivel.Quarta;
+                                categoriaEspecifica.UairangoDisponivelQuinta = _categoriaUairango.Disponivel.Quinta;
+                                categoriaEspecifica.UairangoDisponivelSexta = _categoriaUairango.Disponivel.Sexta;
+                                categoriaEspecifica.UairangoDisponivelSabado = _categoriaUairango.Disponivel.Sabado;
+                                categoriaEspecifica.Integrated = 1;
+                                _db.GrupoEstoques.Update(categoriaEspecifica);
+                            }
 
-                            _db.GrupoEstoques.Update(categoriaEspecifica);
+                            var opcoesExistentes = categoriaEspecifica.UairangoOpcoesCategoria;
+                            var opcoesUairango = await this._categoriaOpcaoService
+                                .ObterOpcoesDaCategoriaAsync(token, Convert.ToInt32(empresa.UairangoIdEstabelecimento), _categoriaUairango.IdCategoria);
+
+                            if (opcoesExistentes != null && opcoesExistentes.Count > 0)
+                            {
+                                foreach (var opcao in opcoesExistentes)
+                                {
+                                    var opcaoUairango = opcoesUairango
+                                        .FirstOrDefault(x => x.IdOpcao == opcao.UairangoIdOpcao);
+                                    if (opcaoUairango != null)
+                                    {
+                                        opcao.UairangoNome = opcaoUairango.Nome;
+                                        opcao.UairangoStatus = opcaoUairango.Status;
+                                        opcao.UairangoCodigoOpcao = opcaoUairango.CodigoOpcao;
+                                        opcao.Integrated = 1;
+                                        _db.UairangoOpcoesCategoria.Update(opcao);
+                                    }
+                                    else
+                                    {
+                                        _db.UairangoOpcoesCategoria.Remove(opcao);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                List<UairangoOpcoesCategorium> opcoes = new List<UairangoOpcoesCategorium>();
+                                if (opcoesUairango != null && opcoesUairango.Count > 0)
+                                {
+                                    foreach (var opcao in opcoesUairango)
+                                    {
+                                        UairangoOpcoesCategorium opcaoCategoria = new UairangoOpcoesCategorium
+                                        {
+                                            UairangoIdCategoria = _categoriaUairango.IdCategoria,
+                                            UairangoIdOpcao = opcao.IdOpcao,
+                                            UairangoNome = opcao.Nome,
+                                            UairangoStatus = opcao.Status,
+                                            UairangoCodigoOpcao = opcao.CodigoOpcao,
+                                            Integrated = 1,
+                                            Unity = empresa.Unity,
+                                        };
+                                        opcoes.Add(opcaoCategoria);
+                                    }
+                                }
+                                categoriaEspecifica.UairangoOpcoesCategoria = opcoes;
+                            }
+
                         }
                         else
                         {
@@ -703,8 +759,30 @@ namespace WFA_UaiRango_Global
                                 Unity = empresa.Unity,
                                 Integrated = 1
                             };
-
                             grupo.UairangoEmpresaCategoria.Add(associacao);
+
+                            List<UairangoOpcoesCategorium> opcoes = new List<UairangoOpcoesCategorium>();
+
+                            var opcoesApi = await this._categoriaOpcaoService
+                                .ObterOpcoesDaCategoriaAsync(token, Convert.ToInt32(empresa.UairangoIdEstabelecimento), _categoriaUairango.IdCategoria);
+                            if (opcoesApi != null && opcoesApi.Count > 0)
+                            {
+                                foreach (var opcao in opcoesApi)
+                                {
+                                    UairangoOpcoesCategorium opcaoCategoria = new UairangoOpcoesCategorium
+                                    {
+                                        UairangoIdCategoria = _categoriaUairango.IdCategoria,
+                                        UairangoIdOpcao = opcao.IdOpcao,
+                                        UairangoNome = opcao.Nome,
+                                        UairangoStatus = opcao.Status,
+                                        UairangoCodigoOpcao = opcao.CodigoOpcao,
+                                        Integrated = 1,
+                                        Unity = empresa.Unity,
+                                    };
+                                    opcoes.Add(opcaoCategoria);
+                                }
+                            }
+                            grupo.UairangoOpcoesCategoria = opcoes;
 
                             _db.GrupoEstoques.Add(grupo);
                         }
