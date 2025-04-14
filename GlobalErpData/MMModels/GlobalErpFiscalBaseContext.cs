@@ -241,7 +241,11 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
     public virtual DbSet<UairangoCulinaria> UairangoCulinarias { get; set; }
 
+    public virtual DbSet<UairangoEmpresaCategorium> UairangoEmpresaCategoria { get; set; }
+
     public virtual DbSet<UairangoFormasPagamento> UairangoFormasPagamentos { get; set; }
+
+    public virtual DbSet<UairangoOpcoesCategorium> UairangoOpcoesCategoria { get; set; }
 
     public virtual DbSet<UairangoPrazo> UairangoPrazos { get; set; }
 
@@ -2515,6 +2519,26 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasKey(e => e.Id).HasName("uairango_culinarias_pkey");
         });
 
+        modelBuilder.Entity<UairangoEmpresaCategorium>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("uairango_empresa_categoria_pkey");
+
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
+
+            entity.HasOne(d => d.CdEmpresaNavigation).WithMany(p => p.UairangoEmpresaCategoria)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("uairango_empresa_categoria_fk1");
+
+            entity.HasOne(d => d.CdGrupoNavigation).WithMany(p => p.UairangoEmpresaCategoria)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("uairango_empresa_categoria_fk2");
+
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.UairangoEmpresaCategoria)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("uairango_empresa_categoria_fk");
+        });
+
         modelBuilder.Entity<UairangoFormasPagamento>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("uairango_formas_pagamento_pkey");
@@ -2529,6 +2553,22 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.UnityNavigation).WithMany(p => p.UairangoFormasPagamentos)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("uairango_formas_pagamento_fk");
+        });
+
+        modelBuilder.Entity<UairangoOpcoesCategorium>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("uairango_opcoes_categoria_pkey");
+
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
+
+            entity.HasOne(d => d.CdGrupoNavigation).WithMany(p => p.UairangoOpcoesCategoria)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("uairango_opcoes_categoria_fk");
+
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.UairangoOpcoesCategoria)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("uairango_opcoes_categoria_fk1");
         });
 
         modelBuilder.Entity<UairangoPrazo>(entity =>

@@ -384,4 +384,8 @@ public partial class Empresa : IIdentifiable<int>
     [JsonIgnore]
     [InverseProperty("CdEmpresaNavigation")]
     public virtual ICollection<UairangoConfiguraco> UairangoConfiguracos { get; set; } = new List<UairangoConfiguraco>();
+
+    [JsonIgnore]
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<UairangoEmpresaCategorium> UairangoEmpresaCategoria { get; set; } = new List<UairangoEmpresaCategorium>();
 }

@@ -253,4 +253,12 @@ public partial class Unity : IIdentifiable<int>
     [JsonIgnore]
     [InverseProperty("UnityNavigation")]
     public virtual ICollection<UairangoConfiguraco> UairangoConfiguracos { get; set; } = new List<UairangoConfiguraco>();
+
+    [JsonIgnore]
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<UairangoOpcoesCategorium> UairangoOpcoesCategoria { get; set; } = new List<UairangoOpcoesCategorium>();
+
+    [JsonIgnore]
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<UairangoEmpresaCategorium> UairangoEmpresaCategoria { get; set; } = new List<UairangoEmpresaCategorium>();
 }

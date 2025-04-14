@@ -590,6 +590,7 @@ namespace WFA_UaiRango_Global
                              **************************************************/
                             await ReceberFormasPagamento(empresa, token);
                             await ReceberConfigEstabelecimento(empresa, token);
+                            await ReceberCategorias(empresa, token);
 
 
                         }
@@ -619,6 +620,24 @@ namespace WFA_UaiRango_Global
                 AdicionarLinhaRichTextBox($"Finalizando iteracao por estabelecimentos ({DateTime.Now})");
             }
 
+        }
+
+        private async Task ReceberCategorias(Empresa empresa, string token)
+        {
+            try { 
+                
+            
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Erro ao receber categorias: {ex.Message}", ex);
+                AdicionarLinhaRichTextBox($"Erro ao receber categorias ({DateTime.Now}): {ex.Message}");
+            }
+            finally
+            {
+                _logger.LogInformation($"Finalizando recebimento de categorias ({DateTime.Now})");
+                AdicionarLinhaRichTextBox($"Finalizando recebimento de categorias ({DateTime.Now})");
+            }
         }
 
         private async Task ReceberConfigEstabelecimento(Empresa empresa, string token)

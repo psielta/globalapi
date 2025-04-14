@@ -292,6 +292,9 @@ public partial class Empresa
     [InverseProperty("CdEmpresaNavigation")]
     public virtual ICollection<UairangoConfiguraco> UairangoConfiguracos { get; set; } = new List<UairangoConfiguraco>();
 
+    [InverseProperty("CdEmpresaNavigation")]
+    public virtual ICollection<UairangoEmpresaCategorium> UairangoEmpresaCategoria { get; set; } = new List<UairangoEmpresaCategorium>();
+
     [InverseProperty("EmpresaNavigation")]
     public virtual ICollection<UairangoFormasPagamento> UairangoFormasPagamentos { get; set; } = new List<UairangoFormasPagamento>();
 

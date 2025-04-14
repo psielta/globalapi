@@ -174,7 +174,13 @@ public partial class Unity
     public virtual ICollection<UairangoConfiguraco> UairangoConfiguracos { get; set; } = new List<UairangoConfiguraco>();
 
     [InverseProperty("UnityNavigation")]
+    public virtual ICollection<UairangoEmpresaCategorium> UairangoEmpresaCategoria { get; set; } = new List<UairangoEmpresaCategorium>();
+
+    [InverseProperty("UnityNavigation")]
     public virtual ICollection<UairangoFormasPagamento> UairangoFormasPagamentos { get; set; } = new List<UairangoFormasPagamento>();
+
+    [InverseProperty("UnityNavigation")]
+    public virtual ICollection<UairangoOpcoesCategorium> UairangoOpcoesCategoria { get; set; } = new List<UairangoOpcoesCategorium>();
 
     [InverseProperty("UnityNavigation")]
     public virtual ICollection<UnidadeMedidum> UnidadeMedida { get; set; } = new List<UnidadeMedidum>();
