@@ -29,6 +29,7 @@ namespace WFA_UaiRango_Global.Services.Produto
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _config = config ?? throw new ArgumentNullException(nameof(config));
+
             configuracao = GetConfUaiRango(config);
             _baseUrl = configuracao.base_url;
             if (string.IsNullOrWhiteSpace(_baseUrl))

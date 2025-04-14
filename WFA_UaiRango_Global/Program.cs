@@ -11,6 +11,12 @@ using WFA_UaiRango_Global.Services.Login;
 using WFA_UaiRango_Global.Services.Estabelecimentos;
 using WFA_UaiRango_Global.Services.FormasPagamento;
 using WFA_UaiRango_Global.Services.Config;
+using WFA_UaiRango_Global.Services.Categoria;
+using WFA_UaiRango_Global.Services.Produto;
+using WFA_UaiRango_Global.Services.CategoriaOpcao;
+using WFA_UaiRango_Global.Services.Adicional;
+using WFA_UaiRango_Global.Services.AdicionalOpcoes;
+using WFA_UaiRango_Global.Services.Preco;
 
 
 namespace WFA_UaiRango_Global
@@ -65,6 +71,12 @@ namespace WFA_UaiRango_Global
             services.AddScoped<IEstabelecimentoService, EstabelecimentoService>();
             services.AddScoped<IFormasPagamentoService, FormasPagamentoService>();
             services.AddScoped<IConfigService, ConfigService>();
+            services.AddScoped<ICategoriaService, CategoriaService>();
+            services.AddScoped<ICategoriaOpcaoService, CategoriaOpcaoService>();
+            services.AddScoped<IProdutoService, ProdutoService>();
+            services.AddScoped<IPrecoService, PrecoService>();
+            services.AddScoped<IAdicionalService, AdicionalService>();
+            services.AddScoped<IAdicionalOpcoesService, AdicionalOpcoesService>();
             #endregion
 
             var provider = services.BuildServiceProvider();
