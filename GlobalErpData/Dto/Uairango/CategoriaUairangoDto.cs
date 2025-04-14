@@ -24,10 +24,22 @@ namespace GlobalErpData.Dto.Uairango
         [JsonProperty("descricao")]
         public string Descricao { get; set; }
 
+        [JsonProperty("inicio")]
+        public string Inicio { get; set; }
+
+        [JsonProperty("fim")]
+        public string Fim { get; set; }
+
         [JsonProperty("ativo")]
         public int Ativo { get; set; }
 
-        // Caso queira mapear tudo, inclua também "disponivel", "inicio", "fim", etc.
+        [JsonProperty("opcao_meia")]
+        public string OpcaoMeia { get; set; }
+
+        [JsonProperty("disponivel")]
+        public DisponibilidadeDto Disponivel { get; set; }
+
+        
     }
 
     /// <summary>

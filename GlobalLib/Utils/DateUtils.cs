@@ -23,6 +23,19 @@ namespace GlobalLib.Utils
             return TimeOnly.FromDateTime(dateTime);
         }
 
+        public static TimeOnly StringFormatHHMMSSToTimeOnly(string source)
+        {
+            if (string.IsNullOrEmpty(source))
+                return TimeOnly.MinValue;
+            string[] parts = source.Split(':');
+            if (parts.Length != 3)
+                return TimeOnly.MinValue;
+            int hours = int.Parse(parts[0]);
+            int minutes = int.Parse(parts[1]);
+            int seconds = int.Parse(parts[2]);
+            return new TimeOnly((byte)hours, (byte)minutes, (byte)seconds);
+        }
+
         /// <summary>
         /// Converte um objeto DateOnly em um objeto DateTime.
         /// </summary>
