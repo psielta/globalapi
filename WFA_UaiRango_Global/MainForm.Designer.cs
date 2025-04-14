@@ -32,6 +32,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             notifyIcon1 = new NotifyIcon(components);
             contextMenuStrip1 = new ContextMenuStrip(components);
+            abrirToolStripMenuItem = new ToolStripMenuItem();
             sairToolStripMenuItem = new ToolStripMenuItem();
             buttonMinimizar = new Button();
             buttonFechar = new Button();
@@ -40,7 +41,6 @@
             bindingSource1 = new BindingSource(components);
             richTextBox1 = new RichTextBox();
             checkBox1 = new CheckBox();
-            abrirToolStripMenuItem = new ToolStripMenuItem();
             contextMenuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)bindingSource1).BeginInit();
             SuspendLayout();
@@ -49,7 +49,7 @@
             // 
             notifyIcon1.ContextMenuStrip = contextMenuStrip1;
             notifyIcon1.Icon = (Icon)resources.GetObject("notifyIcon1.Icon");
-            notifyIcon1.Text = "notifyIcon1";
+            notifyIcon1.Text = "Integrador Uairango | Global Software";
             notifyIcon1.Visible = true;
             notifyIcon1.MouseClick += notifyIcon1_MouseClick;
             notifyIcon1.MouseDoubleClick += notifyIcon1_MouseDoubleClick;
@@ -58,12 +58,19 @@
             // 
             contextMenuStrip1.Items.AddRange(new ToolStripItem[] { abrirToolStripMenuItem, sairToolStripMenuItem });
             contextMenuStrip1.Name = "contextMenuStrip1";
-            contextMenuStrip1.Size = new Size(181, 70);
+            contextMenuStrip1.Size = new Size(101, 48);
+            // 
+            // abrirToolStripMenuItem
+            // 
+            abrirToolStripMenuItem.Name = "abrirToolStripMenuItem";
+            abrirToolStripMenuItem.Size = new Size(100, 22);
+            abrirToolStripMenuItem.Text = "Abrir";
+            abrirToolStripMenuItem.Click += abrirToolStripMenuItem_Click;
             // 
             // sairToolStripMenuItem
             // 
             sairToolStripMenuItem.Name = "sairToolStripMenuItem";
-            sairToolStripMenuItem.Size = new Size(180, 22);
+            sairToolStripMenuItem.Size = new Size(100, 22);
             sairToolStripMenuItem.Text = "Sair";
             sairToolStripMenuItem.Click += sairToolStripMenuItem_Click;
             // 
@@ -119,13 +126,6 @@
             checkBox1.UseVisualStyleBackColor = true;
             checkBox1.CheckedChanged += checkBox1_CheckedChanged;
             // 
-            // abrirToolStripMenuItem
-            // 
-            abrirToolStripMenuItem.Name = "abrirToolStripMenuItem";
-            abrirToolStripMenuItem.Size = new Size(180, 22);
-            abrirToolStripMenuItem.Text = "Abrir";
-            abrirToolStripMenuItem.Click += abrirToolStripMenuItem_Click;
-            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -138,7 +138,7 @@
             Controls.Add(buttonMinimizar);
             Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "MainForm";
-            Text = "Integrador UAI Rango";
+            Text = "Integrador Uairango | Global Software";
             FormClosing += MainForm_FormClosing;
             contextMenuStrip1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)bindingSource1).EndInit();
