@@ -234,6 +234,7 @@ namespace WFA_UaiRango_Global
                                 await EnviarFormasPagamento(ultimoLogin.TokenAcesso, empresa);
                                 await EnviarConfiguracoes(empresa, ultimoLogin.TokenAcesso);
                                 await EnviarCategorias(empresa, ultimoLogin.TokenAcesso);
+                                await EnviarCategoriasOpcoes(empresa, ultimoLogin.TokenAcesso);
                             }
                         }
                     }
@@ -253,6 +254,87 @@ namespace WFA_UaiRango_Global
             {
                 _logger.LogInformation($"ESM finalizando ({DateTime.Now})");
                 AdicionarLinhaRichTextBox($"ESM finalizando ({DateTime.Now})");
+            }
+        }
+
+        private async Task EnviarCategoriasOpcoes(Empresa empresa, string tokenAcesso)
+        {
+            try
+            {
+                _db.ChangeTracker.Clear();
+                var categorias = await _db.UairangoOpcoesCategoria.FromSqlRaw($@"
+                select * from uairango_opcoes_categoria
+                where unity = {empresa.Unity}
+                and coalesce(integrated,0) in (0,2)
+                and cd_grupo in (select distinct cd_grupo from grupo_estoque where coalesce(uairango_id_categoria, 0) > 0)
+            ")
+                   .Include(g => g.CdGrupoNavigation)
+                    .ToListAsync();
+                if (categorias != null && categorias.Count > 0)
+                {
+                    foreach (var item in categorias)
+                    {
+                        if (item.UairangoIdOpcao.HasValue && item.UairangoIdOpcao > 0)
+                        {
+                            //atualizar nome e status
+                            var responseStatusOpcao = await _categoriaOpcaoService
+                                .AlterarStatusOpcaoAsync(tokenAcesso,
+                                Convert.ToInt32(empresa.UairangoIdEstabelecimento),
+                                item.UairangoIdOpcao ?? 0,
+                                item.UairangoStatus ?? 0);
+                            CategoriaOpcaoAlterarDto categoriaOpcaoAlterarDto = new CategoriaOpcaoAlterarDto();
+                            categoriaOpcaoAlterarDto.Nome = item.UairangoNome;
+                            var responseNomeOpcao = await _categoriaOpcaoService
+                                .AlterarOpcaoAsync(tokenAcesso,
+                                Convert.ToInt32(empresa.UairangoIdEstabelecimento),
+                                item.CdGrupoNavigation.UairangoIdCategoria ?? 0,
+                                item.UairangoIdOpcao ?? 0,
+                                categoriaOpcaoAlterarDto);
+                            if (!responseNomeOpcao || !responseStatusOpcao)
+                            {
+                                _logger.LogError($"Erro ao alterar opção da categoria: {item.CdGrupoNavigation.NmGrupo} ({DateTime.Now})");
+                                AdicionarLinhaRichTextBox($"Erro ao alterar opção da categoria: {item.CdGrupoNavigation.NmGrupo} ({DateTime.Now})");
+                            }
+                            else
+                            {
+                                item.Integrated = 1;
+                                _db.UairangoOpcoesCategoria.Update(item);
+                            }
+                        }
+                        else
+                        {
+                            //Postar
+                            CategoriaOpcaoNovoDto categoriaOpcaoNovo = new CategoriaOpcaoNovoDto();
+                            categoriaOpcaoNovo.Nome = item.UairangoNome;
+
+                            var response = await _categoriaOpcaoService
+                                .CriarOpcaoAsync(tokenAcesso,
+                                Convert.ToInt32(empresa.UairangoIdEstabelecimento),
+                                item.CdGrupoNavigation.UairangoIdCategoria ?? 0,
+                                categoriaOpcaoNovo);
+                            if (!response.HasValue)
+                            {
+                                _logger.LogError($"Erro ao criar opção da categoria: {item.CdGrupoNavigation.NmGrupo} ({DateTime.Now})");
+                                AdicionarLinhaRichTextBox($"Erro ao criar opção da categoria: {item.CdGrupoNavigation.NmGrupo} ({DateTime.Now})");
+                            }
+                            else
+                            {
+                                item.UairangoIdOpcao = response;
+                                item.UairangoCodigoOpcao = "";
+                                item.Integrated = 1;
+                                item.UairangoStatus = 1;
+                                _db.UairangoOpcoesCategoria.Update(item);
+                            }
+
+                        }
+                    }
+                    await _db.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Erro ao enviar categorias opções: {ex.Message}", ex);
+                AdicionarLinhaRichTextBox($"Erro ao enviar categorias opções ({DateTime.Now}): {ex.Message}");
             }
         }
 
@@ -289,7 +371,7 @@ namespace WFA_UaiRango_Global
                         CategoriaAlterarDto categoriaAlterarDto = new CategoriaAlterarDto();
                         categoriaAlterarDto.IdCulinaria = Convert.ToInt32(categoria.UairangoIdCulinaria);
                         categoriaAlterarDto.Nome = categoria.NmGrupo;
-                        categoriaAlterarDto.Codigo = categoria.UairangoCodigo ?? "";
+                        //categoriaAlterarDto.Codigo = categoria.UairangoCodigo ?? ("GGU" + categoria.CdGrupo);
                         categoriaAlterarDto.Descricao = categoria.UairangoDescricao ?? "";
                         categoriaAlterarDto.OpcaoMeia = categoria.UairangoOpcaoMeia ?? "";
                         categoriaAlterarDto.Disponivel = new DisponibilidadeDto()
@@ -357,6 +439,7 @@ namespace WFA_UaiRango_Global
                                         //Inserir opcao
                                         CategoriaOpcaoNovoDto categoriaOpcaoNovo = new CategoriaOpcaoNovoDto();
                                         categoriaOpcaoNovo.Nome = item.UairangoNome;
+                                        //categoriaOpcaoNovo.CodigoOpcao = "GGU" + item.Id.ToString();
                                         var responseOpcao = await _categoriaOpcaoService
                                             .CriarOpcaoAsync(tokenAcesso,
                                             Convert.ToInt32(empresa.UairangoIdEstabelecimento),
@@ -370,6 +453,7 @@ namespace WFA_UaiRango_Global
                                         else
                                         {
                                             item.UairangoIdOpcao = responseOpcao;
+                                            item.UairangoCodigoOpcao = "";// item.Id.ToString();
                                             item.Integrated = 1;
                                             item.UairangoStatus = 1;
                                             _db.UairangoOpcoesCategoria.Update(item);
@@ -395,7 +479,7 @@ namespace WFA_UaiRango_Global
                         {
                             categoriaNovo.Opcoes = new List<string>();
                         }
-                        categoriaNovo.Codigo = categoria.UairangoCodigo ?? "";
+                        categoriaNovo.Codigo = "GGU" + categoria.CdGrupo.ToString();
                         categoriaNovo.Descricao = categoria.UairangoDescricao ?? "";
                         categoriaNovo.OpcaoMeia = categoria.UairangoOpcaoMeia ?? "";
                         categoriaNovo.Disponivel = new DisponibilidadeDto()
@@ -418,6 +502,7 @@ namespace WFA_UaiRango_Global
                         }
                         else
                         {
+                            categoria.UairangoCodigo = "GGU" + categoria.CdGrupo.ToString();
                             categoria.UairangoIdCategoria = response;
                             categoria.Integrated = 1;
                             _db.GrupoEstoques.Update(categoria);

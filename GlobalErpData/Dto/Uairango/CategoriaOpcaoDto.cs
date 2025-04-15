@@ -33,8 +33,8 @@ namespace GlobalErpData.Dto.Uairango
         public string Nome { get; set; }
 
         // Se quiser incluir "codigo_opcao" no body, pode fazer assim:
-        [JsonProperty("codigo_opcao", NullValueHandling = NullValueHandling.Ignore)]
-        public string CodigoOpcao { get; set; }
+        //[JsonProperty("codigo_opcao", NullValueHandling = NullValueHandling.Ignore)]
+        //public string CodigoOpcao { get; set; }
     }
 
     /// <summary>

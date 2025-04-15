@@ -90,8 +90,8 @@ namespace GlobalErpData.Dto.Uairango
         [JsonProperty("descricao")]
         public string Descricao { get; set; }
 
-        [JsonProperty("codigo")]
-        public string Codigo { get; set; }
+        //[JsonProperty("codigo")]
+        //public string Codigo { get; set; }
 
         [JsonProperty("opcao_meia")]
         public string OpcaoMeia { get; set; }
