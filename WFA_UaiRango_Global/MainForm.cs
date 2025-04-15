@@ -233,6 +233,7 @@ namespace WFA_UaiRango_Global
                                  **************************************************/
                                 await EnviarFormasPagamento(ultimoLogin.TokenAcesso, empresa);
                                 await EnviarConfiguracoes(empresa, ultimoLogin.TokenAcesso);
+                                await EnviarCategorias(empresa, ultimoLogin.TokenAcesso);
                             }
                         }
                     }
@@ -252,6 +253,216 @@ namespace WFA_UaiRango_Global
             {
                 _logger.LogInformation($"ESM finalizando ({DateTime.Now})");
                 AdicionarLinhaRichTextBox($"ESM finalizando ({DateTime.Now})");
+            }
+        }
+
+        private async Task EnviarCategorias(Empresa empresa, string tokenAcesso)
+        {
+            _db.ChangeTracker.Clear();
+            var categorias = await _db.GrupoEstoques.FromSqlRaw($@"
+                select * from grupo_estoque g
+                where unity = {empresa.Unity}
+                and coalesce(integrated,0) in (0,2)
+                and cd_grupo in (select distinct i.cd_grupo from grupo_estoque i
+                  inner join uairango_empresa_categoria j on j.cd_grupo = i.cd_grupo
+                  inner join uairango_opcoes_categoria k on k.cd_grupo = i.cd_grupo
+                  where j.cd_empresa = {empresa.CdEmpresa}
+                )
+            ")
+                .Include(x => x.UairangoOpcoesCategoria)
+                .Include(x => x.UairangoEmpresaCategoria)
+                .ToListAsync();
+
+            if (categorias != null && categorias.Count > 0)
+            {
+                foreach (GrupoEstoque categoria in categorias)
+                {
+                    if ((!categoria.UairangoIdCulinaria.HasValue) || (categoria.UairangoIdCulinaria <= 0))
+                    {
+                        _logger.LogError($"Erro ao enviar categoria (IdCulinaria nao informado): {categoria.NmGrupo} ({DateTime.Now})");
+                        AdicionarLinhaRichTextBox($"Erro ao enviar categoria (IdCulinaria nao informado): {categoria.NmGrupo} ({DateTime.Now})");
+                        continue;
+                    }
+                    if ((categoria.UairangoIdCategoria ?? 0) > 0)
+                    {
+                        // Apenas fazer PUT em opcoes e em categoria
+                        CategoriaAlterarDto categoriaAlterarDto = new CategoriaAlterarDto();
+                        categoriaAlterarDto.IdCulinaria = Convert.ToInt32(categoria.UairangoIdCulinaria);
+                        categoriaAlterarDto.Nome = categoria.NmGrupo;
+                        categoriaAlterarDto.Codigo = categoria.UairangoCodigo ?? "";
+                        categoriaAlterarDto.Descricao = categoria.UairangoDescricao ?? "";
+                        categoriaAlterarDto.OpcaoMeia = categoria.UairangoOpcaoMeia ?? "";
+                        categoriaAlterarDto.Disponivel = new DisponibilidadeDto()
+                        {
+                            Domingo = categoria.UairangoDisponivelDomingo ?? 0,
+                            Segunda = categoria.UairangoDisponivelSegunda ?? 0,
+                            Terca = categoria.UairangoDisponivelTerca ?? 0,
+                            Quarta = categoria.UairangoDisponivelQuarta ?? 0,
+                            Quinta = categoria.UairangoDisponivelQuinta ?? 0,
+                            Sexta = categoria.UairangoDisponivelSexta ?? 0,
+                            Sabado = categoria.UairangoDisponivelSabado ?? 0
+                        };
+                        categoriaAlterarDto.Inicio = categoria.UairangoInicio?.ToString("HH:mm:ss") ?? "00:00:00";
+                        categoriaAlterarDto.Fim = categoria.UairangoFim?.ToString("HH:mm:ss") ?? "00:00:00";
+                        var response = await _categoriaService.AlterarCategoriaAsync(tokenAcesso,
+                            Convert.ToInt32(empresa.UairangoIdEstabelecimento),
+                            categoria.UairangoIdCategoria ?? 0,
+                            categoriaAlterarDto);
+                        var responseStatus = await _categoriaService.AlterarStatusCategoriaAsync(tokenAcesso,
+                            Convert.ToInt32(empresa.UairangoIdEstabelecimento),
+                            categoria.UairangoIdCategoria ?? 0,
+                            categoria.UairangoAtivo ?? 0);
+                        if ((!response) || (!responseStatus))
+                        {
+                            _logger.LogError($"Erro ao alterar categoria: {categoria.NmGrupo} ({DateTime.Now})");
+                            AdicionarLinhaRichTextBox($"Erro ao alterar categoria: {categoria.NmGrupo} ({DateTime.Now})");
+                        }
+                        else
+                        {
+                            categoria.Integrated = 1;
+                            _db.GrupoEstoques.Update(categoria);
+                            foreach (var item in categoria.UairangoOpcoesCategoria)
+                            {
+                                if ((item.Integrated ?? 0) != 1)
+                                {
+                                    if (item.UairangoIdOpcao.HasValue && item.UairangoIdOpcao > 0)
+                                    {
+                                        var responseStatusOpcao = await _categoriaOpcaoService
+                                        .AlterarStatusOpcaoAsync(tokenAcesso,
+                                        Convert.ToInt32(empresa.UairangoIdEstabelecimento),
+                                        item.UairangoIdOpcao ?? 0,
+                                        item.UairangoStatus ?? 0);
+                                        CategoriaOpcaoAlterarDto categoriaOpcaoAlterarDto
+                                            = new CategoriaOpcaoAlterarDto();
+                                        categoriaOpcaoAlterarDto.Nome = item.UairangoNome;
+                                        var responseNomeOpcao = await _categoriaOpcaoService
+                                            .AlterarOpcaoAsync(tokenAcesso,
+                                            Convert.ToInt32(empresa.UairangoIdEstabelecimento),
+                                            categoria.UairangoIdCategoria ?? 0,
+                                            item.UairangoIdOpcao ?? 0,
+                                            categoriaOpcaoAlterarDto);
+                                        if (!responseNomeOpcao || !responseStatusOpcao)
+                                        {
+                                            _logger.LogError($"Erro ao alterar opção da categoria: {categoria.NmGrupo} ({DateTime.Now})");
+                                            AdicionarLinhaRichTextBox($"Erro ao alterar opção da categoria: {categoria.NmGrupo} ({DateTime.Now})");
+                                        }
+                                        else
+                                        {
+                                            item.Integrated = 1;
+                                            _db.UairangoOpcoesCategoria.Update(item);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        //Inserir opcao
+                                        CategoriaOpcaoNovoDto categoriaOpcaoNovo = new CategoriaOpcaoNovoDto();
+                                        categoriaOpcaoNovo.Nome = item.UairangoNome;
+                                        var responseOpcao = await _categoriaOpcaoService
+                                            .CriarOpcaoAsync(tokenAcesso,
+                                            Convert.ToInt32(empresa.UairangoIdEstabelecimento),
+                                            categoria.UairangoIdCategoria ?? 0,
+                                            categoriaOpcaoNovo);
+                                        if (!responseOpcao.HasValue)
+                                        {
+                                            _logger.LogError($"Erro ao criar opção da categoria: {categoria.NmGrupo} ({DateTime.Now})");
+                                            AdicionarLinhaRichTextBox($"Erro ao criar opção da categoria: {categoria.NmGrupo} ({DateTime.Now})");
+                                        }
+                                        else
+                                        {
+                                            item.UairangoIdOpcao = responseOpcao;
+                                            item.Integrated = 1;
+                                            item.UairangoStatus = 1;
+                                            _db.UairangoOpcoesCategoria.Update(item);
+                                        }
+                                    }
+
+                                }
+                            }
+                        }
+
+                    }
+                    else
+                    {
+                        // Enviar tudo
+                        CategoriaNovoDto categoriaNovo = new CategoriaNovoDto();
+                        categoriaNovo.IdCulinaria = Convert.ToInt32(categoria.UairangoIdCulinaria);
+                        categoriaNovo.Nome = categoria.NmGrupo; var opcoes = categoria.UairangoOpcoesCategoria.Select(x => x.UairangoNome).ToList();
+                        if (opcoes != null && opcoes.Count > 0)
+                        {
+                            categoriaNovo.Opcoes = opcoes;
+                        }
+                        else
+                        {
+                            categoriaNovo.Opcoes = new List<string>();
+                        }
+                        categoriaNovo.Codigo = categoria.UairangoCodigo ?? "";
+                        categoriaNovo.Descricao = categoria.UairangoDescricao ?? "";
+                        categoriaNovo.OpcaoMeia = categoria.UairangoOpcaoMeia ?? "";
+                        categoriaNovo.Disponivel = new DisponibilidadeDto()
+                        {
+                            Domingo = categoria.UairangoDisponivelDomingo ?? 0,
+                            Segunda = categoria.UairangoDisponivelSegunda ?? 0,
+                            Terca = categoria.UairangoDisponivelTerca ?? 0,
+                            Quarta = categoria.UairangoDisponivelQuarta ?? 0,
+                            Quinta = categoria.UairangoDisponivelQuinta ?? 0,
+                            Sexta = categoria.UairangoDisponivelSexta ?? 0,
+                            Sabado = categoria.UairangoDisponivelSabado ?? 0
+                        };
+                        categoriaNovo.Inicio = categoria.UairangoInicio?.ToString("HH:mm:ss") ?? "";
+                        categoriaNovo.Fim = categoria.UairangoFim?.ToString("HH:mm:ss") ?? "";
+                        var response = await _categoriaService.CriarCategoriaAsync(tokenAcesso, Convert.ToInt32(empresa.UairangoIdEstabelecimento), categoriaNovo);
+                        if (!response.HasValue)
+                        {
+                            _logger.LogError($"Erro ao criar categoria: {categoria.NmGrupo}");
+                            AdicionarLinhaRichTextBox($"Erro ao criar categoria: {categoria.NmGrupo} ({DateTime.Now})");
+                        }
+                        else
+                        {
+                            categoria.UairangoIdCategoria = response;
+                            categoria.Integrated = 1;
+                            _db.GrupoEstoques.Update(categoria);
+                            var opcoesCategoriaUairango = await _categoriaOpcaoService
+                                .ObterOpcoesDaCategoriaAsync(tokenAcesso, Convert.ToInt32(empresa.UairangoIdEstabelecimento), response ?? 0);
+                            if (opcoesCategoriaUairango != null && opcoesCategoriaUairango.Count > 0)
+                            {
+                                foreach (var item in categoria.UairangoOpcoesCategoria)
+                                {
+                                    var opcoesUairango = opcoesCategoriaUairango.FirstOrDefault(x => x.Nome.Equals(item.UairangoNome));
+                                    if (opcoesUairango != null)
+                                    {
+                                        item.UairangoIdOpcao = opcoesUairango.IdOpcao;
+                                        item.UairangoCodigoOpcao = opcoesUairango.CodigoOpcao;
+                                        item.UairangoStatus = opcoesUairango.Status;
+                                        item.Integrated = 1;
+                                        _db.UairangoOpcoesCategoria.Update(item);
+                                    }
+                                    else
+                                    {
+                                        _logger.LogError($"Erro ao obter opções da categoria: {categoria.NmGrupo}");
+                                        AdicionarLinhaRichTextBox($"Erro ao obter opções da categoria: {categoria.NmGrupo} ({DateTime.Now})");
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                _logger.LogError($"Erro ao obter opções da categoria: {categoria.NmGrupo}");
+                                AdicionarLinhaRichTextBox($"Erro ao obter opções da categoria: {categoria.NmGrupo} ({DateTime.Now})");
+                            }
+                        }
+
+                    }
+                }
+                await _db.SaveChangesAsync();
+            }
+            else
+            {
+                var opcoescategorias = await _db.UairangoOpcoesCategoria
+                    .FromSqlRaw($@"
+                        select * from uairango_opcoes_categoria u
+                        where unity = {empresa.Unity}
+                        and coalesce(integrated,0) in (0,2)
+                    ")
+                    .ToListAsync();
             }
         }
 
@@ -405,7 +616,7 @@ namespace WFA_UaiRango_Global
                 && (DateTime.Now - ultimoLogin.DataHoraGeracao.Value).TotalHours < 24;
 
             string? token = ultimoLogin?.TokenAcesso;
-            if (ultimoLogin == null || idadeDoTokenMenorQueUmDia)
+            if (ultimoLogin == null || (!idadeDoTokenMenorQueUmDia))
             {
                 LoginUaiRangoResponseDto login = await this._loginService.LoginAsync();
                 token = login.Token;

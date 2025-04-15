@@ -64,7 +64,7 @@ namespace GlobalErpData.Dto.Uairango
 
         // Exemplo de array ou object. Ajuste conforme necessidade.
         [JsonProperty("opcoes")]
-        public List<object> Opcoes { get; set; }
+        public List<string> Opcoes { get; set; }
 
         [JsonProperty("disponivel")]
         public DisponibilidadeDto Disponivel { get; set; }
