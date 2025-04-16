@@ -31,6 +31,7 @@ public partial class UairangoConfiguraco
     [Column("integrated")]
     public int? Integrated { get; set; }
 
+    [ConcurrencyCheck]
     [Column("last_update", TypeName = "timestamp(6) without time zone")]
     public DateTime? LastUpdate { get; set; }
 

@@ -42,7 +42,8 @@ namespace WFA_UaiRango_Global
 
 
             Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Debug()
+                //.MinimumLevel.Debug()
+                .MinimumLevel.Information()
                 .WriteTo.Console()
                 .WriteTo.File("logs/uairango.txt",
                     rollingInterval: RollingInterval.Day,

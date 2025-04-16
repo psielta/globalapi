@@ -35,6 +35,7 @@ public partial class UairangoFormasPagamento
     [Column("unity")]
     public int Unity { get; set; }
 
+    [ConcurrencyCheck]
     [Column("last_update", TypeName = "timestamp(6) without time zone")]
     public DateTime? LastUpdate { get; set; }
 

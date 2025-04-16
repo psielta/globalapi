@@ -591,6 +591,11 @@ namespace WFA_UaiRango_Global
                     AdicionarLinhaRichTextBox($"Configurações enviadas com sucesso ({DateTime.Now})");
                 }
             }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                _logger.LogWarning("[Formas de pagamento] Alguns registros não foram atualizados pois foram modificados enquanto aguardavam integração.");
+                AdicionarLinhaRichTextBox($"[Formas de pagamento] Aviso: Alguns registros foram modificados durante a integração e não foram marcados como integrados. ({DateTime.Now})");
+            }
             catch (Exception ex)
             {
                 _logger.LogError($"Erro ao enviar configurações: {ex.Message}", ex);
@@ -646,6 +651,11 @@ namespace WFA_UaiRango_Global
                     }
                 }
             }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                _logger.LogWarning("[Formas de pagamento] Alguns registros não foram atualizados pois foram modificados enquanto aguardavam integração.");
+                AdicionarLinhaRichTextBox($"[Formas de pagamento] Aviso: Alguns registros foram modificados durante a integração e não foram marcados como integrados. ({DateTime.Now})");
+            }
             catch (Exception ex)
             {
                 _logger.LogError($"Erro ao enviar formas de pagamento (d): {ex.Message}", ex);
@@ -681,6 +691,11 @@ namespace WFA_UaiRango_Global
                         }
                     }
                 }
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                _logger.LogWarning("[Formas de pagamento] Alguns registros não foram atualizados pois foram modificados enquanto aguardavam integração.");
+                AdicionarLinhaRichTextBox($"[Formas de pagamento] Aviso: Alguns registros foram modificados durante a integração e não foram marcados como integrados. ({DateTime.Now})");
             }
             catch (Exception ex)
             {
