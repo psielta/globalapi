@@ -1223,6 +1223,7 @@ namespace WFA_UaiRango_Global
                         {
                             if ((categoriaEspecifica.Integrated ?? 0) == 1)
                             {
+                                categoriaEspecifica.NmGrupo = _categoriaUairango.Nome;
                                 categoriaEspecifica.UairangoIdCategoria = _categoriaUairango.IdCategoria;
                                 categoriaEspecifica.UairangoOrder = "";
                                 categoriaEspecifica.UairangoCodigo = _categoriaUairango.Codigo;
@@ -1351,6 +1352,11 @@ namespace WFA_UaiRango_Global
 
                     await _db.SaveChangesAsync();
                 }
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                _logger.LogWarning("[Categorias] Concurrency Exception");
+                AdicionarLinhaRichTextBox($"[Categorias] Concurrency Exception. ({DateTime.Now})");
             }
             catch (Exception ex)
             {
