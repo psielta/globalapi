@@ -259,37 +259,48 @@ namespace WFA_UaiRango_Global
 
         private async Task EnviarCategoriasOpcoes(Empresa empresa, string tokenAcesso)
         {
+            // Dicionário para guardar os IDs retornados da API para cada registro de opção.
+            // Chave: o ID interno (por exemplo, item.Id) e valor: o ID da API.
+            Dictionary<int, int> opcoesApiIds = new Dictionary<int, int>();
+
             try
             {
                 _db.ChangeTracker.Clear();
-                var categorias = await _db.UairangoOpcoesCategoria.FromSqlRaw($@"
+                var opcoes = await _db.UairangoOpcoesCategoria.FromSqlRaw($@"
                     select * from uairango_opcoes_categoria
                     where unity = {empresa.Unity}
                     and coalesce(integrated,0) in (0,2)
-                    and cd_grupo in (select distinct cd_grupo from grupo_estoque where coalesce(uairango_id_categoria, 0) > 0)
+                    and cd_grupo in (
+                        select distinct cd_grupo from grupo_estoque 
+                        where coalesce(uairango_id_categoria, 0) > 0
+                    )
                 ")
-                   .Include(g => g.CdGrupoNavigation)
-                    .ToListAsync();
-                if (categorias != null && categorias.Count > 0)
+                .Include(g => g.CdGrupoNavigation)
+                .ToListAsync();
+
+                if (opcoes != null && opcoes.Count > 0)
                 {
-                    foreach (var item in categorias)
+                    foreach (var item in opcoes)
                     {
                         if (item.UairangoIdOpcao.HasValue && item.UairangoIdOpcao > 0)
                         {
-                            //atualizar nome e status
-                            var responseStatusOpcao = await _categoriaOpcaoService
-                                .AlterarStatusOpcaoAsync(tokenAcesso,
+                            var responseStatusOpcao = await _categoriaOpcaoService.AlterarStatusOpcaoAsync(
+                                tokenAcesso,
                                 Convert.ToInt32(empresa.UairangoIdEstabelecimento),
-                                item.UairangoIdOpcao ?? 0,
+                                item.UairangoIdOpcao.Value,
                                 item.UairangoStatus ?? 0);
-                            CategoriaOpcaoAlterarDto categoriaOpcaoAlterarDto = new CategoriaOpcaoAlterarDto();
-                            categoriaOpcaoAlterarDto.Nome = item.UairangoNome;
-                            var responseNomeOpcao = await _categoriaOpcaoService
-                                .AlterarOpcaoAsync(tokenAcesso,
+
+                            CategoriaOpcaoAlterarDto categoriaOpcaoAlterarDto = new CategoriaOpcaoAlterarDto
+                            {
+                                Nome = item.UairangoNome
+                            };
+                            var responseNomeOpcao = await _categoriaOpcaoService.AlterarOpcaoAsync(
+                                tokenAcesso,
                                 Convert.ToInt32(empresa.UairangoIdEstabelecimento),
                                 item.CdGrupoNavigation.UairangoIdCategoria ?? 0,
-                                item.UairangoIdOpcao ?? 0,
+                                item.UairangoIdOpcao.Value,
                                 categoriaOpcaoAlterarDto);
+
                             if (!responseNomeOpcao || !responseStatusOpcao)
                             {
                                 _logger.LogError($"Erro ao alterar opção da categoria: {item.CdGrupoNavigation.NmGrupo} ({DateTime.Now})");
@@ -297,21 +308,25 @@ namespace WFA_UaiRango_Global
                             }
                             else
                             {
+                                opcoesApiIds[item.Id] = item.UairangoIdOpcao.Value;
                                 item.Integrated = 1;
                                 _db.UairangoOpcoesCategoria.Update(item);
                             }
                         }
                         else
                         {
-                            //Postar
-                            CategoriaOpcaoNovoDto categoriaOpcaoNovo = new CategoriaOpcaoNovoDto();
-                            categoriaOpcaoNovo.Nome = item.UairangoNome;
+                            // Caso o registro não possua ID, faz POST para criar a opção
+                            CategoriaOpcaoNovoDto categoriaOpcaoNovo = new CategoriaOpcaoNovoDto
+                            {
+                                Nome = item.UairangoNome
+                            };
 
-                            var response = await _categoriaOpcaoService
-                                .CriarOpcaoAsync(tokenAcesso,
+                            var response = await _categoriaOpcaoService.CriarOpcaoAsync(
+                                tokenAcesso,
                                 Convert.ToInt32(empresa.UairangoIdEstabelecimento),
                                 item.CdGrupoNavigation.UairangoIdCategoria ?? 0,
                                 categoriaOpcaoNovo);
+
                             if (!response.HasValue)
                             {
                                 _logger.LogError($"Erro ao criar opção da categoria: {item.CdGrupoNavigation.NmGrupo} ({DateTime.Now})");
@@ -319,16 +334,17 @@ namespace WFA_UaiRango_Global
                             }
                             else
                             {
+                                opcoesApiIds[item.Id] = response.Value;
                                 item.UairangoIdOpcao = response;
-                                item.UairangoCodigoOpcao = "";
+                                item.UairangoCodigoOpcao = ""; // Atribua conforme sua lógica
                                 item.Integrated = 1;
                                 item.UairangoStatus = 1;
                                 _db.UairangoOpcoesCategoria.Update(item);
                             }
-
                         }
                     }
-                    await _db.SaveChangesAsync();
+                    // Tenta salvar com retry para tratar conflitos de concorrência
+                    await SaveChangesWithRetryOpcao(opcoesApiIds);
                 }
             }
             catch (Exception ex)
@@ -338,8 +354,90 @@ namespace WFA_UaiRango_Global
             }
         }
 
+        private async Task SaveChangesWithRetryOpcao(Dictionary<int, int> opcoesApiIds)
+        {
+            bool salvo = false;
+            int tentativas = 0;
+            const int maxTentativas = 3;
+            while (!salvo && tentativas < maxTentativas)
+            {
+                try
+                {
+                    await _db.SaveChangesAsync();
+                    salvo = true;
+                }
+                catch (DbUpdateConcurrencyException ex)
+                {
+                    tentativas++;
+                    foreach (var entry in ex.Entries)
+                    {
+                        if (entry.Entity is UairangoOpcoesCategorium opcao)
+                        {
+                            var currentValuesAsNoTracking = _db.UairangoOpcoesCategoria
+                           .AsNoTracking()
+                           .FirstOrDefault(x => x.Id == opcao.Id);
+                            if (currentValuesAsNoTracking != null)
+                            {
+                                var databaseValues = entry.GetDatabaseValues();
+                                if (databaseValues != null)
+                                {
+                                    entry.OriginalValues.SetValues(databaseValues);
+                                }
+                                var entryNoTracking = _db.Entry(currentValuesAsNoTracking);
+                                foreach (var property in entry.Metadata.GetProperties())
+                                {
+                                    var theOriginalValue = entry
+                                        .Property(property.Name).OriginalValue;
+                                    var otherUserValue = entryNoTracking
+                                        .Property(property.Name).CurrentValue;
+                                    var whatIWantedItToBe = entry
+                                        .Property(property.Name).CurrentValue;
+
+                                    if (property.Name == nameof(UairangoOpcoesCategorium.UairangoIdOpcao)
+                                        || property.Name == nameof(UairangoOpcoesCategorium.UairangoCodigoOpcao)
+                                        )
+                                    {
+                                        if (property.Name == nameof(UairangoOpcoesCategorium.UairangoIdOpcao))
+                                        {
+                                            if (opcoesApiIds.TryGetValue(opcao.Id, out int storedApiId))
+                                                opcao.UairangoIdOpcao = storedApiId;
+                                            else
+                                                entry.Property(property.Name).CurrentValue = whatIWantedItToBe;
+                                        }
+                                        else if (property.Name == nameof(UairangoOpcoesCategorium.UairangoCodigoOpcao))
+                                            entry.Property(property.Name).CurrentValue = whatIWantedItToBe;
+                                    }
+                                    else
+                                    {
+                                        entry.Property(property.Name).CurrentValue = otherUserValue;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                _logger.LogWarning($"[Categorias - Concurrency Exception] Opcao não encontrada: {opcao.Id} ({DateTime.Now})");
+                                AdicionarLinhaRichTextBox($"[Categorias - Concurrency Exception] Opcao não encontrada: {opcao.Id} ({DateTime.Now})");
+                            }
+                        }
+                        else
+                        {
+                            await entry.ReloadAsync();
+                        }
+                    }
+                }
+            }
+            if (!salvo)
+            {
+                throw new Exception("Não foi possível salvar as alterações de opções após várias tentativas.");
+            }
+        }
+
+
         private async Task EnviarCategorias(Empresa empresa, string tokenAcesso)
         {
+            Dictionary<int, int> categoriasApiIds = new Dictionary<int, int>();
+            Dictionary<int, int> opcoesApiIds = new Dictionary<int, int>();
+
             _db.ChangeTracker.Clear();
             try
             {
@@ -347,55 +445,66 @@ namespace WFA_UaiRango_Global
                     select * from grupo_estoque g
                     where unity = {empresa.Unity}
                     and coalesce(integrated,0) in (0,2)
-                    and cd_grupo in (select distinct i.cd_grupo from grupo_estoque i
-                      inner join uairango_empresa_categoria j on j.cd_grupo = i.cd_grupo
-                      inner join uairango_opcoes_categoria k on k.cd_grupo = i.cd_grupo
-                      where j.cd_empresa = {empresa.CdEmpresa}
+                    and cd_grupo in (
+                        select distinct i.cd_grupo 
+                        from grupo_estoque i
+                        inner join uairango_empresa_categoria j on j.cd_grupo = i.cd_grupo
+                        inner join uairango_opcoes_categoria k on k.cd_grupo = i.cd_grupo
+                        where j.cd_empresa = {empresa.CdEmpresa}
                     )
                 ")
-                    .Include(x => x.UairangoOpcoesCategoria)
-                    .Include(x => x.UairangoEmpresaCategoria)
-                    .ToListAsync();
+                .Include(x => x.UairangoOpcoesCategoria)
+                .Include(x => x.UairangoEmpresaCategoria)
+                .ToListAsync();
 
                 if (categorias != null && categorias.Count > 0)
                 {
                     foreach (GrupoEstoque categoria in categorias)
                     {
+                        // Caso a categoria não tenha o campo obrigatório configurado, pule-a
                         if ((!categoria.UairangoIdCulinaria.HasValue) || (categoria.UairangoIdCulinaria <= 0))
                         {
-                            _logger.LogError($"Erro ao enviar categoria (IdCulinaria nao informado): {categoria.NmGrupo} ({DateTime.Now})");
-                            AdicionarLinhaRichTextBox($"Erro ao enviar categoria (IdCulinaria nao informado): {categoria.NmGrupo} ({DateTime.Now})");
+                            _logger.LogError($"Erro ao enviar categoria (IdCulinaria não informado): {categoria.NmGrupo} ({DateTime.Now})");
+                            AdicionarLinhaRichTextBox($"Erro ao enviar categoria (IdCulinaria não informado): {categoria.NmGrupo} ({DateTime.Now})");
                             continue;
                         }
+
+                        // Se a categoria já foi integrada (update) ou for nova (post), trate de forma diferente:
                         if ((categoria.UairangoIdCategoria ?? 0) > 0)
                         {
-                            // Apenas fazer PUT em opcoes e em categoria
-                            CategoriaAlterarDto categoriaAlterarDto = new CategoriaAlterarDto();
-                            categoriaAlterarDto.IdCulinaria = Convert.ToInt32(categoria.UairangoIdCulinaria);
-                            categoriaAlterarDto.Nome = categoria.NmGrupo;
-                            //categoriaAlterarDto.Codigo = categoria.UairangoCodigo ?? ("GGU" + categoria.CdGrupo);
-                            categoriaAlterarDto.Descricao = categoria.UairangoDescricao ?? "";
-                            categoriaAlterarDto.OpcaoMeia = categoria.UairangoOpcaoMeia ?? "";
-                            categoriaAlterarDto.Disponivel = new DisponibilidadeDto()
+                            // -- Atualiza a categoria via PUT na API
+                            CategoriaAlterarDto categoriaAlterarDto = new CategoriaAlterarDto
                             {
-                                Domingo = categoria.UairangoDisponivelDomingo ?? 0,
-                                Segunda = categoria.UairangoDisponivelSegunda ?? 0,
-                                Terca = categoria.UairangoDisponivelTerca ?? 0,
-                                Quarta = categoria.UairangoDisponivelQuarta ?? 0,
-                                Quinta = categoria.UairangoDisponivelQuinta ?? 0,
-                                Sexta = categoria.UairangoDisponivelSexta ?? 0,
-                                Sabado = categoria.UairangoDisponivelSabado ?? 0
+                                IdCulinaria = Convert.ToInt32(categoria.UairangoIdCulinaria),
+                                Nome = categoria.NmGrupo,
+                                Descricao = categoria.UairangoDescricao ?? "",
+                                OpcaoMeia = categoria.UairangoOpcaoMeia ?? "",
+                                Disponivel = new DisponibilidadeDto()
+                                {
+                                    Domingo = categoria.UairangoDisponivelDomingo ?? 0,
+                                    Segunda = categoria.UairangoDisponivelSegunda ?? 0,
+                                    Terca = categoria.UairangoDisponivelTerca ?? 0,
+                                    Quarta = categoria.UairangoDisponivelQuarta ?? 0,
+                                    Quinta = categoria.UairangoDisponivelQuinta ?? 0,
+                                    Sexta = categoria.UairangoDisponivelSexta ?? 0,
+                                    Sabado = categoria.UairangoDisponivelSabado ?? 0
+                                },
+                                Inicio = categoria.UairangoInicio?.ToString("HH:mm:ss") ?? "00:00:00",
+                                Fim = categoria.UairangoFim?.ToString("HH:mm:ss") ?? "00:00:00"
                             };
-                            categoriaAlterarDto.Inicio = categoria.UairangoInicio?.ToString("HH:mm:ss") ?? "00:00:00";
-                            categoriaAlterarDto.Fim = categoria.UairangoFim?.ToString("HH:mm:ss") ?? "00:00:00";
-                            var response = await _categoriaService.AlterarCategoriaAsync(tokenAcesso,
+
+                            // Chama os serviços de atualização de categoria e status
+                            var response = await _categoriaService.AlterarCategoriaAsync(
+                                tokenAcesso,
                                 Convert.ToInt32(empresa.UairangoIdEstabelecimento),
-                                categoria.UairangoIdCategoria ?? 0,
+                                categoria.UairangoIdCategoria.Value,
                                 categoriaAlterarDto);
-                            var responseStatus = await _categoriaService.AlterarStatusCategoriaAsync(tokenAcesso,
+                            var responseStatus = await _categoriaService.AlterarStatusCategoriaAsync(
+                                tokenAcesso,
                                 Convert.ToInt32(empresa.UairangoIdEstabelecimento),
-                                categoria.UairangoIdCategoria ?? 0,
+                                categoria.UairangoIdCategoria.Value,
                                 categoria.UairangoAtivo ?? 0);
+
                             if ((!response) || (!responseStatus))
                             {
                                 _logger.LogError($"Erro ao alterar categoria: {categoria.NmGrupo} ({DateTime.Now})");
@@ -403,27 +512,33 @@ namespace WFA_UaiRango_Global
                             }
                             else
                             {
+                                // Guarde o id retornado pela API (mesmo que seja o mesmo, é importante "reafirmar" o valor)
+                                categoriasApiIds[categoria.CdGrupo] = categoria.UairangoIdCategoria.Value;
                                 categoria.Integrated = 1;
                                 _db.GrupoEstoques.Update(categoria);
+
+                                // Para cada opção vinculada à categoria:
                                 foreach (var item in categoria.UairangoOpcoesCategoria)
                                 {
                                     if ((item.Integrated ?? 0) != 1)
                                     {
                                         if (item.UairangoIdOpcao.HasValue && item.UairangoIdOpcao > 0)
                                         {
-                                            var responseStatusOpcao = await _categoriaOpcaoService
-                                            .AlterarStatusOpcaoAsync(tokenAcesso,
-                                            Convert.ToInt32(empresa.UairangoIdEstabelecimento),
-                                            item.UairangoIdOpcao ?? 0,
-                                            item.UairangoStatus ?? 0);
-                                            CategoriaOpcaoAlterarDto categoriaOpcaoAlterarDto
-                                                = new CategoriaOpcaoAlterarDto();
-                                            categoriaOpcaoAlterarDto.Nome = item.UairangoNome;
-                                            var responseNomeOpcao = await _categoriaOpcaoService
-                                                .AlterarOpcaoAsync(tokenAcesso,
+                                            // Atualiza opção via PUT
+                                            var responseStatusOpcao = await _categoriaOpcaoService.AlterarStatusOpcaoAsync(
+                                                tokenAcesso,
                                                 Convert.ToInt32(empresa.UairangoIdEstabelecimento),
-                                                categoria.UairangoIdCategoria ?? 0,
-                                                item.UairangoIdOpcao ?? 0,
+                                                item.UairangoIdOpcao.Value,
+                                                item.UairangoStatus ?? 0);
+                                            CategoriaOpcaoAlterarDto categoriaOpcaoAlterarDto = new CategoriaOpcaoAlterarDto
+                                            {
+                                                Nome = item.UairangoNome
+                                            };
+                                            var responseNomeOpcao = await _categoriaOpcaoService.AlterarOpcaoAsync(
+                                                tokenAcesso,
+                                                Convert.ToInt32(empresa.UairangoIdEstabelecimento),
+                                                categoria.UairangoIdCategoria.Value,
+                                                item.UairangoIdOpcao.Value,
                                                 categoriaOpcaoAlterarDto);
                                             if (!responseNomeOpcao || !responseStatusOpcao)
                                             {
@@ -432,20 +547,23 @@ namespace WFA_UaiRango_Global
                                             }
                                             else
                                             {
+                                                // Armazena o id obtido para a opção na nossa estrutura auxiliar
+                                                opcoesApiIds[item.Id] = item.UairangoIdOpcao.Value;
                                                 item.Integrated = 1;
                                                 _db.UairangoOpcoesCategoria.Update(item);
                                             }
                                         }
                                         else
                                         {
-                                            //Inserir opcao
-                                            CategoriaOpcaoNovoDto categoriaOpcaoNovo = new CategoriaOpcaoNovoDto();
-                                            categoriaOpcaoNovo.Nome = item.UairangoNome;
-                                            //categoriaOpcaoNovo.CodigoOpcao = "GGU" + item.Id.ToString();
-                                            var responseOpcao = await _categoriaOpcaoService
-                                                .CriarOpcaoAsync(tokenAcesso,
+                                            // Caso não haja id na opção, faz POST para inserir a opção
+                                            CategoriaOpcaoNovoDto categoriaOpcaoNovo = new CategoriaOpcaoNovoDto
+                                            {
+                                                Nome = item.UairangoNome
+                                            };
+                                            var responseOpcao = await _categoriaOpcaoService.CriarOpcaoAsync(
+                                                tokenAcesso,
                                                 Convert.ToInt32(empresa.UairangoIdEstabelecimento),
-                                                categoria.UairangoIdCategoria ?? 0,
+                                                categoria.UairangoIdCategoria.Value,
                                                 categoriaOpcaoNovo);
                                             if (!responseOpcao.HasValue)
                                             {
@@ -454,49 +572,46 @@ namespace WFA_UaiRango_Global
                                             }
                                             else
                                             {
+                                                opcoesApiIds[item.Id] = responseOpcao.Value;
                                                 item.UairangoIdOpcao = responseOpcao;
-                                                item.UairangoCodigoOpcao = "";// item.Id.ToString();
+                                                item.UairangoCodigoOpcao = ""; // ou qualquer outro valor
                                                 item.Integrated = 1;
                                                 item.UairangoStatus = 1;
                                                 _db.UairangoOpcoesCategoria.Update(item);
                                             }
                                         }
-
                                     }
                                 }
                             }
-
                         }
                         else
                         {
-                            // Enviar tudo
-                            CategoriaNovoDto categoriaNovo = new CategoriaNovoDto();
-                            categoriaNovo.IdCulinaria = Convert.ToInt32(categoria.UairangoIdCulinaria);
-                            categoriaNovo.Nome = categoria.NmGrupo; var opcoes = categoria.UairangoOpcoesCategoria.Select(x => x.UairangoNome).ToList();
-                            if (opcoes != null && opcoes.Count > 0)
+                            // Caso seja nova: faz POST de categoria
+                            CategoriaNovoDto categoriaNovo = new CategoriaNovoDto
                             {
-                                categoriaNovo.Opcoes = opcoes;
-                            }
-                            else
-                            {
-                                categoriaNovo.Opcoes = new List<string>();
-                            }
-                            categoriaNovo.Codigo = "GGU" + categoria.CdGrupo.ToString();
-                            categoriaNovo.Descricao = categoria.UairangoDescricao ?? "";
-                            categoriaNovo.OpcaoMeia = categoria.UairangoOpcaoMeia ?? "";
-                            categoriaNovo.Disponivel = new DisponibilidadeDto()
-                            {
-                                Domingo = categoria.UairangoDisponivelDomingo ?? 0,
-                                Segunda = categoria.UairangoDisponivelSegunda ?? 0,
-                                Terca = categoria.UairangoDisponivelTerca ?? 0,
-                                Quarta = categoria.UairangoDisponivelQuarta ?? 0,
-                                Quinta = categoria.UairangoDisponivelQuinta ?? 0,
-                                Sexta = categoria.UairangoDisponivelSexta ?? 0,
-                                Sabado = categoria.UairangoDisponivelSabado ?? 0
+                                IdCulinaria = Convert.ToInt32(categoria.UairangoIdCulinaria),
+                                Nome = categoria.NmGrupo,
+                                Opcoes = categoria.UairangoOpcoesCategoria.Select(x => x.UairangoNome).ToList() ?? new List<string>(),
+                                Codigo = "GGU" + categoria.CdGrupo.ToString(),
+                                Descricao = categoria.UairangoDescricao ?? "",
+                                OpcaoMeia = categoria.UairangoOpcaoMeia ?? "",
+                                Disponivel = new DisponibilidadeDto()
+                                {
+                                    Domingo = categoria.UairangoDisponivelDomingo ?? 0,
+                                    Segunda = categoria.UairangoDisponivelSegunda ?? 0,
+                                    Terca = categoria.UairangoDisponivelTerca ?? 0,
+                                    Quarta = categoria.UairangoDisponivelQuarta ?? 0,
+                                    Quinta = categoria.UairangoDisponivelQuinta ?? 0,
+                                    Sexta = categoria.UairangoDisponivelSexta ?? 0,
+                                    Sabado = categoria.UairangoDisponivelSabado ?? 0
+                                },
+                                Inicio = categoria.UairangoInicio?.ToString("HH:mm:ss") ?? "",
+                                Fim = categoria.UairangoFim?.ToString("HH:mm:ss") ?? ""
                             };
-                            categoriaNovo.Inicio = categoria.UairangoInicio?.ToString("HH:mm:ss") ?? "";
-                            categoriaNovo.Fim = categoria.UairangoFim?.ToString("HH:mm:ss") ?? "";
-                            var response = await _categoriaService.CriarCategoriaAsync(tokenAcesso, Convert.ToInt32(empresa.UairangoIdEstabelecimento), categoriaNovo);
+                            var response = await _categoriaService.CriarCategoriaAsync(
+                                tokenAcesso,
+                                Convert.ToInt32(empresa.UairangoIdEstabelecimento),
+                                categoriaNovo);
                             if (!response.HasValue)
                             {
                                 _logger.LogError($"Erro ao criar categoria: {categoria.NmGrupo}");
@@ -504,12 +619,17 @@ namespace WFA_UaiRango_Global
                             }
                             else
                             {
+                                categoriasApiIds[categoria.CdGrupo] = response.Value;
                                 categoria.UairangoCodigo = "GGU" + categoria.CdGrupo.ToString();
                                 categoria.UairangoIdCategoria = response;
                                 categoria.Integrated = 1;
                                 _db.GrupoEstoques.Update(categoria);
-                                var opcoesCategoriaUairango = await _categoriaOpcaoService
-                                    .ObterOpcoesDaCategoriaAsync(tokenAcesso, Convert.ToInt32(empresa.UairangoIdEstabelecimento), response ?? 0);
+
+                                // Após criar a categoria, obtenha as opções já cadastradas na API para mesclar nos seus registros locais
+                                var opcoesCategoriaUairango = await _categoriaOpcaoService.ObterOpcoesDaCategoriaAsync(
+                                    tokenAcesso,
+                                    Convert.ToInt32(empresa.UairangoIdEstabelecimento),
+                                    response.Value);
                                 if (opcoesCategoriaUairango != null && opcoesCategoriaUairango.Count > 0)
                                 {
                                     foreach (var item in categoria.UairangoOpcoesCategoria)
@@ -517,6 +637,7 @@ namespace WFA_UaiRango_Global
                                         var opcoesUairango = opcoesCategoriaUairango.FirstOrDefault(x => x.Nome.Equals(item.UairangoNome));
                                         if (opcoesUairango != null)
                                         {
+                                            opcoesApiIds[item.Id] = opcoesUairango.IdOpcao;
                                             item.UairangoIdOpcao = opcoesUairango.IdOpcao;
                                             item.UairangoCodigoOpcao = opcoesUairango.CodigoOpcao;
                                             item.UairangoStatus = opcoesUairango.Status;
@@ -536,121 +657,16 @@ namespace WFA_UaiRango_Global
                                     AdicionarLinhaRichTextBox($"Erro ao obter opções da categoria: {categoria.NmGrupo} ({DateTime.Now})");
                                 }
                             }
-
                         }
                     }
-                    await _db.SaveChangesAsync();
+
+                    await CategoriasSaveChangesWithRetry(categoriasApiIds, opcoesApiIds);
                 }
-                /*else
-                {
-                    var opcoescategorias = await _db.UairangoOpcoesCategoria
-                        .FromSqlRaw($@"
-                        select * from uairango_opcoes_categoria u
-                        where unity = {empresa.Unity}
-                        and coalesce(integrated,0) in (0,2)
-                    ")
-                        .ToListAsync();
-                }*/
             }
             catch (DbUpdateConcurrencyException ex)
             {
                 _logger.LogWarning("[Categorias] Concurrency Exception");
                 AdicionarLinhaRichTextBox($"[Categorias] Concurrency Exception. ({DateTime.Now})");
-                foreach (var entry in ex.Entries)
-                {
-                    if (entry.Entity is UairangoOpcoesCategorium opcao)
-                    {
-                        var currentValuesAsNoTracking = _db.UairangoConfiguracoes
-                            .AsNoTracking()
-                            .FirstOrDefault(x => x.Id == opcao.Id);
-                        if (currentValuesAsNoTracking != null)
-                        {
-                            var entryNoTracking = _db.Entry(currentValuesAsNoTracking);
-                            foreach (var property in entry.Metadata.GetProperties())
-                            {
-                                var theOriginalValue = entry
-                                    .Property(property.Name).OriginalValue;
-                                var otherUserValue = entryNoTracking
-                                    .Property(property.Name).CurrentValue;
-                                var whatIWantedItToBe = entry
-                                    .Property(property.Name).CurrentValue;
-
-                                if (property.Name == nameof(UairangoOpcoesCategorium.Integrated)
-                                    || property.Name == nameof(UairangoOpcoesCategorium.UairangoIdOpcao)
-                                    || property.Name == nameof(UairangoOpcoesCategorium.UairangoCodigoOpcao)
-                                    || property.Name == nameof(UairangoOpcoesCategorium.UairangoStatus)
-                                    )
-                                {
-                                    if (property.Name == nameof(UairangoOpcoesCategorium.Integrated))
-                                        entry.Property(property.Name).CurrentValue = 0;
-                                    else if (property.Name == nameof(UairangoOpcoesCategorium.UairangoIdOpcao))
-                                        entry.Property(property.Name).CurrentValue = whatIWantedItToBe;
-                                    else if (property.Name == nameof(UairangoOpcoesCategorium.UairangoCodigoOpcao))
-                                        entry.Property(property.Name).CurrentValue = whatIWantedItToBe;
-                                    else if (property.Name == nameof(UairangoOpcoesCategorium.UairangoStatus))
-                                        entry.Property(property.Name).CurrentValue = whatIWantedItToBe;
-                                }
-                                else
-                                {
-                                    entry.Property(property.Name).CurrentValue = otherUserValue;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            _logger.LogWarning($"[Categorias - Concurrency Exception] Opcao não encontrada: {opcao.Id} ({DateTime.Now})");
-                            AdicionarLinhaRichTextBox($"[Categorias - Concurrency Exception] Opcao não encontrada: {opcao.Id} ({DateTime.Now})");
-                        }
-                    }
-                    else if (entry.Entity is GrupoEstoque categoria)
-                    {
-                        var currentValuesAsNoTracking = _db.GrupoEstoques
-                            .AsNoTracking()
-                            .FirstOrDefault(x => x.CdGrupo == categoria.CdGrupo);
-                        if (currentValuesAsNoTracking != null)
-                        {
-                            var entryNoTracking = _db.Entry(currentValuesAsNoTracking);
-                            foreach (var property in entry.Metadata.GetProperties())
-                            {
-                                var theOriginalValue = entry
-                                    .Property(property.Name).OriginalValue;
-                                var otherUserValue = entryNoTracking
-                                    .Property(property.Name).CurrentValue;
-                                var whatIWantedItToBe = entry
-                                    .Property(property.Name).CurrentValue;
-
-                                if (property.Name == nameof(GrupoEstoque.Integrated)
-                                    || property.Name == nameof(GrupoEstoque.UairangoCodigo)
-                                    || property.Name == nameof(GrupoEstoque.UairangoIdCategoria)
-                                    )
-                                {
-                                    if (property.Name == nameof(GrupoEstoque.Integrated))
-                                        entry.Property(property.Name).CurrentValue = 0;
-                                    else if (property.Name == nameof(GrupoEstoque.UairangoCodigo))
-                                        entry.Property(property.Name).CurrentValue = whatIWantedItToBe;
-                                    else if (property.Name == nameof(GrupoEstoque.UairangoIdCategoria))
-                                        entry.Property(property.Name).CurrentValue = whatIWantedItToBe;
-                                }
-                                else
-                                {
-                                    entry.Property(property.Name).CurrentValue = otherUserValue;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            _logger.LogWarning($"[Categorias - Concurrency Exception] Categoria não encontrada: {categoria.CdGrupo} ({DateTime.Now})");
-                            AdicionarLinhaRichTextBox($"[Categorias - Concurrency Exception] Categoria não encontrada: {categoria.CdGrupo} ({DateTime.Now})");
-                        }
-                    }
-                    else
-                    {
-                        _logger.LogWarning($"[Categorias - Concurrency Exception] Entidade desconhecida: {entry.Entity.GetType().Name}");
-                        AdicionarLinhaRichTextBox($"[Categorias - Concurrency Exception] Entidade desconhecida: {entry.Entity.GetType().Name} ({DateTime.Now})");
-                    }
-                }
-
-                await _db.SaveChangesAsync();
             }
             catch (Exception ex)
             {
@@ -658,6 +674,132 @@ namespace WFA_UaiRango_Global
                 AdicionarLinhaRichTextBox($"Erro ao enviar categorias ({DateTime.Now}): {ex.Message}");
             }
         }
+
+        private async Task CategoriasSaveChangesWithRetry(Dictionary<int, int> categoriasApiIds, Dictionary<int, int> opcoesApiIds)
+        {
+            bool salvo = false;
+            int tentativas = 0;
+            const int maxTentativas = 36;
+            while (!salvo && tentativas < maxTentativas)
+            {
+                try
+                {
+                    await _db.SaveChangesAsync();
+                    salvo = true;
+                }
+                catch (DbUpdateConcurrencyException ex)
+                {
+                    tentativas++;
+                    foreach (var entry in ex.Entries)
+                    {
+                        if (entry.Entity is GrupoEstoque categoria)
+                        {
+                            var currentValuesAsNoTracking = _db.GrupoEstoques
+                                .AsNoTracking()
+                                .FirstOrDefault(x => x.CdGrupo == categoria.CdGrupo);
+                            if (currentValuesAsNoTracking != null)
+                            {
+                                var databaseValues = entry.GetDatabaseValues();
+                                if (databaseValues != null)
+                                {
+                                    entry.OriginalValues.SetValues(databaseValues);
+                                }
+                                var entryNoTracking = _db.Entry(currentValuesAsNoTracking);
+                                foreach (var property in entry.Metadata.GetProperties())
+                                {
+                                    var theOriginalValue = entry
+                                        .Property(property.Name).OriginalValue;
+                                    var otherUserValue = entryNoTracking
+                                        .Property(property.Name).CurrentValue;
+                                    var whatIWantedItToBe = entry
+                                        .Property(property.Name).CurrentValue;
+                                    if (property.Name == nameof(GrupoEstoque.UairangoIdCategoria) ||
+                                        property.Name == nameof(GrupoEstoque.UairangoCodigo)
+                                        )
+                                    {
+                                        if (property.Name == nameof(GrupoEstoque.UairangoIdCategoria))
+                                        {
+                                            if (categoriasApiIds.TryGetValue(categoria.CdGrupo, out int storedApiId))
+                                                categoria.UairangoIdCategoria = storedApiId;
+                                            else
+                                                entry.Property(property.Name).CurrentValue = whatIWantedItToBe;
+                                        }
+                                        else if (property.Name == nameof(GrupoEstoque.UairangoCodigo))
+                                            entry.Property(property.Name).CurrentValue = whatIWantedItToBe;
+                                    }
+                                    else
+                                    {
+                                        entry.Property(property.Name).CurrentValue = otherUserValue;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                _logger.LogWarning($"[Categorias - Concurrency Exception] Categoria não encontrada: {categoria.CdGrupo} ({DateTime.Now})");
+                                AdicionarLinhaRichTextBox($"[Categorias - Concurrency Exception] Categoria não encontrada: {categoria.CdGrupo} ({DateTime.Now})");
+                            }
+                        }
+                        if (entry.Entity is UairangoOpcoesCategorium opcao)
+                        {
+                            var currentValuesAsNoTracking = _db.UairangoOpcoesCategoria
+                           .AsNoTracking()
+                           .FirstOrDefault(x => x.Id == opcao.Id);
+                            if (currentValuesAsNoTracking != null)
+                            {
+                                var databaseValues = entry.GetDatabaseValues();
+                                if (databaseValues != null)
+                                {
+                                    entry.OriginalValues.SetValues(databaseValues);
+                                }
+                                var entryNoTracking = _db.Entry(currentValuesAsNoTracking);
+                                foreach (var property in entry.Metadata.GetProperties())
+                                {
+                                    var theOriginalValue = entry
+                                        .Property(property.Name).OriginalValue;
+                                    var otherUserValue = entryNoTracking
+                                        .Property(property.Name).CurrentValue;
+                                    var whatIWantedItToBe = entry
+                                        .Property(property.Name).CurrentValue;
+
+                                    if (property.Name == nameof(UairangoOpcoesCategorium.UairangoIdOpcao)
+                                        || property.Name == nameof(UairangoOpcoesCategorium.UairangoCodigoOpcao)
+                                        )
+                                    {
+                                        if (property.Name == nameof(UairangoOpcoesCategorium.UairangoIdOpcao))
+                                        {
+                                            if (opcoesApiIds.TryGetValue(opcao.Id, out int storedApiId))
+                                                opcao.UairangoIdOpcao = storedApiId;
+                                            else
+                                                entry.Property(property.Name).CurrentValue = whatIWantedItToBe;
+                                        }
+                                        else if (property.Name == nameof(UairangoOpcoesCategorium.UairangoCodigoOpcao))
+                                            entry.Property(property.Name).CurrentValue = whatIWantedItToBe;
+                                    }
+                                    else
+                                    {
+                                        entry.Property(property.Name).CurrentValue = otherUserValue;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                _logger.LogWarning($"[Categorias - Concurrency Exception] Opcao não encontrada: {opcao.Id} ({DateTime.Now})");
+                                AdicionarLinhaRichTextBox($"[Categorias - Concurrency Exception] Opcao não encontrada: {opcao.Id} ({DateTime.Now})");
+                            }
+                        }
+                        else
+                        {
+                            await entry.ReloadAsync();
+                        }
+                    }
+                }
+            }
+            if (!salvo)
+            {
+                throw new Exception("Não foi possível salvar as alterações após várias tentativas.");
+            }
+        }
+
 
         private async Task EnviarConfiguracoes(Empresa empresa, string tokenAcesso)
         {
