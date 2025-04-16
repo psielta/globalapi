@@ -739,7 +739,7 @@ namespace WFA_UaiRango_Global
                                 AdicionarLinhaRichTextBox($"[Categorias - Concurrency Exception] Categoria não encontrada: {categoria.CdGrupo} ({DateTime.Now})");
                             }
                         }
-                        if (entry.Entity is UairangoOpcoesCategorium opcao)
+                        else if (entry.Entity is UairangoOpcoesCategorium opcao)
                         {
                             var currentValuesAsNoTracking = _db.UairangoOpcoesCategoria
                            .AsNoTracking()
