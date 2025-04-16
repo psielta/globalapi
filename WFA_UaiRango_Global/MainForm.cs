@@ -720,7 +720,7 @@ namespace WFA_UaiRango_Global
                                         if (property.Name == nameof(GrupoEstoque.UairangoIdCategoria))
                                         {
                                             if (categoriasApiIds.TryGetValue(categoria.CdGrupo, out int storedApiId))
-                                                categoria.UairangoIdCategoria = storedApiId;
+                                                entry.Property(property.Name).CurrentValue = storedApiId;
                                             else
                                                 entry.Property(property.Name).CurrentValue = whatIWantedItToBe;
                                         }
