@@ -37,6 +37,7 @@ public partial class UairangoOpcoesCategorium
     [Column("integrated")]
     public int? Integrated { get; set; }
 
+    [ConcurrencyCheck]
     [Column("last_update", TypeName = "timestamp(0) without time zone")]
     public DateTime? LastUpdate { get; set; }
 

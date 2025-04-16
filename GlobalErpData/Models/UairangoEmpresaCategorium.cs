@@ -20,6 +20,7 @@ public partial class UairangoEmpresaCategorium
     [Column("cd_empresa")]
     public int CdEmpresa { get; set; }
 
+    [ConcurrencyCheck]
     [Column("last_update", TypeName = "timestamp(6) without time zone")]
     public DateTime? LastUpdate { get; set; }
 

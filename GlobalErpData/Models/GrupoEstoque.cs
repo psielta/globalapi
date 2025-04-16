@@ -22,6 +22,7 @@ public partial class GrupoEstoque : IIdentifiable<int>
     [Column("unity")]
     public int Unity { get; set; }
 
+    [ConcurrencyCheck]
     [Column("last_update", TypeName = "timestamp without time zone")]
     public DateTime? LastUpdate { get; set; }
 
