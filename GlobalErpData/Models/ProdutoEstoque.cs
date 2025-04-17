@@ -38,6 +38,7 @@ public partial class ProdutoEstoque : IIdentifiable<int>, IIdentifiableMultiKey<
     [StringLength(2)]
     public string? CodEspecie { get; set; }
 
+    [ConcurrencyCheck]
     [Column("last_update", TypeName = "timestamp without time zone")]
     public DateTime? LastUpdate { get; set; }
 

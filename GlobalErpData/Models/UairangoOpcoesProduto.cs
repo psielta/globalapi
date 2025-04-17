@@ -49,6 +49,7 @@ public partial class UairangoOpcoesProduto
     [Column("unity")]
     public int Unity { get; set; }
 
+    [ConcurrencyCheck]
     [Column("last_update", TypeName = "timestamp(0) without time zone")]
     public DateTime? LastUpdate { get; set; }
 
