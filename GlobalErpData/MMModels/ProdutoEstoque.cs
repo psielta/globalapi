@@ -562,6 +562,16 @@ public partial class ProdutoEstoque
     [Column("sequence")]
     public long Sequence { get; set; }
 
+    [Column("uairango_id_categoria")]
+    public int? UairangoIdCategoria { get; set; }
+
+    [Column("uairango_descricao")]
+    [StringLength(1024)]
+    public string? UairangoDescricao { get; set; }
+
+    [Column("uairango_id_produto")]
+    public int? UairangoIdProduto { get; set; }
+
     [ForeignKey("Category")]
     [InverseProperty("ProdutoEstoques")]
     public virtual Category? CategoryNavigation { get; set; }
@@ -608,6 +618,9 @@ public partial class ProdutoEstoque
     [ForeignKey("SectionItemId")]
     [InverseProperty("ProdutoEstoques")]
     public virtual SectionItem? SectionItem { get; set; }
+
+    [InverseProperty("ProdutoEstoque")]
+    public virtual ICollection<UairangoOpcoesProduto> UairangoOpcoesProdutos { get; set; } = new List<UairangoOpcoesProduto>();
 
     [ForeignKey("Unity")]
     [InverseProperty("ProdutoEstoques")]

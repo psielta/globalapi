@@ -16,6 +16,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         : base(options)
     {
     }
+    public virtual DbSet<UairangoOpcoesProduto> UairangoOpcoesProdutos { get; set; }
     public virtual DbSet<UairangoPrazo> UairangoPrazos { get; set; }
     public virtual DbSet<UairangoConfiguraco> UairangoConfiguracoes { get; set; }
     public virtual DbSet<UairangoFormasPagamento> UairangoFormasPagamentos { get; set; }
@@ -2571,6 +2572,17 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.UnityNavigation).WithMany(p => p.UairangoOpcoesCategoria)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("uairango_opcoes_categoria_fk1");
+        });
+
+        modelBuilder.Entity<UairangoOpcoesProduto>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("uairango_opcoes_produto_pkey");
+
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
+
+            entity.HasOne(d => d.ProdutoEstoque).WithMany(p => p.UairangoOpcoesProdutos)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("uairango_opcoes_produto_fk");
         });
 
         modelBuilder.Entity<UairangoPrazo>(entity =>

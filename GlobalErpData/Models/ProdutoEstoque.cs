@@ -661,4 +661,18 @@ public partial class ProdutoEstoque : IIdentifiable<int>, IIdentifiableMultiKey<
     [Column("sequence")]
     public long Sequence { get; set; }
 
+    [Column("uairango_id_categoria")]
+    public int? UairangoIdCategoria { get; set; }
+
+    [Column("uairango_descricao")]
+    [StringLength(1024)]
+    public string? UairangoDescricao { get; set; }
+
+    [Column("uairango_id_produto")]
+    public int? UairangoIdProduto { get; set; }
+
+    [JsonIgnore]
+    [InverseProperty("ProdutoEstoque")]
+    public virtual ICollection<UairangoOpcoesProduto> UairangoOpcoesProdutos { get; set; } = new List<UairangoOpcoesProduto>();
+
 }
