@@ -17,6 +17,9 @@ using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 using WFA_UaiRango_Global.Services.Categoria;
 using GlobalLib.Utils;
 using WFA_UaiRango_Global.Services.CategoriaOpcao;
+using WFA_UaiRango_Global.Services.Produto;
+using WFA_UaiRango_Global.Services.Preco;
+using NFe.Classes.Informacoes.Detalhe;
 
 namespace WFA_UaiRango_Global
 {
@@ -42,6 +45,9 @@ namespace WFA_UaiRango_Global
 
         private readonly ICategoriaService _categoriaService;
         private readonly ICategoriaOpcaoService _categoriaOpcaoService;
+
+        private readonly IProdutoService _produtoService;
+        private readonly IPrecoService _precoService;
         #endregion
 
         private string iniFilePath;
@@ -54,7 +60,9 @@ namespace WFA_UaiRango_Global
             IFormasPagamentoService formasPagamentoService,
             IConfigService configService,
             ICategoriaService categoriaService,
-            ICategoriaOpcaoService categoriaOpcaoService
+            ICategoriaOpcaoService categoriaOpcaoService,
+            IProdutoService produtoService,
+            IPrecoService precoService
         #endregion
             )
         {
@@ -78,6 +86,8 @@ namespace WFA_UaiRango_Global
             _configService = configService;
             _categoriaService = categoriaService;
             _categoriaOpcaoService = categoriaOpcaoService;
+            _produtoService = produtoService;
+            _precoService = precoService;
             #endregion
 
             iniFilePath = Path.Combine(Application.StartupPath, "configuracao_integrador_uairango.ini");
@@ -1067,8 +1077,6 @@ namespace WFA_UaiRango_Global
             }
         }
 
-
-
         private async Task GetCulinarias(string token)
         {
             AdicionarLinhaRichTextBox($"Obtendo culinarias ({DateTime.Now})");
@@ -1162,6 +1170,7 @@ namespace WFA_UaiRango_Global
                             await ReceberFormasPagamento(empresa, token);
                             await ReceberConfigEstabelecimento(empresa, token);
                             await ReceberCategorias(empresa, token);
+                            await ReceberProdutos(empresa, token);
 
 
                         }
@@ -1191,6 +1200,125 @@ namespace WFA_UaiRango_Global
                 AdicionarLinhaRichTextBox($"Finalizando iteracao por estabelecimentos ({DateTime.Now})");
             }
 
+        }
+
+        private async Task ReceberProdutos(Empresa empresa, string token)
+        {
+            try
+            {
+                var ReferenciaEstoque = await _db.ReferenciaEstoques
+                    .FromSqlInterpolated($@"
+                        select * from referencia_estoque r
+                        where (1=1)
+                        and unity = {empresa.Unity} order by r.cd_ref limit 1
+                    ")
+                    .FirstOrDefaultAsync();
+                if (ReferenciaEstoque == null)
+                {
+                    _logger.LogWarning($"Nenhuma referência de estoque encontrada para a empresa: {empresa.NmEmpresa}");
+                    AdicionarLinhaRichTextBox($"Nenhuma referência de estoque encontrada para a empresa: {empresa.NmEmpresa} ({DateTime.Now})");
+                    return;
+                }
+                var todasCategoriasExistentes = await _db.GrupoEstoques.FromSqlInterpolated($@"
+                        select * from grupo_estoque where cd_grupo IN (
+                            select distinct g.cd_grupo from grupo_estoque g
+                            inner join uairango_empresa_categoria ec on ec.cd_grupo = g.cd_grupo
+                            inner join empresa e on e.cd_empresa = ec.cd_empresa
+                            where e.cd_empresa = {empresa.CdEmpresa}
+                            and coalesce(g.uairango_id_categoria, 0) > 0
+                        )
+                    ")
+                        .Include(x => x.UairangoOpcoesCategoria)
+                        .ToListAsync();
+                if (todasCategoriasExistentes != null && todasCategoriasExistentes.Count > 0)
+                {
+                    foreach (var item in todasCategoriasExistentes)
+                    {
+                        var responseServerUairango = await this._produtoService
+                            .ObterProdutosDaCategoriaAsync(token, Convert.ToInt32(empresa.UairangoIdEstabelecimento), item.UairangoIdCategoria.Value);
+
+                        if (responseServerUairango != null && responseServerUairango.Count > 0)
+                        {
+                            foreach (var produtoUairango in responseServerUairango)
+                            {
+                                var produtoExistente = await _db.ProdutoEstoques
+                                    .Include(x => x.UairangoOpcoesProdutos)
+                                    .FirstOrDefaultAsync(x => x.UairangoIdProduto == produtoUairango.IdProduto);
+                                if (produtoExistente is null)
+                                {
+                                    produtoExistente = new ProdutoEstoque
+                                    {
+                                        CdTribt = -1,
+                                        TpItem = "00",
+                                        CdGrupo = item.CdGrupo,
+                                        QuantMinima = 1,
+                                        QtUnitario = 1,
+                                        LancLivro = "S",
+                                        CdBarra = "SEM GTIN",
+                                        CdRef = ReferenciaEstoque.CdRef,
+                                        DtCadastro = DateTime.Now,
+                                        CdUni = "UN",
+                                        Unity = empresa.Unity
+                                    };
+                                    _db.ProdutoEstoques.Add(produtoExistente);
+                                }
+                                produtoExistente.NmProduto = produtoUairango.Nome;
+                                produtoExistente.UairangoIdProduto = produtoUairango.IdProduto;
+                                produtoExistente.UairangoDescricao = produtoUairango.Descricao;
+                                produtoExistente.Ativo = produtoUairango.Status == 1 ? "S" : "N";
+
+                                // Sincroniza opções
+                                foreach (var opc in produtoUairango.Opcoes)
+                                {
+                                    var opcRelacionada = produtoExistente.UairangoOpcoesProdutos
+                                        .FirstOrDefault(x => x.UairangoIdPreco == opc.IdPreco);
+                                    if (opcRelacionada != null)
+                                    {
+                                        opcRelacionada.UairangoIdOpcao = opc.IdOpcao;
+                                        opcRelacionada.UairangoCodigo = opc.Codigo;
+                                        opcRelacionada.UairangoNome = opc.Nome;
+                                        opcRelacionada.UairangoValor = opc.Valor;
+                                        opcRelacionada.UairangoValor2 = opc.Valor2;
+                                        opcRelacionada.UairangoValorAtual = opc.ValorAtual;
+                                        opcRelacionada.UairangoStatus = opc.Status;
+                                    }
+                                    else
+                                    {
+                                        UairangoOpcoesProduto novaOpcao = new UairangoOpcoesProduto
+                                        {
+                                            UairangoIdOpcao = opc.IdOpcao,
+                                            UairangoIdPreco = opc.IdPreco,
+                                            UairangoCodigo = opc.Codigo,
+                                            UairangoNome = opc.Nome,
+                                            UairangoValor = opc.Valor,
+                                            UairangoValor2 = opc.Valor2,
+                                            UairangoValorAtual = opc.ValorAtual,
+                                            UairangoStatus = opc.Status,
+                                        };
+                                        produtoExistente.UairangoOpcoesProdutos.Add(novaOpcao);
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            _logger.LogWarning($"Nenhum produto encontrado para a categoria: {item.NmGrupo}");
+                            AdicionarLinhaRichTextBox($"Nenhum produto encontrado para a categoria: {item.NmGrupo} ({DateTime.Now})");
+                        }
+                    }
+                    await _db.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Erro ao receber produtos: {ex.Message}", ex);
+                AdicionarLinhaRichTextBox($"Erro ao receber produtos ({DateTime.Now}): {ex.Message}");
+            }
+            finally
+            {
+                _logger.LogInformation($"Finalizando recebimento de produtos ({DateTime.Now})");
+                AdicionarLinhaRichTextBox($"Finalizando recebimento de produtos ({DateTime.Now})");
+            }
         }
 
         private async Task ReceberCategorias(Empresa empresa, string token)
