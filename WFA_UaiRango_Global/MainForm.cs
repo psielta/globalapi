@@ -1258,21 +1258,26 @@ namespace WFA_UaiRango_Global
                                         CdRef = ReferenciaEstoque.CdRef,
                                         DtCadastro = DateTime.Now,
                                         CdUni = "UN",
-                                        Unity = empresa.Unity
+                                        Unity = empresa.Unity,
+                                        Integrated = 1
                                     };
                                     _db.ProdutoEstoques.Add(produtoExistente);
                                 }
-                                produtoExistente.NmProduto = produtoUairango.Nome;
-                                produtoExistente.UairangoIdProduto = produtoUairango.IdProduto;
-                                produtoExistente.UairangoDescricao = produtoUairango.Descricao;
-                                produtoExistente.Ativo = produtoUairango.Status == 1 ? "S" : "N";
+
+                                if (produtoExistente.Integrated == 1)
+                                {
+                                    produtoExistente.NmProduto = produtoUairango.Nome;
+                                    produtoExistente.UairangoIdProduto = produtoUairango.IdProduto;
+                                    produtoExistente.UairangoDescricao = produtoUairango.Descricao;
+                                    produtoExistente.Ativo = produtoUairango.Status == 1 ? "S" : "N";
+                                }
 
                                 // Sincroniza opções
                                 foreach (var opc in produtoUairango.Opcoes)
                                 {
                                     var opcRelacionada = produtoExistente.UairangoOpcoesProdutos
                                         .FirstOrDefault(x => x.UairangoIdPreco == opc.IdPreco);
-                                    if (opcRelacionada != null)
+                                    if (opcRelacionada != null && (opcRelacionada.Integrated == 1))
                                     {
                                         opcRelacionada.UairangoIdOpcao = opc.IdOpcao;
                                         opcRelacionada.UairangoCodigo = opc.Codigo;
@@ -1282,7 +1287,7 @@ namespace WFA_UaiRango_Global
                                         opcRelacionada.UairangoValorAtual = opc.ValorAtual;
                                         opcRelacionada.UairangoStatus = opc.Status;
                                     }
-                                    else
+                                    else if (opcRelacionada is null)
                                     {
                                         UairangoOpcoesProduto novaOpcao = new UairangoOpcoesProduto
                                         {
