@@ -61,4 +61,9 @@ public partial class UairangoOpcoesProduto
     [InverseProperty("UairangoOpcoesProdutos")]
     public virtual ProdutoEstoque CdProdutoNavigation { get; set; } = null!;
 
+    [JsonIgnore]
+    [ForeignKey("Unity")]
+    [InverseProperty("UairangoOpcoesProdutos")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
+
 }

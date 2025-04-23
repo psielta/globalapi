@@ -183,6 +183,9 @@ public partial class Unity
     public virtual ICollection<UairangoOpcoesCategorium> UairangoOpcoesCategoria { get; set; } = new List<UairangoOpcoesCategorium>();
 
     [InverseProperty("UnityNavigation")]
+    public virtual ICollection<UairangoOpcoesProduto> UairangoOpcoesProdutos { get; set; } = new List<UairangoOpcoesProduto>();
+
+    [InverseProperty("UnityNavigation")]
     public virtual ICollection<UnidadeMedidum> UnidadeMedida { get; set; } = new List<UnidadeMedidum>();
 
     [InverseProperty("UnityNavigation")]

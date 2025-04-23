@@ -57,4 +57,8 @@ public partial class UairangoOpcoesProduto
     [ForeignKey("CdProduto")]
     [InverseProperty("UairangoOpcoesProdutos")]
     public virtual ProdutoEstoque CdProdutoNavigation { get; set; } = null!;
+
+    [ForeignKey("Unity")]
+    [InverseProperty("UairangoOpcoesProdutos")]
+    public virtual Unity UnityNavigation { get; set; } = null!;
 }

@@ -2585,6 +2585,10 @@ public partial class GlobalErpFiscalBaseContext : DbContext
                 .HasForeignKey(d => d.CdProduto)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("uairango_opcoes_produto_fk");
+
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.UairangoOpcoesProdutos)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("uairango_opcoes_produto_fk1");
         });
 
         modelBuilder.Entity<UairangoPrazo>(entity =>
