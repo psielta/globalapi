@@ -2580,7 +2580,9 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
             entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
 
-            entity.HasOne(d => d.ProdutoEstoque).WithMany(p => p.UairangoOpcoesProdutos)
+            entity.HasOne(d => d.CdProdutoNavigation).WithMany(p => p.UairangoOpcoesProdutos)
+                .HasPrincipalKey(p => p.Sequence)
+                .HasForeignKey(d => d.CdProduto)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("uairango_opcoes_produto_fk");
         });

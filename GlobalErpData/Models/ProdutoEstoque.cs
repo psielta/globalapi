@@ -673,7 +673,7 @@ public partial class ProdutoEstoque : IIdentifiable<int>, IIdentifiableMultiKey<
     public int? UairangoIdProduto { get; set; }
 
     [JsonIgnore]
-    [InverseProperty("ProdutoEstoque")]
+    [InverseProperty("CdProdutoNavigation")]
     public virtual ICollection<UairangoOpcoesProduto> UairangoOpcoesProdutos { get; set; } = new List<UairangoOpcoesProduto>();
 
     [Column("uairango_status")]

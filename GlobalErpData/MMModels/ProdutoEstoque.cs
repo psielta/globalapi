@@ -622,7 +622,7 @@ public partial class ProdutoEstoque
     [InverseProperty("ProdutoEstoques")]
     public virtual SectionItem? SectionItem { get; set; }
 
-    [InverseProperty("ProdutoEstoque")]
+    [InverseProperty("CdProdutoNavigation")]
     public virtual ICollection<UairangoOpcoesProduto> UairangoOpcoesProdutos { get; set; } = new List<UairangoOpcoesProduto>();
 
     [ForeignKey("Unity")]

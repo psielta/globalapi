@@ -43,7 +43,7 @@ public partial class UairangoOpcoesProduto
     public int? UairangoStatus { get; set; }
 
     [Column("cd_produto")]
-    public int CdProduto { get; set; }
+    public long CdProduto { get; set; }
 
     [Column("unity")]
     public int Unity { get; set; }
@@ -54,7 +54,7 @@ public partial class UairangoOpcoesProduto
     [Column("integrated")]
     public int? Integrated { get; set; }
 
-    [ForeignKey("CdProduto, Unity")]
+    [ForeignKey("CdProduto")]
     [InverseProperty("UairangoOpcoesProdutos")]
-    public virtual ProdutoEstoque ProdutoEstoque { get; set; } = null!;
+    public virtual ProdutoEstoque CdProdutoNavigation { get; set; } = null!;
 }

@@ -1300,6 +1300,7 @@ namespace WFA_UaiRango_Global
                                             UairangoValor2 = opc.Valor2,
                                             UairangoValorAtual = opc.ValorAtual,
                                             UairangoStatus = opc.Status,
+                                            Unity = empresa.Unity,
                                         };
                                         produtoExistente.UairangoOpcoesProdutos.Add(novaOpcao);
                                     }
