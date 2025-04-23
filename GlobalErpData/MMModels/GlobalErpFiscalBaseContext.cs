@@ -2072,6 +2072,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.TpItem).HasDefaultValueSql("''::character varying");
             entity.Property(e => e.Transferiu).HasDefaultValueSql("'N'::character varying");
             entity.Property(e => e.TxtObs).HasDefaultValueSql("''::character varying");
+            entity.Property(e => e.UairangoStatus).HasDefaultValue(0);
             entity.Property(e => e.VlAVista).HasDefaultValueSql("0");
             entity.Property(e => e.VlAtacado).HasDefaultValueSql("0");
             entity.Property(e => e.VlBoleto).HasDefaultValueSql("0");
@@ -2752,6 +2753,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
         modelBuilder.HasSequence("seq_nfce_saidas_geral_15");
         modelBuilder.HasSequence("seq_produto_estoque_geral_1");
         modelBuilder.HasSequence("seq_produto_estoque_geral_3");
+        modelBuilder.HasSequence("seq_produto_estoque_geral_4");
         modelBuilder.HasSequence("seq_produto_geral_1").StartsAt(832L);
         modelBuilder.HasSequence("seq_produto_geral_10");
         modelBuilder.HasSequence("seq_produto_geral_11");

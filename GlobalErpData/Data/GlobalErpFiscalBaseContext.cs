@@ -2026,6 +2026,7 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.Property(e => e.IcmsDentro).HasDefaultValueSql("0");
             entity.Property(e => e.IcmsFora).HasDefaultValueSql("0");
             entity.Property(e => e.IcmsSubsAliq).HasDefaultValueSql("0");
+            entity.Property(e => e.UairangoStatus).HasDefaultValue(0);
             entity.Property(e => e.IcmsSubsReducao).HasDefaultValueSql("0");
             entity.Property(e => e.IcmsSubsReducaoAliq).HasDefaultValueSql("0");
             entity.Property(e => e.IdMarca).HasDefaultValueSql("'-1'::integer");

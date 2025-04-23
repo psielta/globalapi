@@ -1267,6 +1267,7 @@ namespace WFA_UaiRango_Global
                                 if (produtoExistente.Integrated == 1)
                                 {
                                     produtoExistente.NmProduto = produtoUairango.Nome;
+                                    produtoExistente.UairangoStatus = produtoUairango.Status;
                                     produtoExistente.UairangoIdProduto = produtoUairango.IdProduto;
                                     produtoExistente.UairangoDescricao = produtoUairango.Descricao;
                                     produtoExistente.Ativo = produtoUairango.Status == 1 ? "S" : "N";

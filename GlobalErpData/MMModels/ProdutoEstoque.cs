@@ -572,6 +572,9 @@ public partial class ProdutoEstoque
     [Column("uairango_id_produto")]
     public int? UairangoIdProduto { get; set; }
 
+    [Column("uairango_status")]
+    public int? UairangoStatus { get; set; }
+
     [ForeignKey("Category")]
     [InverseProperty("ProdutoEstoques")]
     public virtual Category? CategoryNavigation { get; set; }
