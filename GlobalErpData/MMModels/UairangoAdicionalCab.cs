@@ -49,6 +49,9 @@ public partial class UairangoAdicionalCab
     [Column("unity")]
     public int Unity { get; set; }
 
+    [Column("minimo")]
+    public int? Minimo { get; set; }
+
     [ForeignKey("CdGrupo")]
     [InverseProperty("UairangoAdicionalCabs")]
     public virtual GrupoEstoque CdGrupoNavigation { get; set; } = null!;

@@ -63,4 +63,7 @@ public partial class UairangoAdicionalCab
     [ForeignKey("Unity")]
     [InverseProperty("UairangoAdicionalCabs")]
     public virtual Unity UnityNavigation { get; set; } = null!;
+
+    [Column("minimo")]
+    public int? Minimo { get; set; }
 }
