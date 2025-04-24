@@ -20,6 +20,7 @@ using WFA_UaiRango_Global.Services.CategoriaOpcao;
 using WFA_UaiRango_Global.Services.Produto;
 using WFA_UaiRango_Global.Services.Preco;
 using NFe.Classes.Informacoes.Detalhe;
+using WFA_UaiRango_Global.Services.Adicional;
 
 namespace WFA_UaiRango_Global
 {
@@ -48,6 +49,8 @@ namespace WFA_UaiRango_Global
 
         private readonly IProdutoService _produtoService;
         private readonly IPrecoService _precoService;
+
+        private readonly IAdicionalService adicionalService;
         #endregion
 
         private string iniFilePath;
@@ -62,7 +65,8 @@ namespace WFA_UaiRango_Global
             ICategoriaService categoriaService,
             ICategoriaOpcaoService categoriaOpcaoService,
             IProdutoService produtoService,
-            IPrecoService precoService
+            IPrecoService precoService,
+            IAdicionalService adicionalService
         #endregion
             )
         {
@@ -88,6 +92,7 @@ namespace WFA_UaiRango_Global
             _categoriaOpcaoService = categoriaOpcaoService;
             _produtoService = produtoService;
             _precoService = precoService;
+            this.adicionalService = adicionalService;
             #endregion
 
             iniFilePath = Path.Combine(Application.StartupPath, "configuracao_integrador_uairango.ini");
@@ -1171,6 +1176,7 @@ namespace WFA_UaiRango_Global
                             await ReceberConfigEstabelecimento(empresa, token);
                             await ReceberCategorias(empresa, token);
                             await ReceberProdutos(empresa, token);
+                            await ReceberAdicionais(empresa, token);
 
 
                         }
@@ -1200,6 +1206,87 @@ namespace WFA_UaiRango_Global
                 AdicionarLinhaRichTextBox($"Finalizando iteracao por estabelecimentos ({DateTime.Now})");
             }
 
+        }
+
+        private async Task ReceberAdicionais(Empresa empresa, string token)
+        {
+            try
+            {
+                var AdicionaisPresentesUairango = await adicionalService.ListarAdicionaisPorEstabelecimentoAsync(token, Convert.ToInt32(empresa.UairangoIdEstabelecimento));
+                if (AdicionaisPresentesUairango != null && AdicionaisPresentesUairango.Count > 0)
+                {
+                    foreach (var categoria in AdicionaisPresentesUairango)
+                    {
+                        var categoriaExistente = await _db.GrupoEstoques
+                            .Include(x => x.UairangoAdicionalCabs).ThenInclude(x => x.UairangoAdicionalItems)
+                            .FirstOrDefaultAsync(c => c.UairangoIdCategoria == categoria.IdCategoria);
+                        if (categoriaExistente != null)
+                        {
+                            foreach (var adicional in categoria.Adicionais)
+                            {
+                                var adicionalExistente = categoriaExistente.UairangoAdicionalCabs
+                                    .FirstOrDefault(x => x.IdTipo == adicional.IdTipo);
+
+                                if (adicionalExistente == null)
+                                {
+                                    adicionalExistente = new UairangoAdicionalCab
+                                    {
+                                        IdTipo = adicional.IdTipo,
+                                        UairangoIdCategoria = categoriaExistente.UairangoIdCategoria,
+                                        CdGrupo = categoriaExistente.CdGrupo,
+                                        Unity = empresa.Unity,
+                                        CodigoTipo = adicional.CodigoTipo,
+                                    };
+                                    _db.UairangoAdicionalCabs.Add(adicionalExistente);
+                                }
+                                adicionalExistente.Nome = adicional.Nome;
+                                adicionalExistente.Status = adicional.Status;
+                                adicionalExistente.Selecao = adicional.Selecao;
+                                adicionalExistente.Limite = adicional.Limite;
+
+                                foreach (var adicionalItem in adicional.Opcoes)
+                                {
+                                    var adicionalItemExistente = adicionalExistente.UairangoAdicionalItems
+                                        .FirstOrDefault(x => x.IdAdicional == adicionalItem.IdAdicional);
+                                    if (adicionalItemExistente == null)
+                                    {
+                                        adicionalItemExistente = new UairangoAdicionalItem
+                                        {
+                                            IdAdicional = adicionalItem.IdAdicional,
+                                            Nome = adicionalItem.Nome,
+                                            Status = adicionalItem.Status,
+                                            Valor = adicionalItem.Valor,
+                                            Unity = empresa.Unity,
+                                            IdCabNavigation = adicionalExistente,
+                                        };
+                                        _db.UairangoAdicionalItems.Add(adicionalItemExistente);
+                                    }
+                                    adicionalItemExistente.Nome = adicionalItem.Nome;
+                                    adicionalItemExistente.Status = adicionalItem.Status;
+                                    adicionalItemExistente.Valor = adicionalItem.Valor;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            _logger.LogWarning($"[ListarAdicionaisPorEstabelecimentoAsync] Nao encontrado categoria do adicional: {categoria.Nome}");
+                            AdicionarLinhaRichTextBox($"[ListarAdicionaisPorEstabelecimentoAsync] Nao encontrado categoria do adicional: {categoria.Nome} ({DateTime.Now})");
+                        }
+                    }
+
+                    await _db.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Erro ao receber adicionais: {ex.Message}", ex);
+                AdicionarLinhaRichTextBox($"Erro ao receber adicionais ({DateTime.Now}): {ex.Message}");
+            }
+            finally
+            {
+                _logger.LogInformation($"Finalizando recebimento de adicionais ({DateTime.Now})");
+                AdicionarLinhaRichTextBox($"Finalizando recebimento de adicionais ({DateTime.Now})");
+            }
         }
 
         private async Task ReceberProdutos(Empresa empresa, string token)
