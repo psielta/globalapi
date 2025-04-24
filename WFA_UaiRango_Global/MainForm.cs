@@ -1176,7 +1176,7 @@ namespace WFA_UaiRango_Global
                             await ReceberConfigEstabelecimento(empresa, token);
                             await ReceberCategorias(empresa, token);
                             await ReceberProdutos(empresa, token);
-                            await ReceberAdicionais(empresa, token);
+                            await ReceberAdicionaisAsync(empresa, token);
 
 
                         }
@@ -1208,7 +1208,7 @@ namespace WFA_UaiRango_Global
 
         }
 
-        private async Task ReceberAdicionais(Empresa empresa, string token)
+        private async Task ReceberAdicionaisAsync(Empresa empresa, string token)
         {
             try
             {
@@ -1237,7 +1237,7 @@ namespace WFA_UaiRango_Global
                                         Unity = empresa.Unity,
                                         CodigoTipo = adicional.CodigoTipo,
                                     };
-                                    _db.UairangoAdicionalCabs.Add(adicionalExistente);
+                                    categoriaExistente.UairangoAdicionalCabs.Add(adicionalExistente);
                                 }
                                 adicionalExistente.Nome = adicional.Nome;
                                 adicionalExistente.Status = adicional.Status;
@@ -1257,9 +1257,10 @@ namespace WFA_UaiRango_Global
                                             Status = adicionalItem.Status,
                                             Valor = adicionalItem.Valor,
                                             Unity = empresa.Unity,
+                                            IdTipo = adicional.IdTipo,
                                             IdCabNavigation = adicionalExistente,
                                         };
-                                        _db.UairangoAdicionalItems.Add(adicionalItemExistente);
+                                        adicionalExistente.UairangoAdicionalItems.Add(adicionalItemExistente);
                                     }
                                     adicionalItemExistente.Nome = adicionalItem.Nome;
                                     adicionalItemExistente.Status = adicionalItem.Status;
@@ -1274,7 +1275,7 @@ namespace WFA_UaiRango_Global
                         }
                     }
 
-                    await _db.SaveChangesAsync();
+                        await _db.SaveChangesAsync();
                 }
             }
             catch (Exception ex)
