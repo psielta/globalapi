@@ -82,6 +82,9 @@ public partial class GrupoEstoque
     public virtual ICollection<ProdutoEstoque> ProdutoEstoques { get; set; } = new List<ProdutoEstoque>();
 
     [InverseProperty("CdGrupoNavigation")]
+    public virtual ICollection<UairangoAdicionalCab> UairangoAdicionalCabs { get; set; } = new List<UairangoAdicionalCab>();
+
+    [InverseProperty("CdGrupoNavigation")]
     public virtual ICollection<UairangoEmpresaCategorium> UairangoEmpresaCategoria { get; set; } = new List<UairangoEmpresaCategorium>();
 
     [InverseProperty("CdGrupoNavigation")]

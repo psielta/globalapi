@@ -110,4 +110,8 @@ public partial class GrupoEstoque : IIdentifiable<int>
     [InverseProperty("CdGrupoNavigation")]
     public virtual ICollection<UairangoOpcoesCategorium> UairangoOpcoesCategoria { get; set; } = new List<UairangoOpcoesCategorium>();
 
+    [JsonIgnore]
+    [InverseProperty("CdGrupoNavigation")]
+    public virtual ICollection<UairangoAdicionalCab> UairangoAdicionalCabs { get; set; } = new List<UairangoAdicionalCab>();
+
 }

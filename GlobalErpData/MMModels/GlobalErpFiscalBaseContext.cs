@@ -237,6 +237,10 @@ public partial class GlobalErpFiscalBaseContext : DbContext
 
     public virtual DbSet<Transportadora> Transportadoras { get; set; }
 
+    public virtual DbSet<UairangoAdicionalCab> UairangoAdicionalCabs { get; set; }
+
+    public virtual DbSet<UairangoAdicionalItem> UairangoAdicionalItems { get; set; }
+
     public virtual DbSet<UairangoConfiguraco> UairangoConfiguracoes { get; set; }
 
     public virtual DbSet<UairangoCulinaria> UairangoCulinarias { get; set; }
@@ -2499,6 +2503,38 @@ public partial class GlobalErpFiscalBaseContext : DbContext
             entity.HasOne(d => d.UnityNavigation).WithMany(p => p.Transportadoras)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("transportadora_fk");
+        });
+
+        modelBuilder.Entity<UairangoAdicionalCab>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("uairango_adicional_cab_pkey");
+
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
+
+            entity.HasOne(d => d.CdGrupoNavigation).WithMany(p => p.UairangoAdicionalCabs)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("uairango_adicional_cab_fk");
+
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.UairangoAdicionalCabs)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("uairango_adicional_cab_fk1");
+        });
+
+        modelBuilder.Entity<UairangoAdicionalItem>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("uairango_adicional_item_pkey");
+
+            entity.Property(e => e.Integrated).HasDefaultValue(0);
+            entity.Property(e => e.LastUpdate).HasDefaultValueSql("now()");
+
+            entity.HasOne(d => d.IdCabNavigation).WithMany(p => p.UairangoAdicionalItems)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("uairango_adicional_item_fk");
+
+            entity.HasOne(d => d.UnityNavigation).WithMany(p => p.UairangoAdicionalItems)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("uairango_adicional_item_fk1");
         });
 
         modelBuilder.Entity<UairangoConfiguraco>(entity =>
