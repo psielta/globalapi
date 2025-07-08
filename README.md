@@ -15,4 +15,3 @@ Sistema completo para emissão de Notas Fiscais Eletrônicas (NFe) desenvolvido 
 - **.NET 8** - Versão LTS mais recente do .NET
 - **ACBrLib** - Biblioteca para comunicação com SEFAZ (versão demo)
 - **Entity Framework Core** - ORM para acesso a dados
-- **SQL Server** - Banco de dados principal
