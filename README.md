@@ -5,7 +5,7 @@ Sistema completo para emissão de Notas Fiscais Eletrônicas (NFe) desenvolvido 
 ## 🚀 Tecnologias Utilizadas
 
 ### Frontend
-- **React 18** - Biblioteca para construção da interface
+- **React** - Biblioteca para construção da interface
 - **Vite** - Build tool e servidor de desenvolvimento
 - **TypeScript** - Superset do JavaScript com tipagem estática
 - **Tailwind CSS** - Framework CSS utilitário (opcional)
